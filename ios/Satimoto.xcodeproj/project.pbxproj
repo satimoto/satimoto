@@ -20,6 +20,8 @@
 		7362939C26EA346F006F70C2 /* RCTSwiftLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362939926EA346F006F70C2 /* RCTSwiftLog.m */; };
 		7362939E26EA8E5E006F70C2 /* LndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362939D26EA8E5D006F70C2 /* LndUtils.swift */; };
 		736293A026EA914C006F70C2 /* LndUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362939F26EA914C006F70C2 /* LndUtils.m */; };
+		736293A326EF898F006F70C2 /* walletunlocker.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736293A126EF898D006F70C2 /* walletunlocker.pb.swift */; };
+		736293A426EF898F006F70C2 /* rpc.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736293A226EF898E006F70C2 /* rpc.pb.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		837C91D709CC5890266485F8 /* libPods-Satimoto-SatimotoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3DE9A99CD01149119407A27 /* libPods-Satimoto-SatimotoTests.a */; };
 /* End PBXBuildFile section */
@@ -59,6 +61,8 @@
 		7362939A26EA346F006F70C2 /* RCTSwiftLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTSwiftLog.h; path = RCTSwiftLog/RCTSwiftLog.h; sourceTree = "<group>"; };
 		7362939D26EA8E5D006F70C2 /* LndUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LndUtils.swift; sourceTree = "<group>"; };
 		7362939F26EA914C006F70C2 /* LndUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LndUtils.m; sourceTree = "<group>"; };
+		736293A126EF898D006F70C2 /* walletunlocker.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = walletunlocker.pb.swift; sourceTree = "<group>"; };
+		736293A226EF898E006F70C2 /* rpc.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rpc.pb.swift; sourceTree = "<group>"; };
 		752AC8EC3098CB6A402A31E9 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Satimoto/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		83C917C85CF0CAFF547E8B22 /* Pods-Satimoto.releasetestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releasetestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releasetestnet.xcconfig"; sourceTree = "<group>"; };
@@ -139,10 +143,12 @@
 				7362934E26E63CDD006F70C2 /* LndMobile.m */,
 				7362938E26E8DEA4006F70C2 /* LndMobile.swift */,
 				7362939026E8EE2F006F70C2 /* LndResponse.swift */,
-				7362934C26E63CDD006F70C2 /* Lndmobile.framework */,
-				7362938D26E8DEA3006F70C2 /* Satimoto-Bridging-Header.h */,
 				7362939F26EA914C006F70C2 /* LndUtils.m */,
 				7362939D26EA8E5D006F70C2 /* LndUtils.swift */,
+				7362938D26E8DEA3006F70C2 /* Satimoto-Bridging-Header.h */,
+				7362934C26E63CDD006F70C2 /* Lndmobile.framework */,
+				736293A226EF898E006F70C2 /* rpc.pb.swift */,
+				736293A126EF898D006F70C2 /* walletunlocker.pb.swift */,
 			);
 			path = LndMobile;
 			sourceTree = "<group>";
@@ -476,7 +482,9 @@
 				7362939B26EA346F006F70C2 /* RCTLog.swift in Sources */,
 				7362938F26E8DEA5006F70C2 /* LndMobile.swift in Sources */,
 				736293A026EA914C006F70C2 /* LndUtils.m in Sources */,
+				736293A426EF898F006F70C2 /* rpc.pb.swift in Sources */,
 				7362935126E63CDD006F70C2 /* LndMobile.m in Sources */,
+				736293A326EF898F006F70C2 /* walletunlocker.pb.swift in Sources */,
 				7362939C26EA346F006F70C2 /* RCTSwiftLog.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,

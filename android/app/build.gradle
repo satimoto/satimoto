@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "com.google.protobuf"
 
 import com.android.build.OutputFile
 
@@ -122,8 +123,8 @@ def enableHermes = project.ext.react.get("enableHermes", false);
 
 android {
     ndkVersion rootProject.ext.ndkVersion
-
     compileSdkVersion rootProject.ext.compileSdkVersion
+    flavorDimensions "default"
 
     defaultConfig {
         applicationId "com.satimoto"
@@ -132,6 +133,7 @@ android {
         versionCode 1
         versionName "1.0"
         missingDimensionStrategy 'react-native-camera', 'general'
+        manifestPlaceholders = [appName: "Satimoto"]
     }
     splits {
         abi {
@@ -152,14 +154,50 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            applicationIdSuffix ".debug"
+            manifestPlaceholders = [buildType: " Debug"]
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [buildType: ""]
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                signingConfig signingConfigs.release
+            }
         }
+    }
+
+    flavorDimensions "network"
+    productFlavors {
+        networkregtest {
+            dimension "network"
+            applicationIdSuffix ".regtest"
+            buildConfigField "String", "NETWORK", '"regtest"'
+            manifestPlaceholders = [network: " Regtest"]
+        }
+        networktestnet {
+            dimension "network"
+            applicationIdSuffix ".testnet"
+            buildConfigField "String", "NETWORK", '"testnet"'
+            manifestPlaceholders = [network: " Testnet"]
+        }
+        networkmainnet {
+            dimension "network"
+            buildConfigField "String", "NETWORK", '"mainnet"'
+            manifestPlaceholders = [network: ""]
+        }
+    }
+
+    // Packaging options
+    packagingOptions {
+        pickFirst "lib/armeabi-v7a/libc++_shared.so"
+        pickFirst "lib/arm64-v8a/libc++_shared.so"
+        pickFirst "lib/x86/libc++_shared.so"
+        pickFirst "lib/x86_64/libc++_shared.so"
+        exclude "META-INF/*"
     }
 
     // applicationVariants are e.g. debug, release
@@ -174,17 +212,17 @@ android {
                 output.versionCodeOverride =
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
-
         }
     }
 }
 
 dependencies {
+    implementation project(':react-native-build-config')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
@@ -199,6 +237,11 @@ dependencies {
         exclude group:'com.facebook.flipper'
     }
 
+    //implementation "com.google.protobuf:protobuf-java:3.12.0"
+    implementation "javax.annotation:javax.annotation-api:1.3.2"
+    implementation "io.grpc:grpc-stub:1.40.0"
+    implementation "io.grpc:grpc-protobuf-lite:1.40.0"
+
     implementation project(path: ':Lndmobile')
 
     if (enableHermes) {
@@ -208,6 +251,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    protobuf files("../../proto/rpc.proto", "../../proto/walletunlocker.proto")
 }
 
 // Run this once to be able to run the application with BUCK
@@ -218,3 +263,20 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+
+protobuf {
+    //generatedFilesBaseDir = "$projectDir/src"
+
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.13.0"
+    }
+    generateProtoTasks {
+        all()*.builtins {
+            java {
+                //outputSubDir = "java"
+                option "lite"
+            }
+        }
+    }
+}
+

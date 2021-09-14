@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class LndNativePackage implements ReactPackage {
+public class LndUtilsPackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
@@ -19,7 +19,7 @@ public class LndNativePackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
-        modules.add(new LndNativeModule(reactContext));
+        modules.add(new LndUtils(reactContext));
         return modules;
     }
 }

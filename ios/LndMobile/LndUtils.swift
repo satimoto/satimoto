@@ -7,7 +7,7 @@ class LndUtils: RCTEventEmitter {
   
   var logEventsStarted: Bool = false
   
-  private var lndDirectory: URL {
+  static var lndDirectory: URL {
     let applicationDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
     let lndDirectory = applicationDirectory.appendingPathComponent("lnd", isDirectory: true)
     
@@ -18,11 +18,11 @@ class LndUtils: RCTEventEmitter {
     return lndDirectory
   }
   
-  private var confFile: URL {
+  static private var confFile: URL {
     return lndDirectory.appendingPathComponent("lnd.conf", isDirectory: false)
   }
   
-  private var logFile: URL {
+  static private var logFile: URL {
     let network = Bundle.main.object(forInfoDictionaryKey: "NETWORK") as? String
     return lndDirectory.appendingPathComponent("logs", isDirectory: true)
       .appendingPathComponent("bitcoin", isDirectory: true)
@@ -47,7 +47,7 @@ class LndUtils: RCTEventEmitter {
   @objc(writeConf:resolver:rejecter:)
   func writeConf(content: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     do {
-      try content.write(to: self.confFile, atomically: true, encoding: .utf8)
+      try content.write(to: LndUtils.confFile, atomically: true, encoding: .utf8)
       RCTLogInfo("conf file written")
       resolve("conf file written")
     } catch let err {
@@ -67,6 +67,7 @@ class LndUtils: RCTEventEmitter {
 [Application Options]
 debuglevel=info
 maxbackoff=2s
+nolisten=1
 norest=1
 sync-freelist=1
 accept-keysend=1
@@ -95,6 +96,7 @@ autopilot.heuristic=preferential:0.05
 [Application Options]
 debuglevel=info
 maxbackoff=2s
+nolisten=1
 norest=1
 sync-freelist=1
 accept-keysend=1
@@ -123,6 +125,7 @@ autopilot.heuristic=preferential:0.05
 [Application Options]
 debuglevel=info
 maxbackoff=2s
+nolisten=1
 norest=1
 sync-freelist=1
 accept-keysend=1
@@ -156,7 +159,7 @@ autopilot.heuristic=preferential:0.05
   @objc(startLogEvents:rejecter:)
   func startLogEvents(resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     if !self.logEventsStarted {
-      let fileHandle = FileHandle(forReadingAtPath: logFile.path)
+      let fileHandle = FileHandle(forReadingAtPath: LndUtils.logFile.path)
       
       DispatchQueue.main.async(
         execute: { [self] in
@@ -176,10 +179,10 @@ autopilot.heuristic=preferential:0.05
           fileHandle?.readInBackgroundAndNotify()
           self.logEventsStarted = true
           RCTLogInfo("log events started")
-          resolve("log events started")
-          return
         }
       )
     }
+    
+    resolve("log events started")
   }
 }

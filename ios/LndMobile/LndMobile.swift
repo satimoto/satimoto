@@ -113,6 +113,65 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     self.activeStreams.removeValue(forKey: streamId)
   }
   
+  @objc(start:rejecter:)
+  func start(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    let args = "--lnddir=\"\(LndUtils.lndDirectory.path)\""
+    
+    LndmobileStart(args, LndCallback(resolver: resolve, rejecter: reject))
+  }
+  
+  @objc(initWallet:password:recoveryWindow:resolver:rejecter:)
+  func initWallet(_ seed: [String], password: String, recoveryWindow: Int32, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      var initWallet = Lnrpc_InitWalletRequest()
+      initWallet.cipherSeedMnemonic = seed
+      
+      if password.count < 8 {
+        RCTLogError("password too short: \(password.replacingOccurrences(of: ".", with: "*", options: .regularExpression))")
+        reject("error", "password too short", NSError())
+      }
+        
+      initWallet.walletPassword = password.data(using: .utf8)!
+      
+      if recoveryWindow != 0 {
+        initWallet.recoveryWindow = recoveryWindow
+      }
+      
+      let msg = try initWallet.serializedData()
+      LndmobileInitWallet(msg, LndCallback(resolver: resolve, rejecter: reject))
+    } catch let err {
+      RCTLogError("got initWallet error: \(err.localizedDescription)")
+      reject("error", err.localizedDescription, err)
+    }
+  }
+  
+  @objc(unlockWallet:resolver:rejecter:)
+  func unlockWallet(_ password: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      var unlockWallet = Lnrpc_UnlockWalletRequest()
+      unlockWallet.walletPassword = password.data(using: .utf8)!
+      
+      let msg = try unlockWallet.serializedData()
+      LndmobileUnlockWallet(msg, LndCallback(resolver: resolve, rejecter: reject))
+    } catch let err {
+      RCTLogError("got unlockWallet error: \(err.localizedDescription)")
+      reject("error", err.localizedDescription, err)
+    }
+  }
+  
+  @objc(stop:rejecter:)
+  func stop(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      let stopRequest = Lnrpc_StopRequest()
+      let msg = try stopRequest.serializedData()
+      
+      LndmobileStopDaemon(msg, LndCallback(resolver: resolve, rejecter: reject))
+    } catch let err {
+      RCTLogError("got stop error: \(err.localizedDescription)")
+      reject("error", err.localizedDescription, err)
+    }
+  }
+  
   @objc(sendCommand:body:resolver:rejecter:)
   func sendCommand(_ method: String, body msg: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     let block = LndMobile.syncMethods[method]

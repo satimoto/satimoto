@@ -1,5 +1,10 @@
+# LND mobile
 android/lndmobile/Lndmobile.aar
-ios/lightning/Lndmobile.framework
+ios/LndMobile/Lndmobile.framework
+
+# Generated proto
+/proto/*.js
+/proto/*.ts
 
 # OSX
 #
