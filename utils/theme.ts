@@ -15,9 +15,6 @@ const DarkTheme = {
     }
 }
 
-console.log(LightTheme)
-console.log(DarkTheme)
-
 export {
     LightTheme, DarkTheme
 }

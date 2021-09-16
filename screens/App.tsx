@@ -18,7 +18,7 @@ const App = () => {
     const isDarkMode = useColorScheme() === "dark"
 
     return (
-        <Provider rootStore={store}>
+        <Provider store={store}>
             <NavigationContainer theme={isDarkMode ? DarkTheme : LightTheme}>
                 <AppStackScreen />
             </NavigationContainer>
