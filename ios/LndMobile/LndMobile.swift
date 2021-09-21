@@ -116,8 +116,19 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
   @objc(start:rejecter:)
   func start(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     let args = "--lnddir=\"\(LndUtils.lndDirectory.path)\""
-    
-    LndmobileStart(args, LndCallback(resolver: resolve, rejecter: reject))
+
+    if !FileManager.default.fileExists(atPath: LndUtils.confFile.path) {
+      do {
+        let lndUtils = LndUtils()
+        try lndUtils.writeDefaultConf()
+      } catch let err {
+        RCTLogError("error writing conf: \(err.localizedDescription)")
+        reject("error", err.localizedDescription, err)
+        return
+      }
+    }
+
+    LndmobileStart(args, StartLndCallback(resolver: resolve, rejecter: reject))
   }
   
   @objc(initWallet:password:recoveryWindow:resolver:rejecter:)

@@ -6,12 +6,17 @@
  */
 
 module.exports = {
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: true,
-      },
-    }),
-  },
-};
+    resolver: {
+        extraNodeModules: {
+            stream: require.resolve("readable-stream")
+        }
+    },
+    transformer: {
+        getTransformOptions: async () => ({
+            transform: {
+                experimentalImportSupport: false,
+                inlineRequires: true
+            }
+        })
+    }
+}

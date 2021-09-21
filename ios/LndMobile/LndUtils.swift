@@ -18,7 +18,7 @@ class LndUtils: RCTEventEmitter {
     return lndDirectory
   }
   
-  static private var confFile: URL {
+  static var confFile: URL {
     return lndDirectory.appendingPathComponent("lnd.conf", isDirectory: false)
   }
   
@@ -44,10 +44,14 @@ class LndUtils: RCTEventEmitter {
     return false
   }
   
+  func writeConf(_ content: String) throws {
+    try content.write(to: LndUtils.confFile, atomically: true, encoding: .utf8)
+  }
+  
   @objc(writeConf:resolver:rejecter:)
-  func writeConf(content: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func writeConf(_ content: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     do {
-      try content.write(to: LndUtils.confFile, atomically: true, encoding: .utf8)
+      try self.writeConf(content)
       RCTLogInfo("conf file written")
       resolve("conf file written")
     } catch let err {
@@ -56,8 +60,7 @@ class LndUtils: RCTEventEmitter {
     }
   }
   
-  @objc(writeDefaultConf:rejecter:)
-  func writeDefaultConf(resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func writeDefaultConf() throws {
     let network = Bundle.main.object(forInfoDictionaryKey: "NETWORK") as? String
     var content = ""
     
@@ -72,6 +75,9 @@ norest=1
 sync-freelist=1
 accept-keysend=1
 feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json
+
+[Routing]
+routing.assumechanvalid=1
 
 [Bitcoin]
 bitcoin.active=1
@@ -102,13 +108,16 @@ sync-freelist=1
 accept-keysend=1
 feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json
 
+[Routing]
+routing.assumechanvalid=1
+
 [Bitcoin]
 bitcoin.active=1
 bitcoin.testnet=1
 bitcoin.node=neutrino
 
 [Neutrino]
-neutrino.connect=btcd-testnet.lightning.computer
+neutrino.connect=faucet.lightning.community
 
 [autopilot]
 autopilot.active=0
@@ -153,11 +162,23 @@ autopilot.heuristic=preferential:0.05
 """
     }
     
-    self.writeConf(content: content, resolver: resolve, rejecter: reject)
+    try self.writeConf(content)
+  }
+  
+  @objc(writeDefaultConf:rejecter:)
+  func writeDefaultConf(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try self.writeDefaultConf()
+      RCTLogInfo("conf file written")
+      resolve("conf file written")
+    } catch let err {
+      RCTLogError("error writing conf: \(err.localizedDescription)")
+      reject("error", err.localizedDescription, err)
+    }
   }
   
   @objc(startLogEvents:rejecter:)
-  func startLogEvents(resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func startLogEvents(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     if !self.logEventsStarted {
       let fileHandle = FileHandle(forReadingAtPath: LndUtils.logFile.path)
       

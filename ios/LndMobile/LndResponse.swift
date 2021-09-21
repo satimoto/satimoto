@@ -31,6 +31,16 @@ class LndCallback: NSObject, LndmobileCallbackProtocol {
   }
 }
 
+class StartLndCallback: LndCallback {
+  override func onError(_ p0: Error?) {
+    if ((p0?.localizedDescription.contains("lnd already started")) != nil) {
+      self.resolve(["data": nil])
+    } else {
+      self.reject("error", p0?.localizedDescription, p0)
+    }
+  }
+}
+
 class LndRecvStream: NSObject, LndmobileRecvStreamProtocol {
   var streamId: String
   var eventEmitter: RCTEventEmitter
@@ -56,6 +66,7 @@ class LndRecvStream: NSObject, LndmobileRecvStreamProtocol {
   
   func onResponse(_ p0: Data?) {
     let base64Data = p0?.base64EncodedString(options: []) ?? ""
+    RCTLog(base64Data)
     self.eventEmitter.sendEvent(withName: LndRecvStream.streamEventName,
                                 body: [
                                   "streamId": self.streamId,

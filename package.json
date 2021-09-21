@@ -30,6 +30,7 @@
     "ios:mainnet-debug": "react-native run-ios --configuration Debug"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.8",
     "@react-navigation/drawer": "^6.1.4",
     "@react-navigation/elements": "^1.1.0",
     "@react-navigation/native": "^6.0.2",
@@ -37,6 +38,7 @@
     "@react-navigation/stack": "^6.0.7",
     "byte-base64": "^1.1.0",
     "mobx": "^6.3.3",
+    "mobx-persist-store": "^1.0.3",
     "mobx-react": "^7.2.0",
     "react": "17.0.2",
     "react-native": "0.65.1",
@@ -44,7 +46,9 @@
     "react-native-gesture-handler": "^1.10.3",
     "react-native-reanimated": "^2.2.2",
     "react-native-safe-area-context": "^3.3.2",
-    "react-native-screens": "^3.7.2"
+    "react-native-screens": "^3.7.2",
+    "react-native-secure-storage": "^0.1.2",
+    "react-native-securerandom": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -55,12 +59,16 @@
     "@types/react-test-renderer": "^16.9.2",
     "babel-jest": "^26.6.3",
     "babel-plugin-module-resolver": "^4.1.0",
+    "buffer": "^6.0.3",
     "eslint": "^7.14.0",
+    "events": "^3.3.0",
     "jest": "^26.6.3",
+    "jetifier": "^2.0.0",
     "metro-react-native-babel-preset": "^0.66.0",
     "protobufjs": "^6.11.2",
     "react-native-codegen": "^0.0.7",
     "react-test-renderer": "17.0.2",
+    "readable-stream": "^3.6.0",
     "typescript": "^3.8.3"
   },
   "resolutions": {

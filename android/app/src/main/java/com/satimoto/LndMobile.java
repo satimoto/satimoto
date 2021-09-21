@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter;
 import com.google.protobuf.ByteString;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -72,11 +73,21 @@ public class LndMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void start(final Promise promise) {
-        String lndDirectory = getReactApplicationContext().getFilesDir().toString();
-        String args = "--lnddir=" + lndDirectory;
-        Log.i(TAG, "Starting LND with args " + args);
+        LndUtils lndUtils = new LndUtils(getReactApplicationContext());
+        File confFile = new File(lndUtils.confFile);
 
-        Runnable startLnd = () -> Lndmobile.start(args, new LndCallback(promise));
+        if (!confFile.exists()) {
+            try {
+                lndUtils.writeDefaultConf();
+            } catch (Exception e) {
+                Log.e(TAG, "Could not write to " + lndUtils.confFile, e);
+                promise.reject("Could not write to : " + lndUtils.confFile, e);
+            }
+        }
+
+        String args = "--lnddir=" + lndUtils.lndDirectory;
+        Log.i(TAG, "Starting LND with args " + args);
+        Runnable startLnd = () -> Lndmobile.start(args, new StartLndCallback(promise));
         new Thread(startLnd).start();
     }
 

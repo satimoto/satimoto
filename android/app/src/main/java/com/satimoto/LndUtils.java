@@ -23,9 +23,9 @@ public class LndUtils extends ReactContextBaseJavaModule {
     private static final String logEventName = "logs";
 
     private FileObserver logObserver;
-    private String lndDirectory;
-    private String confFile;
-    private String logFile;
+    final String lndDirectory;
+    final String confFile;
+    final String logFile;
 
     public LndUtils(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -51,12 +51,16 @@ public class LndUtils extends ReactContextBaseJavaModule {
         return new PrintWriter(filename);
     }
 
+    void writeConf(String content) throws Exception {
+        PrintWriter writer = getPrintWriter(confFile);
+        writer.println(content);
+        writer.close();
+    }
+
     @ReactMethod
     void writeConf(String content, Promise promise) {
         try {
-            PrintWriter writer = getPrintWriter(confFile);
-            writer.println(content);
-            writer.close();
+            this.writeConf(content);
             Log.d(TAG, "Saved LND conf to: " + confFile);
         } catch (Exception e) {
             Log.e(TAG, "Could not write to " + confFile, e);
@@ -67,101 +71,105 @@ public class LndUtils extends ReactContextBaseJavaModule {
         promise.resolve("Saved LND conf to: " + confFile);
     }
 
+    void writeDefaultConf() throws Exception {
+        PrintWriter writer = getPrintWriter(confFile);
+
+        if (BuildConfig.NETWORK.equals("mainnet")) {
+            writer.println(
+                    "[Application Options]\n" +
+                            "debuglevel=info\n" +
+                            "maxbackoff=2s\n" +
+                            "nolisten=1\n" +
+                            "norest=1\n" +
+                            "sync-freelist=1\n" +
+                            "accept-keysend=1\n" +
+                            "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
+                            "\n" +
+                            "[Bitcoin]\n" +
+                            "bitcoin.active=1\n" +
+                            "bitcoin.mainnet=1\n" +
+                            "bitcoin.node=neutrino\n" +
+                            "\n" +
+                            "[Neutrino]\n" +
+                            "neutrino.connect=btcd-mainnet.lightning.computer\n" +
+                            "\n" +
+                            "[autopilot]\n" +
+                            "autopilot.active=0\n" +
+                            "autopilot.private=0\n" +
+                            "autopilot.minconfs=0\n" +
+                            "autopilot.conftarget=30\n" +
+                            "autopilot.allocation=1.0\n" +
+                            "autopilot.heuristic=externalscore:0.95\n" +
+                            "autopilot.heuristic=preferential:0.05\n"
+            );
+        } else if (BuildConfig.NETWORK.equals("testnet")) {
+            writer.println(
+                    "[Application Options]\n" +
+                            "debuglevel=info\n" +
+                            "maxbackoff=2s\n" +
+                            "nolisten=1\n" +
+                            "norest=1\n" +
+                            "sync-freelist=1\n" +
+                            "accept-keysend=1\n" +
+                            "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
+                            "\n" +
+                            "[Bitcoin]\n" +
+                            "bitcoin.active=1\n" +
+                            "bitcoin.testnet=1\n" +
+                            "bitcoin.node=neutrino\n" +
+                            "\n" +
+                            "[Neutrino]\n" +
+                            "neutrino.connect=btcd-testnet.lightning.computer\n" +
+                            "\n" +
+                            "[autopilot]\n" +
+                            "autopilot.active=0\n" +
+                            "autopilot.private=0\n" +
+                            "autopilot.minconfs=0\n" +
+                            "autopilot.conftarget=30\n" +
+                            "autopilot.allocation=1.0\n" +
+                            "autopilot.heuristic=externalscore:0.95\n" +
+                            "autopilot.heuristic=preferential:0.05\n"
+            );
+        } else if (BuildConfig.NETWORK.equals("regtest")) {
+            writer.println(
+                    "[Application Options]\n" +
+                            "debuglevel=info\n" +
+                            "maxbackoff=2s\n" +
+                            "nolisten=1\n" +
+                            "norest=1\n" +
+                            "sync-freelist=1\n" +
+                            "accept-keysend=1\n" +
+                            "\n" +
+                            "[Bitcoin]\n" +
+                            "bitcoin.active=1\n" +
+                            "bitcoin.regtest=1\n" +
+                            "bitcoin.node=bitcoind\n" +
+                            "\n" +
+                            "[Bitcoind]\n" +
+                            "bitcoind.rpchost=192.168.0.1:18443\n" +
+                            "bitcoind.rpcuser=polaruser\n" +
+                            "bitcoind.rpcpass=polarpass\n" +
+                            "bitcoind.zmqpubrawblock=192.168.0.1:28334\n" +
+                            "bitcoind.zmqpubrawtx=192.168.0.1:29335\n" +
+                            "\n" +
+                            "[autopilot]\n" +
+                            "autopilot.active=0\n" +
+                            "autopilot.private=0\n" +
+                            "autopilot.minconfs=0\n" +
+                            "autopilot.conftarget=30\n" +
+                            "autopilot.allocation=1.0\n" +
+                            "autopilot.heuristic=externalscore:0.95\n" +
+                            "autopilot.heuristic=preferential:0.05\n"
+            );
+        }
+
+        writer.close();
+    }
+
     @ReactMethod
     void writeDefaultConf(Promise promise) {
         try {
-            PrintWriter writer = getPrintWriter(confFile);
-
-            if (BuildConfig.NETWORK.equals("mainnet")) {
-                writer.println(
-                        "[Application Options]\n" +
-                                "debuglevel=info\n" +
-                                "maxbackoff=2s\n" +
-                                "nolisten=1\n" +
-                                "norest=1\n" +
-                                "sync-freelist=1\n" +
-                                "accept-keysend=1\n" +
-                                "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
-                                "\n" +
-                                "[Bitcoin]\n" +
-                                "bitcoin.active=1\n" +
-                                "bitcoin.mainnet=1\n" +
-                                "bitcoin.node=neutrino\n" +
-                                "\n" +
-                                "[Neutrino]\n" +
-                                "neutrino.connect=btcd-mainnet.lightning.computer\n" +
-                                "\n" +
-                                "[autopilot]\n" +
-                                "autopilot.active=0\n" +
-                                "autopilot.private=0\n" +
-                                "autopilot.minconfs=0\n" +
-                                "autopilot.conftarget=30\n" +
-                                "autopilot.allocation=1.0\n" +
-                                "autopilot.heuristic=externalscore:0.95\n" +
-                                "autopilot.heuristic=preferential:0.05\n"
-                );
-            } else if (BuildConfig.NETWORK.equals("testnet")) {
-                writer.println(
-                        "[Application Options]\n" +
-                                "debuglevel=info\n" +
-                                "maxbackoff=2s\n" +
-                                "nolisten=1\n" +
-                                "norest=1\n" +
-                                "sync-freelist=1\n" +
-                                "accept-keysend=1\n" +
-                                "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
-                                "\n" +
-                                "[Bitcoin]\n" +
-                                "bitcoin.active=1\n" +
-                                "bitcoin.testnet=1\n" +
-                                "bitcoin.node=neutrino\n" +
-                                "\n" +
-                                "[Neutrino]\n" +
-                                "neutrino.connect=btcd-testnet.lightning.computer\n" +
-                                "\n" +
-                                "[autopilot]\n" +
-                                "autopilot.active=0\n" +
-                                "autopilot.private=0\n" +
-                                "autopilot.minconfs=0\n" +
-                                "autopilot.conftarget=30\n" +
-                                "autopilot.allocation=1.0\n" +
-                                "autopilot.heuristic=externalscore:0.95\n" +
-                                "autopilot.heuristic=preferential:0.05\n"
-                );
-            } else if (BuildConfig.NETWORK.equals("regtest")) {
-                writer.println(
-                        "[Application Options]\n" +
-                                "debuglevel=info\n" +
-                                "maxbackoff=2s\n" +
-                                "nolisten=1\n" +
-                                "norest=1\n" +
-                                "sync-freelist=1\n" +
-                                "accept-keysend=1\n" +
-                                "\n" +
-                                "[Bitcoin]\n" +
-                                "bitcoin.active=1\n" +
-                                "bitcoin.regtest=1\n" +
-                                "bitcoin.node=bitcoind\n" +
-                                "\n" +
-                                "[Bitcoind]\n" +
-                                "bitcoind.rpchost=192.168.0.1:18443\n" +
-                                "bitcoind.rpcuser=polaruser\n" +
-                                "bitcoind.rpcpass=polarpass\n" +
-                                "bitcoind.zmqpubrawblock=192.168.0.1:28334\n" +
-                                "bitcoind.zmqpubrawtx=192.168.0.1:29335\n" +
-                                "\n" +
-                                "[autopilot]\n" +
-                                "autopilot.active=0\n" +
-                                "autopilot.private=0\n" +
-                                "autopilot.minconfs=0\n" +
-                                "autopilot.conftarget=30\n" +
-                                "autopilot.allocation=1.0\n" +
-                                "autopilot.heuristic=externalscore:0.95\n" +
-                                "autopilot.heuristic=preferential:0.05\n"
-                );
-            }
-
-            writer.close();
+            this.writeDefaultConf();
             Log.d(TAG, "Saved LND conf to: " + confFile);
         } catch (Exception e) {
             Log.e(TAG, "Could not write to " + confFile, e);
