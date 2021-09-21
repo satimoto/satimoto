@@ -1,7 +1,7 @@
 import Long from "long"
 import { lnrpc } from "proto/proto"
 import { sendStreamCommand } from "services/LndMobileService"
-import { stores } from "stores"
+import { store } from "stores/Store"
 import { Log } from "utils/logging"
 
 const log = new Log("Channel")
@@ -18,7 +18,7 @@ export const openChannel = async (pubkey: string, amount: number, privateChannel
         }
     })
     const response = await new Promise<lnrpc.OpenStatusUpdate>((resolve, reject) => {
-        stream.on("data", () => stores.lightningStore.updateChannels())
+        stream.on("data", () => store.lightningStore.updateChannels())
         stream.on("end", resolve)
         stream.on("error", reject)
         stream.on("status", (status) => log.info(`Opening channel: ${status}`))

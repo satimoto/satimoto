@@ -8,8 +8,14 @@ const { LndMobile } = NativeModules
 
 export const start = async (): Promise<void> => {
     const requestTime = log.debugTime("Start Request")
-    await LndMobile.start()
-    log.debugTime("Start Response", requestTime)
+    try {
+        await LndMobile.start()
+        log.debugTime("Start Response", requestTime)
+    } catch (e) {
+        log.errorTime("Start Error", requestTime)
+        log.error(e)
+        throw e
+    }
 }
 
 export const stop = async (): Promise<void> => {
@@ -24,6 +30,18 @@ export const getInfo = async (): Promise<lnrpc.GetInfoResponse> => {
         response: lnrpc.GetInfoResponse,
         method: "GetInfo",
         options: {}
+    })
+    return response
+}
+
+export const listPeers = async (latestError: boolean = false): Promise<lnrpc.ListPeersResponse> => {
+    const response = await sendCommand<lnrpc.IListPeersRequest, lnrpc.ListPeersRequest, lnrpc.ListPeersResponse>({
+        request: lnrpc.ListPeersRequest,
+        response: lnrpc.ListPeersResponse,
+        method: "ListPeers",
+        options: {
+            latestError
+        }
     })
     return response
 }

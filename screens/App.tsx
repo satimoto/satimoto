@@ -7,9 +7,11 @@ import { store } from "stores/Store"
 import AppDrawerScreen from "screens/AppDrawer"
 import { LightTheme, DarkTheme } from "utils/theme"
 
+global.process = require("../polyfills/process");
+
 const AppStack = createNativeStackNavigator()
 const AppStackScreen = () => (
-    <AppStack.Navigator screenOptions={{headerShown: false}}>
+    <AppStack.Navigator screenOptions={{ headerShown: false }}>
         <AppStack.Screen name="App" component={AppDrawerScreen} />
     </AppStack.Navigator>
 )

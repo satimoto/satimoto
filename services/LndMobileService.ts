@@ -48,6 +48,7 @@ export const serializeRequest = <IRequest, Request>(request: ISendRequest<IReque
 }
 
 export const deserializeResponse = <Response>(response: ISendResponse<Response>, base64Data: any): Response => {
+    log.debug(`Data: ${JSON.stringify(base64Data)}`)
     return response.decode(base64ToBytes(base64Data.data || ""))
 }
 
@@ -100,7 +101,7 @@ export const sendStreamCommand = <IRequest, Request, Response>({
         if (event.streamId === streamId) {
             log.debugTime(`${method} Response <${streamId}: ${event.event}>`, requestTime)
             if (event.event === "data") {
-                const data = deserializeResponse(response, event.data)
+                const data = deserializeResponse(response, event)
                 log.debug(JSON.stringify(data, null, 2))
                 stream.emit(event.event, data)
             } else {

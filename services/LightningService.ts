@@ -1,5 +1,24 @@
-import { start, stop, getInfo } from "./lightning/lightning"
+import { start, stop, getInfo, listPeers } from "./lightning/lightning"
 import { openChannel } from "./lightning/channel"
-import { initWallet, unlockWallet } from "./lightning/wallet"
+import { getState, subscribeState } from "./lightning/state"
+import { genSeed, initWallet, unlockWallet } from "./lightning/wallet"
 
-export { start, stop, getInfo, openChannel, initWallet, unlockWallet }
+export {
+    // Lightning
+    start,
+    stop,
+    getInfo,
+    listPeers,
+
+    // Channel
+    openChannel,
+
+    // State
+    getState,
+    subscribeState,
+
+    // Wallet
+    genSeed,
+    initWallet,
+    unlockWallet
+}
