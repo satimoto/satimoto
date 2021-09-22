@@ -1,7 +1,7 @@
-import { NativeModules, NativeEventEmitter } from "react-native"
-import { Duplex } from "stream"
 import { bytesToBase64, base64ToBytes } from "byte-base64"
 import * as protobuf from "protobufjs"
+import { NativeModules, NativeEventEmitter } from "react-native"
+import { Duplex } from "stream"
 import { Log } from "utils/logging"
 
 const log = new Log("LndMobile")

@@ -1,7 +1,7 @@
 import React from "react"
+import { observer } from "mobx-react"
 import { Button, Text, View } from "react-native"
 import { useTheme } from "@react-navigation/native"
-import { observer } from "mobx-react"
 import { DeveloperStackNavigationProp } from "screens/DeveloperStack"
 import { store } from "stores/Store"
 
