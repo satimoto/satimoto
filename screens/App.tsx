@@ -10,7 +10,7 @@ import { LightTheme, DarkTheme } from "utils/theme"
 
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
-
+  
 const AppStack = createNativeStackNavigator()
 const AppStackScreen = () => (
     <AppStack.Navigator screenOptions={{ headerShown: false }}>

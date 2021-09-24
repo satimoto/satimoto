@@ -1,7 +1,7 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-@interface RCT_EXTERN_MODULE(LndUtils, NSObject)
+@interface RCT_EXTERN_MODULE(LndUtils, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(
   writeConf: (NSString*)content

@@ -15,8 +15,9 @@ const Developer = ({ navigation }: DeveloperProps) => {
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
             <Button title="Toggle" onPress={() => navigation.toggleDrawer()} />
-            <Button title="Ready" onPress={() => store.lightningStore.setReady()} />
-            <Text style={{ color: colors.text }}>Developer: {store.lightningStore.ready ? `true` : `false`}</Text>
+            <Text style={{ color: colors.text }}>Block: {store.lightningStore.blockHeight}</Text>
+            <Text style={{ color: colors.text }}>Percent: {store.lightningStore.percentSynced}</Text>
+            <Text style={{ color: colors.text }}>Synced: {store.lightningStore.syncedToChain ? `true` : `false`}</Text>
         </View>
     )
 }

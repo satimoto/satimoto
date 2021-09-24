@@ -26,7 +26,7 @@ export const subscribeState = async (): Promise<lnrpc.SubscribeStateResponse> =>
         stream.on("data", (data) => store.lightningStore.updateState(data))
         stream.on("end", resolve)
         stream.on("error", reject)
-        stream.on("status", (status) => log.info(`State: ${status}`))
+        stream.on("status", (status) => log.info(`SubscribeState: ${status}`))
     })
     return response
 }

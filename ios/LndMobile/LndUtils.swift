@@ -189,12 +189,14 @@ autopilot.heuristic=preferential:0.05
             object: fileHandle,
             queue: OperationQueue.main,
             using:{ [self] notification in
-              let data = notification.userInfo?[NSFileHandleNotificationDataItem] as? Data
-              if data != nil && (data?.count ?? 0) > 0 {
-                let body = String(bytes: data!, encoding: .utf8)
-                self.sendEvent(withName: LndUtils.logEventName, body: body)
+              if self.bridge != nil {
+                let data = notification.userInfo?[NSFileHandleNotificationDataItem] as? Data
+                if data != nil && (data?.count ?? 0) > 0 {
+                  let body = String(bytes: data!, encoding: .utf8)
+                  self.sendEvent(withName: LndUtils.logEventName, body: body)
+                }
+                fileHandle?.readInBackgroundAndNotify()
               }
-              fileHandle?.readInBackgroundAndNotify()
             })
           fileHandle?.seekToEndOfFile()
           fileHandle?.readInBackgroundAndNotify()

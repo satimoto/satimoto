@@ -6,7 +6,7 @@ import WalletStackScreen from "screens/WalletStack"
 const AppDrawer = createDrawerNavigator()
 
 const AppDrawerScreen = () => (
-    <AppDrawer.Navigator initialRouteName="Wallet Drawer" screenOptions={{headerShown: false}}>
+    <AppDrawer.Navigator initialRouteName="Developer Drawer" screenOptions={{headerShown: false}}>
         <AppDrawer.Screen name="Wallet Drawer" component={WalletStackScreen} options={{ drawerLabel: "Wallet" }} />
         <AppDrawer.Screen name="Developer Drawer" component={DeveloperStackScreen} options={{ drawerLabel: "Developer" }} />
     </AppDrawer.Navigator>

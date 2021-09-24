@@ -1,19 +1,14 @@
-import { bytesToBase64 } from "byte-base64"
-import Long from "long";
+import Long from "long"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { generateSecureRandom } from "react-native-securerandom"
 import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
-import { genSeed, getInfo, initWallet, start, subscribeState, unlockWallet, listPeers } from "services/LightningService"
+import { getInfo, start, subscribeState, listPeers } from "services/LightningService"
 import { startLogEvents } from "services/LndUtilsService"
 import { Debug } from "utils/build"
-import { SECURE_KEY_WALLET_PASSWORD, SECURE_KEY_CIPHER_SEED_MNEMONIC } from "utils/constants"
 import { Log } from "utils/logging"
-import { getSecureItem, setSecureItem } from "utils/storage"
-import { timeout } from "utils/tools"
-import { TOUCHABLE_STATE } from "react-native-gesture-handler/lib/typescript/components/touchables/GenericTouchable";
+import { doWhile, timeout } from "utils/tools"
 
 const log = new Log("LightningStore")
 
@@ -22,17 +17,18 @@ export interface ILightningStore extends IStore {
     stores: Store
     blockHeight: number
     state: lnrpc.WalletState
-    bestHeaderTimestamp: Long
-    syncHeaderTimestamp: Long
+    stateSubscribed: boolean
+    bestHeaderTimestamp: string
+    syncHeaderTimestamp: string
     syncedToChain: boolean
     percentSynced: number
 
-    createWallet(): Promise<void>
-    unlockWallet(): Promise<void>
     getInfo(): void
-    syncToChain(): Promise<void>
+    setSyncHeaderTimestamp(timestamp: string): void
+    syncToChain(): void
     calculatePercentSynced(): void
     updateChannels(): void
+    updateInfo(data: lnrpc.GetInfoResponse): void
     updateState(data: lnrpc.SubscribeStateResponse): void
 }
 
@@ -43,9 +39,10 @@ export class LightningStore implements ILightningStore {
     stores
     // Lightning state
     state = lnrpc.WalletState.WAITING_TO_START
+    stateSubscribed = false
     blockHeight = 0
-    bestHeaderTimestamp = Long.fromNumber(0)
-    syncHeaderTimestamp = Long.fromNumber(0)
+    bestHeaderTimestamp = "0"
+    syncHeaderTimestamp = "0"
     syncedToChain = false
     percentSynced = 0
 
@@ -56,44 +53,59 @@ export class LightningStore implements ILightningStore {
             hydrated: observable,
             ready: observable,
             state: observable,
+            stateSubscribed: observable,
             blockHeight: observable,
             bestHeaderTimestamp: observable,
             syncedToChain: observable,
             percentSynced: observable,
 
             calculatePercentSynced: action,
-            getInfo: action,
             setReady: action,
-            syncToChain: action,
+            setSyncHeaderTimestamp: action,
+            updateInfo: action,
             updateState: action
         })
 
-        makePersistable(this, { name: "LightningStore", properties: [], storage: AsyncStorage, debugMode: Debug }, { delay: 1000 }).then(
-            action((persistStore) => (this.hydrated = persistStore.isHydrated))
-        )
+        makePersistable(
+            this,
+            { name: "LightningStore", properties: ["blockHeight", "bestHeaderTimestamp"], storage: AsyncStorage, debugMode: Debug },
+            { delay: 1000 }
+        ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
+    }
+
+    calculatePercentSynced() {
+        if (this.syncHeaderTimestamp === "0") {
+            this.setSyncHeaderTimestamp(this.bestHeaderTimestamp)
+        }
+
+        if (this.syncedToChain) {
+            this.percentSynced = 100
+        } else {
+            const bestHeaderTimestamp = Long.fromString(this.bestHeaderTimestamp)
+            const syncHeaderTimestamp = Long.fromString(this.syncHeaderTimestamp)
+            const timestamp = Long.fromValue(new Date().getTime() / 1000)
+            const progress = bestHeaderTimestamp.subtract(syncHeaderTimestamp).toNumber()
+            const total = timestamp.subtract(syncHeaderTimestamp).toNumber()
+            this.percentSynced = (100.0 / total) * progress
+        }
+
+        log.debug(`Percent Synced: ${this.percentSynced}`)
+    }
+
+    async getInfo() {
+        const getInfoResponse: lnrpc.GetInfoResponse = await getInfo()
+        this.updateInfo(getInfoResponse)
     }
 
     async initialize(): Promise<void> {
         try {
-
             // Start LND
-            await start()
+            const startReponse = await start()
+            log.debug(startReponse)
 
             if (Debug) {
                 startLogEvents()
             }
-
-            // When the wallet not existing, create a wallet
-            when(
-                () => this.state == lnrpc.WalletState.NON_EXISTING,
-                () => this.createWallet()
-            )
-
-            // When the wallet is locked, unlock the wallet
-            when(
-                () => this.state == lnrpc.WalletState.LOCKED,
-                () => this.unlockWallet()
-            )
 
             // When the wallet is unlocked or RPC active, set the store ready
             when(
@@ -101,63 +113,41 @@ export class LightningStore implements ILightningStore {
                 () => this.syncToChain()
             )
 
-            // Subscribe to state
-            subscribeState()
+            when(
+                () => this.syncedToChain,
+                () => this.subscribeInfo()
+            )
+
+            this.subscribeState()
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
     }
 
-    async createWallet(): Promise<void> {
-        let seedMnemonic: string[] = await getSecureItem(SECURE_KEY_CIPHER_SEED_MNEMONIC)
-        let password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
-        const recoveryWindow: number = (seedMnemonic ? 144 : 0)
-
-        // Create seed mnemonic
-        if (!seedMnemonic) {
-            const genSeedResponse: lnrpc.GenSeedResponse = await genSeed()
-            seedMnemonic = genSeedResponse.cipherSeedMnemonic
-            await setSecureItem(SECURE_KEY_CIPHER_SEED_MNEMONIC, seedMnemonic)
-        }
-
-        // Create wallet password
-        if (!password) {
-            const passwordBytes: Uint8Array = await generateSecureRandom(32)
-            password = bytesToBase64(passwordBytes)
-            await setSecureItem(SECURE_KEY_WALLET_PASSWORD, password)
-        }
-        
-        log.debug(`Seed: ${seedMnemonic.join(" ")}`)
-        log.debug(`Password: ${password}`)
-
-        // Init wallet
-        await initWallet(seedMnemonic, password, recoveryWindow)
+    subscribeInfo() {
+        doWhile(() => this.getInfo(), 10000)
+        log.debug(`doWhile`)
     }
 
-    async unlockWallet(): Promise<void> {
-        const password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
-        await unlockWallet(password)
+    subscribeState() {
+        subscribeState()
+        this.stateSubscribed = true
     }
 
-    async getInfo() {
-        const getInfoResponse: lnrpc.GetInfoResponse = await getInfo()
-        this.blockHeight = getInfoResponse.blockHeight
-        this.bestHeaderTimestamp = Long.fromValue(getInfoResponse.bestHeaderTimestamp)
-        this.syncedToChain = getInfoResponse.syncedToChain
+    setReady() {
+        this.ready = true
     }
 
-    async syncToChain(): Promise<void> {
-        this.syncHeaderTimestamp = this.bestHeaderTimestamp
+    setSyncHeaderTimestamp(timestamp: string) {
+        this.syncHeaderTimestamp = timestamp
+    }
+
+    async syncToChain() {
+        this.setSyncHeaderTimestamp(this.bestHeaderTimestamp)
 
         while (true) {
             await this.getInfo()
-
-            if (this.syncHeaderTimestamp.equals(0)) {
-                this.syncHeaderTimestamp = this.bestHeaderTimestamp
-            }
-
             this.calculatePercentSynced()
-            log.debug(`Percent Synced: ${this.percentSynced}`)
 
             if (this.syncedToChain) {
                 break
@@ -171,21 +161,16 @@ export class LightningStore implements ILightningStore {
         this.setReady()
     }
 
-    calculatePercentSynced() {
-        const timestamp = Long.fromValue(new Date().getTime() / 1000)
-        const progress = this.bestHeaderTimestamp.subtract(this.syncHeaderTimestamp).toNumber()
-        const total = timestamp.subtract(this.syncHeaderTimestamp).toNumber()
-        this.percentSynced = (100.0 / total) * progress
+    updateChannels() {}
+
+    updateInfo({ blockHeight, bestHeaderTimestamp, syncedToChain }: lnrpc.GetInfoResponse) {
+        this.blockHeight = blockHeight
+        this.bestHeaderTimestamp = bestHeaderTimestamp.toString()
+        this.syncedToChain = syncedToChain
     }
 
     updateState({ state }: lnrpc.SubscribeStateResponse) {
         log.debug(`State: ${state}`)
         this.state = state
     }
-
-    setReady() {
-        this.ready = true
-    }
-
-    updateChannels() {}
 }

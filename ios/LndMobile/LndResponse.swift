@@ -34,10 +34,15 @@ class LndCallback: NSObject, LndmobileCallbackProtocol {
 class StartLndCallback: LndCallback {
   override func onError(_ p0: Error?) {
     if ((p0?.localizedDescription.contains("lnd already started")) != nil) {
-      self.resolve(["data": nil])
+      self.resolve("lnd already started")
     } else {
       self.reject("error", p0?.localizedDescription, p0)
     }
+  }
+  
+  override func onResponse(_ p0: Data?) {
+    let base64Data = p0?.base64EncodedString(options: []) ?? ""
+    self.resolve(base64Data)
   }
 }
 
