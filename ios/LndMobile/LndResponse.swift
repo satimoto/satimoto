@@ -55,10 +55,11 @@ class LndRecvStream: NSObject, LndmobileRecvStreamProtocol {
   }
   
   func onError(_ p0: Error?) {
+    let type = p0 != nil && p0!.localizedDescription.contains("EOF") ? "end" : "error"
     self.eventEmitter.sendEvent(withName: LndRecvStream.streamEventName,
                                 body: [
                                   "streamId": self.streamId,
-                                  "event": "error",
+                                  "type": type,
                                   "error": p0?.localizedDescription,
                                 ])
     self.callback.onStreamClose(streamId: self.streamId)
@@ -70,7 +71,7 @@ class LndRecvStream: NSObject, LndmobileRecvStreamProtocol {
     self.eventEmitter.sendEvent(withName: LndRecvStream.streamEventName,
                                 body: [
                                   "streamId": self.streamId,
-                                  "event": "data",
+                                  "type": "data",
                                   "data": base64Data
                                 ])
   }

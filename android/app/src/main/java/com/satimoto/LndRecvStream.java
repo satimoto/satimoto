@@ -21,9 +21,10 @@ public class LndRecvStream implements RecvStream {
 
     @Override
     public void onError(Exception e) {
+        String type = e.getLocalizedMessage().contains("EOF") ? "end" : "error";
         WritableMap params = Arguments.createMap();
         params.putString("streamId", streamId);
-        params.putString("event", "error");
+        params.putString("type", type);
         params.putString("error", e.getLocalizedMessage());
         emitter.emit(LndRecvStream.streamEventName, params);
     }
@@ -37,7 +38,7 @@ public class LndRecvStream implements RecvStream {
 
         WritableMap params = Arguments.createMap();
         params.putString("streamId", streamId);
-        params.putString("event", "data");
+        params.putString("type", "data");
         params.putString("data", base64Data);
         emitter.emit(LndRecvStream.streamEventName, params);
     }

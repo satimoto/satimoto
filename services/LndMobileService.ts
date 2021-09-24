@@ -90,24 +90,29 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     const streamId = getStreamId()
     const requestTime = log.debugTime(`${method} Request <${streamId}>`)
     const stream = new Duplex({
+        destroy() {
+            listener.remove()
+        },
+        read() {},
         write(data) {
             data = JSON.parse(data.toString("utf8"))
             const base64Command = serializeRequest(request, data)
             LndMobile.sendStreamWrite(streamId, base64Command)
-        },
-        read() {}
+        }
     })
-    LndMobileEventEmitter.addListener("streamEvent", (event) => {
+    const listener = LndMobileEventEmitter.addListener("streamEvent", (event) => {
         if (event.streamId === streamId) {
-            log.debugTime(`${method} Response <${streamId}: ${event.event}>`, requestTime)
-            if (event.event === "data") {
-                const data = deserializeResponse(response, event)
-                log.debug(JSON.stringify(data, null, 2))
-                stream.emit(event.event, data)
-            } else {
-                log.debug(JSON.stringify(event.error || event.data, null, 2))
-                stream.emit(event.event, event.error || event.data)
+            log.debugTime(`${method} Response <${streamId}: ${event.type}>`, requestTime)
+            let data = event.error || event.data
+
+            if (event.type === "data") {
+                data = deserializeResponse(response, event)
+            } else if (event.type === "error" || event.type === "end" ) {
+                listener.remove()
             }
+
+            log.debug(JSON.stringify(data, null, 2))
+            stream.emit(event.type, data)
         }
     })
     const base64Command = serializeRequest(request, options)
