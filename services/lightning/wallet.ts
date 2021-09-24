@@ -7,8 +7,8 @@ import { Log } from "utils/logging"
 const log = new Log("Wallet")
 const { LndMobile } = NativeModules
 
-export const genSeed = async (aezeedPassphrase?: String, seedEntropy?: String): Promise<lnrpc.GenSeedResponse> => {
-    const response = await sendCommand<lnrpc.IGenSeedRequest, lnrpc.GenSeedRequest, lnrpc.GenSeedResponse>({
+export const genSeed = (aezeedPassphrase?: String, seedEntropy?: String): Promise<lnrpc.GenSeedResponse> => {
+    return sendCommand<lnrpc.IGenSeedRequest, lnrpc.GenSeedRequest, lnrpc.GenSeedResponse>({
         request: lnrpc.GenSeedRequest,
         response: lnrpc.GenSeedResponse,
         method: "GenSeed",
@@ -17,7 +17,6 @@ export const genSeed = async (aezeedPassphrase?: String, seedEntropy?: String): 
             seedEntropy: toBuffer(seedEntropy)
         }
     })
-    return response
 }
 
 export const initWallet = async (seed: string[], password: string, recoveryWindow: number = 0): Promise<lnrpc.InitWalletResponse> => {

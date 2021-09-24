@@ -130,7 +130,7 @@ export class LightningStore implements ILightningStore {
     }
 
     subscribeState() {
-        subscribeState()
+        subscribeState((data) => this.updateState(data))
         this.stateSubscribed = true
     }
 

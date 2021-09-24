@@ -1,27 +1,28 @@
 import Long from "long"
 import { lnrpc } from "proto/proto"
-import { sendStreamCommand } from "services/LndMobileService"
-import { store } from "stores/Store"
+import { sendStreamCommand, processStreamResponse } from "services/LndMobileService"
 import { Log } from "utils/logging"
 
 const log = new Log("Channel")
 
-export const openChannel = async (pubkey: string, amount: Long, privateChannel: boolean = false): Promise<lnrpc.OpenStatusUpdate> => {
+export type OpenStatusUpdateStreamResponse = (data: lnrpc.OpenStatusUpdate) => void
+
+export const openChannel = (
+    onData: OpenStatusUpdateStreamResponse,
+    pubkey: string,
+    amount: Long,
+    privateChannel: boolean = false
+): Promise<lnrpc.OpenStatusUpdate> => {
+    const method = "OpenChannel"
     const stream = sendStreamCommand<lnrpc.IOpenChannelRequest, lnrpc.OpenChannelRequest, lnrpc.OpenStatusUpdate>({
         request: lnrpc.OpenChannelRequest,
         response: lnrpc.OpenStatusUpdate,
-        method: "OpenChannel",
+        method,
         options: {
             nodePubkeyString: pubkey,
             localFundingAmount: amount,
             private: privateChannel
         }
     })
-    const response = await new Promise<lnrpc.OpenStatusUpdate>((resolve, reject) => {
-        stream.on("data", () => store.lightningStore.updateChannels())
-        stream.on("end", resolve)
-        stream.on("error", reject)
-        stream.on("status", (status) => log.info(`OpenChannel: ${status}`))
-    })
-    return response
+    return processStreamResponse<lnrpc.OpenStatusUpdate>({ stream, method, onData })
 }

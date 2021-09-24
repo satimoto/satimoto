@@ -42,6 +42,12 @@ export interface IStreamResult<Response> {
     response: ISendResponse<Response>
 }
 
+export interface IStreamResponse<Response> {
+    stream: Duplex
+    method: string
+    onData: (data: Response) => void
+}
+
 export const serializeRequest = <IRequest, Request>(request: ISendRequest<IRequest, Request>, options: IRequest): string => {
     const message = request.create(options)
     return bytesToBase64(request.encode(message).finish())
@@ -59,7 +65,6 @@ export const sendCommand = async <IRequest, Request, Response>({
     options
 }: ISyncCommand<IRequest, Request, Response>): Promise<Response> => {
     const requestTime = log.debugTime(`${method} Request`)
-
     try {
         const base64Command = serializeRequest(request, options)
         const base64Response = await LndMobile.sendCommand(method, base64Command)
@@ -107,7 +112,7 @@ export const sendStreamCommand = <IRequest, Request, Response>({
 
             if (event.type === "data") {
                 data = deserializeResponse(response, event)
-            } else if (event.type === "error" || event.type === "end" ) {
+            } else if (event.type === "error" || event.type === "end") {
                 listener.remove()
             }
 
@@ -120,6 +125,12 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     return stream
 }
 
-export const decodeStreamResult = <Response>({ base64Result, response }: IStreamResult<Response>): Response => {
-    return response.decode(base64ToBytes(base64Result))
+export const processStreamResponse = <Response>({ stream, method, onData }: IStreamResponse<Response>): Promise<Response> => {
+    const response = new Promise<Response>((resolve, reject) => {
+        stream.on("data", onData)
+        stream.on("end", resolve)
+        stream.on("error", reject)
+        stream.on("status", (status) => log.info(`${method}: ${status}`))
+    })
+    return response
 }
