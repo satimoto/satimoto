@@ -54,21 +54,13 @@ Checkout branch to build (Reset staged/unstaged changes if you need to)
 git reset --hard HEAD
 git checkout -b 0-13-2-branch satimoto/0-13-2-branch
 ```
-Change bindings to prefix methods with subserver name. 
-```bash
-sed -i 's/use_prefix="0"/use_prefix="1"/g' mobile/gen_bindings.sh
-```
-**Note:** For OSx sed needs a backup suffix
-```bash
-sed -i '' 's/use_prefix="0"/use_prefix="1"/g' mobile/gen_bindings.sh
-```
 Build for iOS platform (`Lndmobile.framework`)
 ```bash
-make ios
-cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/ios/Lndmobile.framework <path/to>/react-mobile/ios/lightning
+make ios prefix="1" tags="chainrpc invoicesrpc routerrpc signrpc walletrpc"
+cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/ios/Lndmobile.framework <path/to>/react-mobile/ios/LndMobile
 ```
 Build for android platform (`Lndmobile.aar`)
 ```bash
-make android
+make android prefix="1" tags="chainrpc invoicesrpc routerrpc signrpc walletrpc"
 cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/android/Lndmobile.aar <path/to>/react-mobile/android/Lndmobile
 ```
