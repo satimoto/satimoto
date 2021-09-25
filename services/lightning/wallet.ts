@@ -1,20 +1,20 @@
 import { lnrpc } from "proto/proto"
 import { NativeModules } from "react-native"
 import { sendCommand, deserializeResponse } from "services/LndMobileService"
-import { toBuffer } from "utils/conversion"
+import { toBytes } from "utils/conversion"
 import { Log } from "utils/logging"
 
 const log = new Log("Wallet")
 const { LndMobile } = NativeModules
 
-export const genSeed = (aezeedPassphrase?: String, seedEntropy?: String): Promise<lnrpc.GenSeedResponse> => {
+export const genSeed = (aezeedPassphrase?: string, seedEntropy?: string): Promise<lnrpc.GenSeedResponse> => {
     return sendCommand<lnrpc.IGenSeedRequest, lnrpc.GenSeedRequest, lnrpc.GenSeedResponse>({
         request: lnrpc.GenSeedRequest,
         response: lnrpc.GenSeedResponse,
         method: "GenSeed",
         options: {
-            aezeedPassphrase: toBuffer(aezeedPassphrase),
-            seedEntropy: toBuffer(seedEntropy)
+            aezeedPassphrase: toBytes(aezeedPassphrase),
+            seedEntropy: toBytes(seedEntropy)
         }
     })
 }

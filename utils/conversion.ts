@@ -1,4 +1,4 @@
-import { base64ToBytes } from "byte-base64"
+import { base64ToBytes as b64ToBytes, bytesToBase64 as bytesToB64 } from "byte-base64"
 import sha256 from "fast-sha256"
 import Long from "long"
 import { BytesLikeType, LongLikeType } from "utils/types"
@@ -11,12 +11,16 @@ export const bytesToHex = (data?: BytesLikeType): string | undefined => {
     return data instanceof Uint8Array ? Buffer.from(data).toString("hex") : data
 }
 
-export const toBuffer = (str?: any) => {
+export const toBytes = (str?: any) => {
     return str ? Buffer.from(String(str), "utf8") : str
 }
 
-export const toBytes = (data?: BytesLikeType): Uint8Array | undefined => {
-    return typeof data == "string" ? base64ToBytes(data) : data
+export const base64ToBytes = (data: BytesLikeType): Uint8Array => {
+    return typeof data == "string" ? b64ToBytes(data) : data
+}
+
+export const bytesToBase64 = (data: BytesLikeType): string => {
+    return data instanceof Uint8Array ? bytesToB64(data) : data
 }
 
 export const toHash = (data?: BytesLikeType): Uint8Array | undefined => {

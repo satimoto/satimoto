@@ -1,7 +1,8 @@
-import Long from "long"
 import { lnrpc } from "proto/proto"
 import { sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
+import { BytesLikeType, LongLikeType } from "utils/types"
 
 const log = new Log("Channel")
 
@@ -9,8 +10,8 @@ export type OpenStatusUpdateStreamResponse = (data: lnrpc.OpenStatusUpdate) => v
 
 export const openChannel = (
     onData: OpenStatusUpdateStreamResponse,
-    pubkey: string,
-    amount: Long,
+    pubkey: BytesLikeType,
+    amount: LongLikeType,
     privateChannel: boolean = false
 ): Promise<lnrpc.OpenStatusUpdate> => {
     const method = "OpenChannel"
@@ -19,8 +20,8 @@ export const openChannel = (
         response: lnrpc.OpenStatusUpdate,
         method,
         options: {
-            nodePubkeyString: pubkey,
-            localFundingAmount: amount,
+            nodePubkey: hexToBytes(pubkey),
+            localFundingAmount: toLong(amount),
             private: privateChannel
         }
     })

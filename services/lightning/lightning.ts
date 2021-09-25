@@ -2,7 +2,9 @@ import Long from "long"
 import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
 import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { toLong } from "utils/conversion"
 import { Log } from "utils/logging"
+import { LongLikeType } from "utils/types"
 
 const log = new Log("Lightning")
 const { LndMobile } = NativeModules
@@ -41,7 +43,7 @@ export const getInfo = (): Promise<lnrpc.GetInfoResponse> => {
 
 export const listPayments = (
     includeIncomplete: boolean = false,
-    indexOffset: Long = Long.fromValue(0)
+    indexOffset: LongLikeType = 0
 ): Promise<lnrpc.ListPaymentsResponse> => {
     return sendCommand<lnrpc.IListPaymentsRequest, lnrpc.ListPaymentsRequest, lnrpc.ListPaymentsResponse>({
         request: lnrpc.ListPaymentsRequest,
@@ -49,7 +51,7 @@ export const listPayments = (
         method: "ListPayments",
         options: {
             includeIncomplete,
-            indexOffset
+            indexOffset: toLong(indexOffset)
         }
     })
 }

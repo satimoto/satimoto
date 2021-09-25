@@ -1,5 +1,5 @@
-import type { SubscribeInvoicesType, SubscribeTransactionsType } from "./lightning/lightning"
-import type { SendPaymentV2Type } from "./lightning/router"
+import type { SubscribeInvoicesStreamResponse, SubscribeTransactionsStreamResponse } from "./lightning/lightning"
+import type { PaymentStreamResponse } from "./lightning/router"
 
 import { start, stop, getInfo, listPayments, listPeers, subscribeInvoices, subscribeTransactions } from "./lightning/lightning"
 import { openChannel } from "./lightning/channel"
@@ -8,10 +8,10 @@ import { getState, subscribeState } from "./lightning/state"
 import { genSeed, initWallet, unlockWallet } from "./lightning/wallet"
 
 export type {
-    SubscribeInvoicesType,
-    SubscribeTransactionsType,
+    SubscribeInvoicesStreamResponse,
+    SubscribeTransactionsStreamResponse,
     // Router
-    SendPaymentV2Type
+    PaymentStreamResponse
 }
 
 export {

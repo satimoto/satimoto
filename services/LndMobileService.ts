@@ -1,7 +1,7 @@
-import { bytesToBase64, base64ToBytes } from "byte-base64"
-import * as protobuf from "protobufjs"
+import { IConversionOptions, Reader, Writer } from "protobufjs"
 import { NativeModules, NativeEventEmitter } from "react-native"
 import { Duplex } from "stream"
+import { base64ToBytes, bytesToBase64 } from "utils/conversion"
 import { Log } from "utils/logging"
 
 const log = new Log("LndMobile")
@@ -15,12 +15,12 @@ export const LndMobileEventEmitter = new NativeEventEmitter(LndMobile)
 
 export interface ISendRequest<IRequest, Request> {
     create: (options: IRequest) => Request
-    encode: (request: Request) => protobuf.Writer
+    encode: (request: Request) => Writer
 }
 
 export interface ISendResponse<Response> {
-    decode: (reader: protobuf.Reader | Uint8Array) => Response
-    toObject(message: Response, options?: protobuf.IConversionOptions): { [k: string]: any }
+    decode: (reader: Reader | Uint8Array) => Response
+    toObject(message: Response, options?: IConversionOptions): { [k: string]: any }
 }
 
 export interface ISyncCommand<IRequest, Request, Response> {

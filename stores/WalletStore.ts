@@ -1,4 +1,3 @@
-import { bytesToBase64 } from "byte-base64"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -8,6 +7,7 @@ import { IStore, Store } from "stores/Store"
 import { genSeed, initWallet, unlockWallet } from "services/LightningService"
 import { Debug } from "utils/build"
 import { RECOVERY_WINDOW_DEFAULT, SECURE_KEY_WALLET_PASSWORD, SECURE_KEY_CIPHER_SEED_MNEMONIC } from "utils/constants"
+import { bytesToBase64 } from "utils/conversion"
 import { Log } from "utils/logging"
 import { getSecureItem, setSecureItem } from "utils/storage"
 
