@@ -4,11 +4,12 @@ import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
-import { getInfo, start, subscribeState, listPeers } from "services/LightningService"
+import { getInfo, start, registerBlockEpochNtfn, subscribeState, listPeers } from "services/LightningService"
 import { startLogEvents } from "services/LndUtilsService"
 import { Debug } from "utils/build"
+import { bytesToHex, reverseByteOrder, toString } from "utils/conversion"
 import { Log } from "utils/logging"
-import { doWhile, timeout } from "utils/tools"
+import { timeout } from "utils/tools"
 
 const log = new Log("LightningStore")
 
@@ -115,7 +116,7 @@ export class LightningStore implements ILightningStore {
 
             when(
                 () => this.syncedToChain,
-                () => this.subscribeInfo()
+                () => this.subscribeBlockEpoch()
             )
 
             this.subscribeState()
@@ -124,9 +125,13 @@ export class LightningStore implements ILightningStore {
         }
     }
 
-    subscribeInfo() {
-        doWhile(() => this.getInfo(), 10000)
-        log.debug(`doWhile`)
+    subscribeBlockEpoch() {
+        registerBlockEpochNtfn((data) => {
+            const hash = reverseByteOrder(data.hash)
+            const hex = bytesToHex(hash)
+            log.debug(`Hex: ${hex}`)
+            this.getInfo()
+        })
     }
 
     subscribeState() {

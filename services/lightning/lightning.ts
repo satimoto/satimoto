@@ -9,9 +9,9 @@ import { LongLikeType } from "utils/types"
 const log = new Log("Lightning")
 const { LndMobile } = NativeModules
 
-export type SubscribeInvoicesStreamResponse = (data: lnrpc.Invoice) => void
+export type InvoiceStreamResponse = (data: lnrpc.Invoice) => void
 
-export type SubscribeTransactionsStreamResponse = (data: lnrpc.Transaction) => void
+export type TransactionStreamResponse = (data: lnrpc.Transaction) => void
 
 export const start = async (): Promise<string> => {
     const requestTime = log.debugTime("Start Request")
@@ -67,7 +67,7 @@ export const listPeers = (latestError: boolean = false): Promise<lnrpc.ListPeers
     })
 }
 
-export const subscribeInvoices = (onData: SubscribeInvoicesStreamResponse): Promise<lnrpc.Invoice> => {
+export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.Invoice> => {
     const method = "SubscribeInvoices"
     const stream = sendStreamCommand<lnrpc.IInvoiceSubscription, lnrpc.InvoiceSubscription, lnrpc.Invoice>({
         request: lnrpc.InvoiceSubscription,
@@ -78,7 +78,7 @@ export const subscribeInvoices = (onData: SubscribeInvoicesStreamResponse): Prom
     return processStreamResponse<lnrpc.Invoice>({ stream, method, onData })
 }
 
-export const subscribeTransactions = async (onData: SubscribeTransactionsStreamResponse): Promise<lnrpc.Transaction> => {
+export const subscribeTransactions = async (onData: TransactionStreamResponse): Promise<lnrpc.Transaction> => {
     const method = "SubscribeTransactions"
     const stream = sendStreamCommand<lnrpc.IGetTransactionsRequest, lnrpc.GetTransactionsRequest, lnrpc.Transaction>({
         request: lnrpc.GetTransactionsRequest,

@@ -145,11 +145,11 @@ bitcoin.regtest=1
 bitcoin.node=bitcoind
 
 [Bitcoind]
-bitcoind.rpchost=192.168.0.1:18443
+bitcoind.rpchost=127.0.0.1:18443
 bitcoind.rpcuser=polaruser
 bitcoind.rpcpass=polarpass
-bitcoind.zmqpubrawblock=192.168.0.1:28334
-bitcoind.zmqpubrawtx=192.168.0.1:29335
+bitcoind.zmqpubrawblock=127.0.0.1:28334
+bitcoind.zmqpubrawtx=127.0.0.1:29335
 
 [autopilot]
 autopilot.active=0
