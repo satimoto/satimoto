@@ -377,7 +377,7 @@ PODS:
     - React
   - RNSecureStorage (0.1.2):
     - React
-  - SwiftProtobuf (1.17.0)
+  - SwiftProtobuf (1.18.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -587,10 +587,10 @@ SPEC CHECKSUMS:
   RNScreens: 0591543e343c7444ea1756b6265d81a4295922c9
   RNSecureRandom: 0dcee021fdb3d50cd5cee5db0ebf583c42f5af0e
   RNSecureStorage: 24d433f7673a0daade43689de805933a70641731
-  SwiftProtobuf: 9c85136c6ba74b0a1b84279dbf0f6db8efb714e0
+  SwiftProtobuf: c3c12645230d9b09c72267e0de89468c5543bd86
   Yoga: aa0cb45287ebe1004c02a13f279c55a95f1572f4
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: f0eddb5469501222fbe4162207eba53f5c327be7
+PODFILE CHECKSUM: 6713d6c053c39e0e6af949c5abbe2703b9b8c578
 
 COCOAPODS: 1.10.2
