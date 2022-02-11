@@ -21,7 +21,7 @@ export const start = async (): Promise<string> => {
         return response
     } catch (e) {
         log.errorTime("Start Error", requestTime)
-        log.error(e)
+        log.error(JSON.stringify(e, undefined, 2))
         throw e
     }
 }
@@ -41,10 +41,7 @@ export const getInfo = (): Promise<lnrpc.GetInfoResponse> => {
     })
 }
 
-export const listPayments = (
-    includeIncomplete: boolean = false,
-    indexOffset: LongLikeType = 0
-): Promise<lnrpc.ListPaymentsResponse> => {
+export const listPayments = (includeIncomplete: boolean = false, indexOffset: LongLikeType = 0): Promise<lnrpc.ListPaymentsResponse> => {
     return sendCommand<lnrpc.IListPaymentsRequest, lnrpc.ListPaymentsRequest, lnrpc.ListPaymentsResponse>({
         request: lnrpc.ListPaymentsRequest,
         response: lnrpc.ListPaymentsResponse,

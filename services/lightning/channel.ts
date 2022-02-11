@@ -1,12 +1,22 @@
 import { lnrpc } from "proto/proto"
-import { sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
 import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType, LongLikeType } from "utils/types"
 
 const log = new Log("Channel")
 
+export type ChannelEventUpdateStreamResponse = (data: lnrpc.ChannelEventUpdate) => void
 export type OpenStatusUpdateStreamResponse = (data: lnrpc.OpenStatusUpdate) => void
+
+export const channelBalance = (): Promise<lnrpc.ChannelBalanceResponse> => {
+    return sendCommand<lnrpc.IChannelBalanceRequest, lnrpc.ChannelBalanceRequest, lnrpc.ChannelBalanceResponse>({
+        request: lnrpc.ChannelBalanceRequest,
+        response: lnrpc.ChannelBalanceResponse,
+        method: "ChannelBalance",
+        options: {}
+    })
+}
 
 export const openChannel = (
     onData: OpenStatusUpdateStreamResponse,
@@ -26,4 +36,15 @@ export const openChannel = (
         }
     })
     return processStreamResponse<lnrpc.OpenStatusUpdate>({ stream, method, onData })
+}
+
+export const subscribeChannelEvents = (onData: ChannelEventUpdateStreamResponse): Promise<lnrpc.ChannelEventUpdate> => {
+    const method = "SubscribeChannelEvents"
+    const stream = sendStreamCommand<lnrpc.IChannelEventSubscription, lnrpc.ChannelEventSubscription, lnrpc.ChannelEventUpdate>({
+        request: lnrpc.ChannelEventSubscription,
+        response: lnrpc.ChannelEventUpdate,
+        method,
+        options: {}
+    })
+    return processStreamResponse<lnrpc.ChannelEventUpdate>({ stream, method, onData })
 }

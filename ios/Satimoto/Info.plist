@@ -26,6 +26,8 @@
 	<string>$(DEBUG)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MGLMapboxMetricsEnabledSettingShownInApp</key>
+	<string>YES</string>
 	<key>NETWORK</key>
 	<string>$(NETWORK)</string>
 	<key>NSAppTransportSecurity</key>

@@ -37,6 +37,10 @@ export const toLong = (value?: LongLikeType): Long | undefined => {
     return typeof value != "undefined" ? Long.fromValue(value) : value
 }
 
+export const toNumber = (value?: Long.Long | null): number | undefined => {
+    return value && typeof value != "undefined" ? value.toNumber() : undefined
+}
+
 export const toString = (data: BytesLikeType): string | undefined => {
     return data instanceof Uint8Array ? Buffer.from(data).toString("utf8") : data
 }

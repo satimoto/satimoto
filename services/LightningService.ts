@@ -4,7 +4,7 @@ import type { PaymentStreamResponse } from "./lightning/router"
 
 import { start, stop, getInfo, listPayments, listPeers, subscribeInvoices, subscribeTransactions } from "./lightning/lightning"
 import { registerBlockEpochNtfn } from "./lightning/chain"
-import { openChannel } from "./lightning/channel"
+import { channelBalance, openChannel, subscribeChannelEvents } from "./lightning/channel"
 import { sendPaymentV2 } from "./lightning/router"
 import { getState, subscribeState } from "./lightning/state"
 import { genSeed, initWallet, unlockWallet } from "./lightning/wallet"
@@ -29,7 +29,9 @@ export {
     // Chain
     registerBlockEpochNtfn,
     // Channel
+    channelBalance,
     openChannel,
+    subscribeChannelEvents,
     // Router
     sendPaymentV2,
     // State

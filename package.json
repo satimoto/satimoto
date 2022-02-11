@@ -30,7 +30,9 @@
     "ios:mainnet-debug": "react-native run-ios --configuration Debug"
   },
   "dependencies": {
+    "@bitcoin-design/bitcoin-icons-react-native": "../Bitcoin-Icons/react-native",
     "@react-native-async-storage/async-storage": "^1.15.8",
+    "@react-native-mapbox-gl/maps": "^8.5.0",
     "@react-navigation/drawer": "^6.1.4",
     "@react-navigation/elements": "^1.1.0",
     "@react-navigation/native": "^6.0.2",
@@ -45,11 +47,13 @@
     "react-native": "0.65.1",
     "react-native-build-config": "^0.3.2",
     "react-native-gesture-handler": "^1.10.3",
+    "react-native-linear-gradient": "^2.5.6",
     "react-native-reanimated": "^2.2.2",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.7.2",
     "react-native-secure-storage": "^0.1.2",
-    "react-native-securerandom": "^1.0.0"
+    "react-native-securerandom": "^1.0.0",
+    "react-native-svg": "^12.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

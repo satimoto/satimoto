@@ -1,4 +1,5 @@
 import { action, makeObservable, observable, when } from "mobx"
+import { ChannelStore } from "./ChannelStore"
 import { InvoiceStore } from "./InvoiceStore"
 import { LightningStore } from "./LightningStore"
 import { PaymentStore } from "./PaymentStore"
@@ -17,6 +18,7 @@ export interface IStore {
 
 export class Store implements IStore {
     ready = false
+    channelStore: ChannelStore
     invoiceStore: InvoiceStore
     lightningStore: LightningStore
     paymentStore: PaymentStore
@@ -25,6 +27,7 @@ export class Store implements IStore {
 
     constructor() {
         this.ready = false
+        this.channelStore = new ChannelStore(this)
         this.invoiceStore = new InvoiceStore(this)
         this.lightningStore = new LightningStore(this)
         this.paymentStore = new PaymentStore(this)
@@ -38,6 +41,7 @@ export class Store implements IStore {
 
         when(
             () =>
+                this.channelStore.hydrated &&
                 this.invoiceStore.hydrated &&
                 this.lightningStore.hydrated &&
                 this.paymentStore.hydrated &&
@@ -49,6 +53,7 @@ export class Store implements IStore {
 
     async initialize(): Promise<void> {
         try {
+            await this.channelStore.initialize()
             await this.invoiceStore.initialize()
             await this.paymentStore.initialize()
             await this.transactionStore.initialize()
@@ -56,7 +61,7 @@ export class Store implements IStore {
             await this.lightningStore.initialize()
             this.setReady()
         } catch (error) {
-            log.debug(error)
+            log.error(JSON.stringify(error, undefined, 2))
         }
     }
 
