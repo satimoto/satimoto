@@ -1,56 +1,109 @@
-import React from "react"
-import { StyleSheet, Text, View } from "react-native"
+import React, { useEffect, useState } from "react"
+import { View } from "react-native"
 import { useTheme } from "@react-navigation/native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import MapboxGL from "@react-native-mapbox-gl/maps"
+import MapboxGL, { SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
 import BalanceCard from "components/BalanceCard"
+import HomeButtonContainer from "components/HomeButtonContainer"
+import { Log } from "utils/logging"
+import locationJson from "assets/locations.json"
+import { IS_ANDROID } from "utils/constants"
+import styles from "utils/styles"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-MapboxGL.setAccessToken("pk.eyJ1IjoiYWdyaXN0YSIsImEiOiJjaXdlcjAwMnEwMDQ2MnRrNGUycmo5Ym5zIn0.PzmdvMAwzbAfDHOq5sruOQ")
+const empty = require("assets/empty.png")
+const busy = require("assets/busy.png")
+const full = require("assets/full.png")
 
-const styles = StyleSheet.create({
-    page: {
-        flex: 1
-    },
-    map: {
-        flex: 1,
-        flexGrow: 1,
-        flexDirection: "column",
-        justifyContent: "space-between"
-    },
-    chrome: {
-        flex: 1,
-        flexGrow: 1,
-        flexDirection: "column",
-        justifyContent: "space-between"
-    },
-    balanceCard: {
-        margin: 10,
-        marginTop: 0
-    },
-    footer: {
-        marginTop: "auto",
-        margin: 10,
-        marginBottom: 0,
-        backgroundColor: "white"
-    },
-    icon: {
-        color: "#ffffff"
-    }
+const log = new Log("Home")
+
+MapboxGL.setAccessToken("pk.eyJ1Ijoic2F0aW1vdG8iLCJhIjoiY2t6bzlpajQxMzV5MzJwbnI0bW0zOW1waSJ9.RXvZaqPLk3xNagAQ-BAfQg")
+
+let features: any[] = []
+
+locationJson.forEach((location) => {
+    features.push({
+        type: "Feature",
+        geometry: {
+            type: "Point",
+            coordinates: [location.AddressInfo.Longitude, location.AddressInfo.Latitude]
+        },
+        properties: {
+            uuid: location.UUID,
+            busyConnections: Math.floor(Math.random() * (location.Connections.length + 1)),
+            totalConnections: location.Connections.length
+        }
+    })
 })
+
+log.debug(JSON.stringify(features, undefined, 2))
+
+const symbolLayer: SymbolLayerStyle = {
+    iconAnchor: "bottom",
+    iconAllowOverlap: true,
+    iconImage: [
+        "case",
+        ["==", ["get", "busyConnections"], 0],
+        "empty",
+        ["==", ["get", "busyConnections"], ["get", "totalConnections"]],
+        "full",
+        "busy"
+    ],
+    iconSize: 0.5,
+    textAnchor: "bottom",
+    textOffset: [0, -1.5],
+    textColor: "#ffffff",
+    textField: ["to-string", ["-", ["get", "totalConnections"], ["get", "busyConnections"]]]
+}
 
 const Home = () => {
     const { colors } = useTheme()
+    const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
+    const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
+    const [locations, setLocations]: [any, any] = useState({ type: "FeatureCollection", features: features })
+
+    useEffect(() => {
+        const requestPermissions = async () => {
+            const isGranted = await MapboxGL.requestAndroidLocationPermissions()
+            setHasLocationPermission(isGranted)
+            setRequestingLocationPermission(false)
+        }
+
+        if (requestingLocationPermission) {
+            requestPermissions()
+        }
+    }, [])
+
+    const includeCamera = () => {
+        if (hasLocationPermission) {
+            return (
+                <>
+                    <MapboxGL.Camera zoomLevel={9} followUserLocation />
+                    <MapboxGL.UserLocation />
+                </>
+            )
+        }
+
+        return <MapboxGL.Camera zoomLevel={9} />
+    }
 
     return (
-        <MapboxGL.MapView attributionEnabled={false} logoEnabled={false} style={styles.map} styleURL={MapboxGL.StyleURL.Street}>
-            <MapboxGL.Camera followUserLocation />
-            <SafeAreaView style={styles.chrome}>
-                <BalanceCard style={styles.balanceCard} />
-                <View style={styles.footer}>
-                    <Text>Footer</Text>
-                </View>
-            </SafeAreaView>
-        </MapboxGL.MapView>
+        <View style={styles.matchParent}>
+            <MapboxGL.MapView attributionEnabled={false} logoEnabled={false} style={styles.matchParent} styleURL={MapboxGL.StyleURL.Street}>
+                {includeCamera()}
+                <MapboxGL.Images
+                    images={{
+                        busy,
+                        empty,
+                        full
+                    }}
+                />
+                <MapboxGL.ShapeSource id="exampleShapeSource" shape={locations}>
+                    <MapboxGL.SymbolLayer id="exampleIconName" style={symbolLayer} />
+                </MapboxGL.ShapeSource>
+            </MapboxGL.MapView>
+            <BalanceCard />
+            <HomeButtonContainer />
+        </View>
     )
 }
 

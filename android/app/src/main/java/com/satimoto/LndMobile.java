@@ -72,6 +72,12 @@ public class LndMobile extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void addListener(String eventName) {}
+
+    @ReactMethod
+    public void removeListeners(Integer count) {}
+
+    @ReactMethod
     public void start(final Promise promise) {
         LndUtils lndUtils = new LndUtils(getReactApplicationContext());
         File confFile = new File(lndUtils.confFile);

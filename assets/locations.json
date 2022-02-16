@@ -1,0 +1,2402 @@
+[
+    {
+      "IsRecentlyVerified": false,
+      "ID": 64851,
+      "UUID": "5BBA1837-B149-4F63-AB54-20653A5116B0",
+      "DataProviderID": 1,
+      "OperatorID": 45,
+      "UsageTypeID": 1,
+      "AddressInfo": {
+        "ID": 65197,
+        "Title": "Restaurant ESPITAS",
+        "AddressLine1": "Torgauer Straße 306",
+        "AddressLine2": "Paunsdorf",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04347",
+        "CountryID": 87,
+        "Latitude": 51.3656383,
+        "Longitude": 12.4564786,
+        "AccessComments": "Direkt an der Einfahrt links sind 2 Mennekes Säulen hinter den beiden historischen Tanksäulen versteckt. 24/7 nutzbar, 4 kostenlose Parkplätze, kostenloses Laden.",
+        "RelatedURL": "http://www.espitas.de/restaurants/espitas-leipzig",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 83393,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 4
+        }
+      ],
+      "NumberOfPoints": 4,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-03-29T07:09:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-03-29T06:47:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 103210,
+      "UUID": "B7A7B0E7-87B1-4803-B8E9-2D26CBCB031E",
+      "DataProviderID": 1,
+      "OperatorID": 3297,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 103556,
+        "Title": "Leipziger Leuchten GmbH",
+        "AddressLine1": "Heiterblickstraße 37",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04347",
+        "CountryID": 87,
+        "Latitude": 51.36940999999999,
+        "Longitude": 12.43498999999997,
+        "ContactTelephone1": "+49 341 245613-0",
+        "AccessComments": "Die Säule ist nutzbar von Mo-Do 07-18 Uhr, Fr 07-15Uhr. Das Gelände ist außerhalb der Öffnungszeiten verschlossen.\r\n",
+        "RelatedURL": "http://www.leipziger-leuchten.com/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 145818,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2018-04-24T13:33:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2018-04-24T13:33:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 182709,
+      "UUID": "A7270BD1-BC6E-4876-8CFB-CBB1ABE0146D",
+      "DataProviderID": 29,
+      "DataProvidersReference": "18875",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 183068,
+        "Title": "Dortmunder Straße 2",
+        "AddressLine1": "Dortmunder Straße 2",
+        "Town": "Leipzig",
+        "Postcode": "04357",
+        "CountryID": 87,
+        "Latitude": 51.365968,
+        "Longitude": 12.401857,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 288782,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 50,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 288783,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-09T03:23:00Z",
+      "MetadataValues": [
+        {
+          "ID": 15002,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:03:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 32633,
+      "UUID": "9835C045-69F8-4A12-BA3A-0D3D12A37A89",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "OperatorsReference": "Essent EM-DE-14713000-01-00003",
+      "UsageTypeID": 1,
+      "UsageCost": "",
+      "AddressInfo": {
+        "ID": 32979,
+        "Title": "Autotag Renault",
+        "AddressLine1": "Essener Straße 27",
+        "AddressLine2": "Eutritzsch",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04129",
+        "CountryID": 87,
+        "Latitude": 51.37701,
+        "Longitude": 12.395440000000008,
+        "ContactTelephone1": "+49 341 121-6404",
+        "ContactTelephone2": "",
+        "ContactEmail": "",
+        "AccessComments": "4 kostenlose Parkplätze an der Einfahrt gleich rechts, 24/7 nutzbar seit 12/2015.",
+        "RelatedURL": "http://www.swl.de/web/swl/DE/Unternehmen/Elektromobilitaet/Elektromobilitaet.htm",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 36144,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 46454,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 4,
+      "GeneralComments": "",
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-01-12T12:00:00Z",
+      "DataQualityLevel": 3,
+      "DateCreated": "2015-01-09T06:03:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 185496,
+      "UUID": "D27EC25B-F56E-4587-996F-6958D03542C6",
+      "DataProviderID": 29,
+      "DataProvidersReference": "15276",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 185855,
+        "Title": "Essener Straße 27",
+        "AddressLine1": "Essener Straße 27",
+        "Town": "Leipzig",
+        "Postcode": "04129",
+        "CountryID": 87,
+        "Latitude": 51.377046,
+        "Longitude": 12.395435,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 295067,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10
+        },
+        {
+          "ID": 295068,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 299253,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10
+        },
+        {
+          "ID": 299254,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 17787,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:07:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 74190,
+      "UUID": "764F4405-F4B7-4A34-BF26-80CA036435A7",
+      "DataProviderID": 1,
+      "OperatorID": 45,
+      "UsageTypeID": 6,
+      "AddressInfo": {
+        "ID": 74536,
+        "Title": "City Inn Hotel Leipzig",
+        "AddressLine1": "Gräfestraße 15",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04129",
+        "CountryID": 87,
+        "Latitude": 51.3714902,
+        "Longitude": 12.383835800000043,
+        "ContactTelephone1": "+498001010880",
+        "AccessComments": "Für Gäste nach Anmeldung. Laden kostenlos, Parkgebühren 6,50€ in der Tiefgarage.",
+        "RelatedURL": "http://www.city-inn-hotel-leipzig.com/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 106536,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 1,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-11-25T07:04:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-11-25T07:04:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 52845,
+      "UUID": "2836C290-9459-4EBF-BB69-15CBFDB04A0C",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 53191,
+        "Title": "Eutritzscher Markt",
+        "AddressLine1": "Thaerstraße 1",
+        "Town": "Leipzig",
+        "Postcode": "04129",
+        "CountryID": 87,
+        "Latitude": 51.36856,
+        "Longitude": 12.3866800000001,
+        "ContactTelephone1": "Tel: +49 341 121-6404",
+        "AccessComments": "24/7 nutzbar; Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhanger, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.\r\n",
+        "RelatedURL": "https://www.l.de/gruppe/wir-fuer-leipzig/elektromobilitaet",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 65769,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T08:11:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-09-13T08:42:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 52860,
+      "UUID": "CDEB4FD5-C5C6-433D-BAE6-B93A0B6B89FE",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 53206,
+        "Title": "Gohlis Nord",
+        "AddressLine1": "Max-Liebermann-Straße 105",
+        "AddressLine2": "Eutritzsch",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04157",
+        "CountryID": 87,
+        "Latitude": 51.37647,
+        "Longitude": 12.37906,
+        "ContactTelephone1": "Tel: +49 341 121-6404",
+        "AccessComments": "2 kostenlose Parkplätze an Ladesäule, 24/7 nutzbar . Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhager, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 65784,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T08:00:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-09-13T08:58:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": true,
+      "DateLastVerified": "2021-12-17T09:15:00Z",
+      "ID": 190658,
+      "UUID": "84B512DE-66D7-48BC-A5DD-4F39B0897475",
+      "DataProviderID": 1,
+      "OperatorID": 3369,
+      "UsageTypeID": 1,
+      "AddressInfo": {
+        "ID": 191017,
+        "Title": "Comfort Charge - Leipzig/Druckereistraße",
+        "AddressLine1": "Druckereistraße 3",
+        "Town": "Leipzig",
+        "StateOrProvince": "Saxony",
+        "Postcode": "04159",
+        "CountryID": 87,
+        "Latitude": 51.38119,
+        "Longitude": 12.31102,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 309179,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 150,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 309180,
+          "ConnectionTypeID": 2,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 50,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 309181,
+          "ConnectionTypeID": 1036,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 309182,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 3,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-12-17T09:15:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2021-12-16T11:31:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 182597,
+      "UUID": "A748D916-E0FB-4937-8A29-E9C82B572F68",
+      "DataProviderID": 29,
+      "DataProvidersReference": "4837",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 182956,
+        "Title": "Willmar Schwabe Straße 2-4",
+        "AddressLine1": "Willmar Schwabe Straße 2-4",
+        "Town": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.341697,
+        "Longitude": 12.357864,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 288539,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 288540,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 14890,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:03:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 42161,
+      "UUID": "B5BF7CDC-C8E9-480C-9B08-AB7433209A6B",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 42507,
+        "Title": "Arena Leipzig",
+        "AddressLine1": "Am Sportforum 2",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.3413778409503,
+        "Longitude": 12.3537936455078,
+        "ContactTelephone1": "0341 121 6404",
+        "ContactEmail": "elektromobilitaet@swl.de",
+        "AccessComments": "E-Tankstelle ist ausgeschildert. Zwei Parkplätze an Ladesäule. RFID Karte der SWL (Stadtwerke Leipzig) oder Roaming Partner PlugSurfing nötig. Karte kann beim Technik-Personal (Büro am Sportlereingang rechts) ausgeliehen werden.",
+        "RelatedURL": "http://www.swl.de/web/swl/DE/Unternehmen/Elektromobilitaet/Elektromobilitaet.htm",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 50640,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 50641,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 4,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2015-02-24T15:10:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-02-23T09:53:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 179837,
+      "UUID": "627143E6-94F2-4AF9-8495-70883D449882",
+      "DataProviderID": 29,
+      "DataProvidersReference": "2311",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 180196,
+        "Title": "Am Sportforum 2",
+        "AddressLine1": "Am Sportforum 2",
+        "Town": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.34213,
+        "Longitude": 12.353327,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 282187,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10
+        },
+        {
+          "ID": 282188,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 299177,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10
+        },
+        {
+          "ID": 299178,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 12131,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:00:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": true,
+      "DateLastVerified": "2021-12-17T13:56:00Z",
+      "ID": 184662,
+      "UUID": "47F3DC11-2F51-4C28-A9BA-B98477924A01",
+      "DataProviderID": 1,
+      "OperatorID": 3369,
+      "UsageTypeID": 1,
+      "AddressInfo": {
+        "ID": 185021,
+        "Title": "Comfort Charge - Leipzig/Silcherstraße",
+        "AddressLine1": "Silcherstraße 2",
+        "Town": "Leipzig",
+        "Postcode": "04179",
+        "CountryID": 87,
+        "Latitude": 51.344527,
+        "Longitude": 12.313793,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 293193,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 150,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 293194,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 75,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 293195,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-12-17T13:56:00Z",
+      "MetadataValues": [
+        {
+          "ID": 16953,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:05:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 52856,
+      "UUID": "C2A9BC02-C4B8-4EED-B24C-CBC49A9B0F18",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 53202,
+        "Title": "Rathaus Leutzsch",
+        "AddressLine1": "Hans-Driesch-Straße 40",
+        "AddressLine2": "Leutzsch",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04179",
+        "CountryID": 87,
+        "Latitude": 51.3475037,
+        "Longitude": 12.3130484000001,
+        "ContactTelephone1": "Tel: +49 341 121-6404",
+        "AccessComments": "2 kostenlose Parkplätze an Ladesäule, 24/7 nutzbar. Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhanger, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.",
+        "RelatedURL": "https://www.l.de/gruppe/wir-fuer-leipzig/elektromobilitaet",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 65780,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T08:06:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-09-13T08:53:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 182712,
+      "UUID": "0221FB51-DF48-49A1-B984-05D77343D3DB",
+      "DataProviderID": 29,
+      "DataProvidersReference": "11888",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 183071,
+        "Title": "Georg Schumann Straße 156",
+        "AddressLine1": "Georg Schumann Straße 156",
+        "Town": "Leipzig",
+        "Postcode": "04159",
+        "CountryID": 87,
+        "Latitude": 51.36644,
+        "Longitude": 12.349901,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 288788,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 288789,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-09T03:23:00Z",
+      "MetadataValues": [
+        {
+          "ID": 15005,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:03:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 183033,
+      "UUID": "7AF1261E-F8EF-42A7-91C2-3AE8473A6042",
+      "DataProviderID": 29,
+      "DataProvidersReference": "11279",
+      "OperatorID": 45,
+      "AddressInfo": {
+        "ID": 183392,
+        "Title": "Georg-Schumann-Straße 105-109",
+        "AddressLine1": "Georg-Schumann-Straße 105-109",
+        "Town": "Leipzig-Gohlis",
+        "Postcode": "04155",
+        "CountryID": 87,
+        "Latitude": 51.3624343,
+        "Longitude": 12.3623596,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 289509,
+          "ConnectionTypeID": 1036,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 43,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 289510,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 50,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 299216,
+          "ConnectionTypeID": 2,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 50,
+          "CurrentTypeID": 30
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 15326,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:03:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 42181,
+      "UUID": "604C2903-71C1-4F93-B631-66517610DC24",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 5,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 42527,
+        "Title": "Naturkundemuseum",
+        "AddressLine1": "Lortzingstraße 10",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.3456268,
+        "Longitude": 12.3702235000001,
+        "ContactTelephone1": "0341 121 7010",
+        "ContactEmail": "elektromobilitaet@swl.de",
+        "AccessComments": "2 kostenlose immer nutzbare Parkplätze. RFID Karte der SWL oder Roamingpartner PlugSurfing nötig.",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 50670,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 25,
+          "Voltage": 400,
+          "PowerKW": 16,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 50671,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 4,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2015-02-26T21:13:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-02-25T10:59:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 42182,
+      "UUID": "B969B4B2-BE93-4E5C-8677-AC89224ABA73",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 5,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 42528,
+        "Title": "Zoo",
+        "AddressLine1": "Pfaffendorfer Str 29",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.3505024207169,
+        "Longitude": 12.3715348206542,
+        "ContactTelephone1": "0341 121 7010",
+        "ContactEmail": "elektromobilitaet@swl.de",
+        "AccessComments": "Immer nutzbare Parkplätze im Parkhaus, die bis 6 Stunden Parkdauer kostenlos sind. Steckerverriegelung wird mit PIN auf dem Parkschein freigeschaltet, also freier Zugang zur Ladeenergie. Die Steckdosen sind im hinteren Parkhaus, das manchmal geschlossen ist. In diesem Fall am Schalter an der Einfahrt melden, damit es geöffnet wird.",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 50672,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 25,
+          "Voltage": 400,
+          "PowerKW": 16,
+          "CurrentTypeID": 20,
+          "Quantity": 0
+        },
+        {
+          "ID": 50673,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 4
+        }
+      ],
+      "NumberOfPoints": 4,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2015-02-26T21:12:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-02-25T11:31:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 181708,
+      "UUID": "56736B87-2093-4E63-A2A0-9ED06D3288B8",
+      "DataProviderID": 29,
+      "DataProvidersReference": "11319",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 182067,
+        "Title": "Blochmannstraße 59",
+        "AddressLine1": "Blochmannstraße 59",
+        "Town": "Leipzig",
+        "Postcode": "04155",
+        "CountryID": 87,
+        "Latitude": 51.362974,
+        "Longitude": 12.37362,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 286393,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 286394,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 14002,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:02:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 52846,
+      "UUID": "9524AE4E-B633-423C-A5B1-6FDB6CA39A47",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 53192,
+        "Title": "S-Bahnhof Gohlis",
+        "AddressLine1": "Blochmannstraße 59",
+        "AddressLine2": "Gohlis",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04155",
+        "CountryID": 87,
+        "Latitude": 51.3628273,
+        "Longitude": 12.3736827,
+        "ContactTelephone1": "Tel: +49 341 121-6404",
+        "AccessComments": "24/7 nutzbar. Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhanger, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.\r\n",
+        "RelatedURL": "https://www.l.de/gruppe/wir-fuer-leipzig/elektromobilitaet",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 65770,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T08:11:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-09-13T08:43:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 178317,
+      "UUID": "5ACDA207-B288-48FC-89FC-0B35D5EC1654",
+      "DataProviderID": 29,
+      "DataProvidersReference": "3654",
+      "OperatorID": 45,
+      "AddressInfo": {
+        "ID": 178676,
+        "Title": "Theresienstraße 5",
+        "AddressLine1": "Theresienstraße 5",
+        "Town": "Leipzig",
+        "Postcode": "04129",
+        "CountryID": 87,
+        "Latitude": 51.3603727,
+        "Longitude": 12.3815773,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 278560,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 278561,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 0,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 10611,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T09:49:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 66521,
+      "UUID": "89FC1810-BBE9-4AD7-A501-6222FA1EFE04",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 66867,
+        "Title": "Bosch Service-Center",
+        "AddressLine1": "Theresienstraße 4",
+        "AddressLine2": "Zentrum-Nord",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.35947141247446,
+        "Longitude": 12.380259230827292,
+        "AccessComments": "24/7 nutzbar. Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhanger, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.",
+        "RelatedURL": "https://www.l.de/gruppe/wir-fuer-leipzig/elektromobilitaet",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 91916,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 20,
+          "Voltage": 400,
+          "PowerKW": 14,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 91917,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T08:33:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-05-23T08:33:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 52847,
+      "UUID": "42C465FE-BC3A-499F-81F4-CBDB9DC0FD4E",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 53193,
+        "Title": "Chausseehaus",
+        "AddressLine1": "Delitzscher Straße 3",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.3576093,
+        "Longitude": 12.3771512000001,
+        "ContactTelephone1": "Tel: +49 341 121-6404",
+        "AccessComments": "24/7 nutzbar ; Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhanger, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.\r\n",
+        "RelatedURL": "https://www.l.de/gruppe/wir-fuer-leipzig/elektromobilitaet",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 65771,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T08:11:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-09-13T08:44:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 186456,
+      "UUID": "523B86E2-8F5A-4B61-80C4-930F03CA11C6",
+      "DataProviderID": 29,
+      "DataProvidersReference": "17816",
+      "AddressInfo": {
+        "ID": 186815,
+        "Title": "Willy-Brandt-Platz 7",
+        "AddressLine1": "Willy-Brandt-Platz 7",
+        "Town": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.345222,
+        "Longitude": 12.384168,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 299188,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 50,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 299189,
+          "ConnectionTypeID": 2,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 50,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 299190,
+          "ConnectionTypeID": 1036,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 43,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 18697,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-12T02:47:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 68454,
+      "UUID": "A31C92F7-1F06-407F-89A3-741DCC49FE06",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 68800,
+        "Title": "Multilader Hauptbahnhof ",
+        "AddressLine1": "Willy-Brandt-Platz 145",
+        "AddressLine2": "Zentrum-Ost",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.34471,
+        "Longitude": 12.379660000000058,
+        "AccessComments": "Rund um die Uhr (24/7) nutzbar. Position: Hauptbahnhof Westseite unweit der Mobilitätsstation (4) gleich neben dem Parkscheinautomaten.",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 95741,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        },
+        {
+          "ID": 95742,
+          "ConnectionTypeID": 2,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 50,
+          "CurrentTypeID": 30,
+          "Quantity": 1
+        },
+        {
+          "ID": 95743,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 20,
+          "CurrentTypeID": 30,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 3,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-06-07T08:08:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-06-07T08:08:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 52848,
+      "UUID": "8C54645F-4A03-4F2C-96EF-8B16EAC31D3E",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 53194,
+        "Title": "Hauptbahnhof",
+        "AddressLine1": "Willy-Brandt-Platz 7",
+        "AddressLine2": "",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.34486138587911,
+        "Longitude": 12.379226088523863,
+        "ContactTelephone1": "Tel: +49 341 121-6404",
+        "ContactTelephone2": "",
+        "ContactEmail": "",
+        "AccessComments": "Zufahrt zum Parkplatz über Kurt-Schumacher-StraßeZufahrt zum Parkplatz über Kurt-Schumacher-Straße. 24/7 nutzbar, jedoch gebührenpflichtige Parkplätze (0,70€ pro 30 Minuten) . Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhanger, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.",
+        "RelatedURL": "https://www.l.de/gruppe/wir-fuer-leipzig/elektromobilitaet",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 65772,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "GeneralComments": "",
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T08:22:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-09-13T08:45:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 183622,
+      "UUID": "FDC4630B-727B-4A68-BC4D-351157BB03B1",
+      "DataProviderID": 29,
+      "DataProvidersReference": "14497",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 183981,
+        "Title": "Willy-Brandt Platz 7",
+        "AddressLine1": "Willy-Brandt Platz 7",
+        "Town": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.344946,
+        "Longitude": 12.379212,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 290827,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 20,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 290828,
+          "ConnectionTypeID": 2,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 20,
+          "CurrentTypeID": 30
+        },
+        {
+          "ID": 299187,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 15915,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:04:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 42162,
+      "UUID": "2880CFAC-962A-44AF-A639-DDE6B07462AF",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 1,
+      "AddressInfo": {
+        "ID": 42508,
+        "Title": "Stadtwerke Leipzig Nord",
+        "AddressLine1": "Eutritzscher Straße 14b",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.35109489194769,
+        "Longitude": 12.377151483964202,
+        "ContactTelephone1": "0341 121 6610",
+        "ContactEmail": "elektromobilitaet@swl.de",
+        "AccessComments": "Immer nutzbar. Freischaltung mit RFID Karte der SWL (Stadtwerke Leipzig), Roaming Partner PlugSurfing, easy.go App oder  über Webseite intercharge direct möglich. Karte kann auch beim Pförtner ausgeliehen werden.",
+        "RelatedURL": "http://www.swl.de/web/swl/DE/Unternehmen/Elektromobilitaet/Elektromobilitaet.htm",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 50642,
+          "ConnectionTypeID": 17,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        },
+        {
+          "ID": 50643,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        },
+        {
+          "ID": 91905,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 4,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-05-23T07:55:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-02-23T10:01:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 42183,
+      "UUID": "8EB10236-012D-4067-A71E-6AEB25F5FB48",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 42529,
+        "Title": "Parkplatz Kickerlingsberg",
+        "AddressLine1": "Kickerlingsberg 2",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.3516678945099,
+        "Longitude": 12.3731739241316,
+        "ContactTelephone1": "0341 121 7010",
+        "ContactEmail": "elektromobilitaet@swl.de",
+        "AccessComments": "3 kostenlose imer nutzbare Parkplätze, die hintereinander liegen (Verlängerungskabel!), an der Straße. RFID Karte der SWL oder Roaming Partner PlugSurfing nötig.",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 50674,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 50675,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 4
+        }
+      ],
+      "NumberOfPoints": 4,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2015-02-26T21:11:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-02-25T11:35:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 177554,
+      "UUID": "783F3FED-DC1B-4DE7-A824-5810CD140903",
+      "DataProviderID": 29,
+      "DataProvidersReference": "12579",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 177913,
+        "Title": "Nordstraße 25",
+        "AddressLine1": "Nordstraße 25",
+        "Town": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.346486,
+        "Longitude": 12.375035,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 276835,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 276836,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 0,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 9848,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T09:49:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 90783,
+      "UUID": "77965B53-CA87-4874-BF1E-A62722D2AE40",
+      "DataProviderID": 1,
+      "OperatorID": 45,
+      "UsageTypeID": 6,
+      "AddressInfo": {
+        "ID": 91129,
+        "Title": "Hotel The Westin",
+        "AddressLine1": "Nordstraße 23",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.3462226027398,
+        "Longitude": 12.375233356622282,
+        "AccessComments": "24/7 nutzbar nur für Hotelgäste an der Ausfahrt zur Nordstraße. 2 grün markierte Parkplätze neben der Ladesäule.",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 128518,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2017-07-24T10:44:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2017-07-24T10:44:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 95981,
+      "UUID": "EE1EF400-936C-4CC9-8C45-BAE57D3E6200",
+      "DataProviderID": 1,
+      "OperatorID": 45,
+      "UsageTypeID": 6,
+      "AddressInfo": {
+        "ID": 96327,
+        "Title": "Hotel Travel24",
+        "AddressLine1": "Tröndlinring 9",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04105",
+        "CountryID": 87,
+        "Latitude": 51.3449497,
+        "Longitude": 12.372288099999992,
+        "AccessComments": "Für Gäste ist in der Tiefgarage eine Wallbox vorhanden.",
+        "RelatedURL": "https://www.hotel-travel24.com/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 135964,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 1,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2017-12-04T11:24:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2017-12-04T11:24:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 70090,
+      "UUID": "A71F8140-6A22-450D-AC8A-91B00E1FAA50",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 70436,
+        "Title": "Dittrichring",
+        "AddressLine1": "Dittrichring 16",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.341102,
+        "Longitude": 12.371738999999934,
+        "AccessComments": "Rund um die Uhr (24/7) nutzbar.",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 99994,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 99995,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-07-06T21:40:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-07-06T21:40:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 42180,
+      "UUID": "22D677A4-459B-4888-AE7E-02E1DF01B9B0",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 5,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 42526,
+        "Title": "Parkhaus Höfe am Brühl",
+        "AddressLine1": "Brühl 1",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.3431559,
+        "Longitude": 12.3733347,
+        "ContactTelephone1": "+49 341 121-6404",
+        "ContactEmail": "elektromobilitaet@swl.de",
+        "AccessComments": "2 kostenpflichtige Parkplätze (1€/h, 8€/Tag) im Parkhaus, auch per SMS zahlbar. Einfahrt von 6-23Uhr täglich, Ausfahrt jederzeit. \r\nEinfahrt zum Parkdeck über Straße \"Am Hallischen Tor\",  Ladesäule auf Parkdeck A, Parkplätze Nr. 179 & 180.\r\nKeine Ladekarte nötig, Steckdosen immer an!",
+        "RelatedURL": "http://www.swl.de/web/swl/DE/Unternehmen/Elektromobilitaet/Elektromobilitaet.htm",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 50668,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 0
+        },
+        {
+          "ID": 50669,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2015-09-13T09:10:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2015-02-25T10:55:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 72597,
+      "UUID": "AC5B8678-06BB-494C-A5DA-9C6CBF8CFD7A",
+      "DataProviderID": 1,
+      "OperatorID": 23,
+      "OperatorsReference": "20139",
+      "UsageTypeID": 6,
+      "AddressInfo": {
+        "ID": 72943,
+        "Title": "Höfe Am Brühl",
+        "AddressLine1": "Brühl 1",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.3433939680735,
+        "Longitude": 12.3747106153443,
+        "ContactTelephone1": "+49 3414 623400",
+        "AccessComments": "Tesla Destination charging location.  Für Besucher des Einkaufszentrums.",
+        "RelatedURL": "http://hoefe-am-bruehl.de/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 104067,
+          "ConnectionTypeID": 30,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2018-10-03T22:36:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-10-26T06:28:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 181779,
+      "UUID": "C3A3F8E9-EC21-470A-97C9-52A209883577",
+      "DataProviderID": 29,
+      "DataProvidersReference": "1197",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 182138,
+        "Title": "Richard Wagner Straße 10",
+        "AddressLine1": "Richard Wagner Straße 10",
+        "Town": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.343893,
+        "Longitude": 12.377814,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 286573,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 286574,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 299185,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 299186,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 14073,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:02:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 70082,
+      "UUID": "41516146-2416-48A9-A0E4-CCACB5621DA8",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 70428,
+        "Title": "Richard-Wagner-Straße",
+        "AddressLine1": "Richard-Wagner-Straße 10 A",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04109",
+        "CountryID": 87,
+        "Latitude": 51.3436865,
+        "Longitude": 12.377287799999976,
+        "AccessComments": "Rund um die Uhr (24/7) nutzbar. Position: neben der \"Lipsia-e-motion-Linde\". Bei Störung: 0800 121-3001 bei Falschparkern: 0341 123 8888\r\n",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 99980,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 99981,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-07-06T21:26:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-07-06T21:26:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "UserComments": [
+        {
+          "ID": 3505,
+          "ChargePointID": 15640,
+          "CommentTypeID": 10,
+          "UserName": "",
+          "Comment": "One schuko 220v, single phase.  Very recessed inside locking door, and one type 2 400v 3 phase I ran up to 11 kw.  Hotel reception has digital key card.  Only 2 places to charge.",
+          "Rating": 5,
+          "DateCreated": "2015-01-01T17:02:21.66Z",
+          "CheckinStatusTypeID": 10
+        }
+      ],
+      "IsRecentlyVerified": false,
+      "ID": 15640,
+      "UUID": "609885E7-4A83-4F4A-98FC-7616CC1A949D",
+      "DataProviderID": 1,
+      "OperatorID": 45,
+      "UsageTypeID": 6,
+      "UsageCost": "Free",
+      "AddressInfo": {
+        "ID": 15985,
+        "Title": "Leipzig Mariott Hotel",
+        "AddressLine1": "Am Hallischen Tor 1",
+        "Town": " Leipzig",
+        "Postcode": "04109 ",
+        "CountryID": 87,
+        "Latitude": 51.3433131,
+        "Longitude": 12.3768638,
+        "ContactTelephone1": "+49-341-9653 ext 0",
+        "RelatedURL": "http://www.marriott.com/hotels/travel/lejdt-leipzig-marriott-hotel/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 34698,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        },
+        {
+          "ID": 34699,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2017-02-11T15:40:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2013-01-19T19:26:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 81737,
+      "UUID": "E06601D6-235D-463C-8BDC-D3E2222861B5",
+      "DataProviderID": 1,
+      "OperatorID": 23,
+      "OperatorsReference": "17114",
+      "UsageTypeID": 6,
+      "AddressInfo": {
+        "ID": 82083,
+        "Title": "Leipzig Marriott Hotel",
+        "AddressLine1": "Am Hallischen Tor 1",
+        "Town": "Leipzig",
+        "Postcode": "4109",
+        "CountryID": 87,
+        "Latitude": 51.343386,
+        "Longitude": 12.376884,
+        "ContactTelephone1": "+49 341 96530",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 116495,
+          "ConnectionTypeID": 30,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 1,
+      "GeneralComments": "1 Tesla Connector, up to 22kW.Available for patrons only. Please see front desk.",
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2018-10-03T16:13:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2017-02-03T11:52:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 68633,
+      "UUID": "F718028E-0EF1-45EE-AF5C-EB87AF8E97BD",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "UsageCost": "0",
+      "AddressInfo": {
+        "ID": 68979,
+        "Title": "Ritterstraße",
+        "AddressLine1": "Ritterstraße 4 ",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04107",
+        "CountryID": 87,
+        "Latitude": 51.34127784949992,
+        "Longitude": 12.380387781753596,
+        "ContactTelephone1": "+49 341 121-6404",
+        "AccessComments": "An der Ecke zur Goethestraße. 24/7 nutzbar , Zugang mit Ladekarte der Stadtwerke Leipzig, PlugSurfing Keyhanger, Stromticket \"easyGo\" App oder mit Webseite intercharge direct.",
+        "RelatedURL": "https://www.l.de/gruppe/wir-fuer-leipzig/elektromobilitaet",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 96241,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        },
+        {
+          "ID": 96242,
+          "ConnectionTypeID": 28,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 230,
+          "PowerKW": 3.7,
+          "CurrentTypeID": 10,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2016-06-14T07:57:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2016-06-14T07:57:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 185549,
+      "UUID": "622673C7-36C1-4660-9EF4-AB6E6C14F528",
+      "DataProviderID": 1,
+      "OperatorID": 1,
+      "UsageTypeID": 1,
+      "UsageCost": "0.50 €/kWh",
+      "AddressInfo": {
+        "ID": 185908,
+        "Title": "Ladestation REWE Kreuzstraße",
+        "AddressLine1": "Kreuzstr. 31",
+        "Town": "Leipzig",
+        "Postcode": "04315",
+        "CountryID": 87,
+        "Latitude": 51.341168,
+        "Longitude": 12.395672,
+        "ContactTelephone1": "+49 341 99389495",
+        "RelatedURL": "http://city-concept-e-ladestationen.de/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 295165,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "GeneralComments": "Die Ladestation befindet sich auf dem Kundenparkplatz des REWE-Marktes. Während der Öffnungszeiten des Supermarktes (Mo-Sa 07:00-22:00) beträgt die maximale Standzeit 4 Stunden, außerhalb der Öffnungszeiten 9 Stunden. Bei Überschreiten der Maximalstandzeit wird eine Parkgebühr von 24,90 € erhoben.",
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T07:41:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2021-07-09T10:40:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 181865,
+      "UUID": "88086964-EC93-41F5-8F36-67C4ACA18E78",
+      "DataProviderID": 29,
+      "DataProvidersReference": "1742",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 182224,
+        "Title": "Stannebeinplatz 3",
+        "AddressLine1": "Stannebeinplatz 3",
+        "Town": "Leipzig",
+        "Postcode": "04347",
+        "CountryID": 87,
+        "Latitude": 51.351586,
+        "Longitude": 12.407062,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 286836,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 286837,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-12T02:47:00Z",
+      "MetadataValues": [
+        {
+          "ID": 14159,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:02:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 182675,
+      "UUID": "1F9C6757-8449-420B-A521-48BA1F47DCA4",
+      "DataProviderID": 29,
+      "DataProvidersReference": "1697",
+      "OperatorID": 155,
+      "AddressInfo": {
+        "ID": 183034,
+        "Title": "Stannebeinplatz 3",
+        "AddressLine1": "Stannebeinplatz 3",
+        "Town": "Leipzig",
+        "Postcode": "04347",
+        "CountryID": 87,
+        "Latitude": 51.351586,
+        "Longitude": 12.407062,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 288709,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        },
+        {
+          "ID": 288710,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "PowerKW": 11,
+          "CurrentTypeID": 20
+        }
+      ],
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-07-09T03:23:00Z",
+      "MetadataValues": [
+        {
+          "ID": 14968,
+          "MetadataFieldID": 4,
+          "ItemValue": "Data from the German chargepoint registry provided by Bundesnetzagentur.de under the CC-BY 4.0 license"
+        }
+      ],
+      "DataQualityLevel": 3,
+      "DateCreated": "2021-07-08T10:03:00Z",
+      "SubmissionStatusTypeID": 100
+    },
+    {
+      "MediaItems": [
+        {
+          "ID": 26659,
+          "ChargePointID": 172215,
+          "ItemURL": "https://s3-ap-southeast-2.amazonaws.com/openchargemap/images/DE/OCM172215/OCM-172215.orig.2021022410090310.jpg",
+          "ItemThumbnailURL": "https://s3-ap-southeast-2.amazonaws.com/openchargemap/images/DE/OCM172215/OCM-172215.thmb.2021022410090310.jpg",
+          "Comment": "",
+          "IsEnabled": true,
+          "IsVideo": false,
+          "IsFeaturedItem": false,
+          "IsExternalResource": false,
+          "User": {
+            "ID": 29260,
+            "Username": "Q1 Autostrom",
+            "ReputationPoints": 43,
+            "ProfileImageURL": "https://www.gravatar.com/avatar/153efe4296a447d2042fd1f385449559?s=80&d=robohash"
+          },
+          "DateCreated": "2021-02-24T10:09:00Z"
+        }
+      ],
+      "IsRecentlyVerified": false,
+      "ID": 172215,
+      "UUID": "5292E7DB-6076-4E89-AC7C-BACD5C8DB780",
+      "DataProviderID": 1,
+      "OperatorID": 3429,
+      "UsageTypeID": 1,
+      "UsageCost": "0,59 €/kWh Gleichstromaufladen",
+      "AddressInfo": {
+        "ID": 172574,
+        "Title": "Q1 Autostrom",
+        "AddressLine1": "Torgauer Straße 118",
+        "Town": "Leipzig",
+        "StateOrProvince": "Sachsen",
+        "Postcode": "04347",
+        "CountryID": 87,
+        "Latitude": 51.356722,
+        "Longitude": 12.437368,
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 263258,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 150,
+          "CurrentTypeID": 30,
+          "Quantity": 2
+        },
+        {
+          "ID": 263259,
+          "ConnectionTypeID": 33,
+          "StatusTypeID": 50,
+          "LevelID": 3,
+          "PowerKW": 75,
+          "CurrentTypeID": 30,
+          "Quantity": 2
+        },
+        {
+          "ID": 263260,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-02-24T10:09:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2021-01-22T08:05:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 100252,
+      "UUID": "C4425200-3A95-4A9C-8A28-7253A1D185D2",
+      "DataProviderID": 1,
+      "OperatorID": 155,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 100598,
+        "Title": "Suite Hotel Leipzig",
+        "AddressLine1": "Permoserstraße 50",
+        "AddressLine2": "Sellerhausen-Stünz",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04328",
+        "CountryID": 87,
+        "Latitude": 51.35072669294687,
+        "Longitude": 12.440969142852737,
+        "ContactTelephone1": " +49 341 25890",
+        "AccessComments": "Täglich von 7-20Uhr nutzbar in der Tiefgarage; bitte an der Rezeption anmelden. Parken bis zu 4 Stunden ist kostenlos! Freischaltung auch mit New Motion oder PlugSurfing Karten möglich.",
+        "RelatedURL": "http://www.suitehotel-leipzig.de/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 141614,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 16,
+          "Voltage": 400,
+          "PowerKW": 11,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2018-02-19T07:28:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2018-02-19T07:28:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": false,
+      "ID": 95046,
+      "UUID": "5619C75E-6FE6-491F-9AED-63AD784A928D",
+      "DataProviderID": 1,
+      "OperatorID": 156,
+      "UsageTypeID": 4,
+      "AddressInfo": {
+        "ID": 95392,
+        "Title": "Autohaus  Freydank (Hyundai)",
+        "AddressLine1": "Geithainer Straße 58",
+        "Town": "Leipzig",
+        "StateOrProvince": "Leipzig",
+        "Postcode": "04328",
+        "CountryID": 87,
+        "Latitude": 51.341218858361295,
+        "Longitude": 12.439133554175553,
+        "AccessComments": "24/7 open",
+        "RelatedURL": "http://www.auto-freydank.de/",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 134677,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 2
+        }
+      ],
+      "NumberOfPoints": 2,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2017-11-01T11:46:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2017-11-01T11:46:00Z",
+      "SubmissionStatusTypeID": 200
+    },
+    {
+      "IsRecentlyVerified": true,
+      "DateLastVerified": "2021-12-03T11:09:00Z",
+      "ID": 190381,
+      "UUID": "F6779A83-4164-461F-8CB5-C2B18EAD0FCE",
+      "DataProviderID": 1,
+      "OperatorID": 3429,
+      "UsageTypeID": 1,
+      "UsageCost": "0,39 ct/kWh",
+      "AddressInfo": {
+        "ID": 190740,
+        "Title": "Q1 Autostrom",
+        "AddressLine1": "Risaer Straße 56",
+        "Town": "Leipzig",
+        "StateOrProvince": "Sachsen",
+        "Postcode": "04328",
+        "CountryID": 87,
+        "Latitude": 51.34545,
+        "Longitude": 12.4491,
+        "ContactTelephone1": "0541602800",
+        "RelatedURL": "http://www.q1.eu",
+        "DistanceUnit": 0
+      },
+      "Connections": [
+        {
+          "ID": 308619,
+          "ConnectionTypeID": 25,
+          "StatusTypeID": 50,
+          "LevelID": 2,
+          "Amps": 32,
+          "Voltage": 400,
+          "PowerKW": 22,
+          "CurrentTypeID": 20,
+          "Quantity": 1
+        }
+      ],
+      "NumberOfPoints": 1,
+      "StatusTypeID": 50,
+      "DateLastStatusUpdate": "2021-12-03T11:09:00Z",
+      "DataQualityLevel": 1,
+      "DateCreated": "2021-12-02T12:05:00Z",
+      "SubmissionStatusTypeID": 200
+    }
+  ]

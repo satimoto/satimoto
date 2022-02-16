@@ -7,7 +7,6 @@ import { channelBalance, subscribeChannelEvents } from "services/LightningServic
 import { toNumber } from "utils/conversion"
 import { Debug } from "utils/build"
 import { Log } from "utils/logging"
-import { util } from "protobufjs"
 
 const log = new Log("ChannelStore")
 

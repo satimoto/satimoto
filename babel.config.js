@@ -7,7 +7,9 @@ module.exports = {
                 cwd: "babelrc",
                 extensions: [".ts", ".tsx", ".js", ".ios.js", ".android.js"],
                 alias: {
+                    assets: "./assets",
                     components: "./components",
+                    models: "./models",
                     proto: "./proto",
                     screens: "./screens",
                     services: "./services",
@@ -16,6 +18,7 @@ module.exports = {
                 },
                 root: ["."]
             }
-        ]
+        ],
+        "react-native-reanimated/plugin"
     ]
 }

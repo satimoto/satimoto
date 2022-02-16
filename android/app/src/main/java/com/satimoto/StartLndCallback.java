@@ -11,7 +11,7 @@ public class StartLndCallback extends LndCallback {
 
     @Override
     public void onError(Exception e) {
-        if (e.getLocalizedMessage().contains("lnd already started")) {
+        if (e.getLocalizedMessage().contains("already started")) {
             promise.resolve("lnd already started");
         } else {
             promise.reject("error", e);

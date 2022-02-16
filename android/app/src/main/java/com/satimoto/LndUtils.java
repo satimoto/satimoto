@@ -42,6 +42,12 @@ public class LndUtils extends ReactContextBaseJavaModule {
         return TAG;
     }
 
+    @ReactMethod
+    public void addListener(String eventName) {}
+
+    @ReactMethod
+    public void removeListeners(Integer count) {}
+
     private void prepareFileDirectory(String filename) {
         new File(filename).getParentFile().mkdirs();
     }
@@ -84,6 +90,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
                             "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
+                            "tlsdisableautofill=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -112,6 +119,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
                             "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
+                            "tlsdisableautofill=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -139,6 +147,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "norest=1\n" +
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
+                            "tlsdisableautofill=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -146,11 +155,11 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=bitcoind\n" +
                             "\n" +
                             "[Bitcoind]\n" +
-                            "bitcoind.rpchost=127.0.0.1:18443\n" +
+                            "bitcoind.rpchost=10.0.2.2:18443\n" +
                             "bitcoind.rpcuser=polaruser\n" +
                             "bitcoind.rpcpass=polarpass\n" +
-                            "bitcoind.zmqpubrawblock=127.0.0.1:28334\n" +
-                            "bitcoind.zmqpubrawtx=127.0.0.1:29335\n" +
+                            "bitcoind.zmqpubrawblock=10.0.2.2:28334\n" +
+                            "bitcoind.zmqpubrawtx=10.0.2.2:29335\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +
@@ -181,7 +190,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    void startLogEvents(String content, Promise promise) {
+    void startLogEvents(Promise promise) {
         if (logObserver == null) {
             FileInputStream fileInputStream = null;
 
@@ -226,6 +235,4 @@ public class LndUtils extends ReactContextBaseJavaModule {
                     .emit(logEventName, lines);
         }
     }
-
-
 }
