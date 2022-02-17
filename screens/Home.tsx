@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react"
-import { View } from "react-native"
+import { Dimensions, View } from "react-native"
 import { useTheme } from "@react-navigation/native"
-import MapboxGL, { SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
+import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
 import BalanceCard from "components/BalanceCard"
 import HomeButtonContainer from "components/HomeButtonContainer"
+import LocationPanel, { createRef } from "components/LocationPanel"
 import { Log } from "utils/logging"
 import locationJson from "assets/locations.json"
 import { IS_ANDROID } from "utils/constants"
 import styles from "utils/styles"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import Location from "models/location"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -22,6 +23,7 @@ let features: any[] = []
 
 locationJson.forEach((location) => {
     features.push({
+        id: location.ID,
         type: "Feature",
         geometry: {
             type: "Point",
@@ -29,6 +31,10 @@ locationJson.forEach((location) => {
         },
         properties: {
             uuid: location.UUID,
+            name: location.AddressInfo.Title,
+            address: location.AddressInfo.AddressLine1,
+            city: location.AddressInfo.Town,
+            postalCode: location.AddressInfo.Postcode,
             busyConnections: Math.floor(Math.random() * (location.Connections.length + 1)),
             totalConnections: location.Connections.length
         }
@@ -59,7 +65,9 @@ const Home = () => {
     const { colors } = useTheme()
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
-    const [locations, setLocations]: [any, any] = useState({ type: "FeatureCollection", features: features })
+    const [locations, setLocations] = useState<any>({ type: "FeatureCollection", features: features })
+    const [location, setLocation] = useState<Location>()
+    const locationPanelRef = createRef()
 
     useEffect(() => {
         const requestPermissions = async () => {
@@ -72,6 +80,23 @@ const Home = () => {
             requestPermissions()
         }
     }, [])
+
+    useEffect(() => {
+        if (location) {
+            locationPanelRef.current?.show({toValue: Dimensions.get("window").height / 2, velocity: 0.1})
+        } else {
+            locationPanelRef.current?.hide()
+        }
+    }, [location])
+
+    const onPress = ({coordinates, features}: OnPressEvent) => {
+        log.debug(JSON.stringify(coordinates))
+        
+        if (features.length) {
+            setLocation(features[0].properties as Location)
+        }
+        log.debug(JSON.stringify(features))
+    }
 
     const includeCamera = () => {
         if (hasLocationPermission) {
@@ -88,7 +113,7 @@ const Home = () => {
 
     return (
         <View style={styles.matchParent}>
-            <MapboxGL.MapView attributionEnabled={false} logoEnabled={false} style={styles.matchParent} styleURL={MapboxGL.StyleURL.Street}>
+            <MapboxGL.MapView attributionEnabled={false} compassEnabled={false} logoEnabled={false} style={styles.matchParent} styleURL={MapboxGL.StyleURL.Street}>
                 {includeCamera()}
                 <MapboxGL.Images
                     images={{
@@ -97,12 +122,13 @@ const Home = () => {
                         full
                     }}
                 />
-                <MapboxGL.ShapeSource id="exampleShapeSource" shape={locations}>
-                    <MapboxGL.SymbolLayer id="exampleIconName" style={symbolLayer} />
+                <MapboxGL.ShapeSource id="locationsShapeSource" onPress={onPress} shape={locations}>
+                    <MapboxGL.SymbolLayer id="locationsSymbolLayer" style={symbolLayer} />
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard />
             <HomeButtonContainer />
+            <LocationPanel location={location} ref={locationPanelRef}/>
         </View>
     )
 }

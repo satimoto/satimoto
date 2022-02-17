@@ -11,6 +11,7 @@
     "react:clean": "rm -rf /tmp/metro-* && yarn start --reset-cache",
     "android": "react-native run-android",
     "android:clean": "cd android && ./gradlew clean",
+    "android:reverse": "adb reverse tcp:8081 tcp:8081",
     "android:regtest": "react-native run-android --variant networkregtestRelease --appIdSuffix regtest",
     "android:regtest-debug": "react-native run-android --variant networkregtestDebug --appIdSuffix regtest.debug",
     "android:testnet": "react-native run-android --variant networktestnetRelease --appIdSuffix testnet",
@@ -56,7 +57,8 @@
     "react-native-secure-storage": "^0.1.2",
     "react-native-securerandom": "^1.0.0",
     "react-native-svg": "^12.1.1",
-    "react-native-web": "^0.17.5"
+    "react-native-web": "^0.17.5",
+    "rn-sliding-up-panel": "^2.4.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

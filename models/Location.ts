@@ -1,11 +1,14 @@
 import React from "react"
 
 interface Location {
-    id: number
     uuid: string
-    busyConnections: number
-    totalConnections: number
-    coordinate: number[]
+    name: string
+    address: string
+    city: string
+    postalCode: string
 }
 
+type LocationLike = Location | undefined
+
 export default Location
+export type { LocationLike }

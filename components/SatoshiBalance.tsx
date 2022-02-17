@@ -1,7 +1,6 @@
 import { SatoshiV2Icon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import React, { PropsWithChildren } from "react"
 import { StyleSheet, Text, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { store } from "stores/Store"
 import { formatSatoshis } from "utils/format"
 import { Log } from "utils/logging"
