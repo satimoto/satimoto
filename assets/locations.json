@@ -1267,7 +1267,7 @@
           "ConnectionTypeID": 33,
           "StatusTypeID": 50,
           "LevelID": 3,
-          "PowerKW": 20,
+          "PowerKW": 50,
           "CurrentTypeID": 30,
           "Quantity": 1
         }
@@ -1350,7 +1350,7 @@
           "ConnectionTypeID": 33,
           "StatusTypeID": 50,
           "LevelID": 3,
-          "PowerKW": 20,
+          "PowerKW": 50,
           "CurrentTypeID": 30
         },
         {

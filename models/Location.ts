@@ -1,4 +1,4 @@
-import React from "react"
+import Connector from "models/Connector"
 
 interface Location {
     uuid: string
@@ -6,6 +6,7 @@ interface Location {
     address: string
     city: string
     postalCode: string
+    connectors: Connector[]
 }
 
 type LocationLike = Location | undefined

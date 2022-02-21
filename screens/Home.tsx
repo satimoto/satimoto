@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react"
-import { Dimensions, View } from "react-native"
-import { useTheme } from "@react-navigation/native"
-import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
+import locationJson from "assets/locations.json"
 import BalanceCard from "components/BalanceCard"
 import HomeButtonContainer from "components/HomeButtonContainer"
 import LocationPanel, { createRef } from "components/LocationPanel"
-import { Log } from "utils/logging"
-import locationJson from "assets/locations.json"
-import { IS_ANDROID } from "utils/constants"
-import styles from "utils/styles"
 import Location from "models/location"
+import React, { useEffect, useState } from "react"
+import { Dimensions, View } from "react-native"
+import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
+import { useTheme } from "@react-navigation/native"
+import { IS_ANDROID } from "utils/constants"
+import { Log } from "utils/logging"
+import styles from "utils/styles"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -20,6 +20,39 @@ const log = new Log("Home")
 MapboxGL.setAccessToken("pk.eyJ1Ijoic2F0aW1vdG8iLCJhIjoiY2t6bzlpajQxMzV5MzJwbnI0bW0zOW1waSJ9.RXvZaqPLk3xNagAQ-BAfQg")
 
 let features: any[] = []
+
+const connectorTypes: any = {
+    "0": {
+        title: "Unknown",
+        voltage: 20,
+        currentType: "DC"
+    },
+    "2": {
+        title: "CHAdeMO",
+        voltage: 20,
+        currentType: "DC"
+    },
+    "17": {
+        title: "CEE 5 Pin",
+        voltage: 22,
+        currentType: "AC (3-Phase)"
+    },
+    "25": {
+        title: "Socket (Type 2)",
+        voltage: 22,
+        currentType: "AC (3-Phase)"
+    },
+    "28": {
+        title: "CEE 7/4 - Schuko - Type F",
+        voltage: 3.7,
+        currentType: "AC (1-Phase)"
+    },
+    "33": {
+        title: "CCS (Type 2)",
+        voltage: 20,
+        currentType: "DC"
+    }
+}
 
 locationJson.forEach((location) => {
     features.push({
@@ -36,12 +69,19 @@ locationJson.forEach((location) => {
             city: location.AddressInfo.Town,
             postalCode: location.AddressInfo.Postcode,
             busyConnections: Math.floor(Math.random() * (location.Connections.length + 1)),
-            totalConnections: location.Connections.length
+            totalConnections: location.Connections.length,
+            connectors: location.Connections.map((connection) => {
+                return {
+                    id: connection.ID.toString(),
+                    connectorId: connection.ConnectionTypeID,
+                    ...connectorTypes[0],
+                    ...connectorTypes[connection.ConnectionTypeID],
+                    voltage: connection.PowerKW
+                }
+            })
         }
     })
 })
-
-log.debug(JSON.stringify(features, undefined, 2))
 
 const symbolLayer: SymbolLayerStyle = {
     iconAnchor: "bottom",
@@ -83,15 +123,15 @@ const Home = () => {
 
     useEffect(() => {
         if (location) {
-            locationPanelRef.current?.show({toValue: Dimensions.get("window").height / 2, velocity: 0.1})
+            locationPanelRef.current?.show({ toValue: Dimensions.get("window").height / 2, velocity: 0.1 })
         } else {
             locationPanelRef.current?.hide()
         }
     }, [location])
 
-    const onPress = ({coordinates, features}: OnPressEvent) => {
+    const onPress = ({ coordinates, features }: OnPressEvent) => {
         log.debug(JSON.stringify(coordinates))
-        
+
         if (features.length) {
             setLocation(features[0].properties as Location)
         }
@@ -113,7 +153,13 @@ const Home = () => {
 
     return (
         <View style={styles.matchParent}>
-            <MapboxGL.MapView attributionEnabled={false} compassEnabled={false} logoEnabled={false} style={styles.matchParent} styleURL={MapboxGL.StyleURL.Street}>
+            <MapboxGL.MapView
+                attributionEnabled={false}
+                compassEnabled={false}
+                logoEnabled={false}
+                style={styles.matchParent}
+                styleURL={MapboxGL.StyleURL.Street}
+            >
                 {includeCamera()}
                 <MapboxGL.Images
                     images={{
@@ -128,7 +174,7 @@ const Home = () => {
             </MapboxGL.MapView>
             <BalanceCard />
             <HomeButtonContainer />
-            <LocationPanel location={location} ref={locationPanelRef}/>
+            <LocationPanel location={location} ref={locationPanelRef} />
         </View>
     )
 }

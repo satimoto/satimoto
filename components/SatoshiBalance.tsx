@@ -1,7 +1,6 @@
 import { SatoshiV2Icon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import React, { PropsWithChildren } from "react"
 import { StyleSheet, Text, View } from "react-native"
-import { store } from "stores/Store"
 import { formatSatoshis } from "utils/format"
 import { Log } from "utils/logging"
 
@@ -15,10 +14,11 @@ const styles = StyleSheet.create({
 
 interface SatoshiBalanceProps extends PropsWithChildren<any> {
     size?: number
-    color?: string
+    color?: string,
+    satoshis: number
 }
 
-const SatoshiBalance = ({ size = 38, color = "#FFFFFF" }: SatoshiBalanceProps) => {
+const SatoshiBalance = ({ size = 38, color = "#FFFFFF", satoshis }: SatoshiBalanceProps) => {
     const padding = size / 5
 
     return (
@@ -26,7 +26,7 @@ const SatoshiBalance = ({ size = 38, color = "#FFFFFF" }: SatoshiBalanceProps) =
                 <View style={{ paddingTop: padding / 2 }}>
                     <SatoshiV2Icon color={color} size={size - padding} />
                 </View>
-                <Text style={[styles.text, { fontSize: size, color: color }]}>{formatSatoshis(store.channelStore.localBalance)}</Text>
+                <Text style={[styles.text, { fontSize: size, color: color }]}>{formatSatoshis(satoshis)}</Text>
             </View>
     )
 }
