@@ -7,6 +7,7 @@ import { Log } from "utils/logging"
 import { LongLikeType } from "utils/types"
 
 const log = new Log("Lightning")
+const service = ""
 const { LndMobile } = NativeModules
 
 export type InvoiceStreamResponse = (data: lnrpc.Invoice) => void
@@ -36,7 +37,7 @@ export const getInfo = (): Promise<lnrpc.GetInfoResponse> => {
     return sendCommand<lnrpc.IGetInfoRequest, lnrpc.GetInfoRequest, lnrpc.GetInfoResponse>({
         request: lnrpc.GetInfoRequest,
         response: lnrpc.GetInfoResponse,
-        method: "GetInfo",
+        method: service + "GetInfo",
         options: {}
     })
 }
@@ -45,7 +46,7 @@ export const listPayments = (includeIncomplete: boolean = false, indexOffset: Lo
     return sendCommand<lnrpc.IListPaymentsRequest, lnrpc.ListPaymentsRequest, lnrpc.ListPaymentsResponse>({
         request: lnrpc.ListPaymentsRequest,
         response: lnrpc.ListPaymentsResponse,
-        method: "ListPayments",
+        method: service + "ListPayments",
         options: {
             includeIncomplete,
             indexOffset: toLong(indexOffset)
@@ -57,7 +58,7 @@ export const listPeers = (latestError: boolean = false): Promise<lnrpc.ListPeers
     return sendCommand<lnrpc.IListPeersRequest, lnrpc.ListPeersRequest, lnrpc.ListPeersResponse>({
         request: lnrpc.ListPeersRequest,
         response: lnrpc.ListPeersResponse,
-        method: "ListPeers",
+        method: service + "ListPeers",
         options: {
             latestError
         }
@@ -65,7 +66,7 @@ export const listPeers = (latestError: boolean = false): Promise<lnrpc.ListPeers
 }
 
 export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.Invoice> => {
-    const method = "SubscribeInvoices"
+    const method = service + "SubscribeInvoices"
     const stream = sendStreamCommand<lnrpc.IInvoiceSubscription, lnrpc.InvoiceSubscription, lnrpc.Invoice>({
         request: lnrpc.InvoiceSubscription,
         response: lnrpc.Invoice,
@@ -76,7 +77,7 @@ export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.
 }
 
 export const subscribeTransactions = async (onData: TransactionStreamResponse): Promise<lnrpc.Transaction> => {
-    const method = "SubscribeTransactions"
+    const method = service + "SubscribeTransactions"
     const stream = sendStreamCommand<lnrpc.IGetTransactionsRequest, lnrpc.GetTransactionsRequest, lnrpc.Transaction>({
         request: lnrpc.GetTransactionsRequest,
         response: lnrpc.Transaction,

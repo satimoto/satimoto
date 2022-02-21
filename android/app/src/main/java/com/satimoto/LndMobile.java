@@ -156,7 +156,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
     public void sendCommand(String method, String msg, final Promise promise) {
         Method syncMethod = syncMethods.get(method);
         if (syncMethod == null) {
-            promise.reject(TAG, "method not found");
+            promise.reject(TAG, "method not found: " + method);
             return;
         }
 

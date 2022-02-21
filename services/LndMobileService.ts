@@ -96,6 +96,7 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     const requestTime = log.debugTime(`${method} Request <${streamId}>`)
     const stream = new Duplex({
         destroy() {
+            log.debug(`${method} Destroy <${streamId}>`)
             listener.remove()
         },
         read() {},
@@ -113,6 +114,7 @@ export const sendStreamCommand = <IRequest, Request, Response>({
             if (event.type === "data") {
                 data = deserializeResponse(response, event)
             } else if (event.type === "error" || event.type === "end") {
+                log.debug(`${method} Error <${streamId}: ${event.type}>`)
                 listener.remove()
             }
 

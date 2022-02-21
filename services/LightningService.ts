@@ -1,18 +1,18 @@
 import type { InvoiceStreamResponse, TransactionStreamResponse } from "./lightning/lightning"
-import type { BlockEpochStreamResponse } from "./lightning/chain"
+import type { BlockEpochStreamResponse } from "./lightning/chainNotifier"
 import type { PaymentStreamResponse } from "./lightning/router"
 
 import { start, stop, getInfo, listPayments, listPeers, subscribeInvoices, subscribeTransactions } from "./lightning/lightning"
-import { registerBlockEpochNtfn } from "./lightning/chain"
+import { registerBlockEpochNtfn } from "./lightning/chainNotifier"
 import { channelBalance, openChannel, subscribeChannelEvents } from "./lightning/channel"
 import { sendPaymentV2 } from "./lightning/router"
 import { getState, subscribeState } from "./lightning/state"
-import { genSeed, initWallet, unlockWallet } from "./lightning/wallet"
+import { genSeed, initWallet, unlockWallet } from "./lightning/walletUnlocker"
 
 export type {
     InvoiceStreamResponse,
     TransactionStreamResponse,
-    // Chain
+    // ChainNotifier
     BlockEpochStreamResponse,
     // Router
     PaymentStreamResponse
@@ -26,7 +26,7 @@ export {
     listPeers,
     subscribeInvoices,
     subscribeTransactions,
-    // Chain
+    // ChainNotifier
     registerBlockEpochNtfn,
     // Channel
     channelBalance,
@@ -37,7 +37,7 @@ export {
     // State
     getState,
     subscribeState,
-    // Wallet
+    // WalletUnlocker
     genSeed,
     initWallet,
     unlockWallet

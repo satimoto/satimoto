@@ -5,11 +5,12 @@ import { Log } from "utils/logging"
 import { BytesLikeType } from "utils/types"
 
 const log = new Log("Chain")
+const service = "ChainNotifier"
 
 export type BlockEpochStreamResponse = (data: chainrpc.BlockEpoch) => void
 
 export const registerBlockEpochNtfn = (onData: BlockEpochStreamResponse, hash?: BytesLikeType, height?: number): Promise<chainrpc.BlockEpoch> => {
-    const method = "RegisterBlockEpochNtfn"
+    const method = service + "RegisterBlockEpochNtfn"
     const stream = sendStreamCommand<chainrpc.IBlockEpoch, chainrpc.BlockEpoch, chainrpc.BlockEpoch>({
         request: chainrpc.BlockEpoch,
         response: chainrpc.BlockEpoch,

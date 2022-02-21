@@ -20,7 +20,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 public class LndUtils extends ReactContextBaseJavaModule {
     final String TAG = "LndUtils";
-    private static final String logEventName = "logs";
+    private static final String logEventName = "logEvent";
 
     private FileObserver logObserver;
     final String lndDirectory;
@@ -127,7 +127,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=neutrino\n" +
                             "\n" +
                             "[Neutrino]\n" +
-                            "neutrino.connect=btcd-testnet.lightning.computer\n" +
+                            "neutrino.connect=faucet.lightning.community\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +

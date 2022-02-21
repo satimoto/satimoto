@@ -6,6 +6,7 @@ import { Log } from "utils/logging"
 import { BytesLikeType, LongLikeType } from "utils/types"
 
 const log = new Log("Router")
+const service = "Router"
 
 export type PaymentStreamResponse = (data: lnrpc.Payment) => void
 
@@ -19,7 +20,7 @@ export const sendPaymentV2 = (
     feeLimitSat: LongLikeType = PAYMENT_FEE_LIMIT_SAT,
     cltvLimit: number = PAYMENT_CLTV_LIMIT
 ): Promise<lnrpc.Payment> => {
-    const method = "SendPaymentV2"
+    const method = service + "SendPaymentV2"
     const stream = sendStreamCommand<routerrpc.ISendPaymentRequest, routerrpc.SendPaymentRequest, lnrpc.Payment>({
         request: routerrpc.SendPaymentRequest,
         response: lnrpc.Payment,

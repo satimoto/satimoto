@@ -5,13 +5,14 @@ import { toBytes } from "utils/conversion"
 import { Log } from "utils/logging"
 
 const log = new Log("Wallet")
+const service = ""
 const { LndMobile } = NativeModules
 
 export const genSeed = (aezeedPassphrase?: string, seedEntropy?: string): Promise<lnrpc.GenSeedResponse> => {
     return sendCommand<lnrpc.IGenSeedRequest, lnrpc.GenSeedRequest, lnrpc.GenSeedResponse>({
         request: lnrpc.GenSeedRequest,
         response: lnrpc.GenSeedResponse,
-        method: "GenSeed",
+        method: service + "GenSeed",
         options: {
             aezeedPassphrase: toBytes(aezeedPassphrase),
             seedEntropy: toBytes(seedEntropy)
