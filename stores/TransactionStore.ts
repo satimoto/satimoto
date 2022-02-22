@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
 import { subscribeTransactions } from "services/LightningService"
-import { Debug } from "utils/build"
+import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 
 const log = new Log("TransactionStore")
@@ -13,16 +13,15 @@ export interface ITransactionStore extends IStore {
     hydrated: boolean
     stores: Store
 
-    subscribeTransactions(): void
-    updateTransactions(data: lnrpc.Transaction): void
+    subscribedTransactions: boolean
 }
 
 export class TransactionStore implements ITransactionStore {
-    // Store state
     hydrated = false
     ready = false
     stores
-    // Transaction state
+
+    subscribedTransactions = false
 
     constructor(stores: Store) {
         this.stores = stores
@@ -31,10 +30,12 @@ export class TransactionStore implements ITransactionStore {
             hydrated: observable,
             ready: observable,
 
+            subscribedTransactions: observable,
+
             setReady: action
         })
 
-        makePersistable(this, { name: "TransactionStore", properties: [], storage: AsyncStorage, debugMode: Debug }, { delay: 1000 }).then(
+        makePersistable(this, { name: "TransactionStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
             action((persistStore) => (this.hydrated = persistStore.isHydrated))
         )
     }
@@ -52,7 +53,10 @@ export class TransactionStore implements ITransactionStore {
     }
 
     subscribeTransactions() {
-        subscribeTransactions((data: lnrpc.Transaction) => this.updateTransactions(data))
+        if (!this.subscribedTransactions) {
+            subscribeTransactions((data: lnrpc.Transaction) => this.updateTransactions(data))
+            this.subscribedTransactions = true
+        }
     }
 
     setReady() {

@@ -5,7 +5,7 @@ import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
 import { channelBalance, subscribeChannelEvents } from "services/LightningService"
 import { toNumber } from "utils/conversion"
-import { Debug } from "utils/build"
+import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 
 const log = new Log("ChannelStore")
@@ -13,20 +13,18 @@ const log = new Log("ChannelStore")
 export interface IChannelStore extends IStore {
     hydrated: boolean
     stores: Store
+
+    subscribedChannelEvents: boolean
     localBalance: number
     remoteBalance: number
-
-    subscribeChannelEvents(): void
-    updateChannelBalance(data: lnrpc.ChannelBalanceResponse): void
-    updateChannelEvents(data: lnrpc.ChannelEventUpdate): void
 }
 
 export class ChannelStore implements IChannelStore {
-    // Store state
     hydrated = false
     ready = false
     stores
-    // Channel state
+
+    subscribedChannelEvents = false
     localBalance = 0
     remoteBalance = 0
 
@@ -36,14 +34,17 @@ export class ChannelStore implements IChannelStore {
         makeObservable(this, {
             hydrated: observable,
             ready: observable,
+
+            subscribedChannelEvents: observable,
             localBalance: observable,
             remoteBalance: observable,
 
             setReady: action,
+            updateChannelBalance: action,
             updateChannelEvents: action
         })
 
-        makePersistable(this, { name: "ChannelStore", properties: [], storage: AsyncStorage, debugMode: Debug }, { delay: 1000 }).then(
+        makePersistable(this, { name: "ChannelStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
             action((persistStore) => (this.hydrated = persistStore.isHydrated))
         )
     }
@@ -71,7 +72,10 @@ export class ChannelStore implements IChannelStore {
     }
 
     subscribeChannelEvents() {
-        subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.updateChannelEvents(data))
+        if (!this.subscribedChannelEvents) {
+            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.updateChannelEvents(data))
+            this.subscribedChannelEvents = true
+        }
     }
 
     setReady() {

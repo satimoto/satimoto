@@ -5,7 +5,7 @@ import { generateSecureRandom } from "react-native-securerandom"
 import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
 import { genSeed, initWallet, unlockWallet } from "services/LightningService"
-import { Debug } from "utils/build"
+import { DEBUG } from "utils/build"
 import { RECOVERY_WINDOW_DEFAULT, SECURE_KEY_WALLET_PASSWORD, SECURE_KEY_CIPHER_SEED_MNEMONIC } from "utils/constants"
 import { bytesToBase64 } from "utils/conversion"
 import { Log } from "utils/logging"
@@ -16,17 +16,12 @@ const log = new Log("WalletStore")
 export interface IWalletStore extends IStore {
     hydrated: boolean
     stores: Store
-
-    createWallet(): Promise<void>
-    unlockWallet(): Promise<void>
 }
 
 export class WalletStore implements IWalletStore {
-    // Store state
     hydrated = false
     ready = false
     stores
-    // Wallet state
 
     constructor(stores: Store) {
         this.stores = stores
@@ -38,7 +33,7 @@ export class WalletStore implements IWalletStore {
             setReady: action
         })
 
-        makePersistable(this, { name: "WalletStore", properties: [], storage: AsyncStorage, debugMode: Debug }, { delay: 1000 }).then(
+        makePersistable(this, { name: "WalletStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
             action((persistStore) => (this.hydrated = persistStore.isHydrated))
         )
     }

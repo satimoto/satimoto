@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
 import { subscribeInvoices } from "services/LightningService"
-import { Debug } from "utils/build"
+import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 
 const log = new Log("InvoiceStore")
@@ -13,8 +13,7 @@ export interface IInvoiceStore extends IStore {
     hydrated: boolean
     stores: Store
 
-    subscribeInvoices(): void
-    updateInvoices(data: lnrpc.Invoice): void
+    subscribedInvoices: boolean
 }
 
 export class InvoiceStore implements IInvoiceStore {
@@ -22,7 +21,8 @@ export class InvoiceStore implements IInvoiceStore {
     hydrated = false
     ready = false
     stores
-    // Invoice state
+
+    subscribedInvoices = false
 
     constructor(stores: Store) {
         this.stores = stores
@@ -31,10 +31,12 @@ export class InvoiceStore implements IInvoiceStore {
             hydrated: observable,
             ready: observable,
 
+            subscribedInvoices: observable,
+
             setReady: action
         })
 
-        makePersistable(this, { name: "InvoiceStore", properties: [], storage: AsyncStorage, debugMode: Debug }, { delay: 1000 }).then(
+        makePersistable(this, { name: "InvoiceStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
             action((persistStore) => (this.hydrated = persistStore.isHydrated))
         )
     }
@@ -52,7 +54,10 @@ export class InvoiceStore implements IInvoiceStore {
     }
 
     subscribeInvoices() {
-        subscribeInvoices((data: lnrpc.Invoice) => this.updateInvoices(data))
+        if (!this.subscribedInvoices) {
+            subscribeInvoices((data: lnrpc.Invoice) => this.updateInvoices(data))
+            this.subscribedInvoices = true
+        }
     }
 
     setReady() {

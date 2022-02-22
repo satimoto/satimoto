@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
 import { listPayments } from "services/LightningService"
-import { Debug } from "utils/build"
+import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 
 const log = new Log("PaymentStore")
@@ -23,6 +23,7 @@ export interface IPaymentType {
 export interface IPaymentStore extends IStore {
     hydrated: boolean
     stores: Store
+
     indexOffset: string
     payments: IPaymentType[]
 
@@ -31,11 +32,10 @@ export interface IPaymentStore extends IStore {
 }
 
 export class PaymentStore implements IPaymentStore {
-    // Store state
     hydrated = false
     ready = false
     stores
-    // Payment state
+
     indexOffset = "0"
     payments
 
@@ -55,7 +55,7 @@ export class PaymentStore implements IPaymentStore {
 
         makePersistable(
             this,
-            { name: "PaymentStore", properties: ["indexOffset", "payments"], storage: AsyncStorage, debugMode: Debug },
+            { name: "PaymentStore", properties: ["indexOffset", "payments"], storage: AsyncStorage, debugMode: DEBUG },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }

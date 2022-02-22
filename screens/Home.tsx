@@ -6,7 +6,6 @@ import Location from "models/location"
 import React, { useEffect, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
-import { useTheme } from "@react-navigation/native"
 import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
@@ -102,7 +101,6 @@ const symbolLayer: SymbolLayerStyle = {
 }
 
 const Home = () => {
-    const { colors } = useTheme()
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locations, setLocations] = useState<any>({ type: "FeatureCollection", features: features })

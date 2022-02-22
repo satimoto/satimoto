@@ -175,17 +175,20 @@ android {
         networkregtest {
             dimension "network"
             applicationIdSuffix ".regtest"
+            buildConfigField "String", "API_URI", '"http://localhost:9000"'
             buildConfigField "String", "NETWORK", '"regtest"'
             manifestPlaceholders = [network: " Regtest"]
         }
         networktestnet {
             dimension "network"
             applicationIdSuffix ".testnet"
+            buildConfigField "String", "API_URI", '"https://api.testnet.satimoto.com"'
             buildConfigField "String", "NETWORK", '"testnet"'
             manifestPlaceholders = [network: " Testnet"]
         }
         networkmainnet {
             dimension "network"
+            buildConfigField "String", "API_URI", '"https://api.satimoto.com"'
             buildConfigField "String", "NETWORK", '"mainnet"'
             manifestPlaceholders = [network: ""]
         }

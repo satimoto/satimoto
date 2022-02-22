@@ -4,12 +4,17 @@
  *
  * @format
  */
+const { getDefaultConfig } = require("metro-config")
+const { resolver: defaultResolver } = getDefaultConfig.getDefaultValues()
 
 module.exports = {
     resolver: {
+        ...defaultResolver,
         extraNodeModules: {
+            ...defaultResolver.extraNodeModules,
             stream: require.resolve("readable-stream")
-        }
+        },
+        sourceExts: [...defaultResolver.sourceExts, "cjs"]
     },
     transformer: {
         getTransformOptions: async () => ({
