@@ -7,7 +7,7 @@ import { IStore, Store } from "stores/Store"
 import { getInfo, start, registerBlockEpochNtfn, subscribeState, listPeers } from "services/LightningService"
 import { startLogEvents } from "services/LndUtilsService"
 import { DEBUG } from "utils/build"
-import { bytesToHex, reverseByteOrder, toString } from "utils/conversion"
+import { bytesToHex, reverseByteOrder } from "utils/conversion"
 import { Log } from "utils/logging"
 import { timeout } from "utils/tools"
 

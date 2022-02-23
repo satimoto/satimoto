@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "851204178658",
+    "project_id": "satimoto-testnet",
+    "storage_bucket": "satimoto-testnet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851204178658:android:2be30febe8e28b13c014bb",
+        "android_client_info": {
+          "package_name": "com.satimoto.testnet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "851204178658-allf33a9p1oip5nqc8qteek6pjn3llb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9T-anni1oS9tjqmIvYMt2c_QFQyqQ6fU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "851204178658-allf33a9p1oip5nqc8qteek6pjn3llb4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "851204178658-919nbanq460d3uf1qs16na2m703vv2uc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.satimoto.testnet"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851204178658:android:edc58622cb74a1bdc014bb",
+        "android_client_info": {
+          "package_name": "com.satimoto.testnet.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "851204178658-allf33a9p1oip5nqc8qteek6pjn3llb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9T-anni1oS9tjqmIvYMt2c_QFQyqQ6fU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "851204178658-allf33a9p1oip5nqc8qteek6pjn3llb4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "851204178658-919nbanq460d3uf1qs16na2m703vv2uc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.satimoto.testnet"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "951641540412",
+    "project_id": "satimoto-mainnet",
+    "storage_bucket": "satimoto-mainnet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:951641540412:android:5b54ed589dfdd8bf54c039",
+        "android_client_info": {
+          "package_name": "com.satimoto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "951641540412-bgm1i6kgn30skipdqf6u7lvmqhvph502.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnhTbPFXkRN01jpH4b0W9ZmiS2EwNu9WQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "951641540412-bgm1i6kgn30skipdqf6u7lvmqhvph502.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

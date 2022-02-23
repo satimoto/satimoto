@@ -3,6 +3,7 @@ import { ChannelStore } from "./ChannelStore"
 import { InvoiceStore } from "./InvoiceStore"
 import { LightningStore } from "./LightningStore"
 import { PaymentStore } from "./PaymentStore"
+import { SettingStore } from "./SettingStore"
 import { TransactionStore } from "./TransactionStore"
 import { WalletStore } from "./WalletStore"
 import { Log } from "utils/logging"
@@ -22,6 +23,7 @@ export class Store implements IStore {
     invoiceStore: InvoiceStore
     lightningStore: LightningStore
     paymentStore: PaymentStore
+    settingStore: SettingStore
     transactionStore: TransactionStore
     walletStore: WalletStore
 
@@ -31,6 +33,7 @@ export class Store implements IStore {
         this.invoiceStore = new InvoiceStore(this)
         this.lightningStore = new LightningStore(this)
         this.paymentStore = new PaymentStore(this)
+        this.settingStore = new SettingStore(this)
         this.transactionStore = new TransactionStore(this)
         this.walletStore = new WalletStore(this)
 
@@ -45,6 +48,7 @@ export class Store implements IStore {
                 this.invoiceStore.hydrated &&
                 this.lightningStore.hydrated &&
                 this.paymentStore.hydrated &&
+                this.settingStore.hydrated &&
                 this.transactionStore.hydrated &&
                 this.walletStore.hydrated,
             action(() => this.initialize())
@@ -56,6 +60,7 @@ export class Store implements IStore {
             await this.channelStore.initialize()
             await this.invoiceStore.initialize()
             await this.paymentStore.initialize()
+            await this.settingStore.initialize()
             await this.transactionStore.initialize()
             await this.walletStore.initialize()
             await this.lightningStore.initialize()

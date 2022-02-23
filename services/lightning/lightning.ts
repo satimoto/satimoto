@@ -2,9 +2,9 @@ import Long from "long"
 import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
 import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
-import { toLong } from "utils/conversion"
+import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
-import { LongLikeType } from "utils/types"
+import { BytesLikeType, LongLikeType } from "utils/types"
 
 const log = new Log("Lightning")
 const service = ""
@@ -63,6 +63,18 @@ export const listPeers = (latestError: boolean = false): Promise<lnrpc.ListPeers
             latestError
         }
     })
+}
+
+export const signMessage = (msg: BytesLikeType): Promise<lnrpc.SignMessageResponse> => {
+    return sendCommand<lnrpc.ISignMessageRequest, lnrpc.SignMessageRequest, lnrpc.SignMessageResponse>({
+        request: lnrpc.SignMessageRequest,
+        response: lnrpc.SignMessageResponse,
+        method: service + "SignMessage",
+        options: {
+            msg: hexToBytes(msg)
+        }
+    })
+
 }
 
 export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.Invoice> => {

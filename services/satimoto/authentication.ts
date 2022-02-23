@@ -20,15 +20,13 @@ const CREATE_AUTHENTICATION = gql`
     }
 `
 
-interface CreateAuthenticationProps {
-    action: AuthenticationAction
-}
-
 const createAuthentication = (client: ApolloClient<NormalizedCacheObject>) => {
-    return async (variables: CreateAuthenticationProps) => {
+    return async (action: AuthenticationAction) => {
         return await client.mutate({
             mutation: CREATE_AUTHENTICATION,
-            variables
+            variables: {
+                action
+            }
         })
     }
 }
@@ -47,15 +45,13 @@ const EXCHANGE_AUTHENTICATION = gql`
     }
 `
 
-interface ExchangeAuthenticationProps {
-    code: string
-}
-
 const exchangeAuthentication = (client: ApolloClient<NormalizedCacheObject>) => {
-    return async (variables: ExchangeAuthenticationProps) => {
+    return async (code: string) => {
         return await client.mutate({
             mutation: EXCHANGE_AUTHENTICATION,
-            variables
+            variables: {
+                code
+            }
         })
     }
 }
@@ -74,13 +70,15 @@ const VERIFY_AUTHENTICATION = gql`
     }
 `
 
-interface VerifyAuthenticationProps {
-    code: string
-}
-
 const verifyAuthentication = (client: ApolloClient<NormalizedCacheObject>) => {
-    return async (variables: VerifyAuthenticationProps, fetchPolicy: FetchPolicy = "no-cache") => {
-        return await client.query({ query: VERIFY_AUTHENTICATION, fetchPolicy, variables })
+    return async (code: string, fetchPolicy: FetchPolicy = "no-cache") => {
+        return await client.query({
+            query: VERIFY_AUTHENTICATION,
+            fetchPolicy,
+            variables: {
+                code
+            }
+        })
     }
 }
 

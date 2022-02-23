@@ -4,11 +4,11 @@ import sha256 from "fast-sha256"
 import Long from "long"
 import { BytesLikeType, LongLikeType } from "utils/types"
 
-export const hexToBytes = (data?: BytesLikeType): Uint8Array | undefined => {
+export const hexToBytes = (data: BytesLikeType): Uint8Array => {
     return typeof data == "string" ? Uint8Array.from(Buffer.from(data, "hex")) : data
 }
 
-export const bytesToHex = (data?: BytesLikeType): string | undefined => {
+export const bytesToHex = (data: BytesLikeType): string => {
     return data instanceof Uint8Array ? Buffer.from(data).toString("hex") : data
 }
 

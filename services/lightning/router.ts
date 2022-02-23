@@ -26,7 +26,7 @@ export const sendPaymentV2 = (
         response: lnrpc.Payment,
         method,
         options: {
-            dest: hexToBytes(dest),
+            dest: dest ? hexToBytes(dest) : null,
             amt: toLong(amt),
             paymentHash: toHash(preImage),
             paymentRequest,

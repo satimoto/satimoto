@@ -1,18 +1,19 @@
 import { ApolloProvider } from "@apollo/client"
-import React, { useEffect } from "react"
 import { Provider } from "mobx-react"
+import { NativeBaseProvider } from "native-base"
 import * as protobuf from "protobufjs"
+import React, { useEffect } from "react"
 import { useColorScheme, AppState, AppStateStatus } from "react-native"
+import messaging from "@react-native-firebase/messaging"
+import { SafeAreaProvider } from "react-native-safe-area-context"
 import { NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
+import client from "services/SatimotoService"
 import { store } from "stores/Store"
 import AppDrawerScreen from "screens/AppDrawer"
-import { LightTheme, DarkTheme, NativeBaseTheme } from "utils/theme"
-import { SafeAreaProvider } from "react-native-safe-area-context"
-import { NativeBaseProvider } from "native-base"
-import client from "services/SatimotoService"
-import { Log } from "utils/logging"
 import { API_URI, NETWORK } from "utils/build"
+import { Log } from "utils/logging"
+import { LightTheme, DarkTheme, NativeBaseTheme } from "utils/theme"
 
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
@@ -37,12 +38,25 @@ const App = () => {
     }
 
     useEffect(() => {
+        store.settingStore.requestPushNotificationPermission()
+
+        const unsubscribeMessages = messaging().onMessage(async (remoteMessage) => {
+            log.debug(`Message received: ${store.lightningStore.blockHeight}`)
+            log.debug(JSON.stringify(remoteMessage))
+        })
+
+        return () => {
+            unsubscribeMessages()
+        }
+    }, [])
+
+    useEffect(() => {
         AppState.addEventListener("change", appStateChanged)
 
         return () => {
             AppState.removeEventListener("change", appStateChanged)
         }
-    })
+    }, [])
 
     return (
         <ApolloProvider client={client}>
