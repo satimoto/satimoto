@@ -1,3 +1,7 @@
+# Google Service
+android/**/google-services.json
+ios/Satimoto/GoogleService-Info*.plist
+
 # LND mobile
 android/lndmobile/Lndmobile.aar
 ios/LndMobile/Lndmobile.framework

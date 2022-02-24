@@ -12,8 +12,9 @@ export interface ISettingStore extends IStore {
     hydrated: boolean
     stores: Store
 
+    accessToken?: string
     pushNotificationEnabled: boolean
-    pushNotificationToken: string
+    pushNotificationToken?: string
 
     requestPushNotificationPermission(): void
 }
@@ -23,8 +24,9 @@ export class SettingStore implements ISettingStore {
     ready = false
     stores
 
+    accessToken?: string = undefined
     pushNotificationEnabled = false
-    pushNotificationToken = ""
+    pushNotificationToken?: string = undefined
 
     constructor(stores: Store) {
         this.stores = stores
@@ -32,15 +34,22 @@ export class SettingStore implements ISettingStore {
         makeObservable(this, {
             hydrated: observable,
             ready: observable,
+
+            accessToken: observable,
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
 
-            updatePushNotificationSettings: action
+            setPushNotificationSettings: action
         })
 
         makePersistable(
             this,
-            { name: "SettingStore", properties: ["pushNotificationEnabled", "pushNotificationToken"], storage: AsyncStorage, debugMode: DEBUG },
+            {
+                name: "SettingStore",
+                properties: ["accessToken", "pushNotificationEnabled", "pushNotificationToken"],
+                storage: AsyncStorage,
+                debugMode: DEBUG
+            },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
@@ -58,14 +67,18 @@ export class SettingStore implements ISettingStore {
         const token = await messaging().getToken()
 
         const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL
-        this.updatePushNotificationSettings(enabled, token)
+        this.setPushNotificationSettings(enabled, token)
 
         messaging().onTokenRefresh((token) => {
-            this.updatePushNotificationSettings(enabled, token)
+            this.setPushNotificationSettings(enabled, token)
         })
     }
 
-    updatePushNotificationSettings(enabled: boolean, token: string) {
+    setAccessToken(accessToken?: string) {
+        this.accessToken = accessToken
+    }
+
+    setPushNotificationSettings(enabled: boolean, token: string) {
         this.pushNotificationEnabled = enabled
         this.pushNotificationToken = token
 
