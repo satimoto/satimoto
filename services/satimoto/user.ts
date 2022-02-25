@@ -8,7 +8,7 @@ const CREATE_USER = gql`
     mutation CreateUser($input: CreateUserInput!) {
         createUser(input: $input) {
             id
-            nodePubkey
+            pubkey
             deviceToken
         }
     }
@@ -16,7 +16,7 @@ const CREATE_USER = gql`
 
 interface CreateUserInput {
     code: string
-    nodePubkey: string
+    pubkey: string
     deviceToken: string
 }
 
@@ -41,7 +41,7 @@ const UPDATE_USER = gql`
     mutation UpdateUser($input: UpdateUserInput!) {
         updateUser(input: $input) {
             id
-            nodePubkey
+            pubkey
             deviceToken
         }
     }

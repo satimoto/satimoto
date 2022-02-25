@@ -57,7 +57,7 @@ const updateUser = User.updateUser(client)
 
 // Token
 
-const getToken = async (nodePubkey: string, deviceToken: string) => {
+const getToken = async (pubkey: string, deviceToken: string) => {
     return doWhileBackoff(
         "getToken",
         async () => {
@@ -72,7 +72,7 @@ const getToken = async (nodePubkey: string, deviceToken: string) => {
                     if (authenticateOk) {
                         await createUser({
                             code: createAuthenticationResult.data.createAuthentication.code,
-                            nodePubkey,
+                            pubkey,
                             deviceToken
                         })
 
