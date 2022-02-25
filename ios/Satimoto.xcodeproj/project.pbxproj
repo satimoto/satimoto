@@ -845,7 +845,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9B10973E8CD3190B849C384 /* Pods-Satimoto.debugregtest.xcconfig */;
 			buildSettings = {
-				API_URI = "http://localhost:9000";
+				API_URI = "http://127.0.0.1:9000";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1084,7 +1084,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2BB5170F72D89F5045F38689 /* Pods-Satimoto.releaseregtest.xcconfig */;
 			buildSettings = {
-				API_URI = "http://localhost:9000";
+				API_URI = "http://127.0.0.1:9000";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;

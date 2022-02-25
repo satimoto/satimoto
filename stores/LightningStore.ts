@@ -18,6 +18,7 @@ export interface ILightningStore extends IStore {
     stores: Store
 
     blockHeight: number
+    identityPubkey?: string
     state: lnrpc.WalletState
     startedLogEvents: boolean
     subscribedBlockEpoch: boolean
@@ -36,11 +37,12 @@ export class LightningStore implements ILightningStore {
     ready = false
     stores
 
+    blockHeight = 0
+    identityPubkey?: string = undefined
     state = lnrpc.WalletState.WAITING_TO_START
     startedLogEvents = false
     subscribedBlockEpoch = false
     subscribedState = false
-    blockHeight = 0
     bestHeaderTimestamp = "0"
     syncHeaderTimestamp = "0"
     syncedToChain = false
@@ -53,11 +55,12 @@ export class LightningStore implements ILightningStore {
             hydrated: observable,
             ready: observable,
 
+            blockHeight: observable,
+            identityPubkey: observable,
             state: observable,
             startedLogEvents: observable,
             subscribedBlockEpoch: observable,
             subscribedState: observable,
-            blockHeight: observable,
             bestHeaderTimestamp: observable,
             syncedToChain: observable,
             percentSynced: observable,
@@ -72,7 +75,7 @@ export class LightningStore implements ILightningStore {
 
         makePersistable(
             this,
-            { name: "LightningStore", properties: ["blockHeight", "bestHeaderTimestamp"], storage: AsyncStorage, debugMode: DEBUG },
+            { name: "LightningStore", properties: ["identityPubkey", "blockHeight", "bestHeaderTimestamp"], storage: AsyncStorage, debugMode: DEBUG },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
@@ -183,8 +186,9 @@ export class LightningStore implements ILightningStore {
 
     updateChannels() {}
 
-    updateInfo({ blockHeight, bestHeaderTimestamp, syncedToChain }: lnrpc.GetInfoResponse) {
+    updateInfo({ blockHeight, bestHeaderTimestamp, identityPubkey, syncedToChain }: lnrpc.GetInfoResponse) {
         this.blockHeight = blockHeight
+        this.identityPubkey = identityPubkey
         this.bestHeaderTimestamp = bestHeaderTimestamp.toString()
         this.syncedToChain = syncedToChain
     }

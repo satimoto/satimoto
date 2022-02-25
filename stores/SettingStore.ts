@@ -1,10 +1,11 @@
-import { action, makeObservable, observable } from "mobx"
+import { action, makeObservable, observable, reaction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import messaging from "@react-native-firebase/messaging"
 import { IStore, Store } from "stores/Store"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import { updateUser, getToken } from "services/SatimotoService"
 
 const log = new Log("SettingStore")
 
@@ -55,6 +56,26 @@ export class SettingStore implements ISettingStore {
     }
 
     async initialize(): Promise<void> {
+        reaction(
+            () => [this.pushNotificationToken, this.stores.lightningStore.identityPubkey],
+            async () => {
+                if (!this.accessToken && this.pushNotificationToken && this.stores.lightningStore.identityPubkey) {
+                    const token = await getToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
+
+                    this.setAccessToken(token)
+                }
+            }
+        )
+
+        reaction(
+            () => this.pushNotificationToken,
+            () => {
+                if (this.accessToken && this.pushNotificationToken) {
+                    updateUser({ deviceToken: this.pushNotificationToken })
+                }
+            }
+        )
+
         this.setReady()
     }
 

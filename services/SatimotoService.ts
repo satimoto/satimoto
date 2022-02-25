@@ -7,15 +7,18 @@ import * as User from "./satimoto/user"
 import { store } from "stores/Store"
 import { API_URI } from "utils/build"
 import { Log } from "utils/logging"
+import { authenticate, getParams, LNURLAuthParams } from "services/LnUrlService"
+import { doWhileBackoff } from "utils/tools"
 
 const log = new Log("SatimotoService")
 
 const uploadLink = new HttpLink({
-    uri: `${API_URI}/query`
+    uri: `${API_URI}/v1/query`
 })
 
 const authLink = setContext((_, { headers }) => {
     const accessToken = store.settingStore.accessToken
+    log.debug(`Access token: ${accessToken}`)
 
     return {
         headers:
@@ -43,11 +46,48 @@ const client = new ApolloClient({
     link: ApolloLink.from([errorLink, authLink, uploadLink])
 })
 
+// Authentication
 const createAuthentication = Authentication.createAuthentication(client)
 const exchangeAuthentication = Authentication.exchangeAuthentication(client)
 const verifyAuthentication = Authentication.verifyAuthentication(client)
 
+// User
 const createUser = User.createUser(client)
+const updateUser = User.updateUser(client)
+
+// Token
+
+const getToken = async (nodePubkey: string, deviceToken: string) => {
+    return doWhileBackoff(
+        "getToken",
+        async () => {
+            try {
+                const createAuthenticationResult = await createAuthentication(AuthenticationAction.REGISTER)
+                const lnUrlParams = await getParams(createAuthenticationResult.data.createAuthentication.lnUrl)
+                const lnUrlAuthParams = lnUrlParams as LNURLAuthParams
+
+                if (lnUrlAuthParams) {
+                    const authenticateOk = await authenticate(lnUrlAuthParams)
+
+                    if (authenticateOk) {
+                        await createUser({
+                            code: createAuthenticationResult.data.createAuthentication.code,
+                            nodePubkey,
+                            deviceToken
+                        })
+
+                        const exchangeAuthenticationResult = await exchangeAuthentication(createAuthenticationResult.data.createAuthentication.code)
+
+                        return exchangeAuthenticationResult.data.exchangeAuthentication.token
+                    }
+                }
+            } catch (error) {
+                log.error(`Error getting token: ${error}`)
+            }
+        },
+        5000
+    )
+}
 
 export {
     AuthenticationAction,
@@ -55,8 +95,11 @@ export {
     createAuthentication,
     exchangeAuthentication,
     verifyAuthentication,
+    // Token
+    getToken,
     // User
-    createUser
+    createUser,
+    updateUser
 }
 
 export default client

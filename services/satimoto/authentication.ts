@@ -38,7 +38,7 @@ export { createAuthentication }
  */
 
 const EXCHANGE_AUTHENTICATION = gql`
-    mutation ExchangeAuthentication($code: AuthenticationAction!) {
+    mutation ExchangeAuthentication($code: String!) {
         exchangeAuthentication(code: $code) {
             token
         }

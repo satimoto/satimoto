@@ -176,7 +176,7 @@ android {
         networkregtest {
             dimension "network"
             applicationIdSuffix ".regtest"
-            buildConfigField "String", "API_URI", '"http://localhost:9000"'
+            buildConfigField "String", "API_URI", '"http://10.0.2.2:9000"'
             buildConfigField "String", "NETWORK", '"regtest"'
             manifestPlaceholders = [network: " Regtest"]
         }
