@@ -9,6 +9,7 @@ import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-g
 import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
+import { HomeNavigationProp } from "screens/HomeStack"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -100,7 +101,11 @@ const symbolLayer: SymbolLayerStyle = {
     textField: ["to-string", ["-", ["get", "totalConnections"], ["get", "busyConnections"]]]
 }
 
-const Home = () => {
+interface HomeProps {
+    navigation: HomeNavigationProp
+}
+
+const Home = ({ navigation }: HomeProps) => {
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locations, setLocations] = useState<any>({ type: "FeatureCollection", features: features })
@@ -178,3 +183,5 @@ const Home = () => {
 }
 
 export default Home
+
+export type { HomeProps }

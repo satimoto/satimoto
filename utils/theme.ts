@@ -158,7 +158,9 @@ const NativeBaseTheme = extendTheme({
         yellow: colors.yellow,
         orange: colors.orange,
         red: colors.red
-    }
+    },
+    useSystemColorMode: false,
+    initialColorMode: "dark"
 })
 
 export { LightTheme, DarkTheme, NativeBaseTheme }

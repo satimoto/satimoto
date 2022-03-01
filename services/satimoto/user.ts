@@ -21,11 +21,11 @@ interface CreateUserInput {
 }
 
 const createUser = (client: ApolloClient<NormalizedCacheObject>) => {
-    return async (variables: CreateUserInput) => {
+    return async (input: CreateUserInput) => {
         return await client.mutate({
             mutation: CREATE_USER,
             variables: {
-                input: variables
+                input
             }
         })
     }
@@ -52,11 +52,11 @@ interface UpdateUserInput {
 }
 
 const updateUser = (client: ApolloClient<NormalizedCacheObject>) => {
-    return async (variables: UpdateUserInput) => {
+    return async (input: UpdateUserInput) => {
         return await client.mutate({
             mutation: UPDATE_USER,
             variables: {
-                input: variables
+                input
             }
         })
     }

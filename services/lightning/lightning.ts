@@ -2,6 +2,7 @@ import Long from "long"
 import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
 import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { INVOICE_EXPIRY } from "utils/constants"
 import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType, LongLikeType } from "utils/types"
@@ -31,6 +32,20 @@ export const stop = async (): Promise<void> => {
     const requestTime = log.debugTime("Stop Request")
     await LndMobile.stop()
     log.debugTime("Stop Response", requestTime)
+}
+
+export const addInvoice = (value: number, memo?: string, expiry: LongLikeType = INVOICE_EXPIRY): Promise<lnrpc.AddInvoiceResponse> => {
+    return sendCommand<lnrpc.IInvoice, lnrpc.Invoice, lnrpc.AddInvoiceResponse>({
+        request: lnrpc.Invoice,
+        response: lnrpc.AddInvoiceResponse,
+        method: service + "AddInvoice",
+        options: {
+            value: toLong(value),
+            memo,
+            expiry: toLong(expiry),
+            private: true
+        }
+    })
 }
 
 export const getInfo = (): Promise<lnrpc.GetInfoResponse> => {

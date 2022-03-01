@@ -1,23 +1,21 @@
 import React from "react"
 import { observer } from "mobx-react"
-import { Button, Text, View } from "react-native"
-import { useTheme } from "@react-navigation/native"
-import { DeveloperStackNavigationProp } from "screens/DeveloperStack"
+import { Button, View } from "react-native"
+import { useColorModeValue, Text } from "native-base"
 import { store } from "stores/Store"
+import { HomeNavigationProp } from "screens/AppStack"
 
 type DeveloperProps = {
-    navigation: DeveloperStackNavigationProp
+    navigation: HomeNavigationProp
 }
 
 const Developer = ({ navigation }: DeveloperProps) => {
-    const { colors } = useTheme()
-
     return (
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
-            <Button title="Toggle" onPress={() => navigation.toggleDrawer()} />
-            <Text style={{ color: colors.text }}>Block: {store.lightningStore.blockHeight}</Text>
-            <Text style={{ color: colors.text }}>Percent: {store.lightningStore.percentSynced}</Text>
-            <Text style={{ color: colors.text }}>Synced: {store.lightningStore.syncedToChain ? `true` : `false`}</Text>
+        <View style={{ flex: 1, backgroundColor: useColorModeValue("warmGray.50", "coolGray.800") }}>
+            <Button title="Toggle" onPress={() => navigation.navigate("Home")} />
+            <Text>Block: {store.lightningStore.blockHeight}</Text>
+            <Text>Percent: {store.lightningStore.percentSynced}</Text>
+            <Text>Synced: {store.lightningStore.syncedToChain ? `true` : `false`}</Text>
         </View>
     )
 }

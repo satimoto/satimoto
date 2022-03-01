@@ -3,6 +3,7 @@ import { setContext } from "@apollo/client/link/context"
 import { onError } from "@apollo/client/link/error"
 import * as Authentication from "./satimoto/authentication"
 import { AuthenticationAction } from "./satimoto/authentication"
+import * as ChannelRequest from "./satimoto/channelRequest"
 import * as User from "./satimoto/user"
 import { store } from "stores/Store"
 import { API_URI } from "utils/build"
@@ -51,12 +52,14 @@ const createAuthentication = Authentication.createAuthentication(client)
 const exchangeAuthentication = Authentication.exchangeAuthentication(client)
 const verifyAuthentication = Authentication.verifyAuthentication(client)
 
+// Channel Request
+const createChannelRequest = ChannelRequest.createChannelRequest(client)
+
 // User
 const createUser = User.createUser(client)
 const updateUser = User.updateUser(client)
 
 // Token
-
 const getToken = async (pubkey: string, deviceToken: string) => {
     return doWhileBackoff(
         "getToken",
@@ -95,6 +98,8 @@ export {
     createAuthentication,
     exchangeAuthentication,
     verifyAuthentication,
+    // Channel Request
+    createChannelRequest,
     // Token
     getToken,
     // User

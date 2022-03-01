@@ -1,20 +1,25 @@
 import React from "react"
-import { DrawerNavigationProp } from "@react-navigation/drawer"
-import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import Developer from "screens/Developer"
+import { createNativeStackNavigator, NativeStackNavigationOptions, NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 type DeveloperStackParamList = {
     Developer: undefined
 }
 
-const DeveloperStack = createNativeStackNavigator()
+type DeveloperNavigationProp = NativeStackNavigationProp<DeveloperStackParamList, "Developer">
 
-const DeveloperStackScreen = () => (
-    <DeveloperStack.Navigator initialRouteName="Developer">
-        <DeveloperStack.Screen name="Developer" component={Developer} />
-    </DeveloperStack.Navigator>
+const DeveloperStackNav = createNativeStackNavigator<DeveloperStackParamList>()
+
+const screenOptions: NativeStackNavigationOptions = {
+    headerShown: false
+}
+
+const DeveloperStack = () => (
+    <DeveloperStackNav.Navigator initialRouteName="Developer" screenOptions={screenOptions}>
+        <DeveloperStackNav.Screen name="Developer" component={Developer} />
+    </DeveloperStackNav.Navigator>
 )
 
-export type DeveloperStackNavigationProp = DrawerNavigationProp<DeveloperStackParamList, "Developer">
+export default DeveloperStack
 
-export default DeveloperStackScreen
+export type { DeveloperStackParamList, DeveloperNavigationProp }

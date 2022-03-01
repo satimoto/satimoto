@@ -3,6 +3,8 @@ import { StyleSheet, View } from "react-native"
 import { Button, IconButton } from "native-base"
 import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { HomeNavigationProp } from "screens/AppStack"
+import { useNavigation } from "@react-navigation/native"
 
 const styles = StyleSheet.create({
     container: {
@@ -24,6 +26,7 @@ const styles = StyleSheet.create({
 })
 
 const HomeButtonContainer = () => {
+    const navigation = useNavigation<HomeNavigationProp>()
     const safeAreaInsets = useSafeAreaInsets()
 
     return (
@@ -44,7 +47,7 @@ const HomeButtonContainer = () => {
                 />
             </View>
             <View style={styles.buttonSpacer}>
-                <Button borderRadius="3xl" size="lg" style={styles.button}>
+                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => navigation.navigate("Receive")}>
                     Receive
                 </Button>
             </View>

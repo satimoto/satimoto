@@ -1,6 +1,8 @@
 import { IConversionOptions, Reader, Writer } from "protobufjs"
 import { NativeModules, NativeEventEmitter } from "react-native"
 import { Duplex } from "stream"
+import type { Cancelable } from "utils/cancelable"
+import cancelable from "utils/cancelable"
 import { base64ToBytes, bytesToBase64 } from "utils/conversion"
 import { Log } from "utils/logging"
 
@@ -127,12 +129,15 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     return stream
 }
 
-export const processStreamResponse = <Response>({ stream, method, onData }: IStreamResponse<Response>): Promise<Response> => {
-    const response = new Promise<Response>((resolve, reject) => {
+export const processStreamResponse = <Response>({ stream, method, onData }: IStreamResponse<Response>): Cancelable<Response> => {
+    const response = cancelable(new Promise<Response>((resolve, reject) => {
         stream.on("data", onData)
         stream.on("end", resolve)
         stream.on("error", reject)
         stream.on("status", (status) => log.info(`${method}: ${status}`))
+    }), canceled => {
+        stream.destroy()
+        throw canceled
     })
     return response
 }
