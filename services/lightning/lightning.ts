@@ -3,7 +3,7 @@ import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
 import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
 import { INVOICE_EXPIRY } from "utils/constants"
-import { hexToBytes, toLong } from "utils/conversion"
+import { hexToBytes, toBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType, LongLikeType } from "utils/types"
 
@@ -12,7 +12,7 @@ const service = ""
 const { LndMobile } = NativeModules
 
 export type InvoiceStreamResponse = (data: lnrpc.Invoice) => void
-
+export type PeerStreamResponse = (data: lnrpc.PeerEvent) => void
 export type TransactionStreamResponse = (data: lnrpc.Transaction) => void
 
 export const start = async (): Promise<string> => {
@@ -34,16 +34,62 @@ export const stop = async (): Promise<void> => {
     log.debugTime("Stop Response", requestTime)
 }
 
-export const addInvoice = (value: number, memo?: string, expiry: LongLikeType = INVOICE_EXPIRY): Promise<lnrpc.AddInvoiceResponse> => {
+interface AddInvoiceProps {
+    amt: number
+    expiry?: number
+    memo?: string
+    paymentAddr?: BytesLikeType
+    preimage?: BytesLikeType
+    routeHints?: lnrpc.RouteHint[]
+}
+
+export const addInvoice = ({
+    amt,
+    memo,
+    expiry = INVOICE_EXPIRY,
+    paymentAddr,
+    preimage,
+    routeHints
+}: AddInvoiceProps): Promise<lnrpc.AddInvoiceResponse> => {
     return sendCommand<lnrpc.IInvoice, lnrpc.Invoice, lnrpc.AddInvoiceResponse>({
         request: lnrpc.Invoice,
         response: lnrpc.AddInvoiceResponse,
         method: service + "AddInvoice",
         options: {
-            value: toLong(value),
+            value: toLong(amt),
             memo,
             expiry: toLong(expiry),
-            private: true
+            rPreimage: preimage ? hexToBytes(preimage) : null,
+            paymentAddr: paymentAddr ? hexToBytes(paymentAddr) : null,
+            private: true,
+            routeHints
+        }
+    })
+}
+
+export const connectPeer = (pubkey: string, host: string, perm: boolean = false, timeout?: number): Promise<lnrpc.ConnectPeerResponse> => {
+    return sendCommand<lnrpc.IConnectPeerRequest, lnrpc.ConnectPeerRequest, lnrpc.ConnectPeerResponse>({
+        request: lnrpc.ConnectPeerRequest,
+        response: lnrpc.ConnectPeerResponse,
+        method: service + "ConnectPeer",
+        options: {
+            addr: {
+                pubkey,
+                host
+            },
+            perm,
+            timeout: timeout ? toLong(timeout) : null
+        }
+    })
+}
+
+export const disconnectPeer = (pubkey: string): Promise<lnrpc.DisconnectPeerResponse> => {
+    return sendCommand<lnrpc.IDisconnectPeerRequest, lnrpc.DisconnectPeerRequest, lnrpc.DisconnectPeerResponse>({
+        request: lnrpc.DisconnectPeerRequest,
+        response: lnrpc.DisconnectPeerResponse,
+        method: service + "DisconnectPeer",
+        options: {
+            pubKey: pubkey
         }
     })
 }
@@ -89,7 +135,6 @@ export const signMessage = (msg: BytesLikeType): Promise<lnrpc.SignMessageRespon
             msg: hexToBytes(msg)
         }
     })
-
 }
 
 export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.Invoice> => {
@@ -101,6 +146,17 @@ export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.
         options: {}
     })
     return processStreamResponse<lnrpc.Invoice>({ stream, method, onData })
+}
+
+export const subscribePeerEvents = async (onData: PeerStreamResponse): Promise<lnrpc.PeerEvent> => {
+    const method = service + "SubscribePeerEvents"
+    const stream = sendStreamCommand<lnrpc.IPeerEventSubscription, lnrpc.PeerEventSubscription, lnrpc.PeerEvent>({
+        request: lnrpc.PeerEventSubscription,
+        response: lnrpc.PeerEvent,
+        method,
+        options: {}
+    })
+    return processStreamResponse<lnrpc.PeerEvent>({ stream, method, onData })
 }
 
 export const subscribeTransactions = async (onData: TransactionStreamResponse): Promise<lnrpc.Transaction> => {

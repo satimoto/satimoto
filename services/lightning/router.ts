@@ -27,7 +27,7 @@ export const sendPaymentV2 = (
         method,
         options: {
             dest: dest ? hexToBytes(dest) : null,
-            amt: toLong(amt),
+            amt: amt ? toLong(amt) : null,
             paymentHash: toHash(preImage),
             paymentRequest,
             timeoutSeconds,

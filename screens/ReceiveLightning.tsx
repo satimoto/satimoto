@@ -1,13 +1,12 @@
-import React, { useLayoutEffect, useState } from "react"
+import React, { useEffect, useLayoutEffect, useState } from "react"
 import { observer } from "mobx-react"
 import { TextInput, View } from "react-native"
-import { Button, useTheme, VStack, IconButton } from "native-base"
+import { Button, IconButton, Text, useTheme, VStack } from "native-base"
 import { ReceiveLightningNavigationProp } from "screens/ReceiveStack"
-import { addInvoice } from "services/LightningService"
 import styles from "utils/styles"
 import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import useColor from "hooks/useColor"
-import { toLong } from "utils/conversion"
+import { store } from "stores/Store"
 
 type ReceiveLightningProps = {
     navigation: ReceiveLightningNavigationProp
@@ -18,6 +17,7 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColor(colors.warmGray[50], colors.dark[200])
     const [amount, setAmount] = useState("")
+    const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -26,12 +26,16 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
         })
     }, [navigation])
 
+    useEffect(() => {
+        setChannelRequestNeeded(+amount >= store.channelStore.remoteBalance)
+    }, [amount])
+
     const onAmountMsatChange = (text: string) => {
         setAmount(text)
     }
 
     const onCreatePress = async () => {
-        const invoice = await addInvoice(+amount)
+        const invoice = await store.invoiceStore.addInvoice(+amount)
         navigation.navigate("ReceiveQr", { qrCode: invoice.paymentRequest })
     }
 
@@ -51,6 +55,7 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
                         paddingHorizontal: 10
                     }}
                 />
+                {channelRequestNeeded && <Text fontSize="xs">A new channel is needed</Text>}
                 <Button onPress={onCreatePress} disabled={amount.length == 0}>
                     Create
                 </Button>

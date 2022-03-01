@@ -2,7 +2,20 @@ import type { InvoiceStreamResponse, TransactionStreamResponse } from "./lightni
 import type { BlockEpochStreamResponse } from "./lightning/chainNotifier"
 import type { PaymentStreamResponse } from "./lightning/router"
 
-import { start, stop, addInvoice, getInfo, listPayments, listPeers, signMessage, subscribeInvoices, subscribeTransactions } from "./lightning/lightning"
+import {
+    start,
+    stop,
+    addInvoice,
+    connectPeer,
+    disconnectPeer,
+    getInfo,
+    listPayments,
+    listPeers,
+    signMessage,
+    subscribeInvoices,
+    subscribePeerEvents,
+    subscribeTransactions
+} from "./lightning/lightning"
 import { registerBlockEpochNtfn } from "./lightning/chainNotifier"
 import { channelBalance, openChannel, subscribeChannelEvents } from "./lightning/channel"
 import { sendPaymentV2 } from "./lightning/router"
@@ -22,11 +35,14 @@ export {
     start,
     stop,
     addInvoice,
+    connectPeer,
+    disconnectPeer,
     getInfo,
     listPayments,
     listPeers,
     signMessage,
     subscribeInvoices,
+    subscribePeerEvents,
     subscribeTransactions,
     // ChainNotifier
     registerBlockEpochNtfn,

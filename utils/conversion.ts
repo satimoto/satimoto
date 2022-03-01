@@ -33,8 +33,12 @@ export const toHash = (data?: BytesLikeType): Uint8Array | undefined => {
     return typeof bytes != "undefined" ? sha256(bytes) : bytes
 }
 
-export const toLong = (value?: LongLikeType): Long | undefined => {
-    return typeof value != "undefined" ? Long.fromValue(value) : value
+export const toLong = (value: LongLikeType): Long => {
+    return Long.fromValue(value)
+}
+
+export const toMilliSatoshi = (value: LongLikeType):  Long => {
+    return toLong(value).multiply(1000)
 }
 
 export const toNumber = (value?: Long.Long | null): number | undefined => {
