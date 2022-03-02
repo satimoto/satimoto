@@ -12,6 +12,7 @@ import {
     listPayments,
     listPeers,
     signMessage,
+    subscribeCustomMessages,
     subscribeInvoices,
     subscribePeerEvents,
     subscribeTransactions
@@ -41,6 +42,7 @@ export {
     listPayments,
     listPeers,
     signMessage,
+    subscribeCustomMessages,
     subscribeInvoices,
     subscribePeerEvents,
     subscribeTransactions,

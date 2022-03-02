@@ -22,9 +22,6 @@ import java.util.Map;
 import lndmobile.Lndmobile;
 import lndmobile.SendStream;
 
-import lnrpc.Rpc;
-import lnrpc.Walletunlocker;
-
 public class LndMobile extends ReactContextBaseJavaModule {
 
     private final String TAG = "LndMobile";
@@ -99,7 +96,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initWallet(ReadableArray seed, String password, Integer recoveryWindow, final Promise promise) {
-        Walletunlocker.InitWalletRequest.Builder initWallet = Walletunlocker.InitWalletRequest.newBuilder();
+        lnrpc.Walletunlocker.InitWalletRequest.Builder initWallet = lnrpc.Walletunlocker.InitWalletRequest.newBuilder();
 
         // Add seed mnemonic
         ArrayList<String> seedMnemonic = new ArrayList<>();
@@ -139,7 +136,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void unlockWallet(String password, final Promise promise) {
-        Walletunlocker.UnlockWalletRequest.Builder unlockWallet = Walletunlocker.UnlockWalletRequest.newBuilder();
+        lnrpc.Walletunlocker.UnlockWalletRequest.Builder unlockWallet = lnrpc.Walletunlocker.UnlockWalletRequest.newBuilder();
         unlockWallet.setWalletPassword(ByteString.copyFromUtf8(password));
 
         Lndmobile.unlockWallet(unlockWallet.build().toByteArray(), new LndCallback(promise));
@@ -147,7 +144,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stop(final Promise promise) {
-        Rpc.StopRequest.Builder builder = Rpc.StopRequest.newBuilder();
+        lnrpc.LightningOuterClass.StopRequest.Builder builder = lnrpc.LightningOuterClass.StopRequest.newBuilder();
 
         Lndmobile.stopDaemon(builder.build().toByteArray(), new LndCallback(promise));
     }

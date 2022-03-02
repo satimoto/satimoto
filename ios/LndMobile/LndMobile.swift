@@ -21,12 +21,15 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     "AbandonChannel": { (msg: Data?, cb: LndCallback) in LndmobileAbandonChannel(msg, cb) },
     "AddInvoice": { (msg: Data?, cb: LndCallback) in LndmobileAddInvoice(msg, cb) },
     "BakeMacaroon": { (msg: Data?, cb: LndCallback) in LndmobileBakeMacaroon(msg, cb) },
+    "BatchOpenChannel": { (msg: Data?, cb: LndCallback) in LndmobileBatchOpenChannel(msg, cb) },
     "ChangePassword": { (msg: Data?, cb: LndCallback) in LndmobileChangePassword(msg, cb) },
     "ChannelBalance": { (msg: Data?, cb: LndCallback) in LndmobileChannelBalance(msg, cb) },
+    "CheckMacaroonPermissions": { (msg: Data?, cb: LndCallback) in LndmobileCheckMacaroonPermissions(msg, cb) },
     "ClosedChannels": { (msg: Data?, cb: LndCallback) in LndmobileClosedChannels(msg, cb) },
     "ConnectPeer": { (msg: Data?, cb: LndCallback) in LndmobileConnectPeer(msg, cb) },
     "DebugLevel": { (msg: Data?, cb: LndCallback) in LndmobileDebugLevel(msg, cb) },
     "DecodePayReq": { (msg: Data?, cb: LndCallback) in LndmobileDecodePayReq(msg, cb) },
+    "DeletePayment": { (msg: Data?, cb: LndCallback) in LndmobileDeletePayment(msg, cb) },
     "DeleteAllPayments": { (msg: Data?, cb: LndCallback) in LndmobileDeleteAllPayments(msg, cb) },
     "DeleteMacaroonID": { (msg: Data?, cb: LndCallback) in LndmobileDeleteMacaroonID(msg, cb) },
     "DescribeGraph": { (msg: Data?, cb: LndCallback) in LndmobileDescribeGraph(msg, cb) },
@@ -60,6 +63,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     "QueryRoutes": { (msg: Data?, cb: LndCallback) in LndmobileQueryRoutes(msg, cb) },
     "RestoreChannelBackups": { (msg: Data?, cb: LndCallback) in LndmobileRestoreChannelBackups(msg, cb) },
     "SendCoins": { (msg: Data?, cb: LndCallback) in LndmobileSendCoins(msg, cb) },
+    "SendCustomMessage": { (msg: Data?, cb: LndCallback) in LndmobileSendCustomMessage(msg, cb) },
     "SendMany": { (msg: Data?, cb: LndCallback) in LndmobileSendMany(msg, cb) },
     "SendPaymentSync": { (msg: Data?, cb: LndCallback) in LndmobileSendPaymentSync(msg, cb) },
     "SendToRouteSync": { (msg: Data?, cb: LndCallback) in LndmobileSendToRouteSync(msg, cb) },
@@ -78,6 +82,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     // Invoice RPC
     "InvoicesAddHoldInvoice": { (msg: Data?, cb: LndCallback) in LndmobileInvoicesAddHoldInvoice(msg, cb) },
     "InvoicesCancelInvoice": { (msg: Data?, cb: LndCallback) in LndmobileInvoicesCancelInvoice(msg, cb) },
+    "InvoicesLookupInvoiceV2": { (msg: Data?, cb: LndCallback) in LndmobileInvoicesLookupInvoiceV2(msg, cb) },
     "InvoicesSettleInvoice": { (msg: Data?, cb: LndCallback) in LndmobileInvoicesSettleInvoice(msg, cb) },
     // Router RPC
     "RouterBuildRoute": { (msg: Data?, cb: LndCallback) in LndmobileRouterBuildRoute(msg, cb) },
@@ -117,6 +122,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     "WalletKitPublishTransaction": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitPublishTransaction(msg, cb) },
     "WalletKitReleaseOutput": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitReleaseOutput(msg, cb) },
     "WalletKitSendOutputs": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitSendOutputs(msg, cb) },
+    "WalletKitSignPsbt": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitSignPsbt(msg, cb) },
 ]
   
   static let recvStreamMethods: [String:LndMobileRecvStreamMethod] = [
@@ -125,6 +131,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     "SubscribeChannelBackups": { (msg: Data?, cb: LndRecvStream) in LndmobileSubscribeChannelBackups(msg, cb) },
     "SubscribeChannelEvents": { (msg: Data?, cb: LndRecvStream) in LndmobileSubscribeChannelEvents(msg, cb) },
     "SubscribeChannelGraph": { (msg: Data?, cb: LndRecvStream) in LndmobileSubscribeChannelGraph(msg, cb) },
+    "SubscribeCustomMessages": { (msg: Data?, cb: LndRecvStream) in LndmobileSubscribeCustomMessages(msg, cb) },
     "SubscribeInvoices": { (msg: Data?, cb: LndRecvStream) in LndmobileSubscribeInvoices(msg, cb) },
     "SubscribePeerEvents": { (msg: Data?, cb: LndRecvStream) in LndmobileSubscribePeerEvents(msg, cb) },
     "SubscribeState": { (msg: Data?, cb: LndRecvStream) in LndmobileSubscribeState(msg, cb) },
@@ -145,6 +152,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
   
   static let biStreamMethods: [String:LndMobileBiStreamMethod] = [
     "ChannelAcceptor": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileChannelAcceptor(cb, &err) },
+    "RegisterRPCMiddleware": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileRegisterRPCMiddleware(cb, &err) },
     "SendPayment": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileSendPayment(cb, &err) },
     "SendToRoute": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileSendToRoute(cb, &err) },
     // Router RPC

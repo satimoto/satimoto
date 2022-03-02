@@ -1,4 +1,4 @@
-# react-mobile
+# Satimoto
 Satimoto mobile application using react native
 
 
@@ -54,10 +54,10 @@ Checkout branch to build (Reset staged/unstaged changes if you need to)
 git reset --hard HEAD
 git checkout -b 0-13-2-branch satimoto/0-13-2-branch
 ```
-Build for iOS platform (`Lndmobile.framework`)
+Build for iOS platform (`Lndmobile.xcframework`)
 ```bash
 make ios prefix="1" tags="chainrpc invoicesrpc routerrpc signrpc walletrpc"
-cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/ios/Lndmobile.framework <path/to>/react-mobile/ios/LndMobile
+cp -r $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/ios/Lndmobile.xcframework <path/to>/react-mobile/ios/LndMobile
 ```
 Build for android platform (`Lndmobile.aar`)
 ```bash

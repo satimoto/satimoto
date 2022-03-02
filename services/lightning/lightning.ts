@@ -3,7 +3,7 @@ import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
 import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
 import { INVOICE_EXPIRY } from "utils/constants"
-import { hexToBytes, toBytes, toLong } from "utils/conversion"
+import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType, LongLikeType } from "utils/types"
 
@@ -11,6 +11,7 @@ const log = new Log("Lightning")
 const service = ""
 const { LndMobile } = NativeModules
 
+export type CustomMessageStreamResponse = (data: lnrpc.CustomMessage) => void
 export type InvoiceStreamResponse = (data: lnrpc.Invoice) => void
 export type PeerStreamResponse = (data: lnrpc.PeerEvent) => void
 export type TransactionStreamResponse = (data: lnrpc.Transaction) => void
@@ -126,6 +127,19 @@ export const listPeers = (latestError: boolean = false): Promise<lnrpc.ListPeers
     })
 }
 
+export const sendCustomMessage = (peer: BytesLikeType, type: number, data: BytesLikeType): Promise<lnrpc.SendCustomMessageResponse> => {
+    return sendCommand<lnrpc.ISendCustomMessageRequest, lnrpc.SendCustomMessageRequest, lnrpc.SendCustomMessageResponse>({
+        request: lnrpc.SendCustomMessageRequest,
+        response: lnrpc.SendCustomMessageResponse,
+        method: service + "SendCustomMessage",
+        options: {
+            peer: hexToBytes(peer),
+            type,
+            data: hexToBytes(data)
+        }
+    })
+}
+
 export const signMessage = (msg: BytesLikeType): Promise<lnrpc.SignMessageResponse> => {
     return sendCommand<lnrpc.ISignMessageRequest, lnrpc.SignMessageRequest, lnrpc.SignMessageResponse>({
         request: lnrpc.SignMessageRequest,
@@ -135,6 +149,17 @@ export const signMessage = (msg: BytesLikeType): Promise<lnrpc.SignMessageRespon
             msg: hexToBytes(msg)
         }
     })
+}
+
+export const subscribeCustomMessages = (onData: CustomMessageStreamResponse): Promise<lnrpc.SubscribeCustomMessagesRequest> => {
+    const method = service + "SubscribeCustomMessages"
+    const stream = sendStreamCommand<lnrpc.ISubscribeCustomMessagesRequest, lnrpc.SubscribeCustomMessagesRequest, lnrpc.CustomMessage>({
+        request: lnrpc.SubscribeCustomMessagesRequest,
+        response: lnrpc.CustomMessage,
+        method,
+        options: {}
+    })
+    return processStreamResponse<lnrpc.CustomMessage>({ stream, method, onData })
 }
 
 export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.Invoice> => {

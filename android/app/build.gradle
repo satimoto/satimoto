@@ -264,7 +264,7 @@ dependencies {
         implementation jscFlavor
     }
 
-    protobuf files("../../proto/rpc.proto", "../../proto/walletunlocker.proto")
+    protobuf files("../../proto/lightning.proto", "../../proto/walletunlocker.proto")
 }
 
 // Run this once to be able to run the application with BUCK

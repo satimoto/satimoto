@@ -3,8 +3,9 @@ import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
-import { connectPeer, disconnectPeer, subscribePeerEvents } from "services/LightningService"
+import { connectPeer, disconnectPeer, subscribeCustomMessages, subscribePeerEvents } from "services/LightningService"
 import { DEBUG } from "utils/build"
+import { toString } from "utils/conversion"
 import { Log } from "utils/logging"
 import Peer, { PeerLike } from "models/Peer"
 
@@ -15,6 +16,7 @@ export interface IPeerStore extends IStore {
     stores: Store
 
     peers: Peer[]
+    subscribedCustomMessages: boolean
     subscribedPeerEvents: boolean
 
     connectPeer(pubkey: string, host: string): Promise<Peer>
@@ -27,6 +29,7 @@ export class PeerStore implements IPeerStore {
     ready = false
     stores
 
+    subscribedCustomMessages = false
     subscribedPeerEvents = false
     peers = observable<Peer>([])
 
@@ -38,6 +41,7 @@ export class PeerStore implements IPeerStore {
             ready: observable,
 
             peers: observable,
+            subscribedCustomMessages: observable,
             subscribedPeerEvents: observable,
 
             setReady: action,
@@ -56,7 +60,13 @@ export class PeerStore implements IPeerStore {
             when(
                 () => this.stores.lightningStore.syncedToChain,
                 () => this.subscribePeerEvents()
+            )            
+            
+            when(
+                () => this.stores.lightningStore.syncedToChain,
+                () => this.subscribeCustomMessages()
             )
+
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
@@ -99,6 +109,13 @@ export class PeerStore implements IPeerStore {
         return this.peers.find((peer) => peer.pubkey === pubkey)
     }
 
+    subscribeCustomMessages() {
+        if (!this.subscribedCustomMessages) {
+            subscribeCustomMessages((data: lnrpc.CustomMessage) => this.updateCustomMessages(data))
+            this.subscribedPeerEvents = true
+        }
+    }
+
     subscribePeerEvents() {
         if (!this.subscribedPeerEvents) {
             subscribePeerEvents((data: lnrpc.PeerEvent) => this.updatePeers(data))
@@ -108,6 +125,10 @@ export class PeerStore implements IPeerStore {
 
     setReady() {
         this.ready = true
+    }
+
+    updateCustomMessages({peer, type, data}: lnrpc.CustomMessage) {
+        log.debug(`Custom Message ${type} from ${toString(peer)}: ${toString(data)}`)
     }
 
     updatePeers({ pubKey, type }: lnrpc.PeerEvent) {
