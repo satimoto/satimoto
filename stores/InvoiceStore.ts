@@ -1,3 +1,4 @@
+import { Hash } from "fast-sha256"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -7,9 +8,9 @@ import { addInvoice, subscribeInvoices } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { generateSecureRandom } from "react-native-securerandom"
-import { Hash } from "fast-sha256"
-import { bytesToBase64, toMilliSatoshi } from "utils/conversion"
 import { createChannelRequest } from "services/SatimotoService"
+import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID, CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE } from "utils/constants"
+import { bytesToBase64, bytesToHex, toMilliSatoshi, toString } from "utils/conversion"
 import { randomLong } from "utils/random"
 
 const log = new Log("InvoiceStore")
@@ -84,6 +85,19 @@ export class InvoiceStore implements IInvoiceStore {
                     }
                 ]
             }))
+
+            this.stores.peerStore.addCustomMessageResponder({
+                request: {
+                    peer: node.pubkey,
+                    type: CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID,
+                    data: chanId.toString(10)
+                },
+                response: {
+                    peer: node.pubkey,
+                    type: CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE,
+                    data: bytesToHex(preimage)
+                }
+            })
         }
 
         const invoice = await addInvoice({ amt: +amount, paymentAddr, preimage, routeHints })

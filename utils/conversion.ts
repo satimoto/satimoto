@@ -37,12 +37,12 @@ export const toLong = (value: LongLikeType): Long => {
     return Long.fromValue(value)
 }
 
-export const toMilliSatoshi = (value: LongLikeType):  Long => {
+export const toMilliSatoshi = (value: LongLikeType): Long => {
     return toLong(value).multiply(1000)
 }
 
-export const toNumber = (value?: Long.Long | null): number | undefined => {
-    return value && typeof value != "undefined" ? value.toNumber() : undefined
+export const toNumber = (value?: Long | null): number | undefined => {
+    return value && typeof value != "undefined" ? Long.fromValue(value).toNumber() : undefined
 }
 
 export const toString = (data: BytesLikeType): string | undefined => {

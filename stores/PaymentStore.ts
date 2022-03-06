@@ -10,7 +10,7 @@ import { Log } from "utils/logging"
 
 const log = new Log("PaymentStore")
 
-export interface IPaymentType {
+export interface Payment {
     creationTimeNs?: string | null
     failureReason?: lnrpc.PaymentFailureReason | null
     feeSat?: string | null
@@ -25,7 +25,7 @@ export interface IPaymentStore extends IStore {
     stores: Store
 
     indexOffset: string
-    payments: IPaymentType[]
+    payments: Payment[]
 
     listPayments(): Promise<void>
     updatePayments(data: lnrpc.ListPaymentsResponse): void
@@ -41,7 +41,7 @@ export class PaymentStore implements IPaymentStore {
 
     constructor(stores: Store) {
         this.stores = stores
-        this.payments = new Array<IPaymentType>()
+        this.payments = observable<Payment>([])
 
         makeObservable(this, {
             hydrated: observable,

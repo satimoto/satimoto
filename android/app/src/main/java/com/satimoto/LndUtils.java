@@ -155,11 +155,11 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=bitcoind\n" +
                             "\n" +
                             "[Bitcoind]\n" +
-                            "bitcoind.rpchost=10.0.2.2:18443\n" +
+                            "bitcoind.rpchost=10.0.2.2:18444\n" +
                             "bitcoind.rpcuser=polaruser\n" +
                             "bitcoind.rpcpass=polarpass\n" +
-                            "bitcoind.zmqpubrawblock=10.0.2.2:28334\n" +
-                            "bitcoind.zmqpubrawtx=10.0.2.2:29335\n" +
+                            "bitcoind.zmqpubrawblock=10.0.2.2:28335\n" +
+                            "bitcoind.zmqpubrawtx=10.0.2.2:29336\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +

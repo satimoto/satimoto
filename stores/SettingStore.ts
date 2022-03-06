@@ -40,6 +40,7 @@ export class SettingStore implements ISettingStore {
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
 
+            setAccessToken: action,
             setPushNotificationSettings: action
         })
 

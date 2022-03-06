@@ -44,7 +44,7 @@ export class ChannelStore implements IChannelStore {
             updateChannelEvents: action
         })
 
-        makePersistable(this, { name: "ChannelStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
+        makePersistable(this, { name: "ChannelStore", properties: ["localBalance", "remoteBalance"], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
             action((persistStore) => (this.hydrated = persistStore.isHydrated))
         )
     }

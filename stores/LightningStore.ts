@@ -4,7 +4,7 @@ import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { chainrpc, lnrpc } from "proto/proto"
 import { IStore, Store } from "stores/Store"
-import { getInfo, start, registerBlockEpochNtfn, subscribeState, listPeers } from "services/LightningService"
+import { getInfo, start, registerBlockEpochNtfn, subscribeState } from "services/LightningService"
 import { startLogEvents } from "services/LndUtilsService"
 import { DEBUG } from "utils/build"
 import { bytesToHex, reverseByteOrder } from "utils/conversion"
@@ -114,7 +114,7 @@ export class LightningStore implements ILightningStore {
 
             // When the wallet is unlocked or RPC active, set the store ready
             when(
-                () => this.state == lnrpc.WalletState.RPC_ACTIVE,
+                () => this.state == lnrpc.WalletState.RPC_ACTIVE || this.state == lnrpc.WalletState.SERVER_ACTIVE,
                 () => this.syncToChain()
             )
 
@@ -171,8 +171,6 @@ export class LightningStore implements ILightningStore {
 
             await timeout(6000)
         }
-
-        await listPeers()
 
         this.setReady()
     }

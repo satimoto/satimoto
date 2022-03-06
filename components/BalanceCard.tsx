@@ -1,6 +1,7 @@
 import SatoshiBalance from "components/SatoshiBalance"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faListCheck } from "@fortawesome/free-solid-svg-icons"
+import { observer } from "mobx-react"
 import { IconButton } from "native-base"
 import React from "react"
 import { StyleSheet } from "react-native"
@@ -50,4 +51,4 @@ const BalanceCard = () => {
     )
 }
 
-export default BalanceCard
+export default observer(BalanceCard)

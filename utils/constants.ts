@@ -1,5 +1,8 @@
 import { Platform } from "react-native"
 
+export const CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID = 51727
+export const CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE = 51728
+
 export const INTERVAL_RETRY = 1000
 export const IS_ANDROID = Platform.OS === "android"
 export const IS_IOS = Platform.OS === "ios"
