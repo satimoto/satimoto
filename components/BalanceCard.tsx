@@ -7,7 +7,7 @@ import React from "react"
 import { StyleSheet } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { store } from "stores/Store"
+import store from "stores/Store"
 import { useNavigation } from "@react-navigation/native"
 import { DeveloperNavigationProp } from "screens/AppStack"
 

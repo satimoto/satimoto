@@ -2,14 +2,14 @@ import { action, makeObservable, observable, reaction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import messaging from "@react-native-firebase/messaging"
-import { IStore, Store } from "stores/Store"
+import { StoreInterface, Store } from "stores/Store"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { updateUser, getToken } from "services/SatimotoService"
 
 const log = new Log("SettingStore")
 
-export interface ISettingStore extends IStore {
+export interface SettingStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
@@ -20,7 +20,7 @@ export interface ISettingStore extends IStore {
     requestPushNotificationPermission(): void
 }
 
-export class SettingStore implements ISettingStore {
+export class SettingStore implements SettingStoreInterface {
     hydrated = false
     ready = false
     stores

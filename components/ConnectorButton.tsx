@@ -1,5 +1,5 @@
 import SatoshiBalance from "components/SatoshiBalance"
-import Connector from "models/Connector"
+import ConnectorModel from "models/Connector"
 import { Box, HStack, Pressable, Spacer, Text, VStack } from "native-base"
 import React from "react"
 import { Image } from "react-native"
@@ -13,8 +13,8 @@ const connectorIcons: any = {
 }
 
 interface ConnectorButtonProps {
-    connector: Connector
-    onPress?: (connector: Connector) => void
+    connector: ConnectorModel
+    onPress?: (connector: ConnectorModel) => void
 }
 
 const ConnectorButton = ({ connector, onPress }: ConnectorButtonProps) => {

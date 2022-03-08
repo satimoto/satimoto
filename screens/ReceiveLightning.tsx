@@ -6,7 +6,7 @@ import { ReceiveLightningNavigationProp } from "screens/ReceiveStack"
 import styles from "utils/styles"
 import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import useColor from "hooks/useColor"
-import { store } from "stores/Store"
+import store from "stores/Store"
 
 type ReceiveLightningProps = {
     navigation: ReceiveLightningNavigationProp

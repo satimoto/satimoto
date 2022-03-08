@@ -1,4 +1,4 @@
-interface Connector {
+interface ConnectorModel {
     id: string
     connectorId: string,
     title: string
@@ -7,7 +7,7 @@ interface Connector {
     currentType: string
 }
 
-type ConnectorLike = Connector | undefined
+type ConnectorModelLike = ConnectorModel | undefined
 
-export default Connector
-export type { ConnectorLike }
+export default ConnectorModel
+export type { ConnectorModelLike }

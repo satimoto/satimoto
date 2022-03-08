@@ -1,9 +1,10 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import Peer, { PeerLike } from "models/Peer"
+import CustomMessageModel from "models/CustomMessage"
+import PeerModel, { PeerModelLike } from "models/Peer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
+import { StoreInterface, Store } from "stores/Store"
 import { connectPeer, disconnectPeer, listPeers, sendCustomMessage, subscribeCustomMessages, subscribePeerEvents } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID } from "utils/constants"
@@ -12,39 +13,33 @@ import { Log } from "utils/logging"
 
 const log = new Log("PeerStore")
 
-export interface CustomMessage {
-    peer: string
-    type: number
-    data: any
-}
-
 export interface CustomMessageResponder {
-    request: CustomMessage
-    response: CustomMessage
+    request: CustomMessageModel
+    response: CustomMessageModel
 }
 
-export interface IPeerStore extends IStore {
+export interface PeerStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
     customMessageResponders: CustomMessageResponder[]
-    peers: Peer[]
+    peers: PeerModel[]
     subscribedCustomMessages: boolean
     subscribedPeerEvents: boolean
 
     addCustomMessageResponder(responder: CustomMessageResponder): void
-    connectPeer(pubkey: string, host: string): Promise<Peer>
+    connectPeer(pubkey: string, host: string): Promise<PeerModel>
     disconnectPeer(pubkey: string): void
-    getPeer(pubkey: string): PeerLike
+    getPeer(pubkey: string): PeerModelLike
 }
 
-export class PeerStore implements IPeerStore {
+export class PeerStore implements PeerStoreInterface {
     hydrated = false
     ready = false
     stores
 
     customMessageResponders = observable<CustomMessageResponder>([])
-    peers = observable<Peer>([])
+    peers = observable<PeerModel>([])
     subscribedCustomMessages = false
     subscribedPeerEvents = false
 
@@ -99,7 +94,7 @@ export class PeerStore implements IPeerStore {
 
     async connectPeer(pubkey: string, host: string) {
         try {
-            let peer: PeerLike = this.getPeer(pubkey)
+            let peer: PeerModelLike = this.getPeer(pubkey)
 
             if (!peer) {
                 peer = {
@@ -119,7 +114,7 @@ export class PeerStore implements IPeerStore {
 
     async disconnectPeer(pubkey: string) {
         try {
-            const peer: PeerLike = this.getPeer(pubkey)
+            const peer: PeerModelLike = this.getPeer(pubkey)
 
             if (peer) {
                 await disconnectPeer(pubkey)

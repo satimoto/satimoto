@@ -3,7 +3,7 @@ import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { generateSecureRandom } from "react-native-securerandom"
 import { lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
+import { StoreInterface, Store } from "stores/Store"
 import { genSeed, initWallet, unlockWallet } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { RECOVERY_WINDOW_DEFAULT, SECURE_KEY_WALLET_PASSWORD, SECURE_KEY_CIPHER_SEED_MNEMONIC } from "utils/constants"
@@ -13,12 +13,12 @@ import { getSecureItem, setSecureItem } from "utils/storage"
 
 const log = new Log("WalletStore")
 
-export interface IWalletStore extends IStore {
+export interface WalletStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 }
 
-export class WalletStore implements IWalletStore {
+export class WalletStore implements WalletStoreInterface {
     hydrated = false
     ready = false
     stores

@@ -1,7 +1,7 @@
 import React from "react"
 import messaging from "@react-native-firebase/messaging"
 import App from "screens/App"
-import { store } from "stores/Store"
+import store from "stores/Store"
 import { Log } from "utils/logging"
 
 const log = new Log("HeadlessApp")

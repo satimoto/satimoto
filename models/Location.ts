@@ -1,15 +1,15 @@
-import Connector from "models/Connector"
+import ConnectorModel from "models/Connector"
 
-interface Location {
+interface LocationModel {
     uuid: string
     name: string
     address: string
     city: string
     postalCode: string
-    connectors: Connector[]
+    connectors: ConnectorModel[]
 }
 
-type LocationLike = Location | undefined
+type LocationModelLike = LocationModel | undefined
 
-export default Location
-export type { LocationLike }
+export default LocationModel
+export type { LocationModelLike }

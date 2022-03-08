@@ -1,4 +1,5 @@
 import { action, makeObservable, observable, when } from "mobx"
+import "reflect-metadata"
 import { ChannelStore } from "./ChannelStore"
 import { InvoiceStore } from "./InvoiceStore"
 import { LightningStore } from "./LightningStore"
@@ -11,14 +12,14 @@ import { Log } from "utils/logging"
 
 const log = new Log("Store")
 
-export interface IStore {
+export interface StoreInterface {
     ready: boolean
 
     initialize(): Promise<void>
     setReady(): void
 }
 
-export class Store implements IStore {
+export class Store implements StoreInterface {
     ready = false
     channelStore: ChannelStore
     invoiceStore: InvoiceStore
@@ -80,4 +81,6 @@ export class Store implements IStore {
     }
 }
 
-export const store = new Store()
+const store = new Store()
+
+export default store

@@ -162,13 +162,20 @@ export const subscribeCustomMessages = (onData: CustomMessageStreamResponse): Pr
     return processStreamResponse<lnrpc.CustomMessage>({ stream, method, onData })
 }
 
-export const subscribeInvoices = (onData: InvoiceStreamResponse): Promise<lnrpc.Invoice> => {
+export const subscribeInvoices = (
+    onData: InvoiceStreamResponse,
+    addIndex: LongLikeType = 0,
+    settleIndex: LongLikeType = 0
+): Promise<lnrpc.Invoice> => {
     const method = service + "SubscribeInvoices"
     const stream = sendStreamCommand<lnrpc.IInvoiceSubscription, lnrpc.InvoiceSubscription, lnrpc.Invoice>({
         request: lnrpc.InvoiceSubscription,
         response: lnrpc.Invoice,
         method,
-        options: {}
+        options: {
+            addIndex: toLong(addIndex),
+            settleIndex: toLong(settleIndex)
+        }
     })
     return processStreamResponse<lnrpc.Invoice>({ stream, method, onData })
 }

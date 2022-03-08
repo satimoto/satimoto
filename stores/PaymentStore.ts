@@ -1,37 +1,30 @@
 import Long from "long"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import PaymentModel, { PaymentModelLike } from "models/Payment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
-import { listPayments } from "services/LightningService"
+import { StoreInterface, Store } from "stores/Store"
+import { listPayments, sendPaymentV2 } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import { toTransactionStatus } from "utils/conversion"
+import { SendPaymentV2Props } from "services/LightningService"
+import TransactionStatus from "types/TransactionStatus"
 
 const log = new Log("PaymentStore")
 
-export interface Payment {
-    creationTimeNs?: string | null
-    failureReason?: lnrpc.PaymentFailureReason | null
-    feeSat?: string | null
-    paymentHash?: string | null
-    paymentPreimage?: string | null
-    paymentRequest?: string | null
-    valueSat?: string | null
-}
-
-export interface IPaymentStore extends IStore {
+export interface PaymentStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
     indexOffset: string
-    payments: Payment[]
+    payments: PaymentModel[]
 
-    listPayments(): Promise<void>
-    updatePayments(data: lnrpc.ListPaymentsResponse): void
+    sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel>
 }
 
-export class PaymentStore implements IPaymentStore {
+export class PaymentStore implements PaymentStoreInterface {
     hydrated = false
     ready = false
     stores
@@ -41,7 +34,7 @@ export class PaymentStore implements IPaymentStore {
 
     constructor(stores: Store) {
         this.stores = stores
-        this.payments = observable<Payment>([])
+        this.payments = observable<PaymentModel>([])
 
         makeObservable(this, {
             hydrated: observable,
@@ -50,6 +43,7 @@ export class PaymentStore implements IPaymentStore {
             payments: observable,
 
             setReady: action,
+            updatePayment: action,
             updatePayments: action
         })
 
@@ -65,39 +59,72 @@ export class PaymentStore implements IPaymentStore {
             // When the synced to chain, list missed payments
             when(
                 () => this.stores.lightningStore.syncedToChain,
-                () => this.listPayments()
+                () => this.postSync()
             )
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
     }
 
-    async listPayments() {
-        const listPaymentsResponse: lnrpc.ListPaymentsResponse = await listPayments(true, Long.fromValue(this.indexOffset))
+    async postSync() {
+        const listPaymentsResponse: lnrpc.ListPaymentsResponse = await listPayments(true, this.indexOffset)
         this.updatePayments(listPaymentsResponse)
     }
 
-    async sendPayment() {
+    sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel> {
+        return new Promise<PaymentModel>(async (resolve, reject) => {
+            try {
+                await sendPaymentV2((data: lnrpc.Payment) => {
+                    const payment = this.updatePayment(data)
+
+                    if (payment.status === TransactionStatus.FAILED || payment.status === TransactionStatus.SUCCEEDED) {
+                        resolve(payment)
+                    }
+                }, payment)
+            } catch (error) {
+                reject(error)
+            }
+        })
     }
 
     setReady() {
         this.ready = true
     }
 
-    updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
-        payments.forEach(({ creationTimeNs, failureReason, feeSat, paymentHash, paymentIndex, paymentPreimage, paymentRequest, valueSat }) => {
-            this.payments.push({
-                creationTimeNs: creationTimeNs && creationTimeNs.toString(),
-                failureReason,
-                feeSat: feeSat && feeSat.toString(),
-                paymentHash,
-                paymentPreimage,
-                paymentRequest,
-                valueSat: valueSat && valueSat.toString()
-            })
+    updatePayment({ creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment): PaymentModel {
+        let payment: PaymentModelLike = this.payments.find(({ hash }) => hash === paymentHash)
 
-            this.indexOffset = paymentIndex ? paymentIndex.toString() : this.indexOffset
-        })
+        if (payment) {
+            payment.feeMsat = feeMsat.toString()
+            payment.feeSat = feeSat.toString()
+            payment.preimage = paymentPreimage
+            payment.status = toTransactionStatus(status)
+            payment.valueMsat = valueMsat.toString()
+            payment.valueSat = valueSat.toString()
+        } else {
+            payment = {
+                createdAt: creationTimeNs.toString(),
+                feeMsat: feeMsat.toString(),
+                feeSat: feeSat.toString(),
+                hash: paymentHash,
+                preimage: paymentPreimage,
+                status: toTransactionStatus(status),
+                valueMsat: valueMsat.toString(),
+                valueSat: valueSat.toString()
+            }
+
+            this.payments.push(payment)
+        }
+
+        return payment
+    }
+
+    updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
+        payments.forEach((payment) => {
+            this.updatePayment(lnrpc.Payment.fromObject(payment))
+
+            this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
+        }, this)
 
         this.setReady()
     }

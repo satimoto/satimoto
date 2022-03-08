@@ -10,15 +10,27 @@ const service = "Router"
 
 export type PaymentStreamResponse = (data: lnrpc.Payment) => void
 
+export interface SendPaymentV2Props {
+    paymentRequest?: string
+    dest?: BytesLikeType
+    amt?: LongLikeType
+    preImage?: BytesLikeType
+    timeoutSeconds?: number
+    feeLimitSat?: LongLikeType
+    cltvLimit?: number
+}
+
 export const sendPaymentV2 = (
     onData: PaymentStreamResponse,
-    paymentRequest?: string,
-    dest?: BytesLikeType,
-    amt?: LongLikeType,
-    preImage?: BytesLikeType,
-    timeoutSeconds: number = PAYMENT_TIMEOUT_SECONDS,
-    feeLimitSat: LongLikeType = PAYMENT_FEE_LIMIT_SAT,
-    cltvLimit: number = PAYMENT_CLTV_LIMIT
+    {
+        paymentRequest,
+        dest,
+        amt,
+        preImage,
+        timeoutSeconds = PAYMENT_TIMEOUT_SECONDS,
+        feeLimitSat = PAYMENT_FEE_LIMIT_SAT,
+        cltvLimit = PAYMENT_CLTV_LIMIT
+    }: SendPaymentV2Props
 ): Promise<lnrpc.Payment> => {
     const method = service + "SendPaymentV2"
     const stream = sendStreamCommand<routerrpc.ISendPaymentRequest, routerrpc.SendPaymentRequest, lnrpc.Payment>({
@@ -35,5 +47,5 @@ export const sendPaymentV2 = (
             cltvLimit
         }
     })
-    return processStreamResponse<lnrpc.Payment>({stream, method, onData})
+    return processStreamResponse<lnrpc.Payment>({ stream, method, onData })
 }

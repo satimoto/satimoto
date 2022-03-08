@@ -2,7 +2,7 @@ import React from "react"
 import { observer } from "mobx-react"
 import { Button, View } from "react-native"
 import { useColorModeValue, Text } from "native-base"
-import { store } from "stores/Store"
+import store from "stores/Store"
 import { HomeNavigationProp } from "screens/AppStack"
 
 type DeveloperProps = {

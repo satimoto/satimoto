@@ -1,61 +1,86 @@
+import { instanceToPlain, plainToInstance } from "class-transformer"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { InvoicePaymentModel, TransactionModel } from "models/Transaction"
 import { lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
-import { subscribeTransactions } from "services/LightningService"
+import { StoreInterface, Store } from "stores/Store"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import { ComplexAsyncStorage, ComplexAsyncStorageHydrationMap } from "utils/asyncStorage"
 
 const log = new Log("TransactionStore")
 
-export interface ITransactionStore extends IStore {
+export interface TransactionStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
-    subscribedTransactions: boolean
+    transactions: TransactionModel[]
+
+    addTransaction(transaction: InvoicePaymentModel): void
 }
 
-export class TransactionStore implements ITransactionStore {
+const transactionDehydrationMap: ComplexAsyncStorageHydrationMap = {
+    transactions: (value: TransactionModel[]): any => {
+        return instanceToPlain(value)
+    }
+}
+
+const transactionHydrationMap: ComplexAsyncStorageHydrationMap = {
+    transactions: (value: any): TransactionModel[] => {
+        return plainToInstance(TransactionModel, value, { excludeExtraneousValues: true })
+    }
+}
+
+export class TransactionStore implements TransactionStoreInterface {
     hydrated = false
     ready = false
     stores
 
-    subscribedTransactions = false
+    transactions
 
     constructor(stores: Store) {
         this.stores = stores
+        this.transactions = observable<TransactionModel>([])
 
         makeObservable(this, {
             hydrated: observable,
             ready: observable,
 
-            subscribedTransactions: observable,
+            transactions: observable,
 
-            setReady: action
+            setReady: action,
+            addTransaction: action
         })
 
-        makePersistable(this, { name: "TransactionStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
-            action((persistStore) => (this.hydrated = persistStore.isHydrated))
-        )
+        makePersistable(
+            this,
+            {
+                name: "TransactionStore",
+                properties: ["transactions"],
+                storage: ComplexAsyncStorage(transactionHydrationMap, transactionDehydrationMap),
+                stringify: false,
+                debugMode: DEBUG
+            },
+            { delay: 1000 }
+        ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
 
     async initialize(): Promise<void> {
         try {
-            // When the synced to chain, subscribe to transactions
-            when(
-                () => this.stores.lightningStore.syncedToChain,
-                () => this.subscribeTransactions()
-            )
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
     }
 
-    subscribeTransactions() {
-        if (!this.subscribedTransactions) {
-            subscribeTransactions((data: lnrpc.Transaction) => this.updateTransactions(data))
-            this.subscribedTransactions = true
+    addTransaction(transaction: InvoicePaymentModel, identifier?: string) {
+        identifier = identifier || transaction.hash
+
+        const existingTransaction = this.transactions.find((t) => t.identifier === identifier)
+
+        if (existingTransaction) {
+            existingTransaction.addTransaction(transaction)
+        } else {
+            this.transactions.push(new TransactionModel(transaction, identifier))
         }
     }
 

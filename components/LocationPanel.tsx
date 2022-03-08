@@ -1,6 +1,6 @@
 import ConnectorButton from "components/ConnectorButton"
 import LocationHeader from "components/LocationHeader"
-import Location from "models/Location"
+import LocationModel from "models/Location"
 import { useTheme, VStack } from "native-base"
 import React from "react"
 import { Dimensions, StyleSheet, View } from "react-native"
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
 })
 
 interface LocationPanelProps {
-    location?: Location
+    location?: LocationModel
 }
 
 const LocationPanel = React.forwardRef(({ location }: LocationPanelProps, ref?: React.LegacyRef<SlidingUpPanel>) => {

@@ -2,7 +2,7 @@ import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
+import { StoreInterface, Store } from "stores/Store"
 import { channelBalance, subscribeChannelEvents } from "services/LightningService"
 import { toNumber } from "utils/conversion"
 import { DEBUG } from "utils/build"
@@ -10,7 +10,7 @@ import { Log } from "utils/logging"
 
 const log = new Log("ChannelStore")
 
-export interface IChannelStore extends IStore {
+export interface ChannelStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
@@ -19,7 +19,7 @@ export interface IChannelStore extends IStore {
     remoteBalance: number
 }
 
-export class ChannelStore implements IChannelStore {
+export class ChannelStore implements ChannelStoreInterface {
     hydrated = false
     ready = false
     stores

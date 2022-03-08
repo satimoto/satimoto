@@ -3,7 +3,7 @@ import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { chainrpc, lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
+import { StoreInterface, Store } from "stores/Store"
 import { getInfo, start, registerBlockEpochNtfn, subscribeState } from "services/LightningService"
 import { startLogEvents } from "services/LndUtilsService"
 import { DEBUG } from "utils/build"
@@ -13,7 +13,7 @@ import { timeout } from "utils/tools"
 
 const log = new Log("LightningStore")
 
-export interface ILightningStore extends IStore {
+export interface LightningStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
@@ -32,7 +32,7 @@ export interface ILightningStore extends IStore {
     syncToChain(): void
 }
 
-export class LightningStore implements ILightningStore {
+export class LightningStore implements LightningStoreInterface {
     hydrated = false
     ready = false
     stores

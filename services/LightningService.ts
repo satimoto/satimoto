@@ -1,6 +1,6 @@
 import type { InvoiceStreamResponse, TransactionStreamResponse } from "./lightning/lightning"
 import type { BlockEpochStreamResponse } from "./lightning/chainNotifier"
-import type { PaymentStreamResponse } from "./lightning/router"
+import type { PaymentStreamResponse, SendPaymentV2Props } from "./lightning/router"
 
 import {
     start,
@@ -30,7 +30,8 @@ export type {
     // ChainNotifier
     BlockEpochStreamResponse,
     // Router
-    PaymentStreamResponse
+    PaymentStreamResponse,
+    SendPaymentV2Props
 }
 
 export {

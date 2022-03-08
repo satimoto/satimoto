@@ -2,7 +2,7 @@ import locationJson from "assets/locations.json"
 import BalanceCard from "components/BalanceCard"
 import HomeButtonContainer from "components/HomeButtonContainer"
 import LocationPanel, { createRef } from "components/LocationPanel"
-import Location from "models/location"
+import LocationModel from "models/location"
 import React, { useEffect, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
@@ -109,7 +109,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locations, setLocations] = useState<any>({ type: "FeatureCollection", features: features })
-    const [location, setLocation] = useState<Location>()
+    const [location, setLocation] = useState<LocationModel>()
     const locationPanelRef = createRef()
 
     useEffect(() => {
@@ -136,7 +136,7 @@ const Home = ({ navigation }: HomeProps) => {
         log.debug(JSON.stringify(coordinates))
 
         if (features.length) {
-            setLocation(features[0].properties as Location)
+            setLocation(features[0].properties as LocationModel)
         }
         log.debug(JSON.stringify(features))
     }

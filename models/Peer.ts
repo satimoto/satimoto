@@ -1,10 +1,10 @@
 
-interface Peer {
+interface PeerModel {
     pubkey: string
     online: boolean
 }
 
-type PeerLike = Peer | undefined
+type PeerModelLike = PeerModel | undefined
 
-export default Peer
-export type { PeerLike }
+export default PeerModel
+export type { PeerModelLike }

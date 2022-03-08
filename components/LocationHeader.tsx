@@ -5,10 +5,10 @@ import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons"
 import { IconButton, VStack, Heading, Text } from "native-base"
 import React, { useEffect, useState } from "react"
 import { View } from "react-native"
-import Location from "models/location"
+import LocationModel from "models/location"
 
 interface LocationHeaderProps {
-    location: Location
+    location: LocationModel
 }
 
 const LocationHeader = ({ location }: LocationHeaderProps) => {
