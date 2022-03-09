@@ -13,6 +13,7 @@ import { API_URI, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
 import { NavigationContainer } from "@react-navigation/native"
+import { StoreProvider } from "providers/StoreProvider"
 
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
@@ -52,11 +53,11 @@ const App = () => {
         <ApolloProvider client={client}>
             <NativeBaseProvider theme={NativeBaseTheme}>
                 <SafeAreaProvider>
-                    <Provider store={store}>
+                    <StoreProvider store={store}>
                         <NavigationContainer>
                             <AppStack />
                         </NavigationContainer>
-                    </Provider>
+                    </StoreProvider>
                 </SafeAreaProvider>
             </NativeBaseProvider>
         </ApolloProvider>

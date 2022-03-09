@@ -13,6 +13,7 @@ import { createChannelRequest } from "services/SatimotoService"
 import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID, CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE } from "utils/constants"
 import { bytesToBase64, bytesToHex, toMilliSatoshi, toTransactionStatus } from "utils/conversion"
 import { randomLong } from "utils/random"
+import { TransactionType } from "types/transaction"
 
 const log = new Log("InvoiceStore")
 
@@ -131,17 +132,20 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     updateInvoice(data: lnrpc.Invoice) {
-        this.stores.transactionStore.addTransaction({
-            createdAt: data.creationDate.toString(),
-            hash: bytesToHex(data.rHash),
-            preimage: bytesToHex(data.rPreimage),
-            status: toTransactionStatus(data.state),
-            valueMsat: data.valueMsat.toString(),
-            valueSat: data.value.toString()
-        })
-
-        // An invoice has settled, update channel store
+        // An invoice has settled
         if (data.settled) {
+            // Add transaction to store
+            this.stores.transactionStore.addTransaction({
+                createdAt: data.creationDate.toString(),
+                hash: bytesToHex(data.rHash),
+                preimage: bytesToHex(data.rPreimage),
+                status: toTransactionStatus(data.state),
+                type: TransactionType.INVOICE,
+                valueMsat: data.valueMsat.toString(),
+                valueSat: data.value.toString()
+            })    
+
+            // Update channel store
             this.stores.channelStore.getChannelBalance()
         }
     }

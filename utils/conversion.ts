@@ -3,7 +3,7 @@ import { base64ToBytes as b64ToBytes, bytesToBase64 as bytesToB64 } from "byte-b
 import sha256 from "fast-sha256"
 import Long from "long"
 import { lnrpc } from "proto/proto"
-import TransactionStatus from "types/TransactionStatus"
+import { TransactionStatus} from "types/transaction"
 import { BytesLikeType, LongLikeType } from "utils/types"
 
 export const hexToBytes = (data: BytesLikeType): Uint8Array => {
@@ -69,7 +69,7 @@ export const toTransactionStatus = (status: lnrpc.Payment.PaymentStatus|lnrpc.In
             case lnrpc.Invoice.InvoiceState.CANCELED:
                 return TransactionStatus.FAILED
             case lnrpc.Invoice.InvoiceState.ACCEPTED:
-            case lnrpc.Invoice.InvoiceState.ACCEPTED:
+            case lnrpc.Invoice.InvoiceState.SETTLED:
                 return TransactionStatus.SUCCEEDED
             default:
                 return TransactionStatus.IN_PROGRESS

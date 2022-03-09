@@ -17,9 +17,9 @@ interface ConnectorButtonProps {
     onPress?: (connector: ConnectorModel) => void
 }
 
-const ConnectorButton = ({ connector, onPress }: ConnectorButtonProps) => {
+const ConnectorButton = ({ connector, onPress = () => {} }: ConnectorButtonProps) => {
     return (
-        <Pressable onPress={() => onPress && onPress(connector)}>
+        <Pressable onPress={() => onPress(connector)}>
             <Box bg="gray.500" p={2} rounded={12}>
                 <HStack alignItems="center" space={1}>
                     <Image

@@ -2,7 +2,7 @@ import Long from "long"
 import { observable, action, makeObservable, computed } from "mobx"
 import InvoiceModel from "models/Invoice"
 import PaymentModel from "models/Payment"
-import TransactionStatus from "types/TransactionStatus"
+import { TransactionStatus } from "types/transaction"
 import { Log } from "utils/logging"
 
 const log = new Log("TransactionModel")

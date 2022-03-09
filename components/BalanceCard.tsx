@@ -7,9 +7,9 @@ import React from "react"
 import { StyleSheet } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import store from "stores/Store"
 import { useNavigation } from "@react-navigation/native"
 import { DeveloperNavigationProp } from "screens/AppStack"
+import { useStore } from "hooks/useStore"
 
 const styleSheet = StyleSheet.create({
     linearGradient: {
@@ -30,6 +30,7 @@ const styleSheet = StyleSheet.create({
 const BalanceCard = () => {
     const navigation = useNavigation<DeveloperNavigationProp>()
     const safeAreaInsets = useSafeAreaInsets()
+    const { channelStore } = useStore()
 
     return (
         <LinearGradient
@@ -38,11 +39,11 @@ const BalanceCard = () => {
             end={{ x: 1, y: 0 }}
             style={[{ top: 10 + safeAreaInsets.top, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styleSheet.linearGradient]}
         >
-            <SatoshiBalance size={38} color={"#ffffff"} satoshis={store.channelStore.localBalance} />
+            <SatoshiBalance size={38} color={"#ffffff"} satoshis={channelStore.localBalance} />
             <IconButton
                 variant="outline"
                 borderRadius="xl"
-                onPress={() => navigation.navigate("Developer")}
+                onPress={() => navigation.navigate("Transaction")}
                 icon={<FontAwesomeIcon icon={faListCheck} />}
                 _icon={{ color: "#ffffff" }}
                 style={styleSheet.transactionsButton}

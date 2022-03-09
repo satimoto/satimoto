@@ -27,7 +27,7 @@ const transactionDehydrationMap: ComplexAsyncStorageHydrationMap = {
 
 const transactionHydrationMap: ComplexAsyncStorageHydrationMap = {
     transactions: (value: any): TransactionModel[] => {
-        return plainToInstance(TransactionModel, value, { excludeExtraneousValues: true })
+        return plainToInstance(TransactionModel, value)
     }
 }
 

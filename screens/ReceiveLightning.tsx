@@ -6,7 +6,7 @@ import { ReceiveLightningNavigationProp } from "screens/ReceiveStack"
 import styles from "utils/styles"
 import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import useColor from "hooks/useColor"
-import store from "stores/Store"
+import { useStore } from "hooks/useStore"
 
 type ReceiveLightningProps = {
     navigation: ReceiveLightningNavigationProp
@@ -18,16 +18,17 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
     const textColor = useColor(colors.warmGray[50], colors.dark[200])
     const [amount, setAmount] = useState("")
     const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
+    const { channelStore, invoiceStore } = useStore()
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerTitle: "Receive",
-            headerRight: () => <IconButton variant="ghost" size="sm" icon={<QrCodeIcon />} _icon={{ color: "#ffffff", size: 32 }} />
+            title: "Receive",
+            headerRight: () => <IconButton colorScheme="muted" variant="ghost" p={0.5} icon={<QrCodeIcon />} _icon={{ color: "#ffffff", size: 32  }} />
         })
     }, [navigation])
 
     useEffect(() => {
-        setChannelRequestNeeded(+amount >= store.channelStore.remoteBalance)
+        setChannelRequestNeeded(+amount >= channelStore.remoteBalance)
     }, [amount])
 
     const onAmountMsatChange = (text: string) => {
@@ -35,7 +36,7 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
     }
 
     const onCreatePress = async () => {
-        const invoice = await store.invoiceStore.addInvoice(+amount)
+        const invoice = await invoiceStore.addInvoice(+amount)
         navigation.navigate("ReceiveQr", { qrCode: invoice.paymentRequest })
     }
 

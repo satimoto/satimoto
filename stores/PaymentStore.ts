@@ -10,7 +10,7 @@ import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { toTransactionStatus } from "utils/conversion"
 import { SendPaymentV2Props } from "services/LightningService"
-import TransactionStatus from "types/TransactionStatus"
+import { TransactionStatus, TransactionType } from "types/transaction"
 
 const log = new Log("PaymentStore")
 
@@ -71,11 +71,11 @@ export class PaymentStore implements PaymentStoreInterface {
         this.updatePayments(listPaymentsResponse)
     }
 
-    sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel> {
+    sendPayment(payment: SendPaymentV2Props, identifier?: string): Promise<PaymentModel> {
         return new Promise<PaymentModel>(async (resolve, reject) => {
             try {
                 await sendPaymentV2((data: lnrpc.Payment) => {
-                    const payment = this.updatePayment(data)
+                    const payment = this.updatePayment(data, identifier)
 
                     if (payment.status === TransactionStatus.FAILED || payment.status === TransactionStatus.SUCCEEDED) {
                         resolve(payment)
@@ -91,7 +91,10 @@ export class PaymentStore implements PaymentStoreInterface {
         this.ready = true
     }
 
-    updatePayment({ creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment): PaymentModel {
+    updatePayment(
+        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment,
+        identifier?: string
+    ): PaymentModel {
         let payment: PaymentModelLike = this.payments.find(({ hash }) => hash === paymentHash)
 
         if (payment) {
@@ -109,11 +112,16 @@ export class PaymentStore implements PaymentStoreInterface {
                 hash: paymentHash,
                 preimage: paymentPreimage,
                 status: toTransactionStatus(status),
+                type: TransactionType.PAYMENT,
                 valueMsat: valueMsat.toString(),
                 valueSat: valueSat.toString()
             }
 
             this.payments.push(payment)
+        }
+
+        if (payment.status === TransactionStatus.SUCCEEDED) {
+            this.stores.transactionStore.addTransaction(payment, identifier)
         }
 
         return payment
