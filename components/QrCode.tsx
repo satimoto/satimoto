@@ -1,4 +1,4 @@
-import TouchableHighlightOptional from "components/TouchableHighlightOptional"
+import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import React from "react"
 import { GestureResponderEvent, StyleSheet, View } from "react-native"
 import QRCode from "react-native-qrcode-svg"
@@ -18,11 +18,11 @@ interface QrCodeProps {
 
 const QrCode = ({ value, onPress, size = 300 }: QrCodeProps) => {
     return (
-        <TouchableHighlightOptional onPress={onPress}>
+        <TouchableOpacityOptional onPress={onPress}>
             <View style={styleSheet.qrCode}>
                 <QRCode value={value} size={size} />
             </View>
-        </TouchableHighlightOptional>
+        </TouchableOpacityOptional>
     )
 }
 

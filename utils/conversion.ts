@@ -22,6 +22,22 @@ export const bytesToBase64 = (data: BytesLikeType): string => {
     return data instanceof Uint8Array ? bytesToB64(data) : data
 }
 
+export const nanosecondsToMilliseconds = (nanoseconds: LongLikeType): number => {
+    return toLong(nanoseconds).divide(1000).toNumber()
+}
+
+export const secondsToMilliseconds = (seconds: LongLikeType): number => {
+    return toLong(seconds).multiply(1000).toNumber()
+}
+ 
+export const nanosecondsToDate = (nanoseconds: LongLikeType): Date => {
+    return new Date(nanosecondsToMilliseconds(nanoseconds))
+} 
+
+export const secondsToDate = (seconds: LongLikeType): Date => {
+    return new Date(secondsToMilliseconds(seconds))
+}
+
 export const reverseByteOrder = (data: BytesLikeType): Uint8Array | string => {
     return data instanceof Uint8Array ? data.reverse() : (data.match(/.{2}/g) || []).reverse().join("")
 }
@@ -68,7 +84,6 @@ export const toTransactionStatus = (status: lnrpc.Payment.PaymentStatus|lnrpc.In
         switch (invoiceState) {
             case lnrpc.Invoice.InvoiceState.CANCELED:
                 return TransactionStatus.FAILED
-            case lnrpc.Invoice.InvoiceState.ACCEPTED:
             case lnrpc.Invoice.InvoiceState.SETTLED:
                 return TransactionStatus.SUCCEEDED
             default:

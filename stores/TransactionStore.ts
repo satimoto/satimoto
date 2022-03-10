@@ -1,5 +1,5 @@
 import { instanceToPlain, plainToInstance } from "class-transformer"
-import { action, makeObservable, observable, when } from "mobx"
+import { action, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import { InvoicePaymentModel, TransactionModel } from "models/Transaction"
 import { lnrpc } from "proto/proto"
@@ -17,6 +17,7 @@ export interface TransactionStoreInterface extends StoreInterface {
     transactions: TransactionModel[]
 
     addTransaction(transaction: InvoicePaymentModel): void
+    clearTransactions(): void
 }
 
 const transactionDehydrationMap: ComplexAsyncStorageHydrationMap = {
@@ -49,7 +50,8 @@ export class TransactionStore implements TransactionStoreInterface {
             transactions: observable,
 
             setReady: action,
-            addTransaction: action
+            addTransaction: action,
+            clearTransactions: action
         })
 
         makePersistable(
@@ -80,8 +82,12 @@ export class TransactionStore implements TransactionStoreInterface {
         if (existingTransaction) {
             existingTransaction.addTransaction(transaction)
         } else {
-            this.transactions.push(new TransactionModel(transaction, identifier))
+            this.transactions.unshift(new TransactionModel(transaction, identifier))
         }
+    }
+
+    clearTransactions() {
+        this.transactions.clear()
     }
 
     setReady() {

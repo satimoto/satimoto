@@ -8,7 +8,7 @@ import { StoreInterface, Store } from "stores/Store"
 import { listPayments, sendPaymentV2 } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { toTransactionStatus } from "utils/conversion"
+import { nanosecondsToDate, toTransactionStatus } from "utils/conversion"
 import { SendPaymentV2Props } from "services/LightningService"
 import { TransactionStatus, TransactionType } from "types/transaction"
 
@@ -106,7 +106,7 @@ export class PaymentStore implements PaymentStoreInterface {
             payment.valueSat = valueSat.toString()
         } else {
             payment = {
-                createdAt: creationTimeNs.toString(),
+                createdAt: nanosecondsToDate(creationTimeNs).toISOString(),
                 feeMsat: feeMsat.toString(),
                 feeSat: feeSat.toString(),
                 hash: paymentHash,

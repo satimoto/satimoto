@@ -53,7 +53,8 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
                         borderWidth: 1,
                         borderColor: textColor,
                         borderRadius: 10,
-                        paddingHorizontal: 10
+                        paddingHorizontal: 10,
+                        paddingVertical: 10
                     }}
                 />
                 {channelRequestNeeded && <Text fontSize="xs">A new channel is needed</Text>}

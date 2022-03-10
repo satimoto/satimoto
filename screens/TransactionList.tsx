@@ -1,11 +1,13 @@
-import TransactionListItem from "components/TransactionListItem"
+import HeaderButton from "components/HeaderButton"
+import TransactionButton from "components/TransactionButton"
+import { faTimes } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { TransactionModel } from "models/Transaction"
 import { useTheme, VStack } from "native-base"
 import React, { useLayoutEffect } from "react"
-import { View } from "react-native"
+import { ScrollView } from "react-native"
 import { TransactionListNavigationProp } from "screens/TransactionStack"
 import styles from "utils/styles"
 
@@ -20,20 +22,21 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: "Transactions"
+            title: "Transactions",
+            headerRight: () => <HeaderButton icon={faTimes} onPress={() => transactionStore.clearTransactions()} />
         })
     }, [navigation])
 
     const onPress = (transaction: TransactionModel) => {}
 
     return (
-        <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
+        <ScrollView style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <VStack space={3}>
                 {transactionStore.transactions.map((transaction) => (
-                    <TransactionListItem key={transaction.identifier} transaction={transaction} onPress={onPress} />
+                    <TransactionButton key={transaction.identifier} transaction={transaction} onPress={onPress} />
                 ))}
             </VStack>
-        </View>
+        </ScrollView>
     )
 }
 

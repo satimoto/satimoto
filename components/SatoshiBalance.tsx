@@ -13,21 +13,27 @@ const styles = StyleSheet.create({
 })
 
 interface SatoshiBalanceProps extends PropsWithChildren<any> {
-    size?: number
-    color?: string,
+    appendText?: string
+    color?: string
+    prependText?: string
     satoshis: number
+    size?: number
 }
 
-const SatoshiBalance = ({ size = 38, color = "#FFFFFF", satoshis }: SatoshiBalanceProps) => {
+const SatoshiBalance = ({ size = 38, color = "#FFFFFF", satoshis, appendText, prependText }: SatoshiBalanceProps) => {
     const padding = size / 5
 
     return (
-            <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
-                <View style={{ paddingTop: padding / 2 }}>
-                    <SatoshiV2Icon color={color} size={size - padding} />
-                </View>
-                <Text style={[styles.text, { fontSize: size, color: color }]}>{formatSatoshis(satoshis)}</Text>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+            {prependText && <Text style={[styles.text, { fontSize: size, color: color }]}>{prependText + " "}</Text>}
+            <View style={{ paddingTop: padding / 2 }}>
+                <SatoshiV2Icon color={color} size={size - padding} />
             </View>
+            <Text style={[styles.text, { fontSize: size, color: color }]}>
+                {formatSatoshis(satoshis)}
+                {appendText ? " " + appendText : ""}
+            </Text>
+        </View>
     )
 }
 
