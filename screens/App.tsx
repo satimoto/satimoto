@@ -1,6 +1,5 @@
 import AppStack from "screens/AppStack"
 import { ApolloProvider } from "@apollo/client"
-import { Provider } from "mobx-react"
 import { NativeBaseProvider } from "native-base"
 import * as protobuf from "protobufjs"
 import React, { useEffect } from "react"

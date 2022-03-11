@@ -43,6 +43,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>$(PRODUCT_NAME) needs access to your Camera.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>Save location data with transactions</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

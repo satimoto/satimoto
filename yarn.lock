@@ -7617,6 +7617,11 @@ react-native-timeago@^0.5.0:
   resolved "https://registry.yarnpkg.com/react-native-timeago/-/react-native-timeago-0.5.0.tgz#1b08057e3473dbb5b6720ee5cde4e544a7c250f0"
   integrity sha512-GYrV36FK8ttkl7BIAdh77OlYLYGIKLGNviJqzPUtKaO8ANEtI8ph7UkSTRv9oMKfvDnA5VKV9hVX7GtYoAztRg==
 
+react-native-vision-camera@^2.12.2:
+  version "2.12.2"
+  resolved "https://registry.yarnpkg.com/react-native-vision-camera/-/react-native-vision-camera-2.12.2.tgz#9cd23c334ced4bbc366d7b7744621f6b7a61306f"
+  integrity sha512-z4MXuUQAEF8wOkxk1vLLG4HZyrjg80WKGCdLdmLg6X6Iv/1i3Us27qpH+U6qoM5Jo/sgt9VaSPZ2yrSqW+RQ4g==
+
 react-native-web@^0.17.5:
   version "0.17.5"
   resolved "https://registry.yarnpkg.com/react-native-web/-/react-native-web-0.17.5.tgz#2c27452b4654fb098c3c412cb04c379add1015a6"
@@ -8917,6 +8922,11 @@ vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
+
+vision-camera-code-scanner@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/vision-camera-code-scanner/-/vision-camera-code-scanner-0.1.6.tgz#78e65875953a15138e375432112f969b35527df5"
+  integrity sha512-pAhfOYGaHj6ndUqu9L7nyIaPjf+aX6yx/Sz6V6Sgngp6Fa6AE0yckm6Jsl5cdvblL2+Vasdk8W/eWdJCnmV5CA==
 
 vlq@^1.0.0:
   version "1.0.1"
