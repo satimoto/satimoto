@@ -61,6 +61,7 @@
     "react-dom": "^17.0.2",
     "react-native": "0.65.1",
     "react-native-build-config": "^0.3.2",
+    "react-native-camera": "^4.2.1",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-qrcode-svg": "^6.1.2",
@@ -71,12 +72,10 @@
     "react-native-securerandom": "^1.0.0",
     "react-native-svg": "^12.1.1",
     "react-native-timeago": "^0.5.0",
-    "react-native-vision-camera": "^2.12.2",
     "react-native-web": "^0.17.5",
     "reflect-metadata": "^0.1.13",
     "rn-sliding-up-panel": "^2.4.5",
-    "secp256k1": "^4.0.3",
-    "vision-camera-code-scanner": "^0.1.6"
+    "secp256k1": "^4.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

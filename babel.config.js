@@ -19,11 +19,6 @@ module.exports = {
                 root: ["."]
             }
         ],
-        [
-            "react-native-reanimated/plugin",
-            {
-                globals: ["__scanCodes"]
-            }
-        ]
+        "react-native-reanimated/plugin"
     ]
 }

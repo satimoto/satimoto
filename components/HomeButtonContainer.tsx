@@ -32,7 +32,7 @@ const HomeButtonContainer = () => {
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
-                <Button borderRadius="3xl" size="lg" style={styles.button}>
+                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => navigation.navigate("Send")}>
                     Send
                 </Button>
             </View>
@@ -42,6 +42,7 @@ const HomeButtonContainer = () => {
                     size="lg"
                     variant="solid"
                     style={styles.button}
+                    onPress={() => navigation.navigate("Send")}
                     icon={<QrCodeIcon />}
                     _icon={{ color: "#ffffff", size: 50 }}
                 />

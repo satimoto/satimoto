@@ -21,7 +21,6 @@
         android:name=".MainActivity"
         android:label="${appName}${network}${buildType}"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
-        android:exported="true"
         android:launchMode="singleTask"
         android:screenOrientation="portrait"
         android:windowSoftInputMode="adjustResize">
