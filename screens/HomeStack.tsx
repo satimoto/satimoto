@@ -1,12 +1,14 @@
 import React from "react"
 import Home from "screens/Home"
 import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { RouteProp } from "@react-navigation/native"
 
-type HomeStackParamList = {
-    Home: undefined
+export type HomeStackParamList = {
+    Home: { lnUrlAuth?: string }
 }
 
-type HomeNavigationProp = NativeStackNavigationProp<HomeStackParamList, "Home">
+export type HomeNavigationProp = NativeStackNavigationProp<HomeStackParamList, "Home">
+export type HomeRouteProp = RouteProp<HomeStackParamList, "Home">
 
 const HomeStackNav = createNativeStackNavigator<HomeStackParamList>()
 
@@ -17,5 +19,3 @@ const HomeStack = () => (
 )
 
 export default HomeStack
-
-export type { HomeStackParamList, HomeNavigationProp }

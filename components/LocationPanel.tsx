@@ -1,5 +1,6 @@
 import ConnectorButton from "components/ConnectorButton"
 import LocationHeader from "components/LocationHeader"
+import useColor from "hooks/useColor"
 import LocationModel from "models/Location"
 import { useTheme, VStack } from "native-base"
 import React from "react"
@@ -25,6 +26,7 @@ interface LocationPanelProps {
 
 const LocationPanel = React.forwardRef(({ location }: LocationPanelProps, ref?: React.LegacyRef<SlidingUpPanel>) => {
     const { colors } = useTheme()
+    const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
 
     const draggableRange = {
         top: (Dimensions.get("window").height / 4) * 3,
@@ -40,7 +42,7 @@ const LocationPanel = React.forwardRef(({ location }: LocationPanelProps, ref?: 
     return (
         <SlidingUpPanel draggableRange={draggableRange} height={draggableRange.top - draggableRange.bottom} snappingPoints={snappingPoints} ref={ref}>
             {location && (
-                <View style={[styles.slidingUpPanel, { backgroundColor: colors.dark[200] }]}>
+                <View style={[styles.slidingUpPanel, { backgroundColor }]}>
                     <LocationHeader location={location} />
                     <VStack space={3}>
                         {location.connectors.map((connector) => (

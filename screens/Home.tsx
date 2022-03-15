@@ -1,15 +1,18 @@
 import locationJson from "assets/locations.json"
 import BalanceCard from "components/BalanceCard"
 import HomeButtonContainer from "components/HomeButtonContainer"
+import LnUrlAuthModal from "components/LnUrlAuthModal"
 import LocationPanel, { createRef } from "components/LocationPanel"
+import { useStore } from "hooks/useStore"
+import { observer } from "mobx-react"
 import LocationModel from "models/location"
 import React, { useEffect, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
+import { HomeNavigationProp, HomeRouteProp } from "screens/HomeStack"
 import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
-import { HomeNavigationProp } from "screens/HomeStack"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -103,14 +106,19 @@ const symbolLayer: SymbolLayerStyle = {
 
 interface HomeProps {
     navigation: HomeNavigationProp
+    route: HomeRouteProp
 }
 
-const Home = ({ navigation }: HomeProps) => {
+const Home = ({ navigation, route }: HomeProps) => {
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locations, setLocations] = useState<any>({ type: "FeatureCollection", features: features })
     const [location, setLocation] = useState<LocationModel>()
     const locationPanelRef = createRef()
+
+    // LNURL Auth Model
+    const { uiStore } = useStore()
+    const [showLnUrlAuthModal, setShowLnUrlAuthModal] = useState(false)
 
     useEffect(() => {
         const requestPermissions = async () => {
@@ -132,13 +140,21 @@ const Home = ({ navigation }: HomeProps) => {
         }
     }, [location])
 
-    const onPress = ({ coordinates, features }: OnPressEvent) => {
+    useEffect(() => {
+        setShowLnUrlAuthModal(uiStore.lnUrlAuthParams != undefined)
+    }, [uiStore.lnUrlAuthParams])
+
+    const onLocationPress = ({ coordinates, features }: OnPressEvent) => {
         log.debug(JSON.stringify(coordinates))
 
         if (features.length) {
             setLocation(features[0].properties as LocationModel)
         }
         log.debug(JSON.stringify(features))
+    }
+
+    const onModalClose = () => {
+        uiStore.clearLnUrl()
     }
 
     const includeCamera = () => {
@@ -171,17 +187,18 @@ const Home = ({ navigation }: HomeProps) => {
                         full
                     }}
                 />
-                <MapboxGL.ShapeSource id="locationsShapeSource" onPress={onPress} shape={locations}>
+                <MapboxGL.ShapeSource id="locationsShapeSource" onPress={onLocationPress} shape={locations}>
                     <MapboxGL.SymbolLayer id="locationsSymbolLayer" style={symbolLayer} />
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard />
             <HomeButtonContainer />
             <LocationPanel location={location} ref={locationPanelRef} />
+            <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={onModalClose} />
         </View>
     )
 }
 
-export default Home
+export default observer(Home)
 
 export type { HomeProps }

@@ -1,14 +1,8 @@
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import React from "react"
-import { GestureResponderEvent, StyleSheet, View } from "react-native"
+import { GestureResponderEvent, View } from "react-native"
 import QRCode from "react-native-qrcode-svg"
-
-const styleSheet = StyleSheet.create({
-    qrCode: {
-        justifyContent: "center",
-        alignItems: "center"
-    }
-})
+import styles from "utils/styles"
 
 interface QrCodeProps {
     value: string
@@ -19,7 +13,7 @@ interface QrCodeProps {
 const QrCode = ({ value, onPress, size = 300 }: QrCodeProps) => {
     return (
         <TouchableOpacityOptional onPress={onPress}>
-            <View style={styleSheet.qrCode}>
+            <View style={styles.center}>
                 <QRCode value={value} size={size} />
             </View>
         </TouchableOpacityOptional>

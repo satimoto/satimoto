@@ -2,7 +2,7 @@ import SatoshiBalance from "components/SatoshiBalance"
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import useColor from "hooks/useColor"
 import ConnectorModel from "models/Connector"
-import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
+import { HStack, Spacer, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React from "react"
 import { Image, StyleSheet } from "react-native"
 
@@ -38,17 +38,17 @@ const ConnectorButton = ({ connector, onPress = () => {} }: ConnectorButtonProps
             <HStack alignItems="center" space={1}>
                 <Image resizeMode="contain" source={connectorIcons[connector.connectorId] || connectorIcons[0]} style={{ width: 50, height: 50 }} />
                 <VStack>
-                    <Text color="white" fontSize="lg" fontWeight="bold">
+                    <Text color={useColorModeValue("lightText", "darkText")} fontSize="lg" fontWeight="bold">
                         {connector.title}
                     </Text>
-                    <Text color="gray.300" fontSize="lg">
+                    <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg">
                         {connector.currentType}
                     </Text>
                 </VStack>
                 <Spacer />
                 <VStack>
                     <SatoshiBalance size={18} color={"#ffffff"} satoshis={Math.floor(connector.voltage * 29)} />
-                    <Text color="gray.300" fontSize="lg" textAlign="right">
+                    <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg" textAlign="right">
                         /kWh
                     </Text>
                 </VStack>

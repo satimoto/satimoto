@@ -1,16 +1,17 @@
-import React, { PropsWithChildren } from "react"
+import React from "react"
 import { StyleSheet, View } from "react-native"
 import { RNCamera, BarCodeReadEvent } from "react-native-camera"
 import { useTheme } from "native-base"
 import useColor from "hooks/useColor"
+import CameraViewFinder from "components/CameraViewFinder"
 
-interface CameraScannerProps extends PropsWithChildren<any> {
+interface CameraScannerProps {
     isActive: boolean
     onNotAuthorized: () => void
     onQrCode: (qrCode: string) => void
 }
 
-const CameraScanner = ({ children, onNotAuthorized, onQrCode }: CameraScannerProps) => {
+const CameraScanner = ({ onNotAuthorized, onQrCode }: CameraScannerProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
 
@@ -33,13 +34,13 @@ const CameraScanner = ({ children, onNotAuthorized, onQrCode }: CameraScannerPro
         <RNCamera
             style={StyleSheet.absoluteFill}
             androidCameraPermissionOptions={androidCameraPermissionOptions}
-            //barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+            barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
             captureAudio={false}
             pendingAuthorizationView={<View style={[StyleSheet.absoluteFill, { backgroundColor }]}></View>}
             onBarCodeRead={onBarCodeRead}
             onStatusChange={onStatusChange}
         >
-            {children}
+            <CameraViewFinder width="90%" height="90%" />
         </RNCamera>
     )
 }

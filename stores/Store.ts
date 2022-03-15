@@ -7,6 +7,7 @@ import { PaymentStore } from "./PaymentStore"
 import { PeerStore } from "./PeerStore"
 import { SettingStore } from "./SettingStore"
 import { TransactionStore } from "./TransactionStore"
+import { UiStore } from "./UiStore"
 import { WalletStore } from "./WalletStore"
 import { Log } from "utils/logging"
 
@@ -28,6 +29,7 @@ export class Store implements StoreInterface {
     peerStore: PeerStore
     settingStore: SettingStore
     transactionStore: TransactionStore
+    uiStore: UiStore
     walletStore: WalletStore
 
     constructor() {
@@ -39,6 +41,7 @@ export class Store implements StoreInterface {
         this.peerStore = new PeerStore(this)
         this.settingStore = new SettingStore(this)
         this.transactionStore = new TransactionStore(this)
+        this.uiStore = new UiStore(this)
         this.walletStore = new WalletStore(this)
 
         makeObservable(this, {
@@ -55,6 +58,7 @@ export class Store implements StoreInterface {
                 this.peerStore.hydrated &&
                 this.settingStore.hydrated &&
                 this.transactionStore.hydrated &&
+                this.transactionStore.hydrated &&
                 this.walletStore.hydrated,
             action(() => this.initialize())
         )
@@ -68,6 +72,7 @@ export class Store implements StoreInterface {
             await this.peerStore.initialize()
             await this.settingStore.initialize()
             await this.transactionStore.initialize()
+            await this.uiStore.initialize()
             await this.walletStore.initialize()
             await this.lightningStore.initialize()
             this.setReady()

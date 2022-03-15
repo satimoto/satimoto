@@ -1,9 +1,9 @@
 import CameraScanner from "components/CameraScanner"
 import React, { useState } from "react"
-import { useTheme } from "native-base"
-import useColor from "hooks/useColor"
 import { SendNavigationProp } from "screens/AppStack"
 import { Log } from "utils/logging"
+import { observer } from "mobx-react"
+import { useStore } from "hooks/useStore"
 
 const log = new Log("SendCamera")
 
@@ -12,20 +12,28 @@ type SendCameraProps = {
 }
 
 const SendCamera = ({navigation}: SendCameraProps) => {
-    const { colors } = useTheme()
-    const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const [isActive, setIsActive] = useState(true)
+    const { uiStore } = useStore()
 
     const onNotAuthorized = () => {
         navigation.goBack()
     }
 
-    const onQrCode = (qrCode: string) => {
+    const onQrCode = async (qrCode: string) => {
         log.debug(qrCode)
-        navigation.goBack()
+        setIsActive(false)
+
+        qrCode = qrCode.replace(/lightning:/i, "")
+
+        if (qrCode.toLowerCase().startsWith("lnurl")) {
+            await uiStore.setLnUrl(qrCode)
+            navigation.navigate("Home")
+        }
+
+        setIsActive(true)
     }
 
     return <CameraScanner isActive={isActive} onNotAuthorized={onNotAuthorized} onQrCode={onQrCode}></CameraScanner>
 }
 
-export default SendCamera
+export default observer(SendCamera)
