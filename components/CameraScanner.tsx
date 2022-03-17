@@ -4,6 +4,9 @@ import { RNCamera, BarCodeReadEvent } from "react-native-camera"
 import { useTheme } from "native-base"
 import useColor from "hooks/useColor"
 import CameraViewFinder from "components/CameraViewFinder"
+import { Log } from "utils/logging"
+
+const log = new Log("CameraScanner")
 
 interface CameraScannerProps {
     isActive: boolean
@@ -11,7 +14,7 @@ interface CameraScannerProps {
     onQrCode: (qrCode: string) => void
 }
 
-const CameraScanner = ({ onNotAuthorized, onQrCode }: CameraScannerProps) => {
+const CameraScanner = ({ isActive, onNotAuthorized, onQrCode }: CameraScannerProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
 
@@ -21,7 +24,9 @@ const CameraScanner = ({ onNotAuthorized, onQrCode }: CameraScannerProps) => {
     }
 
     const onBarCodeRead = ({ data }: BarCodeReadEvent) => {
-        onQrCode(data)
+        if (isActive) {
+            onQrCode(data)
+        }
     }
 
     const onStatusChange = (event: any) => {
@@ -40,7 +45,7 @@ const CameraScanner = ({ onNotAuthorized, onQrCode }: CameraScannerProps) => {
             onBarCodeRead={onBarCodeRead}
             onStatusChange={onStatusChange}
         >
-            <CameraViewFinder width="90%" height="90%" />
+            <CameraViewFinder width="65%" height="65%" />
         </RNCamera>
     )
 }

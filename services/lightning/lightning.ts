@@ -84,6 +84,17 @@ export const connectPeer = (pubkey: string, host: string, perm: boolean = false,
     })
 }
 
+export const decodePayReq = (payReq: string): Promise<lnrpc.PayReq> => {
+    return sendCommand<lnrpc.IPayReqString, lnrpc.PayReqString, lnrpc.PayReq>({
+        request: lnrpc.PayReqString,
+        response: lnrpc.PayReq,
+        method: service + "DecodePayReq",
+        options: {
+            payReq
+        }
+    })
+}
+
 export const disconnectPeer = (pubkey: string): Promise<lnrpc.DisconnectPeerResponse> => {
     return sendCommand<lnrpc.IDisconnectPeerRequest, lnrpc.DisconnectPeerRequest, lnrpc.DisconnectPeerResponse>({
         request: lnrpc.DisconnectPeerRequest,

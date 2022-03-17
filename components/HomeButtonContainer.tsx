@@ -25,14 +25,19 @@ const styles = StyleSheet.create({
     }
 })
 
-const HomeButtonContainer = () => {
-    const navigation = useNavigation<HomeNavigationProp>()
+export type HomeButtonContainerEvent = "send" | "qr" | "receive"
+
+interface HomeButtonContainerProps {
+    onPress: (event: HomeButtonContainerEvent) => void
+}
+
+const HomeButtonContainer = ({onPress}: HomeButtonContainerProps) => {
     const safeAreaInsets = useSafeAreaInsets()
 
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
-                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => navigation.navigate("Send")}>
+                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("send")}>
                     Send
                 </Button>
             </View>
@@ -42,13 +47,13 @@ const HomeButtonContainer = () => {
                     size="lg"
                     variant="solid"
                     style={styles.button}
-                    onPress={() => navigation.navigate("Send")}
+                    onPress={() => onPress("qr")}
                     icon={<QrCodeIcon />}
                     _icon={{ color: "#ffffff", size: 50 }}
                 />
             </View>
             <View style={styles.buttonSpacer}>
-                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => navigation.navigate("Receive")}>
+                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("receive")}>
                     Receive
                 </Button>
             </View>

@@ -1,12 +1,15 @@
+import { useNavigation } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackNavigationOptions, NativeStackNavigationProp } from "@react-navigation/native-stack"
-import React from "react"
+import { useStore } from "hooks/useStore"
+import { observer } from "mobx-react"
+import React, { useEffect } from "react"
 import DeveloperStack, { DeveloperStackParamList } from "screens/DeveloperStack"
 import HomeStack, { HomeStackParamList } from "screens/HomeStack"
 import ReceiveStack, { ReceiveStackParamList } from "screens/ReceiveStack"
 import SendStack, { SendStackParamList } from "screens/SendStack"
 import TransactionStack, { TransactionStackParamList } from "screens/TransactionStack"
 
-type AppStackParamList = {
+export type AppStackParamList = {
     Home: undefined
     Developer: undefined
     Receive: undefined
@@ -14,13 +17,13 @@ type AppStackParamList = {
     Transaction: undefined
 }
 
-type HomeNavigationProp = NativeStackNavigationProp<AppStackParamList, "Home">
-type DeveloperNavigationProp = NativeStackNavigationProp<AppStackParamList, "Developer">
-type ReceiveNavigationProp = NativeStackNavigationProp<AppStackParamList, "Receive">
-type SendNavigationProp = NativeStackNavigationProp<AppStackParamList, "Send">
-type TransactionNavigationProp = NativeStackNavigationProp<AppStackParamList, "Transaction">
+export type HomeNavigationProp = NativeStackNavigationProp<AppStackParamList, "Home">
+export type DeveloperNavigationProp = NativeStackNavigationProp<AppStackParamList, "Developer">
+export type ReceiveNavigationProp = NativeStackNavigationProp<AppStackParamList, "Receive">
+export type SendNavigationProp = NativeStackNavigationProp<AppStackParamList, "Send">
+export type TransactionNavigationProp = NativeStackNavigationProp<AppStackParamList, "Transaction">
 
-type SubstacksParamList = HomeStackParamList & DeveloperStackParamList & ReceiveStackParamList & SendStackParamList & TransactionStackParamList
+export type SubstacksParamList = HomeStackParamList & DeveloperStackParamList & ReceiveStackParamList & SendStackParamList & TransactionStackParamList
 
 const screenOptions: NativeStackNavigationOptions = {
     headerShown: false
@@ -45,13 +48,3 @@ const AppStack = () => {
 }
 
 export default AppStack
-
-export type {
-    AppStackParamList,
-    SubstacksParamList,
-    HomeNavigationProp,
-    DeveloperNavigationProp,
-    ReceiveNavigationProp,
-    SendNavigationProp,
-    TransactionNavigationProp
-}

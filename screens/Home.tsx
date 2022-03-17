@@ -1,15 +1,17 @@
 import locationJson from "assets/locations.json"
 import BalanceCard from "components/BalanceCard"
-import HomeButtonContainer from "components/HomeButtonContainer"
+import HomeButtonContainer, { HomeButtonContainerEvent } from "components/HomeButtonContainer"
 import LnUrlAuthModal from "components/LnUrlAuthModal"
 import LocationPanel, { createRef } from "components/LocationPanel"
+import SendToAddressModal from "components/SendToAddressModal"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import LocationModel from "models/location"
 import React, { useEffect, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
-import { HomeNavigationProp, HomeRouteProp } from "screens/HomeStack"
+import { HomeNavigationProp } from "screens/AppStack"
+import { HomeRouteProp } from "screens/HomeStack"
 import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
@@ -110,15 +112,45 @@ interface HomeProps {
 }
 
 const Home = ({ navigation, route }: HomeProps) => {
+    const locationPanelRef = createRef()
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locations, setLocations] = useState<any>({ type: "FeatureCollection", features: features })
     const [location, setLocation] = useState<LocationModel>()
-    const locationPanelRef = createRef()
-
-    // LNURL Auth Model
+    const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
     const { uiStore } = useStore()
-    const [showLnUrlAuthModal, setShowLnUrlAuthModal] = useState(false)
+
+    const includeCamera = () => {
+        if (hasLocationPermission) {
+            return (
+                <>
+                    <MapboxGL.Camera zoomLevel={9} followUserLocation />
+                    <MapboxGL.UserLocation />
+                </>
+            )
+        }
+
+        return <MapboxGL.Camera zoomLevel={9} />
+    }
+
+    const onHomeButtonPress = (event: HomeButtonContainerEvent) => {
+        if (event === "send") {
+            setIsSendToAddressModalVisible(true)
+        } else if (event === "qr") {
+            navigation.navigate("Send")
+        } else if (event === "receive") {
+            navigation.navigate("Receive")
+        }
+    }
+
+    const onLocationPress = ({ coordinates, features }: OnPressEvent) => {
+        log.debug(JSON.stringify(coordinates))
+
+        if (features.length) {
+            setLocation(features[0].properties as LocationModel)
+        }
+        log.debug(JSON.stringify(features))
+    }
 
     useEffect(() => {
         const requestPermissions = async () => {
@@ -139,36 +171,6 @@ const Home = ({ navigation, route }: HomeProps) => {
             locationPanelRef.current?.hide()
         }
     }, [location])
-
-    useEffect(() => {
-        setShowLnUrlAuthModal(uiStore.lnUrlAuthParams != undefined)
-    }, [uiStore.lnUrlAuthParams])
-
-    const onLocationPress = ({ coordinates, features }: OnPressEvent) => {
-        log.debug(JSON.stringify(coordinates))
-
-        if (features.length) {
-            setLocation(features[0].properties as LocationModel)
-        }
-        log.debug(JSON.stringify(features))
-    }
-
-    const onModalClose = () => {
-        uiStore.clearLnUrl()
-    }
-
-    const includeCamera = () => {
-        if (hasLocationPermission) {
-            return (
-                <>
-                    <MapboxGL.Camera zoomLevel={9} followUserLocation />
-                    <MapboxGL.UserLocation />
-                </>
-            )
-        }
-
-        return <MapboxGL.Camera zoomLevel={9} />
-    }
 
     return (
         <View style={styles.matchParent}>
@@ -192,9 +194,10 @@ const Home = ({ navigation, route }: HomeProps) => {
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard />
-            <HomeButtonContainer />
+            <HomeButtonContainer onPress={onHomeButtonPress}/>
             <LocationPanel location={location} ref={locationPanelRef} />
-            <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={onModalClose} />
+            <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />
+            <SendToAddressModal isVisible={isSendToAddressModalVisible} onClose={() => setIsSendToAddressModalVisible(false)} />
         </View>
     )
 }

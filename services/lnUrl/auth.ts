@@ -22,8 +22,8 @@ const authenticate = async (authParams: LNURLAuthParams): Promise<boolean> => {
     const url = `${authParams.callback}&sig=${bytesToHex(exportedK1)}&key=${bytesToHex(linkingPubKey)}`
 
     try {
-        const urlFetchResult = await fetch(url)
-        const authResponse: LNURLResponse = await urlFetchResult.json()
+        const fetchResult = await fetch(url)
+        const authResponse: LNURLResponse = await fetchResult.json()
 
         if (authResponse.status === "OK") {
             return true

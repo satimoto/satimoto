@@ -23,7 +23,7 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             title: "Receive",
-            headerRight: () => <IconButton colorScheme="muted" variant="ghost" p={0.5} icon={<QrCodeIcon />} _icon={{ color: "#ffffff", size: 32  }} />
+            headerRight: () => <IconButton colorScheme="muted" variant="ghost" p={0.5} icon={<QrCodeIcon />} _icon={{ color: "#ffffff", size: 32 }} />
         })
     }, [navigation])
 
@@ -42,20 +42,19 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
 
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            <VStack space={2}>
+            <VStack space={5}>
                 <TextInput
                     value={amount}
                     keyboardType="number-pad"
                     onChangeText={onAmountMsatChange}
                     placeholder="Sats"
-                    style={{
-                        color: textColor,
-                        borderWidth: 1,
-                        borderColor: textColor,
-                        borderRadius: 10,
-                        paddingHorizontal: 10,
-                        paddingVertical: 10
-                    }}
+                    style={[
+                        styles.textInput,
+                        {
+                            color: textColor,
+                            borderColor: textColor
+                        }
+                    ]}
                 />
                 {channelRequestNeeded && <Text fontSize="xs">A new channel is needed</Text>}
                 <Button onPress={onCreatePress} disabled={amount.length == 0}>
