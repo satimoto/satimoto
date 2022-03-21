@@ -3,8 +3,8 @@ import { base64ToBytes as b64ToBytes, bytesToBase64 as bytesToB64 } from "byte-b
 import sha256 from "fast-sha256"
 import Long from "long"
 import { lnrpc } from "proto/proto"
-import { TransactionStatus} from "types/transaction"
-import { BytesLikeType, LongLikeType } from "utils/types"
+import { TransactionStatus } from "types/transaction"
+import { BytesLikeType, LongLikeType, SomeType } from "utils/types"
 
 export const hexToBytes = (data: BytesLikeType): Uint8Array => {
     return typeof data == "string" ? Uint8Array.from(Buffer.from(data, "hex")) : data
@@ -22,6 +22,14 @@ export const bytesToBase64 = (data: BytesLikeType): string => {
     return data instanceof Uint8Array ? bytesToB64(data) : data
 }
 
+export const errorToString = (error: unknown): string => {
+    if (error instanceof Error) {
+        return error.message
+    }
+
+    return String(error)
+}
+
 export const nanosecondsToMilliseconds = (nanoseconds: LongLikeType): number => {
     return toLong(nanoseconds).divide(1000).toNumber()
 }
@@ -29,10 +37,10 @@ export const nanosecondsToMilliseconds = (nanoseconds: LongLikeType): number => 
 export const secondsToMilliseconds = (seconds: LongLikeType): number => {
     return toLong(seconds).multiply(1000).toNumber()
 }
- 
+
 export const nanosecondsToDate = (nanoseconds: LongLikeType): Date => {
     return new Date(nanosecondsToMilliseconds(nanoseconds))
-} 
+}
 
 export const secondsToDate = (seconds: LongLikeType): Date => {
     return new Date(secondsToMilliseconds(seconds))
@@ -42,13 +50,20 @@ export const reverseByteOrder = (data: BytesLikeType): Uint8Array | string => {
     return data instanceof Uint8Array ? data.reverse() : (data.match(/.{2}/g) || []).reverse().join("")
 }
 
-export const toBytes = (str?: any) => {
-    return str ? Buffer.from(String(str), "utf8") : str
+export const toBytes = (str: SomeType) => {
+    return Buffer.from(String(str), "utf8")
 }
 
-export const toHash = (data?: BytesLikeType): Uint8Array | undefined => {
-    const bytes = toBytes(data)
-    return typeof bytes != "undefined" ? sha256(bytes) : bytes
+export const toBytesOrNull = (str?: SomeType | null) => {
+    return str ? toBytes(str) : null
+}
+
+export const toHash = (data: BytesLikeType): Uint8Array => {
+    return sha256(toBytes(data))
+}
+
+export const toHashOrNull = (data?: BytesLikeType | null): Uint8Array | null => {
+    return data ? sha256(toBytes(data)) : null
 }
 
 export const toLong = (value: LongLikeType): Long => {
@@ -58,16 +73,23 @@ export const toLong = (value: LongLikeType): Long => {
 export const toMilliSatoshi = (value: LongLikeType): Long => {
     return toLong(value).multiply(1000)
 }
+export const toSatoshi = (value: LongLikeType): Long => {
+    return toLong(value).divide(1000)
+}
 
 export const toNumber = (value?: Long | null): number | undefined => {
     return value && typeof value != "undefined" ? Long.fromValue(value).toNumber() : undefined
 }
 
-export const toString = (data: BytesLikeType): string | undefined => {
+export const toString = (data: BytesLikeType): string => {
     return data instanceof Uint8Array ? Buffer.from(data).toString("utf8") : data
 }
 
-export const toTransactionStatus = (status: lnrpc.Payment.PaymentStatus|lnrpc.Invoice.InvoiceState): TransactionStatus => {
+export const toStringOrNull = (data?: BytesLikeType | null): string | null => {
+    return data ? toString(data) : null
+}
+
+export const toTransactionStatus = (status: lnrpc.Payment.PaymentStatus | lnrpc.Invoice.InvoiceState): TransactionStatus => {
     const paymentStatus = status as lnrpc.Payment.PaymentStatus
     const invoiceState = status as lnrpc.Invoice.InvoiceState
 

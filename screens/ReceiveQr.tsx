@@ -5,13 +5,14 @@ import useNavigationOptions from "hooks/useNavigationOptions"
 import { useTheme } from "native-base"
 import React, { useLayoutEffect } from "react"
 import { Dimensions, Share, View } from "react-native"
-import { ReceiveNavigationProp } from "screens/AppStack"
-import { ReceiveQrRouteProp } from "screens/ReceiveStack"
+import { RouteProp } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { AppStackParamList } from "screens/AppStack"
 import styles from "utils/styles"
 
 type ReceiveQrProps = {
-    navigation: ReceiveNavigationProp
-    route: ReceiveQrRouteProp
+    navigation: NativeStackNavigationProp<AppStackParamList, "ReceiveQr">
+    route: RouteProp<AppStackParamList, "ReceiveQr">
 }
 
 const ReceiveQr = ({ navigation, route }: ReceiveQrProps) => {

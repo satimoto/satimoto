@@ -1,7 +1,7 @@
 import { lnrpc, routerrpc } from "proto/proto"
 import { sendStreamCommand, processStreamResponse } from "services/LndMobileService"
 import { PAYMENT_CLTV_LIMIT, PAYMENT_TIMEOUT_SECONDS, PAYMENT_FEE_LIMIT_SAT } from "utils/constants"
-import { hexToBytes, toHash, toLong } from "utils/conversion"
+import { hexToBytes, toHashOrNull, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType, LongLikeType } from "utils/types"
 
@@ -40,7 +40,7 @@ export const sendPaymentV2 = (
         options: {
             dest: dest ? hexToBytes(dest) : null,
             amt: amt ? toLong(amt) : null,
-            paymentHash: toHash(preImage),
+            paymentHash: toHashOrNull(preImage),
             paymentRequest,
             timeoutSeconds,
             feeLimitSat: toLong(feeLimitSat),

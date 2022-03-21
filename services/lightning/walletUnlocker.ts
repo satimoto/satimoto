@@ -1,7 +1,7 @@
 import { lnrpc } from "proto/proto"
 import { NativeModules } from "react-native"
 import { sendCommand, deserializeResponse } from "services/LndMobileService"
-import { toBytes } from "utils/conversion"
+import { toBytesOrNull } from "utils/conversion"
 import { Log } from "utils/logging"
 
 const log = new Log("Wallet")
@@ -14,8 +14,8 @@ export const genSeed = (aezeedPassphrase?: string, seedEntropy?: string): Promis
         response: lnrpc.GenSeedResponse,
         method: service + "GenSeed",
         options: {
-            aezeedPassphrase: toBytes(aezeedPassphrase),
-            seedEntropy: toBytes(seedEntropy)
+            aezeedPassphrase: toBytesOrNull(aezeedPassphrase),
+            seedEntropy: toBytesOrNull(seedEntropy)
         }
     })
 }

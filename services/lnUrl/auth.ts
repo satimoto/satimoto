@@ -11,7 +11,7 @@ import { LNURL_CANONICAL_PHRASE } from "utils/constants"
  * LUD-04: auth base spec https://github.com/fiatjaf/lnurl-rfc/blob/luds/04.md
  * LUD-13: signMessage-based seed generation for auth protocol https://github.com/fiatjaf/lnurl-rfc/blob/luds/13.md
  */
-const authenticate = async (authParams: LNURLAuthParams): Promise<boolean> => {
+export const authenticate = async (authParams: LNURLAuthParams): Promise<boolean> => {
     const signMessageResponse: lnrpc.SignMessageResponse = await signMessage(LNURL_CANONICAL_PHRASE)
     const hashingKey = new Hash().update(toBytes(signMessageResponse.signature)).digest()
     const linkingPrivKey = new HMAC(hashingKey).update(toBytes(authParams.domain)).digest()
@@ -34,5 +34,3 @@ const authenticate = async (authParams: LNURLAuthParams): Promise<boolean> => {
 
     throw new Error(`Invalid response from ${authParams.domain}`)
 }
-
-export { authenticate }

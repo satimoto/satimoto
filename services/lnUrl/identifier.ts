@@ -1,6 +1,6 @@
 import { LNURLPayParams } from "js-lnurl"
 
-const identifier = async (address: string): Promise<LNURLPayParams> => {
+export const identifier = async (address: string): Promise<LNURLPayParams> => {
     if (address.includes("@")) {
         const [username, domain] = address.split("@")
         const protocol = domain.includes(".onion") ? "http" : "https"
@@ -20,5 +20,3 @@ const identifier = async (address: string): Promise<LNURLPayParams> => {
 
     throw Error(`Unable to resolve ${address}`)
 }
-
-export { identifier }

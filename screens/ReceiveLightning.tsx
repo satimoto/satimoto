@@ -1,21 +1,23 @@
-import React, { useEffect, useLayoutEffect, useState } from "react"
-import { observer } from "mobx-react"
-import { TextInput, View } from "react-native"
-import { Button, IconButton, Text, useTheme, VStack } from "native-base"
-import { ReceiveLightningNavigationProp } from "screens/ReceiveStack"
-import styles from "utils/styles"
 import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import Input from "components/Input"
 import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
+import { observer } from "mobx-react"
+import { Button, FormControl, IconButton, useColorModeValue, useTheme, VStack } from "native-base"
+import React, { useEffect, useLayoutEffect, useState } from "react"
+import { View } from "react-native"
+import { AppStackParamList } from "screens/AppStack"
+import styles from "utils/styles"
 
 type ReceiveLightningProps = {
-    navigation: ReceiveLightningNavigationProp
+    navigation: NativeStackNavigationProp<AppStackParamList, "ReceiveLightning">
 }
 
 const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const textColor = useColor(colors.warmGray[50], colors.dark[200])
+    const textColor = useColorModeValue("lightText", "darkText")
     const [amount, setAmount] = useState("")
     const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
     const { channelStore, invoiceStore } = useStore()
@@ -23,7 +25,16 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             title: "Receive",
-            headerRight: () => <IconButton colorScheme="muted" variant="ghost" p={0.5} icon={<QrCodeIcon />} _icon={{ color: "#ffffff", size: 32 }} />
+            headerRight: () => (
+                <IconButton
+                    colorScheme="muted"
+                    variant="ghost"
+                    p={0.5}
+                    onPress={() => navigation.navigate("SendCamera")}
+                    icon={<QrCodeIcon />}
+                    _icon={{ color: "#ffffff", size: 32 }}
+                />
+            )
         })
     }, [navigation])
 
@@ -31,11 +42,11 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
         setChannelRequestNeeded(+amount >= channelStore.remoteBalance)
     }, [amount])
 
-    const onAmountMsatChange = (text: string) => {
+    const onAmountChange = (text: string) => {
         setAmount(text)
     }
 
-    const onCreatePress = async () => {
+    const onConfirmPress = async () => {
         const invoice = await invoiceStore.addInvoice(+amount)
         navigation.navigate("ReceiveQr", { qrCode: invoice.paymentRequest })
     }
@@ -43,22 +54,13 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <VStack space={5}>
-                <TextInput
-                    value={amount}
-                    keyboardType="number-pad"
-                    onChangeText={onAmountMsatChange}
-                    placeholder="Sats"
-                    style={[
-                        styles.textInput,
-                        {
-                            color: textColor,
-                            borderColor: textColor
-                        }
-                    ]}
-                />
-                {channelRequestNeeded && <Text fontSize="xs">A new channel is needed</Text>}
-                <Button onPress={onCreatePress} disabled={amount.length == 0}>
-                    Create
+                <FormControl isRequired={true}>
+                    <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
+                    <Input value={amount} keyboardType="number-pad" onChangeText={onAmountChange} />
+                    {channelRequestNeeded && <FormControl.HelperText>A new channel is needed</FormControl.HelperText>}
+                </FormControl>
+                <Button onPress={onConfirmPress} isDisabled={amount.length == 0}>
+                    Next
                 </Button>
             </VStack>
         </View>

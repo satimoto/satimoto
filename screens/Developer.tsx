@@ -2,11 +2,12 @@ import React from "react"
 import { observer } from "mobx-react"
 import { Button, View } from "react-native"
 import { useColorModeValue, Text } from "native-base"
-import { HomeNavigationProp } from "screens/AppStack"
 import { useStore } from "hooks/useStore"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { AppStackParamList } from "screens/AppStack"
 
 type DeveloperProps = {
-    navigation: HomeNavigationProp
+    navigation: NativeStackNavigationProp<AppStackParamList, "Developer">
 }
 
 const Developer = ({ navigation }: DeveloperProps) => {

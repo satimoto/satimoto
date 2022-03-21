@@ -1,15 +1,15 @@
 import { useNavigation } from "@react-navigation/native"
-import BusySpinner from "components/BusySpinner"
+import Input from "components/Input"
+import BusyButton from "components/BusyButton"
 import Modal from "components/Modal"
-import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
-import { Button, Text, useTheme, VStack } from "native-base"
+import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
-import { TextInput } from "react-native"
-import { SendNavigationProp } from "screens/AppStack"
+import { HomeNavigationProp } from "screens/Home"
 import { identifier } from "services/LnUrlService"
-import styles from "utils/styles"
+import { errorToString } from "utils/conversion"
+import { assertEmail } from "utils/assert"
 
 interface SendToAddressModalProps {
     isVisible: boolean
@@ -17,12 +17,14 @@ interface SendToAddressModalProps {
 }
 
 const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => {
-    const {colors} = useTheme()
-    const textColor = useColor(colors.lightText, colors.darkText)
-    const navigation = useNavigation<SendNavigationProp>()
-    const [address, setAddress] = useState("")
-    const [isBusy, setIsBusy] = useState(false)
+    const textColor = useColorModeValue("lightText", "darkText")
+    const navigation = useNavigation<HomeNavigationProp>()
     const { uiStore } = useStore()
+
+    const [address, setAddress] = useState("")
+    const [isAddressInvalid, setIsAddressInvalid] = useState(true)
+    const [isBusy, setIsBusy] = useState(false)
+    const [lastError, setLastError] = useState("")
 
     const onAddressChange = (text: string) => {
         setAddress(text)
@@ -30,14 +32,15 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
 
     const onConfirmPress = async () => {
         setIsBusy(true)
+        setLastError("")
 
         try {
             const payParams = await identifier(address)
             uiStore.setLnUrlPayParams(payParams)
-            onClose()
-        } catch {}
-
-        setIsBusy(false)
+        } catch (error) {
+            setIsBusy(false)
+            setLastError(errorToString(error))
+        }
     }
 
     const onModalClose = () => {
@@ -47,35 +50,47 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
     }
 
     useEffect(() => {
-        if (uiStore.lnUrlPayParams) {
-            navigation.navigate("Home")
-
+        try {
+            assertEmail(address)
+            setIsAddressInvalid(false)
+        } catch {
+            setIsAddressInvalid(true)
         }
-    }, [uiStore.lnUrlAuthParams])
+    }, [address])
+
+    useEffect(() => {
+        if (!isVisible) {
+            setAddress("")
+            setIsBusy(false)
+        }
+    }, [isVisible])
+
+    useEffect(() => {
+        if (uiStore.lnUrlPayParams) {
+            navigation.navigate("SendPayRequest")
+            onClose()
+        }
+    }, [uiStore.lnUrlPayParams])
 
     return (
         <Modal isVisible={isVisible} onClose={onModalClose}>
-            <VStack alignItems="center" width="100%">
+            <VStack alignItems="center" space={5} width="100%">
                 <Text color={textColor} fontSize="xl">
                     Send to lightning address
                 </Text>
-                <TextInput
+                <Input
+                    autoCapitalize="none"
+                    autoCompleteType="off"
+                    autoCorrect={false}
                     value={address}
+                    isFullWidth={true}
                     onChangeText={onAddressChange}
-                    style={[
-                        styles.textInput,
-                        {
-                            color: textColor,
-                            borderColor: textColor,
-                            width: "100%"
-                        }
-                    ]}
+                    placeholder="hello@satimoto.com"
                 />
-                <BusySpinner isBusy={isBusy} marginTop={5} size="lg">
-                    <Button marginTop={5} onPress={onConfirmPress} disabled={address.length == 0}>
-                        Ok
-                    </Button>
-                </BusySpinner>
+                {lastError.length > 0 && <Text color="error.300">{lastError}</Text>}
+                <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isAddressInvalid}>
+                    Next
+                </BusyButton>
             </VStack>
         </Modal>
     )

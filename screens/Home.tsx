@@ -10,11 +10,11 @@ import LocationModel from "models/location"
 import React, { useEffect, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
-import { HomeNavigationProp } from "screens/AppStack"
-import { HomeRouteProp } from "screens/HomeStack"
+import { AppStackParamList } from "screens/AppStack"
 import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -106,12 +106,13 @@ const symbolLayer: SymbolLayerStyle = {
     textField: ["to-string", ["-", ["get", "totalConnections"], ["get", "busyConnections"]]]
 }
 
+export type HomeNavigationProp = NativeStackNavigationProp<AppStackParamList, "Home">
+
 interface HomeProps {
     navigation: HomeNavigationProp
-    route: HomeRouteProp
 }
 
-const Home = ({ navigation, route }: HomeProps) => {
+const Home = ({ navigation }: HomeProps) => {
     const locationPanelRef = createRef()
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
@@ -137,9 +138,9 @@ const Home = ({ navigation, route }: HomeProps) => {
         if (event === "send") {
             setIsSendToAddressModalVisible(true)
         } else if (event === "qr") {
-            navigation.navigate("Send")
+            navigation.navigate("SendCamera")
         } else if (event === "receive") {
-            navigation.navigate("Receive")
+            navigation.navigate("ReceiveLightning")
         }
     }
 

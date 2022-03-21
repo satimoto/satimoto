@@ -1,4 +1,5 @@
 import { Platform } from "react-native"
+import { NETWORK } from "utils/build"
 
 export const CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID = 51727
 export const CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE = 51728
@@ -7,6 +8,7 @@ export const INTERVAL_RETRY = 1000
 export const IS_ANDROID = Platform.OS === "android"
 export const IS_IOS = Platform.OS === "ios"
 
+export const LN_BECH32_PREFIX = NETWORK === "mainnet" ? "lnbc" : NETWORK === "testnet" ? "lntb" : "lnbcrt"
 export const LNURL_CANONICAL_PHRASE =
     "DO NOT EVER SIGN THIS TEXT WITH YOUR PRIVATE KEYS! IT IS ONLY USED FOR DERIVATION OF LNURL-AUTH HASHING-KEY, DISCLOSING ITS SIGNATURE WILL COMPROMISE YOUR LNURL-AUTH IDENTITY AND MAY LEAD TO LOSS OF FUNDS!"
 
@@ -19,3 +21,4 @@ export const RECOVERY_WINDOW_DEFAULT = 250
 
 export const SECURE_KEY_CIPHER_SEED_MNEMONIC = "CIPHER_SEED_MNEMONIC"
 export const SECURE_KEY_WALLET_PASSWORD = "WALLET_PASSWORD"
+

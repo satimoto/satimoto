@@ -1,16 +1,22 @@
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { IconButton } from "native-base"
+import { IconButton, IIconButtonProps } from "native-base"
 import React from "react"
 
-const HeaderBackButton = ({ tintColor = "#ffffff", onPress = () => {} }) => {
+interface HeaderBackButtonProps extends IIconButtonProps {
+    tintColor?: string
+    onPress?: () => void
+}
+
+const HeaderBackButton = ({ colorScheme = "muted", variant = "ghost", tintColor = "#ffffff", onPress = () => {}, ...props }: HeaderBackButtonProps) => {
     return (
         <IconButton
-            colorScheme="muted"
-            variant="ghost"
+            colorScheme={colorScheme}
+            variant={variant}
             onPress={onPress}
             icon={<FontAwesomeIcon icon={faChevronLeft} />}
             _icon={{ color: tintColor, size: 20 }}
+            {...props}
         />
     )
 }

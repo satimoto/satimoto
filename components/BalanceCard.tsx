@@ -8,8 +8,8 @@ import { StyleSheet } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
-import { DeveloperNavigationProp } from "screens/AppStack"
 import { useStore } from "hooks/useStore"
+import { HomeNavigationProp } from "screens/Home"
 
 const styleSheet = StyleSheet.create({
     linearGradient: {
@@ -28,7 +28,7 @@ const styleSheet = StyleSheet.create({
 })
 
 const BalanceCard = () => {
-    const navigation = useNavigation<DeveloperNavigationProp>()
+    const navigation = useNavigation<HomeNavigationProp>()
     const safeAreaInsets = useSafeAreaInsets()
     const { channelStore } = useStore()
 
@@ -43,7 +43,7 @@ const BalanceCard = () => {
             <IconButton
                 variant="outline"
                 borderRadius="xl"
-                onPress={() => navigation.navigate("Transaction")}
+                onPress={() => navigation.navigate("TransactionList")}
                 icon={<FontAwesomeIcon icon={faListCheck} />}
                 _icon={{ color: "#ffffff" }}
                 style={styleSheet.transactionsButton}

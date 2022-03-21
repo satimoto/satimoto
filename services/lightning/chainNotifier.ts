@@ -1,6 +1,6 @@
 import { chainrpc } from "proto/proto"
 import { sendStreamCommand, processStreamResponse } from "services/LndMobileService"
-import { toBytes } from "utils/conversion"
+import { toBytesOrNull } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType } from "utils/types"
 
@@ -16,7 +16,7 @@ export const registerBlockEpochNtfn = (onData: BlockEpochStreamResponse, hash?: 
         response: chainrpc.BlockEpoch,
         method,
         options: {
-            hash: toBytes(hash),
+            hash: toBytesOrNull(hash),
             height: height
         }
     })
