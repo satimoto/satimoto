@@ -11,7 +11,7 @@ import { View } from "react-native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { decodePayReq } from "services/LightningService"
-import { getPayRequest } from "services/LnUrlService"
+import { getMetadataElement, getPayRequest } from "services/LnUrlService"
 import { assertNetwork } from "utils/assert"
 import { errorToString, toHashOrNull, toMilliSatoshi, toNumber, toSatoshi, toStringOrNull } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
@@ -34,6 +34,7 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
 
     const [amountString, setAmountString] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
+    const [description, setDescription] = useState("")
     const [isBusy, setIsBusy] = useState(false)
     const [isInvalid, setIsInvalid] = useState(false)
     const [lastError, setLastError] = useState("")
@@ -51,6 +52,7 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
                 maxSats = channelStore.localBalance
             }
 
+            setDescription(getMetadataElement(uiStore.lnUrlPayParams.decodedMetadata, "text/plain") || "")
             setMaxSendable(maxSats)
             setMinSendable(minSats)
             setAmountError(`Must be between ${formatSatoshis(minSats)} and ${formatSatoshis(maxSats)} sats`)
@@ -117,6 +119,7 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <VStack space={5}>
+                {description.length > 0 && <Text color={textColor} fontSize="lg">{description}</Text>}
                 <FormControl isInvalid={isInvalid} isRequired={true}>
                     <FormControl.Label _text={{color: textColor}}>Amount</FormControl.Label>
                     <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />

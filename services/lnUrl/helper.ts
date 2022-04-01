@@ -4,6 +4,14 @@ interface LNURLTag {
     tag: string
 }
 
+type MetadataType = string[][]
+
+const getMetadataElement = (metadata: MetadataType, key: string): string | null => {
+    const element = metadata.find((element) => element[0] === key)
+
+    return element ? element[1] : null
+}
+
 const getTag = (params: LNURLResponse | LNURLChannelParams | LNURLWithdrawParams | LNURLAuthParams | LNURLPayParams): string | null => {
     const lnUrlTag = params as LNURLTag
 
@@ -14,4 +22,4 @@ const getTag = (params: LNURLResponse | LNURLChannelParams | LNURLWithdrawParams
     return null
 }
 
-export { getTag }
+export { getMetadataElement, getTag }
