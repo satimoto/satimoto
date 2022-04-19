@@ -73,11 +73,15 @@ const getToken = async (pubkey: string, deviceToken: string) => {
                     const authenticateOk = await authenticate(lnUrlAuthParams)
 
                     if (authenticateOk) {
-                        await createUser({
-                            code: createAuthenticationResult.data.createAuthentication.code,
-                            pubkey,
-                            deviceToken
-                        })
+                        try {
+                            await createUser({
+                                code: createAuthenticationResult.data.createAuthentication.code,
+                                pubkey,
+                                deviceToken
+                            })
+                        } catch (error) {
+                            log.debug(`Error creating user: ${error}`)
+                        }
 
                         const exchangeAuthenticationResult = await exchangeAuthentication(createAuthenticationResult.data.createAuthentication.code)
 
