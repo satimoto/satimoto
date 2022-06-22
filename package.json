@@ -76,7 +76,7 @@
     "react-native-timeago": "^0.5.0",
     "react-native-web": "^0.17.5",
     "reflect-metadata": "^0.1.13",
-    "rn-sliding-up-panel": "^2.4.5",
+    "rn-sliding-up-panel": "https://github.com/satimoto/rn-sliding-up-panel#master",
     "secp256k1": "^4.0.3",
     "url-parse": "^1.5.10"
   },

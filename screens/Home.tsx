@@ -1,12 +1,10 @@
-import locationJson from "assets/locations.json"
 import BalanceCard from "components/BalanceCard"
 import HomeButtonContainer, { HomeButtonContainerEvent } from "components/HomeButtonContainer"
 import LnUrlAuthModal from "components/LnUrlAuthModal"
-import LocationPanel, { createRef } from "components/LocationPanel"
+import SlidingLocationPanel, { createRef } from "components/SlidingLocationPanel"
 import SendToAddressModal from "components/SendToAddressModal"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
-import LocationModel from "models/location"
 import React, { useEffect, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
@@ -15,6 +13,7 @@ import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { autorun } from "mobx"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -59,51 +58,15 @@ const connectorTypes: any = {
     }
 }
 
-locationJson.forEach((location) => {
-    features.push({
-        id: location.ID,
-        type: "Feature",
-        geometry: {
-            type: "Point",
-            coordinates: [location.AddressInfo.Longitude, location.AddressInfo.Latitude]
-        },
-        properties: {
-            uuid: location.UUID,
-            name: location.AddressInfo.Title,
-            address: location.AddressInfo.AddressLine1,
-            city: location.AddressInfo.Town,
-            postalCode: location.AddressInfo.Postcode,
-            busyConnections: Math.floor(Math.random() * (location.Connections.length + 1)),
-            totalConnections: location.Connections.length,
-            connectors: location.Connections.map((connection) => {
-                return {
-                    id: connection.ID.toString(),
-                    connectorId: connection.ConnectionTypeID,
-                    ...connectorTypes[0],
-                    ...connectorTypes[connection.ConnectionTypeID],
-                    voltage: connection.PowerKW
-                }
-            })
-        }
-    })
-})
-
 const symbolLayer: SymbolLayerStyle = {
     iconAnchor: "bottom",
     iconAllowOverlap: true,
-    iconImage: [
-        "case",
-        ["==", ["get", "busyConnections"], 0],
-        "empty",
-        ["==", ["get", "busyConnections"], ["get", "totalConnections"]],
-        "full",
-        "busy"
-    ],
+    iconImage: ["case", ["==", ["get", "availableEvses"], ["get", "totalEvses"]], "empty", ["==", ["get", "availableEvses"], 0], "full", "busy"],
     iconSize: 0.5,
     textAnchor: "bottom",
     textOffset: [0, -1.5],
     textColor: "#ffffff",
-    textField: ["to-string", ["-", ["get", "totalConnections"], ["get", "busyConnections"]]]
+    textField: ["to-string", ["get", "availableEvses"]]
 }
 
 export type HomeNavigationProp = NativeStackNavigationProp<AppStackParamList, "Home">
@@ -113,13 +76,15 @@ interface HomeProps {
 }
 
 const Home = ({ navigation }: HomeProps) => {
-    const locationPanelRef = createRef()
+    const slidingLocationPanelRef = createRef()
+    const mapViewRef = React.useRef<MapboxGL.MapView>(null)
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
-    const [locations, setLocations] = useState<any>({ type: "FeatureCollection", features: features })
-    const [location, setLocation] = useState<LocationModel>()
+    const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: features })
+    const [locationUid, setLocationUid] = useState<string>()
+
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
-    const { uiStore } = useStore()
+    const { uiStore, locationStore } = useStore()
 
     const includeCamera = () => {
         if (hasLocationPermission) {
@@ -148,10 +113,26 @@ const Home = ({ navigation }: HomeProps) => {
         log.debug(JSON.stringify(coordinates))
 
         if (features.length) {
-            setLocation(features[0].properties as LocationModel)
+            setLocationUid(features[0].properties?.uid)
         }
         log.debug(JSON.stringify(features))
     }
+
+    const onRegionDidChange = async () => {
+        if (mapViewRef.current) {
+            const bounds = await mapViewRef.current.getVisibleBounds()
+
+            locationStore.setBounds(bounds)
+        }
+    }
+
+     const onSlidingLocationPanelHide = () => {
+        log.debug("onSlidingLocationPanelHide")
+
+        if (locationUid) {
+            setLocationUid(undefined)
+        }
+     }
 
     useEffect(() => {
         const requestPermissions = async () => {
@@ -166,12 +147,38 @@ const Home = ({ navigation }: HomeProps) => {
     }, [])
 
     useEffect(() => {
-        if (location) {
-            locationPanelRef.current?.show({ toValue: Dimensions.get("window").height / 2, velocity: 0.1 })
+        if (locationUid) {
+            slidingLocationPanelRef.current?.show({ toValue: Dimensions.get("window").height / 2, velocity: 0.1 })
         } else {
-            locationPanelRef.current?.hide()
+            slidingLocationPanelRef.current?.hide()
         }
-    }, [location])
+    }, [locationUid])
+
+    useEffect(() => {
+        locationStore.monitorLocationUpdates(true)
+
+        return () => locationStore.monitorLocationUpdates(false)
+    }, [])
+
+    useEffect(
+        () =>
+            autorun(() => {
+                log.debug("locations changed")
+
+                setLocationsShapeSource({
+                    type: "FeatureCollection",
+                    features: locationStore.locations.map((location) => {
+                        return {
+                            id: location.uid,
+                            type: "Feature",
+                            geometry: location.geom,
+                            properties: location
+                        }
+                    })
+                })
+            }),
+        []
+    )
 
     return (
         <View style={styles.matchParent}>
@@ -179,6 +186,8 @@ const Home = ({ navigation }: HomeProps) => {
                 attributionEnabled={false}
                 compassEnabled={false}
                 logoEnabled={false}
+                onRegionDidChange={onRegionDidChange}
+                ref={mapViewRef}
                 style={styles.matchParent}
                 styleURL={MapboxGL.StyleURL.Street}
             >
@@ -190,13 +199,13 @@ const Home = ({ navigation }: HomeProps) => {
                         full
                     }}
                 />
-                <MapboxGL.ShapeSource id="locationsShapeSource" onPress={onLocationPress} shape={locations}>
+                <MapboxGL.ShapeSource id="locationsShapeSource" onPress={onLocationPress} shape={locationsShapeSource}>
                     <MapboxGL.SymbolLayer id="locationsSymbolLayer" style={symbolLayer} />
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard />
-            <HomeButtonContainer onPress={onHomeButtonPress}/>
-            <LocationPanel location={location} ref={locationPanelRef} />
+            <HomeButtonContainer onPress={onHomeButtonPress} />
+            <SlidingLocationPanel locationUid={locationUid} ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
             <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />
             <SendToAddressModal isVisible={isSendToAddressModalVisible} onClose={() => setIsSendToAddressModalVisible(false)} />
         </View>

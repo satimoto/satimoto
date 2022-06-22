@@ -1,10 +1,11 @@
 interface ConnectorModel {
-    id: string
-    connectorId: string,
-    title: string
-    icon: string
+    uid: string
+    standard: string
+    format: string
+    powerType: string
     voltage: number
-    currentType: string
+    amperage: number
+    wattage: number
 }
 
 type ConnectorModelLike = ConnectorModel | undefined

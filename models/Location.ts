@@ -1,12 +1,19 @@
-import ConnectorModel from "models/Connector"
+import EvseModel from "models/Evse"
+import PointModel from "models/Geometry"
 
 interface LocationModel {
-    uuid: string
+    uid: string
     name: string
-    address: string
-    city: string
-    postalCode: string
-    connectors: ConnectorModel[]
+    address?: string
+    city?: string
+    postalCode?: string
+    country?: string
+    geom: PointModel
+    evses?: EvseModel[]
+    availableEvses: number
+    totalEvses: number
+    isRemoteCapable: boolean
+    isRfidCapable: boolean
 }
 
 type LocationModelLike = LocationModel | undefined

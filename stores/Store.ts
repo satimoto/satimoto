@@ -3,6 +3,7 @@ import "reflect-metadata"
 import { ChannelStore } from "./ChannelStore"
 import { InvoiceStore } from "./InvoiceStore"
 import { LightningStore } from "./LightningStore"
+import { LocationStore } from "./LocationStore"
 import { PaymentStore } from "./PaymentStore"
 import { PeerStore } from "./PeerStore"
 import { SettingStore } from "./SettingStore"
@@ -25,6 +26,7 @@ export class Store implements StoreInterface {
     channelStore: ChannelStore
     invoiceStore: InvoiceStore
     lightningStore: LightningStore
+    locationStore: LocationStore
     paymentStore: PaymentStore
     peerStore: PeerStore
     settingStore: SettingStore
@@ -37,6 +39,7 @@ export class Store implements StoreInterface {
         this.channelStore = new ChannelStore(this)
         this.invoiceStore = new InvoiceStore(this)
         this.lightningStore = new LightningStore(this)
+        this.locationStore = new LocationStore(this)
         this.paymentStore = new PaymentStore(this)
         this.peerStore = new PeerStore(this)
         this.settingStore = new SettingStore(this)
@@ -54,6 +57,7 @@ export class Store implements StoreInterface {
                 this.channelStore.hydrated &&
                 this.invoiceStore.hydrated &&
                 this.lightningStore.hydrated &&
+                this.locationStore.hydrated &&
                 this.paymentStore.hydrated &&
                 this.peerStore.hydrated &&
                 this.settingStore.hydrated &&
@@ -75,6 +79,7 @@ export class Store implements StoreInterface {
             await this.uiStore.initialize()
             await this.walletStore.initialize()
             await this.lightningStore.initialize()
+            await this.locationStore.initialize()
             this.setReady()
         } catch (error) {
             log.error(JSON.stringify(error, undefined, 2))

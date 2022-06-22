@@ -8,11 +8,12 @@ import { TransactionModel } from "models/Transaction"
 import { useTheme, VStack } from "native-base"
 import React, { useLayoutEffect } from "react"
 import { ScrollView } from "react-native"
-import { TransactionListNavigationProp } from "screens/TransactionStack"
 import styles from "utils/styles"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { AppStackParamList } from "screens/AppStack"
 
 type TransactionListProps = {
-    navigation: TransactionListNavigationProp
+    navigation: NativeStackNavigationProp<AppStackParamList, "TransactionList">
 }
 
 const TransactionList = ({ navigation }: TransactionListProps) => {

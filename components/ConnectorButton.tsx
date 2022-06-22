@@ -17,11 +17,13 @@ const styleSheet = StyleSheet.create({
 })
 
 const connectorIcons: any = {
-    "0": require("assets/unknown.png"),
-    "2": require("assets/chademo.png"),
-    "25": require("assets/type2_socket.png"),
-    "28": require("assets/schuko.png"),
-    "33": require("assets/type2_ccs.png")
+    "CHADEMO": require("assets/CHADEMO.png"),
+    "DOMESTIC_F": require("assets/DOMESTIC_F.png"),
+    "IEC_62196_T1": require("assets/IEC_62196_T1.png"),
+    "IEC_62196_T1_COMBO": require("assets/IEC_62196_T1_COMBO.png"),
+    "IEC_62196_T2": require("assets/IEC_62196_T2.png"),
+    "IEC_62196_T2_COMBO": require("assets/IEC_62196_T2_COMBO.png"),
+    "UNKNOWN": require("assets/UNKNOWN.png")
 }
 
 interface ConnectorButtonProps {
@@ -36,13 +38,13 @@ const ConnectorButton = ({ connector, onPress = () => {} }: ConnectorButtonProps
     return (
         <TouchableOpacityOptional onPress={() => onPress(connector)} style={[styleSheet.touchableOpacity, { backgroundColor }]}>
             <HStack alignItems="center" space={1}>
-                <Image resizeMode="contain" source={connectorIcons[connector.connectorId] || connectorIcons[0]} style={{ width: 50, height: 50 }} />
+                <Image resizeMode="contain" source={connectorIcons[connector.standard] || connectorIcons["UNKNOWN"]} style={{ width: 50, height: 50 }} />
                 <VStack>
                     <Text color={useColorModeValue("lightText", "darkText")} fontSize="lg" fontWeight="bold">
-                        {connector.title}
+                        {connector.standard}
                     </Text>
                     <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg">
-                        {connector.currentType}
+                        {connector.powerType}
                     </Text>
                 </VStack>
                 <Spacer />

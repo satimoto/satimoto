@@ -4,6 +4,9 @@ import { onError } from "@apollo/client/link/error"
 import * as Authentication from "./satimoto/authentication"
 import { AuthenticationAction } from "./satimoto/authentication"
 import * as ChannelRequest from "./satimoto/channelRequest"
+import * as Command from "./satimoto/command"
+import * as Location from "./satimoto/location"
+import * as Rate from "./satimoto/rate"
 import * as User from "./satimoto/user"
 import store from "stores/Store"
 import { API_URI } from "utils/build"
@@ -52,8 +55,19 @@ const createAuthentication = Authentication.createAuthentication(client)
 const exchangeAuthentication = Authentication.exchangeAuthentication(client)
 const verifyAuthentication = Authentication.verifyAuthentication(client)
 
+// Location
+const getLocation = Location.getLocation(client)
+const listLocations = Location.listLocations(client)
+
+// Rate
+const getRate = Rate.getRate(client)
+
 // Channel Request
 const createChannelRequest = ChannelRequest.createChannelRequest(client)
+
+// Command
+const startSesion = Command.startSession(client)
+const stopSesion = Command.stopSession(client)
 
 // User
 const createUser = User.createUser(client)
@@ -104,6 +118,14 @@ export {
     verifyAuthentication,
     // Channel Request
     createChannelRequest,
+    // Command
+    startSesion,
+    stopSesion,
+    // Location
+    getLocation,
+    listLocations,
+    // Rate
+    getRate,
     // Token
     getToken,
     // User
