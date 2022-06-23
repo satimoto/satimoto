@@ -8,6 +8,7 @@ import messaging from "@react-native-firebase/messaging"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import client from "services/SatimotoService"
 import store from "stores/Store"
+import SplashScreen from "react-native-splash-screen"
 import { API_URI, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
@@ -46,6 +47,10 @@ const App = () => {
         return () => {
             AppState.removeEventListener("change", appStateChanged)
         }
+    }, [])
+
+    useEffect(() => {
+        SplashScreen.hide()
     }, [])
 
     return (

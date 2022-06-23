@@ -4,7 +4,7 @@ ios/Satimoto/GoogleService-Info*.plist
 
 # LND mobile
 android/lndmobile/Lndmobile.aar
-ios/LndMobile/Lndmobile.framework
+ios/LndMobile/Lndmobile.xcframework
 
 # Generated proto
 /proto/*.js

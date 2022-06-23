@@ -12,7 +12,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		6C0F4B50088C9AC6A0B71CA1 /* libPods-Satimoto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */; };
-		7362934F26E63CDD006F70C2 /* Lndmobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7362934C26E63CDD006F70C2 /* Lndmobile.framework */; };
 		7362935126E63CDD006F70C2 /* LndMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362934E26E63CDD006F70C2 /* LndMobile.m */; };
 		7362938F26E8DEA5006F70C2 /* LndMobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362938E26E8DEA4006F70C2 /* LndMobile.swift */; };
 		7362939126E8EE2F006F70C2 /* LndResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362939026E8EE2F006F70C2 /* LndResponse.swift */; };
@@ -22,6 +21,7 @@
 		736293A026EA914C006F70C2 /* LndUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362939F26EA914C006F70C2 /* LndUtils.m */; };
 		736293A326EF898F006F70C2 /* walletunlocker.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736293A126EF898D006F70C2 /* walletunlocker.pb.swift */; };
 		736293A426EF898F006F70C2 /* rpc.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736293A226EF898E006F70C2 /* rpc.pb.swift */; };
+		73B15AD42864570E004884B9 /* Lndmobile.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B15AD32864570E004884B9 /* Lndmobile.xcframework */; };
 		73C06CDA27C50CC20095AA81 /* GoogleService-Info-Testnet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 73C06CD927C50CC20095AA81 /* GoogleService-Info-Testnet.plist */; };
 		73C06CDC27C50F090095AA81 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 73C06CDB27C50F090095AA81 /* GoogleService-Info.plist */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -53,7 +53,6 @@
 		2BB5170F72D89F5045F38689 /* Pods-Satimoto.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releaseregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releaseregtest.xcconfig"; sourceTree = "<group>"; };
 		33FE4B1D897DF402295AF46C /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; sourceTree = "<group>"; };
 		468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Satimoto.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7362934C26E63CDD006F70C2 /* Lndmobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Lndmobile.framework; sourceTree = "<group>"; };
 		7362934E26E63CDD006F70C2 /* LndMobile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LndMobile.m; sourceTree = "<group>"; };
 		7362938D26E8DEA3006F70C2 /* Satimoto-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Satimoto-Bridging-Header.h"; sourceTree = "<group>"; };
 		7362938E26E8DEA4006F70C2 /* LndMobile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LndMobile.swift; sourceTree = "<group>"; };
@@ -65,6 +64,7 @@
 		7362939F26EA914C006F70C2 /* LndUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LndUtils.m; sourceTree = "<group>"; };
 		736293A126EF898D006F70C2 /* walletunlocker.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = walletunlocker.pb.swift; sourceTree = "<group>"; };
 		736293A226EF898E006F70C2 /* rpc.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rpc.pb.swift; sourceTree = "<group>"; };
+		73B15AD32864570E004884B9 /* Lndmobile.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Lndmobile.xcframework; sourceTree = "<group>"; };
 		73C06CD927C50CC20095AA81 /* GoogleService-Info-Testnet.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Testnet.plist"; path = "Satimoto/GoogleService-Info-Testnet.plist"; sourceTree = "<group>"; };
 		73C06CDB27C50F090095AA81 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Satimoto/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		752AC8EC3098CB6A402A31E9 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; sourceTree = "<group>"; };
@@ -93,7 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7362934F26E63CDD006F70C2 /* Lndmobile.framework in Frameworks */,
+				73B15AD42864570E004884B9 /* Lndmobile.xcframework in Frameworks */,
 				6C0F4B50088C9AC6A0B71CA1 /* libPods-Satimoto.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -146,13 +146,13 @@
 		7362934A26E63B47006F70C2 /* LndMobile */ = {
 			isa = PBXGroup;
 			children = (
+				73B15AD32864570E004884B9 /* Lndmobile.xcframework */,
 				7362934E26E63CDD006F70C2 /* LndMobile.m */,
 				7362938E26E8DEA4006F70C2 /* LndMobile.swift */,
 				7362939026E8EE2F006F70C2 /* LndResponse.swift */,
 				7362939F26EA914C006F70C2 /* LndUtils.m */,
 				7362939D26EA8E5D006F70C2 /* LndUtils.swift */,
 				7362938D26E8DEA3006F70C2 /* Satimoto-Bridging-Header.h */,
-				7362934C26E63CDD006F70C2 /* Lndmobile.framework */,
 				736293A226EF898E006F70C2 /* rpc.pb.swift */,
 				736293A126EF898D006F70C2 /* walletunlocker.pb.swift */,
 			);
