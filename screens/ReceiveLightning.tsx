@@ -8,6 +8,7 @@ import { Button, FormControl, IconButton, useColorModeValue, useTheme, VStack } 
 import React, { useEffect, useLayoutEffect, useState } from "react"
 import { View } from "react-native"
 import { AppStackParamList } from "screens/AppStack"
+import I18n from "utils/i18n"
 import styles from "utils/styles"
 
 type ReceiveLightningProps = {
@@ -24,7 +25,7 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: "Receive",
+            title: I18n.t("ReceiveLightning_HeaderTitle"),
             headerRight: () => (
                 <IconButton
                     colorScheme="muted"
@@ -55,12 +56,12 @@ const ReceiveLightning = ({ navigation }: ReceiveLightningProps) => {
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <VStack space={5}>
                 <FormControl isRequired={true}>
-                    <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
+                    <FormControl.Label _text={{ color: textColor }}>{I18n.t("ReceiveLightning_InputAmountLabel")}</FormControl.Label>
                     <Input value={amount} keyboardType="number-pad" onChangeText={onAmountChange} />
-                    {channelRequestNeeded && <FormControl.HelperText>A new channel is needed</FormControl.HelperText>}
+                    {channelRequestNeeded && <FormControl.HelperText>{I18n.t("ReceiveLightning_InputAmountWarning")}</FormControl.HelperText>}
                 </FormControl>
                 <Button onPress={onConfirmPress} isDisabled={amount.length == 0}>
-                    Next
+                    {I18n.t("Button_Next")}
                 </Button>
             </VStack>
         </View>

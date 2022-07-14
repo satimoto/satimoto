@@ -3,13 +3,15 @@ import { GestureResponderEvent, StyleProp, TouchableOpacity, ViewStyle } from "r
 
 interface TouchableOpacityOptionalProps extends PropsWithChildren<any> {
     onPress?: (event: GestureResponderEvent) => void
+    onPressIn?: (event: GestureResponderEvent) => void
+    onPressOut?: (event: GestureResponderEvent) => void
     style?: StyleProp<ViewStyle>
 }
 
-const TouchableOpacityOptional = ({ onPress, children, style = {} }: TouchableOpacityOptionalProps) => {
+const TouchableOpacityOptional = ({ onPress, onPressIn = () => {}, onPressOut = () => {}, children, style = {} }: TouchableOpacityOptionalProps) => {
     if (onPress) {
         return (
-            <TouchableOpacity onPress={onPress} style={style}>
+            <TouchableOpacity onPressIn={onPressIn} onPressOut={onPressOut} onPress={onPress} style={style}>
                 {children}
             </TouchableOpacity>
         )

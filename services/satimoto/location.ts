@@ -5,8 +5,8 @@ import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
  */
 
 const GET_LOCATION = gql`
-    query GetLocation($uid: String!) {
-        getLocation(uid: $uid) {
+    query GetLocation($input: GetLocationInput!) {
+        getLocation(input: $input) {
             uid
             name
             address
@@ -16,10 +16,11 @@ const GET_LOCATION = gql`
             geom
             evses {
                 uid
+                identifier
                 status
-                evseId
                 connectors {
                     uid
+                    identifier
                     standard
                     format
                     voltage
@@ -33,12 +34,17 @@ const GET_LOCATION = gql`
     }
 `
 
+interface GetLocationInput {
+    id?: number
+    uid?: string
+}
+
 const getLocation = (client: ApolloClient<NormalizedCacheObject>) => {
-    return async (uid: string) => {
+    return async (input: GetLocationInput) => {
         return await client.query({
             query: GET_LOCATION,
             variables: {
-                uid
+                input
             }
         })
     }
@@ -71,7 +77,6 @@ interface ListLocationsInput {
     yMax: number
     lastUpdate?: string
 }
-
 
 const listLocations = (client: ApolloClient<NormalizedCacheObject>) => {
     return async (input: ListLocationsInput) => {

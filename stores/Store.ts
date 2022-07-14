@@ -6,6 +6,7 @@ import { LightningStore } from "./LightningStore"
 import { LocationStore } from "./LocationStore"
 import { PaymentStore } from "./PaymentStore"
 import { PeerStore } from "./PeerStore"
+import { SessionStore } from "./SessionStore"
 import { SettingStore } from "./SettingStore"
 import { TransactionStore } from "./TransactionStore"
 import { UiStore } from "./UiStore"
@@ -30,6 +31,7 @@ export class Store implements StoreInterface {
     paymentStore: PaymentStore
     peerStore: PeerStore
     settingStore: SettingStore
+    sessionStore: SessionStore
     transactionStore: TransactionStore
     uiStore: UiStore
     walletStore: WalletStore
@@ -42,6 +44,7 @@ export class Store implements StoreInterface {
         this.locationStore = new LocationStore(this)
         this.paymentStore = new PaymentStore(this)
         this.peerStore = new PeerStore(this)
+        this.sessionStore = new SessionStore(this)
         this.settingStore = new SettingStore(this)
         this.transactionStore = new TransactionStore(this)
         this.uiStore = new UiStore(this)
@@ -60,6 +63,7 @@ export class Store implements StoreInterface {
                 this.locationStore.hydrated &&
                 this.paymentStore.hydrated &&
                 this.peerStore.hydrated &&
+                this.sessionStore.hydrated &&
                 this.settingStore.hydrated &&
                 this.transactionStore.hydrated &&
                 this.transactionStore.hydrated &&
@@ -74,6 +78,7 @@ export class Store implements StoreInterface {
             await this.invoiceStore.initialize()
             await this.paymentStore.initialize()
             await this.peerStore.initialize()
+            await this.sessionStore.initialize()
             await this.settingStore.initialize()
             await this.transactionStore.initialize()
             await this.uiStore.initialize()

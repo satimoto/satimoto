@@ -41,6 +41,7 @@
             "assets": ["assets/*"],
             "components": ["components/*"],
             "proto": ["proto/*"],
+            "locales": ["locales/*"],
             "models": ["models/*"],
             "screens": ["screens/*"],
             "services": ["services/*"],

@@ -2,6 +2,7 @@ import ConnectorModel from "models/Connector"
 
 interface EvseModel {
     uid: string
+    identifier?: string
     status: string
     connectors: ConnectorModel[]
 }

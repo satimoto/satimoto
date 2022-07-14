@@ -2,13 +2,14 @@ import React from "react"
 import { observer } from "mobx-react"
 import { Button } from "react-native"
 import { useColorModeValue, Text, View } from "native-base"
-import { ReceiveBitcoinNavigationProp } from "screens/ReceiveStack"
 import { SafeAreaView } from "react-native-safe-area-context"
 import styles from "utils/styles"
 import { useStore } from "hooks/useStore"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { AppStackParamList } from "screens/AppStack"
 
 type ReceiveBitcoinProps = {
-    navigation: ReceiveBitcoinNavigationProp
+    navigation: NativeStackNavigationProp<AppStackParamList, "ReceiveBitcoin">
 }
 
 const ReceiveBitcoin = ({ navigation }: ReceiveBitcoinProps) => {

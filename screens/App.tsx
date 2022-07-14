@@ -1,19 +1,20 @@
-import AppStack from "screens/AppStack"
 import { ApolloProvider } from "@apollo/client"
 import { NativeBaseProvider } from "native-base"
 import * as protobuf from "protobufjs"
+import { StoreProvider } from "providers/StoreProvider"
 import React, { useEffect } from "react"
 import { AppState, AppStateStatus } from "react-native"
 import messaging from "@react-native-firebase/messaging"
 import { SafeAreaProvider } from "react-native-safe-area-context"
+import SplashScreen from "react-native-splash-screen"
+import { NavigationContainer } from "@react-navigation/native"
+import AppStack from "screens/AppStack"
+import notificationMessageHandler from "services/NotificationService"
 import client from "services/SatimotoService"
 import store from "stores/Store"
-import SplashScreen from "react-native-splash-screen"
 import { API_URI, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
-import { NavigationContainer } from "@react-navigation/native"
-import { StoreProvider } from "providers/StoreProvider"
 
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
@@ -31,10 +32,7 @@ const App = () => {
     useEffect(() => {
         store.settingStore.requestPushNotificationPermission()
 
-        const unsubscribeMessages = messaging().onMessage(async (remoteMessage) => {
-            log.debug(`Message received: ${store.lightningStore.blockHeight}`)
-            log.debug(JSON.stringify(remoteMessage))
-        })
+        const unsubscribeMessages = messaging().onMessage(notificationMessageHandler)
 
         return () => {
             unsubscribeMessages()

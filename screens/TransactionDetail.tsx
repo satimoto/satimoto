@@ -6,18 +6,19 @@ import styles from "utils/styles"
 import useColor from "hooks/useColor"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
+import I18n from "utils/i18n"
 
-type TransactionListProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "TransactionList">
+type TransactionDetailProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "TransactionDetail">
 }
 
-const TransactionList = ({ navigation }: TransactionListProps) => {
+const TransactionDetail = ({ navigation }: TransactionDetailProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerTitle: "Transactions",
+            headerTitle: I18n.t("TransactionDetail_HeaderTitle"),
         })
     }, [navigation])
 
@@ -30,4 +31,4 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
     )
 }
 
-export default observer(TransactionList)
+export default observer(TransactionDetail)

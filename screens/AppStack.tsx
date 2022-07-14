@@ -1,6 +1,11 @@
+import useNavigationOptions from "hooks/useNavigationOptions"
+import ConnectorModel from "models/Connector"
+import EvseModel from "models/Evse"
 import { createNativeStackNavigator, NativeStackNavigationOptions } from "@react-navigation/native-stack"
 import React from "react"
+import ConnectorDetail from "screens/ConnectorDetail"
 import Developer from "screens/Developer"
+import EvseList from "screens/EvseList"
 import Home from "screens/Home"
 import ReceiveBitcoin from "screens/ReceiveBitcoin"
 import ReceiveLightning from "screens/ReceiveLightning"
@@ -9,11 +14,13 @@ import SendCamera from "screens/SendCamera"
 import SendPayRequest from "screens/SendPayRequest"
 import TransactionDetail from "screens/TransactionDetail"
 import TransactionList from "screens/TransactionList"
-import useNavigationOptions from "hooks/useNavigationOptions"
+import LocationModel from "models/Location"
 
 export type AppStackParamList = {
     Home: undefined
+    ConnectorDetail: { location: LocationModel, evse: EvseModel, connector: ConnectorModel }
     Developer: undefined
+    EvseList: { location: LocationModel, evses: EvseModel[], connector: ConnectorModel },
     ReceiveBitcoin: undefined
     ReceiveLightning: undefined
     ReceiveQr: { qrCode: string }
@@ -25,7 +32,9 @@ export type AppStackParamList = {
 
 export type AppStackScreenParams = {
     Home: undefined
+    ConnectorDetail: undefined
     Developer: undefined
+    EvseList: undefined
     ReceiveBitcoin: undefined
     ReceiveLightning: undefined
     ReceiveQr: undefined
@@ -50,6 +59,8 @@ const AppStack = () => {
     return (
         <AppStackNav.Navigator initialRouteName={"Home"} screenOptions={screenOptions}>
             <AppStackNav.Screen name="Home" component={Home} options={navigationWithoutHeaderOptions} />
+            <AppStackNav.Screen name="ConnectorDetail" component={ConnectorDetail} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="EvseList" component={EvseList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Developer" component={Developer} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ReceiveBitcoin" component={ReceiveBitcoin} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ReceiveLightning" component={ReceiveLightning} options={navigationWithHeaderOptions} />

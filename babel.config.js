@@ -9,6 +9,7 @@ module.exports = {
                 alias: {
                     assets: "./assets",
                     components: "./components",
+                    locales: "./locales",
                     models: "./models",
                     proto: "./proto",
                     screens: "./screens",

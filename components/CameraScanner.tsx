@@ -4,6 +4,7 @@ import { RNCamera, BarCodeReadEvent } from "react-native-camera"
 import { useTheme } from "native-base"
 import useColor from "hooks/useColor"
 import CameraViewFinder from "components/CameraViewFinder"
+import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 
 const log = new Log("CameraScanner")
@@ -19,8 +20,8 @@ const CameraScanner = ({ children, isActive, onNotAuthorized, onQrCode }: Camera
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
 
     const androidCameraPermissionOptions = {
-        title: "Camera Permission",
-        message: "Satimoto needs access to your Camera"
+        title: I18n.t("CameraScanner_PermissionTitle"),
+        message: I18n.t("CameraScanner_PermissionMessage")
     }
 
     const onBarCodeRead = ({ data }: BarCodeReadEvent) => {

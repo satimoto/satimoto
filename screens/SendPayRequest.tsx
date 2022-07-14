@@ -15,6 +15,7 @@ import { getMetadataElement, getPayRequest } from "services/LnUrlService"
 import { assertNetwork } from "utils/assert"
 import { errorToString, toHashOrNull, toMilliSatoshi, toNumber, toSatoshi, toStringOrNull } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
+import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 
@@ -55,7 +56,7 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
             setDescription(getMetadataElement(uiStore.lnUrlPayParams.decodedMetadata, "text/plain") || "")
             setMaxSendable(maxSats)
             setMinSendable(minSats)
-            setAmountError(`Must be between ${formatSatoshis(minSats)} and ${formatSatoshis(maxSats)} sats`)
+            setAmountError(I18n.t("SendPayRequest_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
         }
     }, [uiStore.lnUrlPayParams])
 
@@ -79,7 +80,7 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
                     }}
                 />
             ),
-            title: "Send"
+            title: I18n.t("SendPayRequest_HeaderTitle")
         })
     }, [navigation])
 
@@ -100,12 +101,12 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
                 const decodedPayReq = await decodePayReq(payRequest.pr)
                 log.debug(`Metadata hash: ${metadataHash}`)
                 log.debug(`Payment Request hash: ${decodedPayReq.descriptionHash}`)
-                
+
                 if (decodedPayReq.descriptionHash === metadataHash && toNumber(decodedPayReq.numSatoshis) === amountNumber) {
                     // Pay
-                    await paymentStore.sendPayment({paymentRequest: payRequest.pr})
+                    await paymentStore.sendPayment({ paymentRequest: payRequest.pr })
                 } else {
-                    setLastError("Payment request invalid")
+                    setLastError(I18n.t("SendPayRequest_PayReqError"))
                 }
             } catch (error) {
                 setLastError(errorToString(error))
@@ -119,18 +120,22 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <VStack space={5}>
-                {description.length > 0 && <Text color={textColor} fontSize="lg">{description}</Text>}
+                {description.length > 0 && (
+                    <Text color={textColor} fontSize="lg">
+                        {description}
+                    </Text>
+                )}
                 <FormControl isInvalid={isInvalid} isRequired={true}>
-                    <FormControl.Label _text={{color: textColor}}>Amount</FormControl.Label>
+                    <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
                     <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
                     {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
-                    <FormControl.ErrorMessage _text={{color: errorColor}} leftIcon={<WarningOutlineIcon size="xs" />}>
+                    <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
                         {amountError}
                     </FormControl.ErrorMessage>
                 </FormControl>
                 {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
                 <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
-                    Next
+                    {I18n.t("Button_Next")}
                 </BusyButton>
             </VStack>
         </View>

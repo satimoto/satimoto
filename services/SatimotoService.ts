@@ -7,6 +7,7 @@ import * as ChannelRequest from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
 import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
+import * as Session from "./satimoto/session"
 import * as User from "./satimoto/user"
 import store from "stores/Store"
 import { API_URI } from "utils/build"
@@ -55,6 +56,13 @@ const createAuthentication = Authentication.createAuthentication(client)
 const exchangeAuthentication = Authentication.exchangeAuthentication(client)
 const verifyAuthentication = Authentication.verifyAuthentication(client)
 
+// Channel Request
+const createChannelRequest = ChannelRequest.createChannelRequest(client)
+
+// Command
+const startSession = Command.startSession(client)
+const stopSession = Command.stopSession(client)
+
 // Location
 const getLocation = Location.getLocation(client)
 const listLocations = Location.listLocations(client)
@@ -62,12 +70,9 @@ const listLocations = Location.listLocations(client)
 // Rate
 const getRate = Rate.getRate(client)
 
-// Channel Request
-const createChannelRequest = ChannelRequest.createChannelRequest(client)
-
-// Command
-const startSesion = Command.startSession(client)
-const stopSesion = Command.stopSession(client)
+// Session
+const getSession = Session.getSession(client)
+const getSessionInvoice = Session.getSessionInvoice(client)
 
 // User
 const createUser = User.createUser(client)
@@ -119,13 +124,16 @@ export {
     // Channel Request
     createChannelRequest,
     // Command
-    startSesion,
-    stopSesion,
+    startSession,
+    stopSession,
     // Location
     getLocation,
     listLocations,
     // Rate
     getRate,
+    // Session
+    getSession,
+    getSessionInvoice,
     // Token
     getToken,
     // User

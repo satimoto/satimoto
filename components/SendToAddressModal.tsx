@@ -8,8 +8,9 @@ import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
 import { HomeNavigationProp } from "screens/Home"
 import { identifier } from "services/LnUrlService"
-import { errorToString } from "utils/conversion"
 import { assertEmail } from "utils/assert"
+import { errorToString } from "utils/conversion"
+import I18n from "utils/i18n"
 
 interface SendToAddressModalProps {
     isVisible: boolean
@@ -76,7 +77,7 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
         <Modal isVisible={isVisible} onClose={onModalClose}>
             <VStack alignItems="center" space={5} width="100%">
                 <Text color={textColor} fontSize="xl">
-                    Send to lightning address
+                    {I18n.t("SendToAddressModal_Title")}
                 </Text>
                 <Input
                     autoCapitalize="none"
@@ -89,7 +90,7 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
                 />
                 {lastError.length > 0 && <Text color="error.300">{lastError}</Text>}
                 <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isAddressInvalid}>
-                    Next
+                    {I18n.t("Button_Next")}
                 </BusyButton>
             </VStack>
         </Modal>

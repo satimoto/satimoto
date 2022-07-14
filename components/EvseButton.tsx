@@ -3,42 +3,35 @@ import SatoshiBalance from "components/SatoshiBalance"
 import StopPropagation from "components/StopPropagation"
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import useColor from "hooks/useColor"
-import EvseModel from "models/Evse"
 import ConnectorModel from "models/Connector"
+import EvseModel from "models/Evse"
 import { HStack, Spacer, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React from "react"
 import { connectorIcons } from "utils/assets"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
 
-interface ConnectorButtonProps {
+interface EvseButtonProps {
     connector: ConnectorModel
-    evses: EvseModel[]
-    onPress?: (connector: ConnectorModel, evses: EvseModel[]) => void
-    onPressIn?: () => void
-    onPressOut?: () => void
+    evse: EvseModel
+    onPress?: (connector: ConnectorModel, evse: EvseModel) => void
 }
 
-const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () => {}, onPressOut = () => {} }: ConnectorButtonProps) => {
+const EvseButton = ({ connector, evse, onPress = () => {} }: EvseButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
 
     return (
         <StopPropagation>
-            <TouchableOpacityOptional
-                onPress={() => onPress(connector, evses)}
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
-                style={[styles.listButton, { backgroundColor }]}
-            >
+            <TouchableOpacityOptional onPress={() => onPress(connector, evse)} style={[styles.listButton, { backgroundColor }]}>
                 <HStack alignItems="center" space={1}>
-                    <ButtonIcon justifyContent="flex-end" source={connectorIcons[connector.standard] || connectorIcons["UNKNOWN"]} />
+                    <ButtonIcon source={connectorIcons[connector.standard] || connectorIcons["UNKNOWN"]} />
                     <VStack>
                         <Text color={useColorModeValue("lightText", "darkText")} fontSize="lg" fontWeight="bold">
-                            {I18n.t(connector.standard)}
+                            {evse.identifier || evse.uid}
                         </Text>
                         <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg">
-                            {Math.floor(connector.wattage / 1000)} kW
+                            {I18n.t(evse.status)}
                         </Text>
                     </VStack>
                     <Spacer />
@@ -54,4 +47,4 @@ const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () 
     )
 }
 
-export default ConnectorButton
+export default EvseButton

@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native"
 import { Button, IconButton } from "native-base"
 import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import I18n from "utils/i18n"
 
 const styles = StyleSheet.create({
     container: {
@@ -29,14 +30,14 @@ interface HomeButtonContainerProps {
     onPress: (event: HomeButtonContainerEvent) => void
 }
 
-const HomeButtonContainer = ({onPress}: HomeButtonContainerProps) => {
+const HomeButtonContainer = ({ onPress }: HomeButtonContainerProps) => {
     const safeAreaInsets = useSafeAreaInsets()
 
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
                 <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("send")}>
-                    Send
+                    {I18n.t("HomeButtonContainer_ButtonSend")}
                 </Button>
             </View>
             <View style={styles.iconButtonSpacer}>
@@ -52,7 +53,7 @@ const HomeButtonContainer = ({onPress}: HomeButtonContainerProps) => {
             </View>
             <View style={styles.buttonSpacer}>
                 <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("receive")}>
-                    Receive
+                    {I18n.t("HomeButtonContainer_ButtonReceive")}
                 </Button>
             </View>
         </View>

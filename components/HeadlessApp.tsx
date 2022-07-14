@@ -1,15 +1,9 @@
 import React from "react"
 import messaging from "@react-native-firebase/messaging"
 import App from "screens/App"
-import store from "stores/Store"
-import { Log } from "utils/logging"
+import notificationMessageHandler from "services/NotificationService"
 
-const log = new Log("HeadlessApp")
-
-messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-    log.debug(`Background message received: ${store.lightningStore.blockHeight}`)
-    log.debug(JSON.stringify(remoteMessage))
-})
+messaging().setBackgroundMessageHandler(notificationMessageHandler)
 
 interface HeadlessAppProps {
     isHeadless: boolean

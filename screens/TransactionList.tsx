@@ -11,6 +11,7 @@ import { ScrollView } from "react-native"
 import styles from "utils/styles"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
+import I18n from "utils/i18n"
 
 type TransactionListProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "TransactionList">
@@ -23,7 +24,7 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: "Transactions",
+            title: I18n.t("TransactionList_HeaderTitle"),
             headerRight: () => <HeaderButton icon={faTimes} onPress={() => transactionStore.clearTransactions()} />
         })
     }, [navigation])

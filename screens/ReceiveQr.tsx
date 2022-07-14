@@ -8,6 +8,7 @@ import { Dimensions, Share, View } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
+import I18n from "utils/i18n"
 import styles from "utils/styles"
 
 type ReceiveQrProps = {
@@ -31,7 +32,7 @@ const ReceiveQr = ({ navigation, route }: ReceiveQrProps) => {
                     }}
                 />
             ),
-            title: "Invoice"
+            title: I18n.t("ReceiveQr_HeaderTitle")
         })
     }, [navigation])
 

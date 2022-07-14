@@ -5,6 +5,13 @@ export default StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
+    listButton: {
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 12
+    },
     matchParent: {
         flex: 1
     },

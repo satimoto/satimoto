@@ -5,6 +5,7 @@ import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useState } from "react"
 import { authenticate } from "services/LnUrlService"
 import { errorToString } from "utils/conversion"
+import I18n from "utils/i18n"
 
 interface LnUrlAuthModalProps {
     lnUrlAuthParams?: LNURLAuthParams
@@ -40,14 +41,14 @@ const LnUrlAuthModal = ({ lnUrlAuthParams, onClose }: LnUrlAuthModalProps) => {
         <Modal isVisible={true} onClose={onModalClose}>
             <VStack alignItems="center">
                 <Text color={textColor} fontSize="xl">
-                    Do you want to login to
+                    {I18n.t("LnUrlAuthModal_Title")}
                 </Text>
                 <Text color={textColor} fontSize="xl" fontWeight="bold">
                     {lnUrlAuthParams.domain}
                 </Text>
                 {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
                 <BusyButton isBusy={isBusy} marginTop={5} onPress={onConfirmPress}>
-                    Login
+                    {I18n.t("Button_Login")}
                 </BusyButton>
             </VStack>
         </Modal>
