@@ -23,18 +23,18 @@ public class LndUtils extends ReactContextBaseJavaModule {
     private static final String logEventName = "logEvent";
 
     private FileObserver logObserver;
-    final String lndDirectory;
-    final String confFile;
-    final String logFile;
+    final String confPath;
+    final String lndPath;
+    final String logPath;
 
     public LndUtils(ReactApplicationContext reactContext) {
         super(reactContext);
 
-        lndDirectory = getReactApplicationContext().getFilesDir().toString();
-        confFile = lndDirectory + "/lnd.conf";
-        logFile = lndDirectory + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
+        lndPath = getReactApplicationContext().getFilesDir().toString();
+        confPath = lndPath + "/lnd_v1.conf";
+        logPath = lndPath + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
 
-        prepareFileDirectory(logFile);
+        prepareFileDirectory(logPath);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
     }
 
     void writeConf(String content) throws Exception {
-        PrintWriter writer = getPrintWriter(confFile);
+        PrintWriter writer = getPrintWriter(confPath);
         writer.println(content);
         writer.close();
     }
@@ -67,18 +67,18 @@ public class LndUtils extends ReactContextBaseJavaModule {
     void writeConf(String content, Promise promise) {
         try {
             this.writeConf(content);
-            Log.d(TAG, "Saved LND conf to: " + confFile);
+            Log.d(TAG, "Saved LND conf to: " + confPath);
         } catch (Exception e) {
-            Log.e(TAG, "Could not write to " + confFile, e);
-            promise.reject("Could not write to : " + confFile, e);
+            Log.e(TAG, "Could not write to " + confPath, e);
+            promise.reject("Could not write to : " + confPath, e);
             return;
         }
 
-        promise.resolve("Saved LND conf to: " + confFile);
+        promise.resolve("Saved LND conf to: " + confPath);
     }
 
     void writeDefaultConf() throws Exception {
-        PrintWriter writer = getPrintWriter(confFile);
+        PrintWriter writer = getPrintWriter(confPath);
 
         if (BuildConfig.NETWORK.equals("mainnet")) {
             writer.println(
@@ -155,11 +155,11 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=bitcoind\n" +
                             "\n" +
                             "[Bitcoind]\n" +
-                            "bitcoind.rpchost=10.0.2.2:18444\n" +
+                            "bitcoind.rpchost=10.0.2.2:18448\n" +
                             "bitcoind.rpcuser=polaruser\n" +
                             "bitcoind.rpcpass=polarpass\n" +
-                            "bitcoind.zmqpubrawblock=10.0.2.2:28335\n" +
-                            "bitcoind.zmqpubrawtx=10.0.2.2:29336\n" +
+                            "bitcoind.zmqpubrawblock=tcp://10.0.2.2:28339\n" +
+                            "bitcoind.zmqpubrawtx=tcp://10.0.2.2:29340\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +
@@ -179,14 +179,14 @@ public class LndUtils extends ReactContextBaseJavaModule {
     void writeDefaultConf(Promise promise) {
         try {
             this.writeDefaultConf();
-            Log.d(TAG, "Saved LND conf to: " + confFile);
+            Log.d(TAG, "Saved LND conf to: " + confPath);
         } catch (Exception e) {
-            Log.e(TAG, "Could not write to " + confFile, e);
-            promise.reject("Could not write to : " + confFile, e);
+            Log.e(TAG, "Could not write to " + confPath, e);
+            promise.reject("Could not write to : " + confPath, e);
             return;
         }
 
-        promise.resolve("Saved LND conf to: " + confFile);
+        promise.resolve("Saved LND conf to: " + confPath);
     }
 
     @ReactMethod
@@ -195,17 +195,17 @@ public class LndUtils extends ReactContextBaseJavaModule {
             FileInputStream fileInputStream = null;
 
             try {
-                fileInputStream = new FileInputStream(logFile);
+                fileInputStream = new FileInputStream(logPath);
             } catch (FileNotFoundException fnfe) {
-                Log.e(TAG, "Error initializing log events: " + logFile, fnfe);
-                promise.reject("Error initializing log events: " + logFile, fnfe);
+                Log.e(TAG, "Error initializing log events: " + logPath, fnfe);
+                promise.reject("Error initializing log events: " + logPath, fnfe);
                 return;
             }
 
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-            logObserver = new FileObserver(logFile) {
+            logObserver = new FileObserver(logPath) {
                 @Override
                 public void onEvent(int event, String file) {
                     if (event != FileObserver.MODIFY) {

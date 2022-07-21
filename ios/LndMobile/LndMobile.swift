@@ -180,7 +180,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
   
   @objc(start:rejecter:)
   func start(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let args = "--lnddir=\"\(LndUtils.lndDirectory.path)\""
+    let args = "--lnddir=\"\(LndUtils.lndDirectory.path)\" --configfile=\"\(LndUtils.confFile.path)\""
 
     if !FileManager.default.fileExists(atPath: LndUtils.confFile.path) {
       do {

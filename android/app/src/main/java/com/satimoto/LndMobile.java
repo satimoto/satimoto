@@ -77,18 +77,18 @@ public class LndMobile extends ReactContextBaseJavaModule {
     @ReactMethod
     public void start(final Promise promise) {
         LndUtils lndUtils = new LndUtils(getReactApplicationContext());
-        File confFile = new File(lndUtils.confFile);
+        File confPath = new File(lndUtils.confPath);
 
-        if (!confFile.exists()) {
+        if (!confPath.exists()) {
             try {
                 lndUtils.writeDefaultConf();
             } catch (Exception e) {
-                Log.e(TAG, "Could not write to " + lndUtils.confFile, e);
-                promise.reject("Could not write to : " + lndUtils.confFile, e);
+                Log.e(TAG, "Could not write to " + lndUtils.confPath, e);
+                promise.reject("Could not write to : " + lndUtils.confPath, e);
             }
         }
 
-        String args = "--lnddir=" + lndUtils.lndDirectory;
+        String args = "--lnddir=" + lndUtils.lndPath + " --configfile=" + lndUtils.confPath;
         Log.i(TAG, "Starting LND with args " + args);
         Runnable startLnd = () -> Lndmobile.start(args, new StartLndCallback(promise));
         new Thread(startLnd).start();
