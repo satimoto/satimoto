@@ -2,6 +2,7 @@ import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
 import SessionInvoiceModel from "models/SessionInvoice"
+import { SessionStatus } from "types/session"
 
 interface SessionModel {
     uid: string
@@ -15,7 +16,7 @@ interface SessionModel {
     connector: ConnectorModel
     meterId?: string
     sessionInvoices?: SessionInvoiceModel[]
-    status: string
+    status: SessionStatus
     lastUpdated: string
 }
 

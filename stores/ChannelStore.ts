@@ -1,5 +1,6 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import ChannelRequestModel, { ChannelRequestModelLike } from "models/ChannelRequest"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
@@ -14,9 +15,12 @@ export interface ChannelStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
+    channelRequests: ChannelRequestModel[]
     subscribedChannelEvents: boolean
     localBalance: number
     remoteBalance: number
+
+    addChannelRequest(pubkey: string, paymentHash: string, amountMsat: string): void
 }
 
 export class ChannelStore implements ChannelStoreInterface {
@@ -24,29 +28,36 @@ export class ChannelStore implements ChannelStoreInterface {
     ready = false
     stores
 
+    channelRequests
     subscribedChannelEvents = false
     localBalance = 0
     remoteBalance = 0
 
     constructor(stores: Store) {
         this.stores = stores
+        this.channelRequests = observable<ChannelRequestModel>([])
 
         makeObservable(this, {
             hydrated: observable,
             ready: observable,
 
+            channelRequests: observable,
             subscribedChannelEvents: observable,
             localBalance: observable,
             remoteBalance: observable,
 
             setReady: action,
+            addChannelRequest: action,
+            removeChannelRequest: action,
             updateChannelBalance: action,
             updateChannelEvents: action
         })
 
-        makePersistable(this, { name: "ChannelStore", properties: ["localBalance", "remoteBalance"], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
-            action((persistStore) => (this.hydrated = persistStore.isHydrated))
-        )
+        makePersistable(
+            this,
+            { name: "ChannelStore", properties: ["localBalance", "remoteBalance"], storage: AsyncStorage, debugMode: DEBUG },
+            { delay: 1000 }
+        ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
 
     async initialize(): Promise<void> {
@@ -82,14 +93,47 @@ export class ChannelStore implements ChannelStoreInterface {
         this.ready = true
     }
 
+    addChannelRequest(pubkey: string, paymentHash: string, pushAmount: string) {
+        log.debug(`Add channel request: ${pubkey}, hash: ${paymentHash}, pushAmount ${pushAmount}`)
+        this.channelRequests.push({
+            pubkey,
+            paymentHash,
+            pushAmount
+        })
+    }
+
+    findChannelRequest(pubkey: string, pushAmount: string): ChannelRequestModelLike {
+        return this.channelRequests.find((channelRequest) => channelRequest.pubkey === pubkey && channelRequest.pushAmount === pushAmount)
+    }
+
+    removeChannelRequest(channelRequest: ChannelRequestModel) {
+        this.channelRequests.remove(channelRequest)
+    }
+
     updateChannelBalance(data: lnrpc.ChannelBalanceResponse) {
         log.debug(`Channel Balance: ${data.balance}`)
         this.localBalance = toNumber(data.localBalance?.sat) || 0
         this.remoteBalance = toNumber(data.remoteBalance?.sat) || 0
     }
 
-    updateChannelEvents({ type }: lnrpc.ChannelEventUpdate) {
+    updateChannelEvents({ type, openChannel }: lnrpc.ChannelEventUpdate) {
         log.debug(`Channel Event: ${type}`)
         this.getChannelBalance()
+
+        if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
+            const remotePubkey = openChannel.remotePubkey
+            const pushAmount = openChannel.pushAmountSat
+            log.debug(`Remote pubkey: ${remotePubkey}, Push amount: ${pushAmount}`)
+
+
+            if (remotePubkey && pushAmount) {
+                const channelRequest = this.findChannelRequest(remotePubkey, pushAmount.toString())
+
+                if (channelRequest) {
+                    this.stores.invoiceStore.settleInvoice(channelRequest.paymentHash)
+                    this.removeChannelRequest(channelRequest)
+                }
+            }
+        }
     }
 }

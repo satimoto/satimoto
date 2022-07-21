@@ -1,12 +1,11 @@
-import { instanceToPlain, plainToInstance } from "class-transformer"
 import { action, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import { InvoicePaymentModel, TransactionModel } from "models/Transaction"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { ComplexAsyncStorage, ComplexAsyncStorageHydrationMap } from "utils/asyncStorage"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import TransactionModel from "models/Transaction"
 
 const log = new Log("TransactionStore")
 
@@ -16,20 +15,8 @@ export interface TransactionStoreInterface extends StoreInterface {
 
     transactions: TransactionModel[]
 
-    addTransaction(transaction: InvoicePaymentModel): void
+    addTransaction(transaction: TransactionModel): void
     clearTransactions(): void
-}
-
-const transactionDehydrationMap: ComplexAsyncStorageHydrationMap = {
-    transactions: (value: TransactionModel[]): any => {
-        return instanceToPlain(value)
-    }
-}
-
-const transactionHydrationMap: ComplexAsyncStorageHydrationMap = {
-    transactions: (value: any): TransactionModel[] => {
-        return plainToInstance(TransactionModel, value)
-    }
 }
 
 export class TransactionStore implements TransactionStoreInterface {
@@ -59,8 +46,7 @@ export class TransactionStore implements TransactionStoreInterface {
             {
                 name: "TransactionStore",
                 properties: ["transactions"],
-                storage: ComplexAsyncStorage(transactionHydrationMap, transactionDehydrationMap),
-                stringify: false,
+                storage: AsyncStorage,
                 debugMode: DEBUG
             },
             { delay: 1000 }
@@ -74,15 +60,17 @@ export class TransactionStore implements TransactionStoreInterface {
         }
     }
 
-    addTransaction(transaction: InvoicePaymentModel, identifier?: string) {
-        identifier = identifier || transaction.hash
-
-        const existingTransaction = this.transactions.find((t) => t.identifier === identifier)
+    addTransaction(transaction: TransactionModel) {
+        let existingTransaction = this.transactions.find(
+            ({ invoice, payment }) =>
+                (transaction.invoice && invoice && transaction.invoice.hash === invoice.hash) ||
+                (transaction.payment && payment && transaction.payment.hash === payment.hash)
+        )
 
         if (existingTransaction) {
-            existingTransaction.addTransaction(transaction)
+            Object.assign(existingTransaction, transaction)
         } else {
-            this.transactions.unshift(new TransactionModel(transaction, identifier))
+            this.transactions.unshift(transaction)
         }
     }
 

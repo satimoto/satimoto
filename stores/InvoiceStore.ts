@@ -1,7 +1,7 @@
 import { Hash } from "fast-sha256"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import InvoiceModel from "models/Invoice"
+import InvoiceModel, { InvoiceModelLike } from "models/Invoice"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
@@ -11,9 +11,9 @@ import { Log } from "utils/logging"
 import { generateSecureRandom } from "react-native-securerandom"
 import { createChannelRequest } from "services/SatimotoService"
 import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID, CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE } from "utils/constants"
-import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toTransactionStatus } from "utils/conversion"
+import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toSatoshi } from "utils/conversion"
 import { randomLong } from "utils/random"
-import { TransactionType } from "types/transaction"
+import { InvoiceStatus, toInvoiceStatus } from "types/invoice"
 
 const log = new Log("InvoiceStore")
 
@@ -27,6 +27,8 @@ export interface InvoiceStoreInterface extends StoreInterface {
     subscribedInvoices: boolean
 
     addInvoice(amount: number): Promise<lnrpc.AddInvoiceResponse>
+    findInvoice(hash: string): InvoiceModelLike
+    settleInvoice(hash: string): void
 }
 
 export class InvoiceStore implements InvoiceStoreInterface {
@@ -53,7 +55,10 @@ export class InvoiceStore implements InvoiceStoreInterface {
             invoices: observable,
             subscribedInvoices: observable,
 
-            setReady: action
+            setReady: action,
+            settleInvoice: action,
+            subscribeInvoices: action,
+            updateInvoice: action
         })
 
         makePersistable(
@@ -77,11 +82,12 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
     async addInvoice(amount: number) {
         const preimage: Uint8Array = await generateSecureRandom(32)
-        const paymentHash = new Hash().update(preimage).digest()
         const paymentAddr: Uint8Array = await generateSecureRandom(32)
         const routeHints: lnrpc.RouteHint[] = []
 
         if (this.stores.channelStore.remoteBalance < amount) {
+            const paymentHash = new Hash().update(preimage).digest()
+
             const channelRequest = await createChannelRequest({
                 paymentAddr: bytesToBase64(paymentAddr),
                 paymentHash: bytesToBase64(paymentHash),
@@ -114,10 +120,27 @@ export class InvoiceStore implements InvoiceStoreInterface {
                     data: bytesToHex(preimage)
                 }
             })
+
+            this.stores.channelStore.addChannelRequest(node.pubkey, bytesToHex(paymentHash), amount.toString())
         }
 
         const invoice = await addInvoice({ amt: +amount, paymentAddr, preimage, routeHints })
         return invoice
+    }
+
+    findInvoice(hash: string): InvoiceModelLike {
+        return this.invoices.find((invoice) => invoice.hash === hash)
+    }
+
+    settleInvoice(hash: string) {
+        log.debug(`Settle invoice: ${hash}`)
+        const invoice = this.findInvoice(hash)
+
+        if (invoice) {
+            log.debug(`Invoice marked settled: ${hash}`)
+            invoice.status = InvoiceStatus.SETTLED
+            this.stores.transactionStore.addTransaction({ hash, invoice })
+        }
     }
 
     subscribeInvoices() {
@@ -132,20 +155,33 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     updateInvoice(data: lnrpc.Invoice) {
-        // An invoice has settled
-        if (data.settled) {
-            // Add transaction to store
-            this.stores.transactionStore.addTransaction({
-                createdAt: secondsToDate(data.creationDate).toISOString(),
-                hash: bytesToHex(data.rHash),
-                preimage: bytesToHex(data.rPreimage),
-                status: toTransactionStatus(data.state),
-                type: TransactionType.INVOICE,
-                valueMsat: data.valueMsat.toString(),
-                valueSat: data.value.toString()
-            })
+        const hash = bytesToHex(data.rHash)
+        log.debug(`Update invoice: ${hash}`)
 
-            // Update channel store
+        let invoice = this.invoices.find((invoice) => invoice.hash === hash)
+
+        if (invoice) {
+            Object.assign(invoice, {
+                description: data.memo,
+                status: toInvoiceStatus(data.state)
+            })
+        } else {
+            invoice = {
+                createdAt: secondsToDate(data.creationDate).toISOString(),
+                description: data.memo,
+                hash,
+                status: toInvoiceStatus(data.state),
+                valueMsat: data.valueMsat.toString(),
+                valueSat: data.value.toString(),
+            }
+
+            this.invoices.push(invoice)
+        }
+
+        this.stores.transactionStore.addTransaction({ hash: invoice.hash, invoice })
+
+        // An invoice has settled, update channel store
+        if (data.settled) {
             this.stores.channelStore.getChannelBalance()
         }
     }

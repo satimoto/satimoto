@@ -1,15 +1,15 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import PaymentModel, { PaymentModelLike } from "models/Payment"
+import PaymentModel from "models/Payment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq, listPayments, sendPaymentV2 } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { nanosecondsToDate, toTransactionStatus } from "utils/conversion"
+import { nanosecondsToDate } from "utils/conversion"
 import { SendPaymentV2Props } from "services/LightningService"
-import { TransactionStatus, TransactionType } from "types/transaction"
+import { PaymentStatus, toPaymentStatus } from "types/payment"
 
 const log = new Log("PaymentStore")
 
@@ -54,8 +54,8 @@ export class PaymentStore implements PaymentStoreInterface {
             clearPaymentRequest: action,
             setPaymentRequest: action,
             setReady: action,
-            updatePayment: action,
-            updatePayments: action
+            updatePaymentWithPayReq: action,
+            updateIndexOffset: action
         })
 
         makePersistable(
@@ -87,13 +87,13 @@ export class PaymentStore implements PaymentStoreInterface {
         this.decodedPaymentRequest = undefined
     }
 
-    sendPayment(payment: SendPaymentV2Props, identifier?: string): Promise<PaymentModel> {
+    sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel> {
         return new Promise<PaymentModel>(async (resolve, reject) => {
             try {
-                await sendPaymentV2((data: lnrpc.Payment) => {
-                    const payment = this.updatePayment(data, identifier)
+                await sendPaymentV2(async (data: lnrpc.Payment) => {
+                    const payment = await this.updatePayment(data)
 
-                    if (payment.status === TransactionStatus.FAILED || payment.status === TransactionStatus.SUCCEEDED) {
+                    if (payment.status === PaymentStatus.FAILED || payment.status === PaymentStatus.SUCCEEDED) {
                         resolve(payment)
                     }
                 }, payment)
@@ -114,28 +114,34 @@ export class PaymentStore implements PaymentStoreInterface {
         this.ready = true
     }
 
-    updatePayment(
-        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment,
-        identifier?: string
-    ): PaymentModel {
-        let payment: PaymentModelLike = this.payments.find(({ hash }) => hash === paymentHash)
+    async updatePayment(payment: lnrpc.Payment): Promise<PaymentModel> {
+        const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
+
+        return this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
+    }
+
+    updatePaymentWithPayReq({ creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment, payReq: lnrpc.PayReq): PaymentModel {
+        let payment = this.payments.find(({ hash }) => hash === paymentHash)
 
         if (payment) {
-            payment.feeMsat = feeMsat.toString()
-            payment.feeSat = feeSat.toString()
-            payment.preimage = paymentPreimage
-            payment.status = toTransactionStatus(status)
-            payment.valueMsat = valueMsat.toString()
-            payment.valueSat = valueSat.toString()
+            Object.assign(payment, {
+                description: payReq.description,
+                feeMsat: feeMsat.toString(),
+                feeSat: feeSat.toString(),
+                preimage: paymentPreimage,
+                status: toPaymentStatus(status),
+                valueMsat: valueMsat.toString(),
+                valueSat: valueSat.toString()
+            })
         } else {
             payment = {
                 createdAt: nanosecondsToDate(creationTimeNs).toISOString(),
+                description: payReq.description,
                 feeMsat: feeMsat.toString(),
                 feeSat: feeSat.toString(),
                 hash: paymentHash,
                 preimage: paymentPreimage,
-                status: toTransactionStatus(status),
-                type: TransactionType.PAYMENT,
+                status: toPaymentStatus(status),
                 valueMsat: valueMsat.toString(),
                 valueSat: valueSat.toString()
             }
@@ -143,20 +149,24 @@ export class PaymentStore implements PaymentStoreInterface {
             this.payments.push(payment)
         }
 
-        if (payment.status === TransactionStatus.SUCCEEDED) {
-            this.stores.transactionStore.addTransaction(payment, identifier)
-        }
+        this.stores.transactionStore.addTransaction({ hash: paymentHash, payment })
 
         return payment
     }
 
-    updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
-        payments.forEach((payment) => {
-            this.updatePayment(lnrpc.Payment.fromObject(payment))
+    async updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
+        for (const iPayment of payments) {
+            const payment = lnrpc.Payment.fromObject(iPayment)
+            const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
 
-            this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
-        }, this)
+            this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
+            this.updateIndexOffset(payment)
+        }
 
         this.setReady()
+    }
+
+    updateIndexOffset(payment: lnrpc.Payment) {
+        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
     }
 }

@@ -2,8 +2,6 @@ import { Buffer } from "buffer"
 import { base64ToBytes as b64ToBytes, bytesToBase64 as bytesToB64 } from "byte-base64"
 import sha256 from "fast-sha256"
 import Long from "long"
-import { lnrpc } from "proto/proto"
-import { TransactionStatus } from "types/transaction"
 import { BytesLikeType, LongLikeType, SomeType } from "utils/types"
 
 export const hexToBytes = (data: BytesLikeType): Uint8Array => {
@@ -87,31 +85,4 @@ export const toString = (data: BytesLikeType): string => {
 
 export const toStringOrNull = (data?: BytesLikeType | null): string | null => {
     return data ? toString(data) : null
-}
-
-export const toTransactionStatus = (status: lnrpc.Payment.PaymentStatus | lnrpc.Invoice.InvoiceState): TransactionStatus => {
-    const paymentStatus = status as lnrpc.Payment.PaymentStatus
-    const invoiceState = status as lnrpc.Invoice.InvoiceState
-
-    if (paymentStatus) {
-        switch (paymentStatus) {
-            case lnrpc.Payment.PaymentStatus.FAILED:
-                return TransactionStatus.FAILED
-            case lnrpc.Payment.PaymentStatus.IN_FLIGHT:
-                return TransactionStatus.IN_PROGRESS
-            case lnrpc.Payment.PaymentStatus.SUCCEEDED:
-                return TransactionStatus.SUCCEEDED
-        }
-    } else if (invoiceState) {
-        switch (invoiceState) {
-            case lnrpc.Invoice.InvoiceState.CANCELED:
-                return TransactionStatus.FAILED
-            case lnrpc.Invoice.InvoiceState.SETTLED:
-                return TransactionStatus.SUCCEEDED
-            default:
-                return TransactionStatus.IN_PROGRESS
-        }
-    }
-
-    return TransactionStatus.UNKNOWN
 }

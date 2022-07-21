@@ -4,7 +4,7 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
-import { TransactionModel } from "models/Transaction"
+import TransactionModel from "models/Transaction"
 import { useTheme, VStack } from "native-base"
 import React, { useLayoutEffect } from "react"
 import { ScrollView } from "react-native"
@@ -35,7 +35,7 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
         <ScrollView style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <VStack space={3}>
                 {transactionStore.transactions.map((transaction) => (
-                    <TransactionButton key={transaction.identifier} transaction={transaction} onPress={onPress} />
+                    <TransactionButton key={transaction.hash} transaction={transaction} onPress={onPress} />
                 ))}
             </VStack>
         </ScrollView>

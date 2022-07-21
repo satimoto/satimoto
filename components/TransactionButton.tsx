@@ -1,11 +1,13 @@
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
+import SatoshiBalance from "components/SatoshiBalance"
+import useColor from "hooks/useColor"
+import InvoiceModel from "models/Invoice"
+import PaymentModel from "models/Payment"
+import TransactionModel from "models/Transaction"
+import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
 import React from "react"
 import { GestureResponderEvent, StyleSheet } from "react-native"
 import TimeAgo from "react-native-timeago"
-import { TransactionModel } from "models/Transaction"
-import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
-import SatoshiBalance from "components/SatoshiBalance"
-import useColor from "hooks/useColor"
 
 const styleSheet = StyleSheet.create({
     touchableOpacity: {
@@ -26,6 +28,45 @@ const TransactionButtonItem = ({ transaction, onPress = () => {} }: TransactionB
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
 
+    const renderInvoice = (invoice: InvoiceModel) => {
+        return (
+            <>
+                <VStack>
+                    <Text color="white" fontSize="lg" fontWeight="bold">
+                        {invoice.hash.substring(0, 16)}
+                    </Text>
+                    <Text color="gray.300" fontSize="lg">
+                        <TimeAgo time={invoice.createdAt} />
+                    </Text>
+                </VStack>
+                <Spacer />
+                <VStack alignItems="flex-end">
+                    <SatoshiBalance size={18} color={"#ffffff"} satoshis={parseInt(invoice.valueSat)} />
+                </VStack>
+            </>
+        )
+    }
+
+    const renderPayment = (payment: PaymentModel) => {
+        return (
+            <>
+                <VStack>
+                    <Text color="white" fontSize="lg" fontWeight="bold">
+                        {payment.hash.substring(0, 16)}
+                    </Text>
+                    <Text color="gray.300" fontSize="lg">
+                        <TimeAgo time={payment.createdAt} />
+                    </Text>
+                </VStack>
+                <Spacer />
+                <VStack alignItems="flex-end">
+                    <SatoshiBalance size={18} color={"#ffffff"} satoshis={parseInt(payment.valueSat)} />
+                    <SatoshiBalance size={16} color={"#d0d0d0"} satoshis={parseInt(payment.feeSat)} prependText="FEE" />
+                </VStack>
+            </>
+        )
+    }
+
     const onItemPress = (event: GestureResponderEvent) => {
         onPress(transaction, event)
     }
@@ -33,19 +74,8 @@ const TransactionButtonItem = ({ transaction, onPress = () => {} }: TransactionB
     return (
         <TouchableOpacityOptional onPress={onItemPress} style={[styleSheet.touchableOpacity, { backgroundColor }]}>
             <HStack alignItems="center" space={1}>
-                <VStack>
-                    <Text color="white" fontSize="lg" fontWeight="bold">
-                        {transaction.identifier?.substring(0, 16)}
-                    </Text>
-                    <Text color="gray.300" fontSize="lg">
-                        {transaction.createdAt && <TimeAgo time={transaction.createdAt} />}
-                    </Text>
-                </VStack>
-                <Spacer />
-                <VStack alignItems="flex-end">
-                    <SatoshiBalance size={18} color={"#ffffff"} satoshis={parseInt(transaction.valueSat)} />
-                    <SatoshiBalance size={16} color={"#d0d0d0"} satoshis={parseInt(transaction.feeSat)} prependText="FEE" />
-                </VStack>
+                {transaction.invoice && renderInvoice(transaction.invoice)}
+                {transaction.payment && renderPayment(transaction.payment)}
             </HStack>
         </TouchableOpacityOptional>
     )

@@ -1,4 +1,4 @@
-import { action, extendObservable, makeObservable, observable, reaction, runInAction } from "mobx"
+import { action, makeObservable, observable, reaction, runInAction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel, { ConnectorGroup, ConnectorGroupMap } from "models/Connector"
 import EvseModel from "models/Evse"
@@ -169,16 +169,18 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     async requestLocations() {
-        if (this.bounds) {
-            const locations = await listLocations({
-                xMin: this.bounds[1][0],
-                yMin: this.bounds[0][1],
-                xMax: this.bounds[0][0],
-                yMax: this.bounds[1][1],
-                lastUpdate: this.lastLocationUpdate
-            })
+        if (this.stores.settingStore.accessToken) {
+            if (this.bounds && this.bounds.length == 2) {
+                const locations = await listLocations({
+                    xMin: this.bounds[1][0],
+                    yMin: this.bounds[0][1],
+                    xMax: this.bounds[0][0],
+                    yMax: this.bounds[1][1],
+                    lastUpdate: this.lastLocationUpdate
+                })
 
-            this.updateLocations(locations.data.listLocations)
+                this.updateLocations(locations.data.listLocations)
+            }
         }
     }
 
@@ -191,7 +193,7 @@ export class LocationStore implements LocationStoreInterface {
                 let existingLocation = this.locations.find((l) => l.uid === location.uid)
 
                 if (existingLocation) {
-                    extendObservable(existingLocation, location)
+                    Object.assign(existingLocation, location)
                 } else {
                     this.locations.push(location)
                 }

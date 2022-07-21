@@ -1,6 +1,13 @@
-import { BaseTransactionModel } from "models/BaseTransaction";
+import { PaymentStatus } from "types/payment"
 
-interface PaymentModel extends BaseTransactionModel {
+interface PaymentModel {
+    createdAt: string
+    description: string
+    hash: string
+    preimage?: string
+    status: PaymentStatus
+    valueMsat: string
+    valueSat: string
     feeMsat: string
     feeSat: string
 }

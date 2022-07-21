@@ -57,6 +57,7 @@ export class PeerStore implements PeerStoreInterface {
 
             setReady: action,
             addCustomMessageResponder: action,
+            removeCustomMessageResponder: action,
             connectPeer: action,
             disconnectPeer: action,
             listPeers: action,
@@ -88,15 +89,21 @@ export class PeerStore implements PeerStoreInterface {
     addCustomMessageResponder(responder: CustomMessageResponder) {
         log.debug("Add CustomMessageResponder")
         log.debug(JSON.stringify(responder, undefined, 2))
-
         this.customMessageResponders.push(responder)
+    }
+
+    removeCustomMessageResponder(responder: CustomMessageResponder) {
+        log.debug("Remove CustomMessageResponder")
+        this.customMessageResponders.remove(responder)
     }
 
     async connectPeer(pubkey: string, host: string) {
         try {
             let peer: PeerModelLike = this.getPeer(pubkey)
 
-            if (!peer) {
+            if (peer) {
+                log.debug(`Peer  ${peer.pubkey} is ${peer.online ? "online" : "offline"}`)
+            } else {
                 peer = {
                     pubkey,
                     online: false
@@ -179,7 +186,7 @@ export class PeerStore implements PeerStoreInterface {
             if (type === CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID) {
                 if (responder.request.data === dataStr) {
                     await sendCustomMessage(responder.response.peer, responder.response.type, responder.response.data)
-                    this.customMessageResponders.remove(responder)
+                    this.removeCustomMessageResponder(responder)
                     break
                 }
             }
