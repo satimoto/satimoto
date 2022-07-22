@@ -18,10 +18,11 @@ interface SatoshiBalanceProps extends PropsWithChildren<any> {
     prependText?: string
     satoshis: number
     size?: number
+    paddingSize?: number
 }
 
-const SatoshiBalance = ({ size = 38, color = "#FFFFFF", satoshis, appendText, prependText }: SatoshiBalanceProps) => {
-    const padding = size / 5
+const SatoshiBalance = ({ children, size = 38, paddingSize = 5, color = "#FFFFFF", satoshis, appendText, prependText }: SatoshiBalanceProps) => {
+    const padding = size / paddingSize
 
     return (
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
@@ -33,6 +34,7 @@ const SatoshiBalance = ({ size = 38, color = "#FFFFFF", satoshis, appendText, pr
                 {formatSatoshis(satoshis)}
                 {appendText ? " " + appendText : ""}
             </Text>
+            {children}
         </View>
     )
 }

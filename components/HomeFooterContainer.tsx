@@ -24,20 +24,20 @@ const styles = StyleSheet.create({
     }
 })
 
-export type HomeButtonContainerEvent = "send" | "qr" | "receive"
+export type HomeFooterContainerEvent = "send" | "qr" | "receive"
 
-interface HomeButtonContainerProps {
-    onPress: (event: HomeButtonContainerEvent) => void
+interface HomeFooterContainerProps {
+    onPress: (event: HomeFooterContainerEvent) => void
 }
 
-const HomeButtonContainer = ({ onPress }: HomeButtonContainerProps) => {
+const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
     const safeAreaInsets = useSafeAreaInsets()
 
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
                 <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("send")}>
-                    {I18n.t("HomeButtonContainer_ButtonSend")}
+                    {I18n.t("HomeFooterContainer_ButtonSend")}
                 </Button>
             </View>
             <View style={styles.iconButtonSpacer}>
@@ -53,11 +53,11 @@ const HomeButtonContainer = ({ onPress }: HomeButtonContainerProps) => {
             </View>
             <View style={styles.buttonSpacer}>
                 <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("receive")}>
-                    {I18n.t("HomeButtonContainer_ButtonReceive")}
+                    {I18n.t("HomeFooterContainer_ButtonReceive")}
                 </Button>
             </View>
         </View>
     )
 }
 
-export default HomeButtonContainer
+export default HomeFooterContainer

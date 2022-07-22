@@ -98,9 +98,9 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
     )
 })
 
-const createRef = () => {
+const createSlidingUpPanelRef = () => {
     return React.createRef<SlidingUpPanel>()
 }
 
 export default SlidingLocationPanel
-export { createRef }
+export { createSlidingUpPanelRef }

@@ -1,12 +1,12 @@
 import BalanceCard from "components/BalanceCard"
-import HomeButtonContainer, { HomeButtonContainerEvent } from "components/HomeButtonContainer"
+import ChargeButton from "components/ChargeButton"
+import HomeFooterContainer, { HomeFooterContainerEvent } from "components/HomeFooterContainer"
 import LnUrlAuthModal from "components/LnUrlAuthModal"
-import SlidingLocationPanel, { createRef } from "components/SlidingLocationPanel"
+import SlidingLocationPanel, { createSlidingUpPanelRef } from "components/SlidingLocationPanel"
 import SendToAddressModal from "components/SendToAddressModal"
 import { useStore } from "hooks/useStore"
 import { autorun } from "mobx"
 import { observer } from "mobx-react"
-import LocationModel from "models/Location"
 import React, { useEffect, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
@@ -16,6 +16,7 @@ import store from "stores/Store"
 import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
+import useLayout from "hooks/useLayout"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -43,14 +44,15 @@ interface HomeProps {
 }
 
 const Home = ({ navigation }: HomeProps) => {
-    const slidingLocationPanelRef = createRef()
+    const slidingLocationPanelRef = createSlidingUpPanelRef()
     const mapViewRef = React.useRef<MapboxGL.MapView>(null)
+    const [balanceCardRectangle, onBalanceCardLayout] = useLayout()
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
 
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
-    const { uiStore, locationStore } = useStore()
+    const { uiStore, locationStore, sessionStore } = useStore()
 
     const includeCamera = () => {
         if (hasLocationPermission) {
@@ -65,7 +67,7 @@ const Home = ({ navigation }: HomeProps) => {
         return <MapboxGL.Camera zoomLevel={9} />
     }
 
-    const onHomeButtonPress = (event: HomeButtonContainerEvent) => {
+    const onHomeButtonPress = (event: HomeFooterContainerEvent) => {
         if (event === "send") {
             setIsSendToAddressModalVisible(true)
         } else if (event === "qr") {
@@ -93,10 +95,10 @@ const Home = ({ navigation }: HomeProps) => {
         }
     }
 
-     const onSlidingLocationPanelHide = () => {
+    const onSlidingLocationPanelHide = () => {
         log.debug("onSlidingLocationPanelHide")
         locationStore.removeActiveLocation()
-     }
+    }
 
     useEffect(() => {
         const requestPermissions = async () => {
@@ -167,8 +169,9 @@ const Home = ({ navigation }: HomeProps) => {
                     <MapboxGL.SymbolLayer id="locationsSymbolLayer" style={symbolLayer} />
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
-            <BalanceCard />
-            <HomeButtonContainer onPress={onHomeButtonPress} />
+            <BalanceCard onLayout={onBalanceCardLayout} />
+            <ChargeButton satoshis={parseInt(sessionStore.amount)} top={balanceCardRectangle.y + balanceCardRectangle.height} />
+            <HomeFooterContainer onPress={onHomeButtonPress} />
             <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
             <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />
             <SendToAddressModal isVisible={isSendToAddressModalVisible} onClose={() => setIsSendToAddressModalVisible(false)} />

@@ -6,8 +6,8 @@ export default {
     // Components
     CameraScanner_PermissionTitle: "Camera Permission",
     CameraScanner_PermissionMessage: "Satimoto needs access to your Camera",
-    HomeButtonContainer_ButtonSend: "Send",
-    HomeButtonContainer_ButtonReceive: "Receive",
+    HomeFooterContainer_ButtonSend: "Send",
+    HomeFooterContainer_ButtonReceive: "Receive",
     LnUrlAuthModal_Title: "Do you want to login to",
     SendToAddressModal_Title: "Send to lightning address",
     // Screens

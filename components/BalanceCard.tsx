@@ -4,7 +4,7 @@ import { faListCheck } from "@fortawesome/free-solid-svg-icons"
 import { observer } from "mobx-react"
 import { IconButton } from "native-base"
 import React from "react"
-import { StyleSheet } from "react-native"
+import { LayoutChangeEvent, StyleSheet } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
@@ -27,7 +27,11 @@ const styleSheet = StyleSheet.create({
     }
 })
 
-const BalanceCard = () => {
+interface BalanceCardProps {
+    onLayout?: (event: LayoutChangeEvent) => void
+}
+
+const BalanceCard = ({ onLayout = () => {}}: BalanceCardProps) => {
     const navigation = useNavigation<HomeNavigationProp>()
     const safeAreaInsets = useSafeAreaInsets()
     const { channelStore } = useStore()
@@ -38,6 +42,7 @@ const BalanceCard = () => {
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
             style={[{ top: 10 + safeAreaInsets.top, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styleSheet.linearGradient]}
+            onLayout={onLayout}
         >
             <SatoshiBalance size={38} color={"#ffffff"} satoshis={channelStore.localBalance} />
             <IconButton
