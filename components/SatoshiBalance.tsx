@@ -25,7 +25,7 @@ const SatoshiBalance = ({ children, size = 38, paddingSize = 5, color = "#FFFFFF
     const padding = size / paddingSize
 
     return (
-        <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
             {prependText && <Text style={[styles.text, { fontSize: size, color: color }]}>{prependText + " "}</Text>}
             <View style={{ paddingTop: padding / 2 }}>
                 <SatoshiV2Icon color={color} size={size - padding} />

@@ -17,7 +17,8 @@ const styleSheet = StyleSheet.create({
         minHeight: 100,
         borderRadius: 16,
         padding: 10,
-        paddingVertical: 20
+        paddingVertical: 20,
+        justifyContent: "center"
     },
     transactionsButton: {
         position: "absolute",

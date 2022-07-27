@@ -2,18 +2,20 @@ import { Hash } from "fast-sha256"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import InvoiceModel, { InvoiceModelLike } from "models/Invoice"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import moment from "moment"
 import { lnrpc } from "proto/proto"
-import { StoreInterface, Store } from "stores/Store"
-import { addInvoice, subscribeInvoices } from "services/LightningService"
-import { DEBUG } from "utils/build"
-import { Log } from "utils/logging"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { generateSecureRandom } from "react-native-securerandom"
 import { createChannelRequest } from "services/SatimotoService"
-import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID, CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE } from "utils/constants"
-import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toSatoshi } from "utils/conversion"
-import { randomLong } from "utils/random"
+import { StoreInterface, Store } from "stores/Store"
+import { addInvoice, subscribeInvoices } from "services/LightningService"
 import { InvoiceStatus, toInvoiceStatus } from "types/invoice"
+import { DEBUG } from "utils/build"
+import { Log } from "utils/logging"
+import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID, CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE } from "utils/constants"
+import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toNumber } from "utils/conversion"
+import { randomLong } from "utils/random"
+import { doWhileUntil } from "utils/tools"
 
 const log = new Log("InvoiceStore")
 
@@ -29,6 +31,7 @@ export interface InvoiceStoreInterface extends StoreInterface {
     addInvoice(amount: number): Promise<lnrpc.AddInvoiceResponse>
     findInvoice(hash: string): InvoiceModelLike
     settleInvoice(hash: string): void
+    waitForInvoice(hash: string): Promise<InvoiceModel>
 }
 
 export class InvoiceStore implements InvoiceStoreInterface {
@@ -166,10 +169,13 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 status: toInvoiceStatus(data.state)
             })
         } else {
+            const createdAt = secondsToDate(data.creationDate)
             invoice = {
-                createdAt: secondsToDate(data.creationDate).toISOString(),
+                createdAt: createdAt.toISOString(),
+                expiresAt: moment(createdAt).add(toNumber(data.expiry), "second").toISOString(),
                 description: data.memo,
                 hash,
+                paymentRequest: data.paymentRequest,
                 status: toInvoiceStatus(data.state),
                 valueMsat: data.valueMsat.toString(),
                 valueSat: data.value.toString(),
@@ -184,5 +190,9 @@ export class InvoiceStore implements InvoiceStoreInterface {
         if (data.settled) {
             this.stores.channelStore.getChannelBalance()
         }
+    }
+
+    waitForInvoice(hash: string): Promise<InvoiceModel> {
+        return doWhileUntil("GetInvoice", () => this.findInvoice(hash), 500, 10)
     }
 }

@@ -20,9 +20,10 @@ interface ChargeButtonProps {
     satoshis: number
     top?: number
     onLayout?: (event: LayoutChangeEvent) => void
+    onPress?: () => void
 }
 
-const ChargeButton = ({ satoshis, top, onLayout = () => {}, ...props }: ChargeButtonProps) => {
+const ChargeButton = ({ satoshis, top, onLayout = () => {}, onPress = () => {}, ...props }: ChargeButtonProps) => {
     const safeAreaInsets = useSafeAreaInsets()
     top = top || safeAreaInsets.top
 
@@ -34,6 +35,7 @@ const ChargeButton = ({ satoshis, top, onLayout = () => {}, ...props }: ChargeBu
             colorScheme="orange"
             style={[{ top: 20 + top, right: 10 + safeAreaInsets.right }, styleSheet.button]}
             onLayout={onLayout}
+            onPress={onPress}
             {...props}
         >
             <SatoshiBalance size={24} paddingSize={30} color={"#ffffff"} satoshis={satoshis}>

@@ -5,34 +5,35 @@ import useColor from "hooks/useColor"
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
+import InvoiceModel from "models/Invoice"
 import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineIcon } from "native-base"
+import { useConfetti } from "providers/ConfettiProvider"
 import React, { useEffect, useLayoutEffect, useState } from "react"
 import { View } from "react-native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { decodePayReq } from "services/LightningService"
-import { getMetadataElement, getPayRequest } from "services/LnUrlService"
-import { assertNetwork } from "utils/assert"
-import { errorToString, toHashOrNull, toMilliSatoshi, toNumber, toSatoshi, toStringOrNull } from "utils/conversion"
+import { withdrawRequest } from "services/LnUrlService"
+import { InvoiceStatus } from "types/invoice"
+import { bytesToHex, errorToString, toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 
-const log = new Log("SendPayRequest")
+const log = new Log("LnUrlWithdraw")
 
-type SendPayRequestProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "SendPayRequest">
+type LnUrlWithdrawProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "LnUrlWithdraw">
 }
 
-const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
+const LnUrlWithdraw = ({ navigation }: LnUrlWithdrawProps) => {
+    const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
-    const { channelStore, paymentStore, uiStore } = useStore()
-
+    const { channelStore, invoiceStore, uiStore } = useStore()
     const [amountString, setAmountString] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
     const [description, setDescription] = useState("")
@@ -41,48 +42,12 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
     const [lastError, setLastError] = useState("")
     const [maxSendable, setMaxSendable] = useState(0)
     const [minSendable, setMinSendable] = useState(0)
-    const [metadataHash, setMetadataHash] = useState<string | null>(null)
     const [amountError, setAmountError] = useState("")
+    const [invoice, setInvoice] = useState<InvoiceModel>()
 
-    useEffect(() => {
-        if (uiStore.lnUrlPayParams) {
-            let maxSats = toSatoshi(uiStore.lnUrlPayParams.maxSendable).toNumber()
-            let minSats = toSatoshi(uiStore.lnUrlPayParams.minSendable).toNumber()
-
-            if (maxSats > channelStore.localBalance) {
-                maxSats = channelStore.localBalance
-            }
-
-            setDescription(getMetadataElement(uiStore.lnUrlPayParams.decodedMetadata, "text/plain") || "")
-            setMaxSendable(maxSats)
-            setMinSendable(minSats)
-            setAmountError(I18n.t("SendPayRequest_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
-        }
-    }, [uiStore.lnUrlPayParams])
-
-    useEffect(() => {
-        if (uiStore.lnUrlPayParams) {
-            setMetadataHash(toStringOrNull(toHashOrNull(uiStore.lnUrlPayParams.metadata)))
-        }
-    }, [uiStore.lnUrlPayParams])
-
-    useEffect(() => {
-        setIsInvalid(amountNumber < minSendable || amountNumber > maxSendable)
-    }, [amountNumber])
-
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerLeft: () => (
-                <HeaderBackButton
-                    tintColor={navigationOptions.headerTintColor}
-                    onPress={() => {
-                        navigation.navigate("Home")
-                    }}
-                />
-            ),
-            title: I18n.t("SendPayRequest_HeaderTitle")
-        })
-    }, [navigation])
+    const onClose = () => {
+        navigation.navigate("Home")
+    }
 
     const onAmountChange = (text: string) => {
         setAmountString(text)
@@ -93,30 +58,65 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
         setIsBusy(true)
         setLastError("")
 
-        if (uiStore.lnUrlPayParams && uiStore.lnUrlPayParams.callback) {
+        if (uiStore.lnUrlWithdrawParams && uiStore.lnUrlWithdrawParams.callback) {
             try {
-                const payRequest = await getPayRequest(uiStore.lnUrlPayParams.callback, toMilliSatoshi(amountString).toString())
-                assertNetwork(payRequest.pr)
+                const lnInvoice = await invoiceStore.addInvoice(amountNumber)
+                const response = await withdrawRequest(uiStore.lnUrlWithdrawParams.callback, uiStore.lnUrlWithdrawParams.k1, lnInvoice.paymentRequest)
 
-                const decodedPayReq = await decodePayReq(payRequest.pr)
-                log.debug(`Metadata hash: ${metadataHash}`)
-                log.debug(`Payment Request hash: ${decodedPayReq.descriptionHash}`)
-
-                if (decodedPayReq.descriptionHash === metadataHash && toNumber(decodedPayReq.numSatoshis) === amountNumber) {
-                    // Pay
-                    await paymentStore.sendPayment({ paymentRequest: payRequest.pr })
+                if (response.status === "OK") {
+                    const hash = bytesToHex(lnInvoice.rHash)
+                    const invoice = await invoiceStore.waitForInvoice(hash)
+                    setInvoice(invoice)
                 } else {
-                    setLastError(I18n.t("SendPayRequest_PayReqError"))
+                    setLastError(response.reason)
                 }
             } catch (error) {
                 setLastError(errorToString(error))
-                log.debug(`Error getting pay request: ${error}`)
+                log.debug(`Error getting withdraw request: ${error}`)
             }
         }
 
         setIsBusy(false)
     }
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerLeft: () => (
+                <HeaderBackButton
+                    tintColor={navigationOptions.headerTintColor}
+                    onPress={onClose}
+                />
+            ),
+            title: I18n.t("LnUrlWithdraw_HeaderTitle")
+        })
+    }, [navigation])
+
+    useEffect(() => {
+        if (uiStore.lnUrlWithdrawParams) {
+            let maxSats = toSatoshi(uiStore.lnUrlWithdrawParams.maxWithdrawable).toNumber()
+            let minSats = toSatoshi(uiStore.lnUrlWithdrawParams.minWithdrawable).toNumber()
+
+            if (maxSats > channelStore.localBalance) {
+                maxSats = channelStore.localBalance
+            }
+
+            setDescription(uiStore.lnUrlWithdrawParams.defaultDescription)
+            setMaxSendable(maxSats)
+            setMinSendable(minSats)
+            setAmountError(I18n.t("LnUrlWithdraw_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
+        }
+    }, [uiStore.lnUrlWithdrawParams])
+
+    useEffect(() => {
+        setIsInvalid(amountNumber < minSendable || amountNumber > maxSendable)
+    }, [amountNumber])
+
+    useEffect(() => {
+        if (invoice && invoice.status == InvoiceStatus.SETTLED) {
+            startConfetti().then(onClose)
+        }
+    }, [invoice?.status])
+    
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <VStack space={5}>
@@ -142,4 +142,4 @@ const SendPayRequest = ({ navigation }: SendPayRequestProps) => {
     )
 }
 
-export default observer(SendPayRequest)
+export default observer(LnUrlWithdraw)

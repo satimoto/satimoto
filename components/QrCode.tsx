@@ -1,20 +1,23 @@
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import React from "react"
-import { GestureResponderEvent, View } from "react-native"
-import QRCode from "react-native-qrcode-svg"
+import { GestureResponderEvent, StyleProp, View, ViewStyle } from "react-native"
+import { QRCode } from "react-native-custom-qr-codes"
 import styles from "utils/styles"
 
 interface QrCodeProps {
     value: string
+    color?: string
+    backgroundColor?: string
     onPress?: (event: GestureResponderEvent) => void
     size?: number
+    style?: StyleProp<ViewStyle>
 }
 
-const QrCode = ({ value, onPress, size = 300 }: QrCodeProps) => {
+const QrCode = ({ value, color = "black", backgroundColor = "white", onPress, size = 300, style }: QrCodeProps) => {
     return (
-        <TouchableOpacityOptional onPress={onPress}>
+        <TouchableOpacityOptional onPress={onPress} style={style}>
             <View style={styles.center}>
-                <QRCode value={value} size={size} />
+                <QRCode content={value} color={color} backgroundColor={backgroundColor} size={size} codeStyle="circle" ecl="M" />
             </View>
         </TouchableOpacityOptional>
     )

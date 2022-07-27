@@ -15,6 +15,7 @@ import store from "stores/Store"
 import { API_URI, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
+import ConfettiProvider from "providers/ConfettiProvider"
 
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
@@ -53,15 +54,22 @@ const App = () => {
 
     return (
         <ApolloProvider client={client}>
-            <NativeBaseProvider theme={NativeBaseTheme}>
-                <SafeAreaProvider>
-                    <StoreProvider store={store}>
-                        <NavigationContainer>
-                            <AppStack />
-                        </NavigationContainer>
-                    </StoreProvider>
-                </SafeAreaProvider>
-            </NativeBaseProvider>
+            <ConfettiProvider
+                count={300}
+                colors={["#0099FF", "#3874ED", "#744CD8", "#957AE3", "#A12EC9", "#CC11BB"]}
+                fallSpeed={5000}
+                origin={{ x: 0, y: 0 }}
+            >
+                <NativeBaseProvider theme={NativeBaseTheme}>
+                    <SafeAreaProvider>
+                        <StoreProvider store={store}>
+                            <NavigationContainer>
+                                <AppStack />
+                            </NavigationContainer>
+                        </StoreProvider>
+                    </SafeAreaProvider>
+                </NativeBaseProvider>
+            </ConfettiProvider>
         </ApolloProvider>
     )
 }

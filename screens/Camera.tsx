@@ -11,7 +11,7 @@ import { Dimensions, StyleSheet, View } from "react-native"
 import { IS_ANDROID } from "utils/constants"
 import useColor from "hooks/useColor"
 
-const log = new Log("SendCamera")
+const log = new Log("Camera")
 
 const styleSheet = StyleSheet.create({
     headerButtonView: { paddingLeft: 12, paddingTop: 50 },
@@ -25,11 +25,11 @@ const styleSheet = StyleSheet.create({
     }
 })
 
-type SendCameraProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "SendCamera">
+type CameraProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "Camera">
 }
 
-const SendCamera = ({ navigation }: SendCameraProps) => {
+const Camera = ({ navigation }: CameraProps) => {
     const { colors } = useTheme()
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColor(colors.lightText, colors.darkText)
@@ -78,4 +78,4 @@ const SendCamera = ({ navigation }: SendCameraProps) => {
     )
 }
 
-export default observer(SendCamera)
+export default observer(Camera)

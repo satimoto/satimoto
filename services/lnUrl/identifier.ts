@@ -4,6 +4,7 @@ export const identifier = async (address: string): Promise<LNURLPayParams> => {
     if (address.includes("@")) {
         const [username, domain] = address.split("@")
         const protocol = domain.includes(".onion") ? "http" : "https"
+        // TODO: handle Tor requests
 
         try {
             const fetchResult = await fetch(`${protocol}://${domain}/.well-known/lnurlp/${username}`)

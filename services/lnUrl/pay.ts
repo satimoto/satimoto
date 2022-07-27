@@ -1,7 +1,7 @@
 import { LNURLPayResult } from "js-lnurl"
 import Url from "url-parse"
 
-export const getPayRequest = async (callback: string, amountMsat: string): Promise<LNURLPayResult> => {
+export const payRequest = async (callback: string, amountMsat: string): Promise<LNURLPayResult> => {
     let url = new Url(callback, true)
     url.set("query", { ...url.query, amount: amountMsat })
 

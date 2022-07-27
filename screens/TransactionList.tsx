@@ -12,6 +12,7 @@ import styles from "utils/styles"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import I18n from "utils/i18n"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 type TransactionListProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "TransactionList">
@@ -20,6 +21,7 @@ type TransactionListProps = {
 const TransactionList = ({ navigation }: TransactionListProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
+    const safeAreaInsets = useSafeAreaInsets()
     const { transactionStore } = useStore()
 
     useLayoutEffect(() => {
@@ -33,7 +35,7 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
 
     return (
         <ScrollView style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            <VStack space={3}>
+            <VStack space={3} style={{paddingBottom: safeAreaInsets.bottom}}>
                 {transactionStore.transactions.map((transaction) => (
                     <TransactionButton key={transaction.hash} transaction={transaction} onPress={onPress} />
                 ))}

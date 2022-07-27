@@ -2,12 +2,13 @@ import BalanceCard from "components/BalanceCard"
 import ChargeButton from "components/ChargeButton"
 import HomeFooterContainer, { HomeFooterContainerEvent } from "components/HomeFooterContainer"
 import LnUrlAuthModal from "components/LnUrlAuthModal"
+import ReceiveLightningModal from "components/ReceiveLightningModal"
 import SlidingLocationPanel, { createSlidingUpPanelRef } from "components/SlidingLocationPanel"
 import SendToAddressModal from "components/SendToAddressModal"
 import { useStore } from "hooks/useStore"
 import { autorun } from "mobx"
 import { observer } from "mobx-react"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Dimensions, View } from "react-native"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
@@ -17,6 +18,7 @@ import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import useLayout from "hooks/useLayout"
+import { useConfetti } from "providers/ConfettiProvider"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -44,13 +46,14 @@ interface HomeProps {
 }
 
 const Home = ({ navigation }: HomeProps) => {
+    const { startConfetti } = useConfetti()
     const slidingLocationPanelRef = createSlidingUpPanelRef()
-    const mapViewRef = React.useRef<MapboxGL.MapView>(null)
+    const mapViewRef = useRef<MapboxGL.MapView>(null)
     const [balanceCardRectangle, onBalanceCardLayout] = useLayout()
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
-
+    const [isReceiveLightningModalVisible, setIsReceiveLightningModalVisible] = useState(false)
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
     const { uiStore, locationStore, sessionStore } = useStore()
 
@@ -67,13 +70,19 @@ const Home = ({ navigation }: HomeProps) => {
         return <MapboxGL.Camera zoomLevel={9} />
     }
 
+    const onChargeButtonPress = () => {
+        startConfetti()
+        //navigation.navigate("ChargeDetail")
+    }
+
     const onHomeButtonPress = (event: HomeFooterContainerEvent) => {
         if (event === "send") {
             setIsSendToAddressModalVisible(true)
         } else if (event === "qr") {
-            navigation.navigate("SendCamera")
+            navigation.navigate("Camera")
         } else if (event === "receive") {
-            navigation.navigate("ReceiveLightning")
+            //navigation.navigate("ReceiveLightning")
+            setIsReceiveLightningModalVisible(true)
         }
     }
 
@@ -170,11 +179,16 @@ const Home = ({ navigation }: HomeProps) => {
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard onLayout={onBalanceCardLayout} />
-            <ChargeButton satoshis={parseInt(sessionStore.amount)} top={balanceCardRectangle.y + balanceCardRectangle.height} />
+            <ChargeButton
+                satoshis={parseInt(sessionStore.amountSat)}
+                top={balanceCardRectangle.y + balanceCardRectangle.height}
+                onPress={onChargeButtonPress}
+            />
             <HomeFooterContainer onPress={onHomeButtonPress} />
             <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
             <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />
             <SendToAddressModal isVisible={isSendToAddressModalVisible} onClose={() => setIsSendToAddressModalVisible(false)} />
+            <ReceiveLightningModal isVisible={isReceiveLightningModalVisible} onClose={() => setIsReceiveLightningModalVisible(false)} />
         </View>
     )
 }

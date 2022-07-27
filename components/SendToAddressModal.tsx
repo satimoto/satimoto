@@ -38,6 +38,7 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
         try {
             const payParams = await identifier(address)
             uiStore.setLnUrlPayParams(payParams)
+            onClose()
         } catch (error) {
             setIsBusy(false)
             setLastError(errorToString(error))
@@ -65,13 +66,6 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
             setIsBusy(false)
         }
     }, [isVisible])
-
-    useEffect(() => {
-        if (uiStore.lnUrlPayParams) {
-            navigation.navigate("SendPayRequest")
-            onClose()
-        }
-    }, [uiStore.lnUrlPayParams])
 
     return (
         <Modal isVisible={isVisible} onClose={onModalClose}>

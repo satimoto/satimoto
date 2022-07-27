@@ -1,3 +1,4 @@
+import cancelable, { Cancelable } from "utils/cancelable"
 import { INTERVAL_RETRY } from "utils/constants"
 import { Log } from "utils/logging"
 
@@ -18,39 +19,61 @@ export const timeout = (millis: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, millis))
 }
 
-export const doWhile = async (name: string, action: ActionType, interval = INTERVAL_RETRY) => {
+export const doWhile = (name: string, action: ActionType, interval = INTERVAL_RETRY): Cancelable<any> => {
     return doWhileBackoff(name, action, interval, noBackoff)
 }
 
-export const doWhileBackoff = async (name: string, action: ActionType, interval = INTERVAL_RETRY, backoff: BackoffType = defaultBackoff) => {
+export const doWhileBackoff = (
+    name: string,
+    action: ActionType,
+    interval = INTERVAL_RETRY,
+    backoff: BackoffType = defaultBackoff
+): Cancelable<any> => {
     return doWhileBackoffUntil(name, action, interval, backoff, 0)
 }
 
-export const doWhileBackoffUntil = async (
+export const doWhileUntil = (name: string, action: ActionType, interval = INTERVAL_RETRY, until: number = 0): Cancelable<any> => {
+    return doWhileBackoffUntil(name, action, interval, noBackoff, until)
+}
+
+export const doWhileBackoffUntil = (
     name: string,
     action: ActionType,
     interval = INTERVAL_RETRY,
     backoff: BackoffType = defaultBackoff,
     until: number = 0
-) => {
-    let backoffPeriod = interval
-    let tries = 0
+): Cancelable<any> => {
+    let isCancelled = false
 
-    while (true) {
-        const response = await action()
+    return cancelable(
+        new Promise<any>(async (resolve, reject) => {
+            let backoffPeriod = interval
+            let tries = 0
 
-        if (response) {
-            return response
+            while (true) {
+                if (isCancelled) {
+                    break
+                }
+
+                const response = await action()
+
+                if (response) {
+                    return resolve(response)
+                }
+
+                tries++
+
+                if (until > 0 && tries == until) {
+                    return reject()
+                }
+
+                backoffPeriod = backoff(backoffPeriod)
+                log.debug(`${name}: Backing off to ${backoffPeriod}ms`)
+                await timeout(backoffPeriod)
+            }
+        }),
+        () => {
+            isCancelled = true
         }
-
-        tries++
-
-        if (until > 0 && tries == until) {
-            throw new Error(`${name}: Tries exceeded`)
-        }
-
-        backoffPeriod = backoff(backoffPeriod)
-        log.debug(`${name}: Backing off to ${backoffPeriod}ms`)
-        await timeout(backoffPeriod)
-    }
+    )
 }

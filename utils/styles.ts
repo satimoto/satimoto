@@ -21,5 +21,12 @@ export default StyleSheet.create({
         marginTop: 15,
         paddingHorizontal: 10,
         paddingVertical: 10
+    },
+    transactionButton: {
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 12
     }
 })

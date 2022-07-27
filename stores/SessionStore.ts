@@ -72,7 +72,9 @@ export class SessionStore implements SessionStoreInterface {
             payments: observable,
 
             amountMsat: computed,
-            amount: computed,
+            amountSat: computed,
+            feeMsat: computed,
+            feeSat: computed,
 
             setReady: action,
             startSession: action,
@@ -143,14 +145,26 @@ export class SessionStore implements SessionStoreInterface {
         this.connector = connector
     }
 
-    get amount(): string {
+    get amountSat(): string {
         return toSatoshi(this.amountMsat).toString()
     }
 
     get amountMsat(): string {
-        return this.sessionInvoices
-            .reduce((amountMsat, sessionInvoice) => {
-                return amountMsat.add(sessionInvoice.amountMsat)
+        return this.payments
+            .reduce((amountMsat, payment) => {
+                return amountMsat.add(payment.valueMsat)
+            }, new Long(0))
+            .toString()
+    }
+
+    get feeSat(): string {
+        return toSatoshi(this.feeMsat).toString()
+    }
+
+    get feeMsat(): string {
+        return this.payments
+            .reduce((feeMsat, payment) => {
+                return feeMsat.add(payment.feeMsat)
             }, new Long(0))
             .toString()
     }
