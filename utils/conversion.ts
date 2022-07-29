@@ -29,7 +29,7 @@ export const errorToString = (error: unknown): string => {
 }
 
 export const nanosecondsToMilliseconds = (nanoseconds: LongLikeType): number => {
-    return toLong(nanoseconds).divide(1000).toNumber()
+    return toLong(nanoseconds).divide(1000000).toNumber()
 }
 
 export const secondsToMilliseconds = (seconds: LongLikeType): number => {
@@ -75,8 +75,8 @@ export const toSatoshi = (value: LongLikeType): Long => {
     return toLong(value).divide(1000)
 }
 
-export const toNumber = (value?: Long | null): number | undefined => {
-    return value && typeof value != "undefined" ? Long.fromValue(value).toNumber() : undefined
+export const toNumber = (value: LongLikeType): number => {
+    return Long.fromValue(value).toNumber()
 }
 
 export const toString = (data: BytesLikeType): string => {
