@@ -3,7 +3,6 @@ import { NativeBaseProvider } from "native-base"
 import * as protobuf from "protobufjs"
 import { StoreProvider } from "providers/StoreProvider"
 import React, { useEffect } from "react"
-import { AppState, AppStateStatus } from "react-native"
 import messaging from "@react-native-firebase/messaging"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import SplashScreen from "react-native-splash-screen"
@@ -26,10 +25,6 @@ log.debug(`Starting: Api Uri: ${API_URI}`)
 log.debug(`Starting: Network: ${NETWORK}`)
 
 const App = () => {
-    const appStateChanged = (state: AppStateStatus) => {
-        log.debug(`App state changed: ${state}`)
-    }
-
     useEffect(() => {
         store.settingStore.requestPushNotificationPermission()
 
@@ -37,14 +32,6 @@ const App = () => {
 
         return () => {
             unsubscribeMessages()
-        }
-    }, [])
-
-    useEffect(() => {
-        AppState.addEventListener("change", appStateChanged)
-
-        return () => {
-            AppState.removeEventListener("change", appStateChanged)
         }
     }, [])
 

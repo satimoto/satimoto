@@ -20,13 +20,7 @@ export interface PaymentStoreInterface extends StoreInterface {
     indexOffset: string
     payments: PaymentModel[]
 
-    paymentRequest?: string
-    decodedPaymentRequest?: lnrpc.PayReq
-
     sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel>
-
-    setPaymentRequest(paymentRequest: string): void
-    clearPaymentRequest(): void
 }
 
 export class PaymentStore implements PaymentStoreInterface {
@@ -36,8 +30,6 @@ export class PaymentStore implements PaymentStoreInterface {
 
     indexOffset = "0"
     payments
-    paymentRequest?: string = undefined
-    decodedPaymentRequest?: lnrpc.PayReq = undefined
 
     constructor(stores: Store) {
         this.stores = stores
@@ -48,11 +40,7 @@ export class PaymentStore implements PaymentStoreInterface {
             ready: observable,
             indexOffset: observable,
             payments: observable,
-            paymentRequest: observable,
-            decodedPaymentRequest: observable,
 
-            clearPaymentRequest: action,
-            setPaymentRequest: action,
             setReady: action,
             updatePaymentWithPayReq: action,
             updateIndexOffset: action
@@ -82,11 +70,6 @@ export class PaymentStore implements PaymentStoreInterface {
         this.updatePayments(listPaymentsResponse)
     }
 
-    clearPaymentRequest() {
-        this.paymentRequest = undefined
-        this.decodedPaymentRequest = undefined
-    }
-
     sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel> {
         return new Promise<PaymentModel>(async (resolve, reject) => {
             try {
@@ -101,13 +84,6 @@ export class PaymentStore implements PaymentStoreInterface {
                 reject(error)
             }
         })
-    }
-
-    async setPaymentRequest(paymentRequest: string) {
-        try {
-            this.decodedPaymentRequest = await decodePayReq(paymentRequest)
-            this.paymentRequest = paymentRequest
-        } catch (err) {}
     }
 
     setReady() {

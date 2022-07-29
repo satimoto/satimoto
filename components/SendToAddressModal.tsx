@@ -1,4 +1,3 @@
-import { useNavigation } from "@react-navigation/native"
 import Input from "components/Input"
 import BusyButton from "components/BusyButton"
 import Modal from "components/Modal"
@@ -6,8 +5,6 @@ import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
-import { HomeNavigationProp } from "screens/Home"
-import { identifier } from "services/LnUrlService"
 import { assertEmail } from "utils/assert"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
@@ -19,7 +16,6 @@ interface SendToAddressModalProps {
 
 const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => {
     const textColor = useColorModeValue("lightText", "darkText")
-    const navigation = useNavigation<HomeNavigationProp>()
     const { uiStore } = useStore()
 
     const [address, setAddress] = useState("")
@@ -36,8 +32,7 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
         setLastError("")
 
         try {
-            const payParams = await identifier(address)
-            uiStore.setLnUrlPayParams(payParams)
+            await uiStore.setLightningAddress(address)
             onClose()
         } catch (error) {
             setIsBusy(false)

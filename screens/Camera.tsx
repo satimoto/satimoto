@@ -52,7 +52,7 @@ const Camera = ({ navigation }: CameraProps) => {
         setIsActive(false)
         setLastError("")
 
-        const valid = await uiStore.parseQrCode(qrCode)
+        const valid = await uiStore.parseIntent(qrCode)
 
         if (!valid) {
             log.debug("Not a valid QR code")

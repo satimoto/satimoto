@@ -1,12 +1,15 @@
 import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
 import { action, makeObservable, observable, runInAction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import { lnrpc } from "proto/proto"
+import { Linking } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq } from "services/LightningService"
-import { getParams, getTag } from "services/LnUrlService"
+import { getParams, getTag, identifier } from "services/LnUrlService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import { assertNetwork } from "utils/assert"
 
 const log = new Log("UiStore")
 
@@ -19,10 +22,15 @@ export interface UiStoreInterface extends StoreInterface {
     lnUrlChannelParams?: LNURLChannelParams
     lnUrlPayParams?: LNURLPayParams
     lnUrlWithdrawParams?: LNURLWithdrawParams
+    paymentRequest?: string
+    decodedPaymentRequest?: lnrpc.PayReq
 
     clearLnUrl(): void
-    parseQrCode(qrCode: string): Promise<boolean>
+    clearPaymentRequest(): void
+    parseIntent(intent: string): Promise<boolean>
+    setLightningAddress(address: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
+    setPaymentRequest(paymentRequest: string): void
 }
 
 export class UiStore implements UiStoreInterface {
@@ -35,6 +43,8 @@ export class UiStore implements UiStoreInterface {
     lnUrlChannelParams?: LNURLChannelParams = undefined
     lnUrlPayParams?: LNURLPayParams = undefined
     lnUrlWithdrawParams?: LNURLWithdrawParams = undefined
+    paymentRequest?: string = undefined
+    decodedPaymentRequest?: lnrpc.PayReq = undefined
 
     constructor(stores: Store) {
         this.stores = stores
@@ -48,10 +58,14 @@ export class UiStore implements UiStoreInterface {
             lnUrlChannelParams: observable,
             lnUrlPayParams: observable,
             lnUrlWithdrawParams: observable,
+            paymentRequest: observable,
+            decodedPaymentRequest: observable,
 
             setLnUrl: action,
             setLnUrlPayParams: action,
-            clearLnUrl: action
+            setPaymentRequest: action,
+            clearLnUrl: action,
+            clearPaymentRequest: action
         })
 
         makePersistable(
@@ -67,6 +81,12 @@ export class UiStore implements UiStoreInterface {
     }
 
     async initialize(): Promise<void> {
+        const intent = await Linking.getInitialURL()
+
+        if (intent) {
+            this.parseIntent(intent)
+        }
+
         this.setReady()
     }
 
@@ -75,35 +95,46 @@ export class UiStore implements UiStoreInterface {
     }
 
     /**
-     * There are several different QR code data formats possible which need to be parsed.
+     * There are several different data formats possible which need to be parsed.
      * LNURL: A LNURL spec string with various encoded request types
      * Payment Request: A Lightning payment request
      * Lightning Address: A static internet identifier
      * EVSE ID: A HTTP formatted EVSE ID used to locate a charge point
-     * @param qrCode: Raw QR code to be parsed
-     * @returns Promise<boolean>: The QR code is valid and parsed
+     * @param intent: Raw intent to be parsed
+     * @returns Promise<boolean>: The intent is valid and parsed
      */
-    async parseQrCode(qrCode: string): Promise<boolean> {
-        log.debug("parseQrCode: " + qrCode)
-        qrCode = qrCode.replace(/lightning:/i, "")
-        const lowerCaseQrCode = qrCode.toLowerCase()
+    async parseIntent(intent: string): Promise<boolean> {
+        log.debug("parseIntent: " + intent)
+        intent = intent.replace(/lightning:/i, "")
+        const lowerCaseIntent = intent.toLowerCase()
 
-        if (lowerCaseQrCode.startsWith("lnurl")) {
-            // LNURL
-            return await this.setLnUrl(qrCode)
-        } else if (qrCode.includes("@")) {
-            // TODO: Static internet identifier
-        } else if (lowerCaseQrCode.startsWith("http")) {
-            // TODO: EVSE ID
-        } else {
-            // Payment Request
-            this.stores.paymentStore.setPaymentRequest(qrCode)
-        }
+        try {
+            if (lowerCaseIntent.startsWith("lnurl")) {
+                // LNURL
+                await this.setLnUrl(intent)
+                return true
+            } else if (intent.includes("@")) {
+                // Lightning Address
+                await this.setLightningAddress(intent)
+                return true
+            } else if (lowerCaseIntent.startsWith("http")) {
+                // TODO: EVSE ID
+            } else {
+                // Payment Request
+                await this.setPaymentRequest(intent)
+                return true
+            }
+        } catch {}
 
         return false
     }
 
-    async setLnUrl(lnUrl: string): Promise<boolean> {
+    async setLightningAddress(address: string) {
+        const payParams = await identifier(address)
+        this.setLnUrlPayParams(payParams)
+    }
+
+    async setLnUrl(lnUrl: string) {
         this.clearLnUrl()
 
         const params = await getParams(lnUrl)
@@ -122,13 +153,22 @@ export class UiStore implements UiStoreInterface {
                 this.lnUrlWithdrawParams = params as LNURLWithdrawParams
             }
         })
-
-        return !!this.lnUrlChannelParams || !!this.lnUrlAuthParams || !!this.lnUrlPayParams || !!this.lnUrlWithdrawParams
     }
 
     setLnUrlPayParams(payParams: LNURLPayParams) {
         this.clearLnUrl()
         this.lnUrlPayParams = payParams
+    }
+
+    async setPaymentRequest(paymentRequest: string) {
+        assertNetwork(paymentRequest)
+        const decodedPaymentRequest = await decodePayReq(paymentRequest)
+
+        runInAction(() => {
+            this.decodedPaymentRequest = decodedPaymentRequest
+            this.paymentRequest = paymentRequest
+            log.debug(JSON.stringify(this.decodedPaymentRequest))
+        })
     }
 
     clearLnUrl() {
@@ -137,5 +177,10 @@ export class UiStore implements UiStoreInterface {
         this.lnUrlChannelParams = undefined
         this.lnUrlPayParams = undefined
         this.lnUrlWithdrawParams = undefined
+    }
+
+    clearPaymentRequest() {
+        this.paymentRequest = undefined
+        this.decodedPaymentRequest = undefined
     }
 }

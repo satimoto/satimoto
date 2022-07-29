@@ -19,14 +19,16 @@ import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { useConfetti } from "providers/ConfettiProvider"
+import { RouteProp } from "@react-navigation/native"
 
 const log = new Log("LnUrlPay")
 
 type LnUrlPayProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "LnUrlPay">
+    route: RouteProp<AppStackParamList, "LnUrlPay">
 }
 
-const LnUrlPay = ({ navigation }: LnUrlPayProps) => {
+const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
@@ -46,6 +48,7 @@ const LnUrlPay = ({ navigation }: LnUrlPayProps) => {
     const [amountError, setAmountError] = useState("")
 
     const onClose = () => {
+        uiStore.clearLnUrl()
         navigation.navigate("Home")
     }
 
@@ -97,26 +100,20 @@ const LnUrlPay = ({ navigation }: LnUrlPayProps) => {
     }, [navigation])
 
     useEffect(() => {
-        if (uiStore.lnUrlPayParams) {
-            let maxSats = toSatoshi(uiStore.lnUrlPayParams.maxSendable).toNumber()
-            let minSats = toSatoshi(uiStore.lnUrlPayParams.minSendable).toNumber()
+        const payParams = route.params.payParams
+        let maxSats = toSatoshi(payParams.maxSendable).toNumber()
+        let minSats = toSatoshi(payParams.minSendable).toNumber()
 
-            if (maxSats > channelStore.localBalance) {
-                maxSats = channelStore.localBalance
-            }
-
-            setDescription(getMetadataElement(uiStore.lnUrlPayParams.decodedMetadata, "text/plain") || "")
-            setMaxSendable(maxSats)
-            setMinSendable(minSats)
-            setAmountError(I18n.t("LnUrlPay_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
+        if (maxSats > channelStore.localBalance) {
+            maxSats = channelStore.localBalance
         }
-    }, [uiStore.lnUrlPayParams])
 
-    useEffect(() => {
-        if (uiStore.lnUrlPayParams) {
-            setMetadataHash(toStringOrNull(toHashOrNull(uiStore.lnUrlPayParams.metadata)))
-        }
-    }, [uiStore.lnUrlPayParams])
+        setDescription(getMetadataElement(payParams.decodedMetadata, "text/plain") || "")
+        setMaxSendable(maxSats)
+        setMinSendable(minSats)
+        setMetadataHash(toStringOrNull(toHashOrNull(payParams.metadata)))
+        setAmountError(I18n.t("LnUrlPay_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
+    }, [route.params.payParams])
 
     useEffect(() => {
         setIsInvalid(amountNumber < minSendable || amountNumber > maxSendable)

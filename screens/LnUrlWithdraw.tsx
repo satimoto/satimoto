@@ -19,14 +19,16 @@ import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
+import { RouteProp } from "@react-navigation/native"
 
 const log = new Log("LnUrlWithdraw")
 
 type LnUrlWithdrawProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "LnUrlWithdraw">
+    route: RouteProp<AppStackParamList, "LnUrlWithdraw">
 }
 
-const LnUrlWithdraw = ({ navigation }: LnUrlWithdrawProps) => {
+const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
@@ -46,6 +48,7 @@ const LnUrlWithdraw = ({ navigation }: LnUrlWithdrawProps) => {
     const [invoice, setInvoice] = useState<InvoiceModel>()
 
     const onClose = () => {
+        uiStore.clearLnUrl()
         navigation.navigate("Home")
     }
 
@@ -92,20 +95,19 @@ const LnUrlWithdraw = ({ navigation }: LnUrlWithdrawProps) => {
     }, [navigation])
 
     useEffect(() => {
-        if (uiStore.lnUrlWithdrawParams) {
-            let maxSats = toSatoshi(uiStore.lnUrlWithdrawParams.maxWithdrawable).toNumber()
-            let minSats = toSatoshi(uiStore.lnUrlWithdrawParams.minWithdrawable).toNumber()
+        const withdrawParams = route.params.withdrawParams
+        let maxSats = toSatoshi(withdrawParams.maxWithdrawable).toNumber()
+        let minSats = toSatoshi(withdrawParams.minWithdrawable).toNumber()
 
-            if (maxSats > channelStore.localBalance) {
-                maxSats = channelStore.localBalance
-            }
-
-            setDescription(uiStore.lnUrlWithdrawParams.defaultDescription)
-            setMaxSendable(maxSats)
-            setMinSendable(minSats)
-            setAmountError(I18n.t("LnUrlWithdraw_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
+        if (maxSats > channelStore.localBalance) {
+            maxSats = channelStore.localBalance
         }
-    }, [uiStore.lnUrlWithdrawParams])
+
+        setDescription(withdrawParams.defaultDescription)
+        setMaxSendable(maxSats)
+        setMinSendable(minSats)
+        setAmountError(I18n.t("LnUrlWithdraw_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
+    }, [route.params.withdrawParams])
 
     useEffect(() => {
         setIsInvalid(amountNumber < minSendable || amountNumber > maxSendable)

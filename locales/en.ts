@@ -28,6 +28,7 @@ export default {
     LnUrlWithdraw_HeaderTitle: "Receive Payment",
     LnUrlWithdraw_AmountError: "Must be between {{minSats}} and {{maxSats}} sats",
     LnUrlWithdraw_PayReqError: "Payment request invalid",
+    PaymentRequest_HeaderTitle: "Send Payment",
     TransactionDetail_HeaderTitle: "Transaction",
     TransactionList_HeaderTitle: "Transactions",
     // Evse status
