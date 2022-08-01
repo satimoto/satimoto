@@ -152,10 +152,10 @@ export class LightningStore implements LightningStoreInterface {
     }
 
     startLogEvents() {
-        /*if (DEBUG && !this.startedLogEvents) {
+        if (DEBUG && !this.startedLogEvents) {
             startLogEvents()
             this.startedLogEvents = true
-        }*/
+        }
     }
 
     async syncToChain() {

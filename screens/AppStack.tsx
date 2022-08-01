@@ -11,7 +11,6 @@ import React, { useEffect } from "react"
 import { AppState, AppStateStatus, Linking } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackNavigationOptions } from "@react-navigation/native-stack"
-import Camera from "screens/Camera"
 import ChargeDetail from "screens/ChargeDetail"
 import ConnectorDetail from "screens/ConnectorDetail"
 import Developer from "screens/Developer"
@@ -20,6 +19,7 @@ import Home, { HomeNavigationProp } from "screens/Home"
 import LnUrlPay from "screens/LnUrlPay"
 import LnUrlWithdraw from "screens/LnUrlWithdraw"
 import PaymentRequest from "screens/PaymentRequest"
+import Scanner from "screens/Scanner"
 import TransactionDetail from "screens/TransactionDetail"
 import TransactionList from "screens/TransactionList"
 import WaitForPayment from "screens/WaitForPayment"
@@ -30,7 +30,6 @@ const log = new Log("AppStack")
 
 export type AppStackParamList = {
     Home: undefined
-    Camera: undefined
     ChargeDetail: undefined
     ConnectorDetail: { location: LocationModel, evse: EvseModel, connector: ConnectorModel }
     Developer: undefined
@@ -38,6 +37,7 @@ export type AppStackParamList = {
     LnUrlPay: {payParams: LNURLPayParams}
     LnUrlWithdraw: {withdrawParams: LNURLWithdrawParams}
     PaymentRequest: {payReq: string, decodedPayReq: lnrpc.PayReq}
+    Scanner: undefined
     TransactionList: undefined
     TransactionDetail: { identifier: string }
     WaitForPayment: { invoice: InvoiceModel }
@@ -45,7 +45,6 @@ export type AppStackParamList = {
 
 export type AppStackScreenParams = {
     Home: undefined
-    Camera: undefined
     ChargeDetail: undefined
     ConnectorDetail: undefined
     Developer: undefined
@@ -53,6 +52,7 @@ export type AppStackScreenParams = {
     LnUrlPay: undefined
     LnUrlWithdraw: undefined
     PaymentRequest: undefined
+    Scanner: undefined
     TransactionList: undefined
     TransactionDetail: undefined
     WaitForPayment: undefined
@@ -111,7 +111,6 @@ const AppStack = () => {
 
     return (
         <AppStackNav.Navigator initialRouteName={"Home"} screenOptions={screenOptions}>
-            <AppStackNav.Screen name="Camera" component={Camera} options={navigationWithoutHeaderOptions} />
             <AppStackNav.Screen name="ChargeDetail" component={ChargeDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ConnectorDetail" component={ConnectorDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Home" component={Home} options={navigationWithoutHeaderOptions} />
@@ -120,6 +119,7 @@ const AppStack = () => {
             <AppStackNav.Screen name="LnUrlPay" component={LnUrlPay} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="LnUrlWithdraw" component={LnUrlWithdraw} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="PaymentRequest" component={PaymentRequest} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="Scanner" component={Scanner} options={navigationWithoutHeaderOptions} />
             <AppStackNav.Screen name="TransactionList" component={TransactionList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="TransactionDetail" component={TransactionDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="WaitForPayment" component={WaitForPayment} options={navigationWithHeaderOptions} />

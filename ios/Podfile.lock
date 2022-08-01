@@ -339,6 +339,8 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
+  - react-native-hce (0.1.2):
+    - React
   - react-native-mapbox-gl (8.5.0):
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
@@ -352,6 +354,8 @@ PODS:
   - react-native-mapbox-gl/StaticLibraryFixer (8.5.0):
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
+    - React-Core
+  - react-native-nfc-manager (3.13.5):
     - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
@@ -517,7 +521,9 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-build-config (from `../node_modules/react-native-build-config`)
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-hce (from `../node_modules/react-native-hce`)
   - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
+  - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -612,8 +618,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-build-config"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-hce:
+    :path: "../node_modules/react-native-hce"
   react-native-mapbox-gl:
     :path: "../node_modules/@react-native-mapbox-gl/maps"
+  react-native-nfc-manager:
+    :path: "../node_modules/react-native-nfc-manager"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-splash-screen:
@@ -709,7 +719,9 @@ SPEC CHECKSUMS:
   React-jsinspector: 41e58e5b8e3e0bf061fdf725b03f2144014a8fb0
   react-native-build-config: 1130ad8668ca251b65e95e002b5b8f308a96726f
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
+  react-native-hce: 677aa1c41edf183523bb7b1014d106a08631ff88
   react-native-mapbox-gl: 955d2c064b56ef058b9cc0fbbf6cf743b05c928e
+  react-native-nfc-manager: 42ebc22a04f32c0c2bc63a016ab30fa6486de450
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
   React-perflogger: fd28ee1f2b5b150b00043f0301d96bd417fdc339
@@ -738,6 +750,6 @@ SPEC CHECKSUMS:
   Yoga: aa0cb45287ebe1004c02a13f279c55a95f1572f4
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: bfffe7c0222c2c42f75e2a6a3f5dca4be24e0692
+PODFILE CHECKSUM: 731faedba110e0d2e3c18c29a0e66a10aaddcde7
 
 COCOAPODS: 1.10.2

@@ -79,7 +79,7 @@ const Home = ({ navigation }: HomeProps) => {
         if (event === "send") {
             setIsSendToAddressModalVisible(true)
         } else if (event === "qr") {
-            navigation.navigate("Camera")
+            navigation.navigate("Scanner")
         } else if (event === "receive") {
             //navigation.navigate("ReceiveLightning")
             setIsReceiveLightningModalVisible(true)

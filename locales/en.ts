@@ -29,6 +29,8 @@ export default {
     LnUrlWithdraw_AmountError: "Must be between {{minSats}} and {{maxSats}} sats",
     LnUrlWithdraw_PayReqError: "Payment request invalid",
     PaymentRequest_HeaderTitle: "Send Payment",
+    Scanner_QrCodeError: "Could not read QR code",
+    Scanner_NfcTagError: "Could not read NFC tag",
     TransactionDetail_HeaderTitle: "Transaction",
     TransactionList_HeaderTitle: "Transactions",
     // Evse status

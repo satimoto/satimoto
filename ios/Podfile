@@ -3,7 +3,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 pod 'SwiftProtobuf', '~> 1.0'
 pod 'React-RCTLinking', :path => '../node_modules/react-native/Libraries/LinkingIOS'
 
-platform :ios, '11.0'
+platform :ios, '11.1'
 
 project 'Satimoto',
         'DebugTestnet' => :debug,
