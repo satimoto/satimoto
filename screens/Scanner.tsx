@@ -42,7 +42,7 @@ const Scanner = ({ navigation }: ScannerProps) => {
     const safeAreaInsets = useSafeAreaInsets()
     const { uiStore } = useStore()
     const [isActive, setIsActive] = useState(true)
-    const [lastError, setLastError] = useState("Test")
+    const [lastError, setLastError] = useState("")
 
     useEffect(() => {
         if (uiStore.lnUrlAuthParams) {

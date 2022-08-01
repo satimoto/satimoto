@@ -5,6 +5,9 @@ export default {
     Button_Ok: "Ok",
     Button_Start: "Start",
     Button_Stop: "Stop",
+    // Modal
+    ConfirmationModal_StartConfirmationText: "If the cable is locked, press Start first then connect the cable",    
+    ConfirmationModal_StopConfirmationText: "Are you sure you want to end this charging session?",    
     // Components
     CameraScanner_PermissionTitle: "Camera Permission",
     CameraScanner_PermissionMessage: "Satimoto needs access to your Camera",
@@ -16,8 +19,10 @@ export default {
     ReceiveLightningModal_InputAmountWarning: "A new channel is needed",
     // Screens
     ChargeDetail_HeaderTitle: "Charging",
-    ChargeDetail_ConfirmationModalText: "Are you sure you want to end this charge session?",    
     ConnectorDetail_HeaderTitle: "Connector",
+    ConnectorDetail_ChargeStatusError: "Currently charging at another charge point.",
+    ConnectorDetail_EvseStatusError: "Unfortunately this charge point is {{status}}.",
+    ConnectorDetail_LocalBalanceError: "Please add a minimum of {{satoshis}} sats to start charging.",
     EvseList_HeaderTitle: "Charge Points",
     WaitForPayment_HeaderTitle: "Receive Payment",
     WaitForPayment_ExpiryPlural: "Expires in {{minutes}} minutes",

@@ -74,7 +74,7 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
                     {channelRequestNeeded && <FormControl.HelperText>{I18n.t("ReceiveLightningModal_InputAmountWarning")}</FormControl.HelperText>}
                 </FormControl>
                 <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isAmountInvalid}>
-                    {I18n.t("Button_Next")}
+                    {I18n.t("Button_Ok")}
                 </BusyButton>
             </VStack>
         </Modal>

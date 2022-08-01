@@ -18,7 +18,6 @@ import { IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import useLayout from "hooks/useLayout"
-import { useConfetti } from "providers/ConfettiProvider"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -46,7 +45,6 @@ interface HomeProps {
 }
 
 const Home = ({ navigation }: HomeProps) => {
-    const { startConfetti } = useConfetti()
     const slidingLocationPanelRef = createSlidingUpPanelRef()
     const mapViewRef = useRef<MapboxGL.MapView>(null)
     const [balanceCardRectangle, onBalanceCardLayout] = useLayout()
@@ -71,8 +69,7 @@ const Home = ({ navigation }: HomeProps) => {
     }
 
     const onChargeButtonPress = () => {
-        startConfetti()
-        //navigation.navigate("ChargeDetail")
+        navigation.navigate("ChargeDetail")
     }
 
     const onHomeButtonPress = (event: HomeFooterContainerEvent) => {
@@ -81,7 +78,6 @@ const Home = ({ navigation }: HomeProps) => {
         } else if (event === "qr") {
             navigation.navigate("Scanner")
         } else if (event === "receive") {
-            //navigation.navigate("ReceiveLightning")
             setIsReceiveLightningModalVisible(true)
         }
     }

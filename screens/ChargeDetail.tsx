@@ -15,6 +15,7 @@ import I18n from "utils/i18n"
 import styles from "utils/styles"
 import { useStore } from "hooks/useStore"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { ChargeSessionStatus } from "types/chargeSession"
 
 type ChargeDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ChargeDetail">
@@ -42,6 +43,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                     variant="ghost"
                     p={0.5}
                     onPress={() => setIsConfirmationModalVisible(true)}
+                    isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
                     icon={<FontAwesomeIcon icon={faStop} />}
                     _icon={{ color: "#ffffff", size: 32 }}
                 />
@@ -59,7 +61,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                 </View>
             </VStack>
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12 }]}>
-                <VStack space={3} style={{paddingBottom: safeAreaInsets.bottom}}>
+                <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
                     {sessionStore.payments.map((payment) => (
                         <PaymentButton key={payment.hash} payment={payment} />
                     ))}
@@ -67,7 +69,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
             </ScrollView>
             <ConfirmationModal
                 isVisible={isConfirmationModalVisible}
-                text={I18n.t("ChargeDetail_ConfirmationModalText")}
+                text={I18n.t("ConfirmationModal_StopConfirmationText")}
                 buttonText={I18n.t("Button_Stop")}
                 onClose={() => setIsConfirmationModalVisible(false)}
                 onPress={onStopPress}
