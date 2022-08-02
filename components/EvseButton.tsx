@@ -1,4 +1,5 @@
 import ButtonIcon from "components/ButtonIcon"
+import EvseBadge from "components/EvseBadge"
 import SatoshiBalance from "components/SatoshiBalance"
 import StopPropagation from "components/StopPropagation"
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
@@ -7,9 +8,17 @@ import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import { HStack, Spacer, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React from "react"
+import { StyleSheet } from "react-native"
 import { connectorIcons } from "utils/assets"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
+
+const styleSheet = StyleSheet.create({
+    buttonIcon: {
+        alignItems: "flex-end",
+        justifyContent: "flex-start"
+    }
+})
 
 interface EvseButtonProps {
     connector: ConnectorModel
@@ -25,7 +34,9 @@ const EvseButton = ({ connector, evse, onPress = () => {} }: EvseButtonProps) =>
         <StopPropagation>
             <TouchableOpacityOptional onPress={() => onPress(connector, evse)} style={[styles.listButton, { backgroundColor }]}>
                 <HStack alignItems="center" space={1}>
-                    <ButtonIcon source={connectorIcons[connector.standard] || connectorIcons["UNKNOWN"]} />
+                    <ButtonIcon source={connectorIcons[connector.standard] || connectorIcons["UNKNOWN"]} style={styleSheet.buttonIcon}>
+                        <EvseBadge evse={evse} />
+                    </ButtonIcon>
                     <VStack>
                         <Text color={useColorModeValue("lightText", "darkText")} fontSize="lg" fontWeight="bold">
                             {evse.identifier || evse.uid}

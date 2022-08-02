@@ -8,6 +8,7 @@ import * as Command from "./satimoto/command"
 import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
+import * as Tariff from "./satimoto/tariff"
 import * as User from "./satimoto/user"
 import store from "stores/Store"
 import { API_URI } from "utils/build"
@@ -74,6 +75,9 @@ const getRate = Rate.getRate(client)
 const getSession = Session.getSession(client)
 const getSessionInvoice = Session.getSessionInvoice(client)
 
+// Tariff
+const getTariff = Tariff.getTariff(client)
+
 // User
 const createUser = User.createUser(client)
 const updateUser = User.updateUser(client)
@@ -134,6 +138,8 @@ export {
     // Session
     getSession,
     getSessionInvoice,
+    // Tariff
+    getTariff,
     // Token
     getToken,
     // User

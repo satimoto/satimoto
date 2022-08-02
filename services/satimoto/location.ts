@@ -27,7 +27,45 @@ const GET_LOCATION = gql`
                     amperage
                     wattage
                     powerType
-                    tariffId
+                    tariff {
+                        uid
+                        currency
+                        currencyRate
+                        currencyRateMsat
+                        elements {
+                            priceComponents {
+                                type
+                                price
+                                stepSize
+                            }
+                            restrictions {
+                                startTime
+                                endTime
+                                startDate
+                                endDate
+                                minKwh
+                                maxKwh
+                                minPower
+                                maxPower
+                                minDuration
+                                maxDuration
+                                dayOfWeek
+                            }
+                        }
+                        energyMix {
+                            isGreenEnergy
+                            energySources {
+                                source
+                                percentage
+                            }
+                            environmentalImpact {
+                                source
+                                amount
+                            }
+                            supplierName 
+                            energyProductName 
+                        }
+                    }
                 }
             }
         }

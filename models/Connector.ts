@@ -1,4 +1,5 @@
 import EvseModel from "./Evse"
+import TariffModel from "./Tariff"
 
 interface ConnectorModel {
     uid: string
@@ -9,6 +10,7 @@ interface ConnectorModel {
     voltage: number
     amperage: number
     wattage: number
+    tariff?: TariffModel 
 }
 
 type ConnectorModelLike = ConnectorModel | undefined
