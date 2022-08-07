@@ -7,7 +7,7 @@ interface TariffModel {
     currencyRate: number
     currencyRateMsat: number
     elements: TariffElementModel[]
-    energyMix: EnergyMixModel
+    energyMix?: EnergyMixModel
 }
 
 type TariffModelLike = TariffModel | undefined

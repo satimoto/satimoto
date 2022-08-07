@@ -1,16 +1,8 @@
+import Badge from "components/Badge"
 import EvseModel from "models/Evse"
 import { useTheme } from "native-base"
 import React, { useEffect, useState } from "react"
-import { StyleSheet, View } from "react-native"
 import { EvseStatus } from "types/evse"
-
-const styleSheet = StyleSheet.create({
-    evseBadge: {
-        width: 10,
-        height: 10,
-        borderRadius: 10
-    }
-})
 
 interface EvseBadgeProps {
     evse: EvseModel
@@ -34,7 +26,7 @@ const EvseBadge = ({ evse }: EvseBadgeProps) => {
         }
     }, [evse.status])
 
-    return (<View style={[styleSheet.evseBadge, { backgroundColor: backgroundColor }]}></View>)
+    return <Badge color={backgroundColor} />
 }
 
 export default EvseBadge

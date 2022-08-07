@@ -16,6 +16,8 @@ import { errorToString } from "utils/conversion"
 import { ChargeSessionStatus } from "types/chargeSession"
 import { EvseStatus } from "types/evse"
 import { MINIMUM_CHARGE_BALANCE } from "utils/constants"
+import StackedBar, { StackedBarItem, StackedBarItems } from "components/StackedBar"
+import useEnergySourceColors from "hooks/useEnergySourceColors"
 
 type ConnectorDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ConnectorDetail">
@@ -27,6 +29,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
+    const energySourceColors = useEnergySourceColors()
     const [isBusy, setIsBusy] = useState(false)
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [isSessionConnector, setIsSessionConnector] = useState(false)
@@ -37,6 +40,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [location] = useState(route.params.location)
     const [evse] = useState(route.params.evse)
     const [connector] = useState(route.params.connector)
+    const [energySources, setEnergySources] = useState<StackedBarItems>([])
     const { channelStore, sessionStore } = useStore()
 
     const onShowStartConfirmation = () => {
@@ -123,24 +127,42 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     }, [sessionStore.location, sessionStore.evse, sessionStore.connector])
 
     useEffect(() => {
+        let energySources: StackedBarItems = []
+
+        if (connector.tariff?.energyMix) {
+            energySources = connector.tariff.energyMix.energySources.map(
+                ({ source, percentage }) =>
+                    ({
+                        color: energySourceColors[source],
+                        label: I18n.t(source) + ` (${percentage}%)`,
+                        percent: percentage
+                    } as StackedBarItem)
+            )
+        }
+
+        setEnergySources(energySources)
+    }, [connector.tariff])
+
+    useEffect(() => {
         if (!isSessionConnector) {
             if (evse.status !== EvseStatus.AVAILABLE) {
-                setLastError(I18n.t("ConnectorDetail_EvseStatusError", {status: I18n.t(evse.status).toLowerCase()}))
+                setLastError(I18n.t("ConnectorDetail_EvseStatusError", { status: I18n.t(evse.status).toLowerCase() }))
             } else if (sessionStore.status !== ChargeSessionStatus.IDLE) {
                 setLastError(I18n.t("ConnectorDetail_ChargeStatusError"))
             } else if (channelStore.localBalance < MINIMUM_CHARGE_BALANCE) {
-                setLastError(I18n.t("ConnectorDetail_LocalBalanceError", {satoshis: MINIMUM_CHARGE_BALANCE - channelStore.localBalance}))
+                setLastError(I18n.t("ConnectorDetail_LocalBalanceError", { satoshis: MINIMUM_CHARGE_BALANCE - channelStore.localBalance }))
             }
         }
     }, [])
 
     return (
-        <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
+        <View style={[styles.matchParent, { backgroundColor, padding: 10 }]}>
             <LocationHeader location={route.params.location} />
-            <VStack space={2} marginTop={4}>
-                {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
+            <VStack space={2}>
+                {energySources.length > 0 && <StackedBar items={energySources} />}
                 {renderStopButton()}
                 {renderStartButton()}
+                {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
             </VStack>
             <ConfirmationModal
                 isVisible={isConfirmationModalVisible}

@@ -5,6 +5,10 @@ export default {
     Button_Ok: "Ok",
     Button_Start: "Start",
     Button_Stop: "Stop",
+    // Labels
+    Label_Kwh: "kWh",
+    Label_Hour: "hour",
+    Label_Parking: "hour parking",
     // Modal
     ConfirmationModal_StartConfirmationText: "If the cable is locked, press Start first then connect the cable",    
     ConfirmationModal_StopConfirmationText: "Are you sure you want to end this charging session?",    
@@ -17,6 +21,22 @@ export default {
     SendToAddressModal_Title: "Send to lightning address",
     ReceiveLightningModal_Title: "Amount to receive",
     ReceiveLightningModal_InputAmountWarning: "A new channel is needed",
+    Tariff_StartDateText: "available from {{startDate}}",
+    Tariff_EndDateText: "available until {{startDate}}",
+    Tariff_StartEndDateText: "available from {{startDate}} until {{startDate}}",
+    Tariff_StartTimeText: "starting at {{startTime}}",
+    Tariff_EndTimeText: "ending at {{startTime}}",
+    Tariff_StartEndTimeText: "between {{startTime}} and {{startTime}}",
+    Tariff_DayOfWeekText: "on {{dayOfWeek}}",
+    Tariff_MinKwhText: "from {{min}} kWh charged",
+    Tariff_MaxKwhText: "up to {{max}} kWh charged",
+    Tariff_MinMaxKwhText: "from {{min}} and up to {{max}} kWh charged",
+    Tariff_MinPowerText: "from {{min}} kW charging speed",
+    Tariff_MaxPowerText: "up to {{max}} kW charging speed",
+    Tariff_MinMaxPowerText: "from {{min}} and up to {{max}} kW charging speed",
+    Tariff_MinDurationText: "from {{min}} minutes charging",
+    Tariff_MaxDurationText: "up to {{max}} minutes charging",
+    Tariff_MinMaxDurationText: "from {{min}} and up to {{max}} minutes charging",
     // Screens
     ChargeDetail_HeaderTitle: "Charging",
     ConnectorDetail_HeaderTitle: "Connector",
@@ -76,5 +96,14 @@ export default {
     IEC_62196_T3A: "IEC 62196 Type 3A",
     IEC_62196_T3C: "IEC 62196 Type 3C, Scame",
     TESLA_R: "Tesla Roadster type",
-    TESLA_S: "Tesla Model-S type"
+    TESLA_S: "Tesla Model-S type",
+    // Energy source
+    NUCLEAR: "Nuclear",
+    GENERAL_FOSSIL: "Fossil mix",
+    COAL: "Coal",
+    GAS: "Gas",
+    GENERAL_GREEN: "Green mix",
+    SOLAR: "Solar",
+    WIND: "Wind",
+    WATER: "Water"
 }

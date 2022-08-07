@@ -6,10 +6,12 @@ import useColor from "hooks/useColor"
 import EvseModel from "models/Evse"
 import ConnectorModel from "models/Connector"
 import { HStack, Spacer, Text, useColorModeValue, useTheme, VStack } from "native-base"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { connectorIcons } from "utils/assets"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
+import { getPriceComponentByType, getPriceComponents } from "models/PriceComponent"
+import { TariffDimension } from "types/tariff"
 
 interface ConnectorButtonProps {
     connector: ConnectorModel
@@ -22,6 +24,25 @@ interface ConnectorButtonProps {
 const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () => {}, onPressOut = () => {} }: ConnectorButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
+    const [dimension, setDimension] = useState("")
+    const [price, setPrice] = useState(0)
+    const [tariff] = useState(connector.tariff)
+
+    useEffect(() => {
+        if (tariff) {
+            const priceComponents = getPriceComponents(tariff.elements)
+            const priceComponentEnergy = getPriceComponentByType(priceComponents, TariffDimension.ENERGY)
+            const priceComponentTime = getPriceComponentByType(priceComponents, TariffDimension.TIME)
+
+            if (priceComponentEnergy) {
+                setDimension(I18n.t("Label_Kwh"))
+                setPrice(Math.floor(priceComponentEnergy.price * tariff.currencyRateMsat) / 1000)
+            } else if (priceComponentTime) {
+                setDimension(I18n.t("Label_Hour"))
+                setPrice(Math.floor(priceComponentTime.price * tariff.currencyRateMsat) / 1000)
+            }
+        }
+    }, [tariff?.currencyRateMsat])
 
     return (
         <StopPropagation>
@@ -42,12 +63,14 @@ const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () 
                         </Text>
                     </VStack>
                     <Spacer />
-                    <VStack>
-                        <SatoshiBalance size={18} color={"#ffffff"} satoshis={Math.floor(connector.voltage * 29)} />
-                        <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg" textAlign="right">
-                            /kWh
-                        </Text>
-                    </VStack>
+                    {price > 0 && (
+                        <VStack>
+                            <SatoshiBalance size={18} color={"#ffffff"} satoshis={price} />
+                            <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg" textAlign="right">
+                                /{dimension}
+                            </Text>
+                        </VStack>
+                    )}
                 </HStack>
             </TouchableOpacityOptional>
         </StopPropagation>
