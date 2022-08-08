@@ -9,6 +9,7 @@ const usePaymentStatusIcon = (status: PaymentStatus): PaymentStatusIcon => {
     const { colors } = useTheme()
 
     switch (status) {
+        case PaymentStatus.EXPIRED:
         case PaymentStatus.FAILED:
             return [faCircleExclamation, colors.red["300"]]
         case PaymentStatus.IN_PROGRESS:

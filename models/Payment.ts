@@ -2,6 +2,7 @@ import { PaymentStatus } from "types/payment"
 
 interface PaymentModel {
     createdAt: string
+    expiresAt: string
     description: string
     hash: string
     preimage?: string

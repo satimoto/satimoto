@@ -4,6 +4,7 @@ export enum InvoiceStatus {
     OPEN = "OPEN",
     SETTLED = "SETTLED",
     CANCELLED = "CANCELLED",
+    EXPIRED = "EXPIRED",
     ACCEPTED = "ACCEPTED"
 }
 

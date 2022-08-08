@@ -1,11 +1,13 @@
 import { action, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import TransactionModel from "models/Transaction"
+import { InvoiceStatus } from "types/invoice"
+import moment from "moment"
+import { PaymentStatus } from "types/payment"
 
 const log = new Log("TransactionStore")
 
@@ -38,7 +40,8 @@ export class TransactionStore implements TransactionStoreInterface {
 
             setReady: action,
             addTransaction: action,
-            clearTransactions: action
+            clearTransactions: action,
+            checkExpiredTransations: action
         })
 
         makePersistable(
@@ -55,8 +58,23 @@ export class TransactionStore implements TransactionStoreInterface {
 
     async initialize(): Promise<void> {
         try {
+            this.checkExpiredTransations()
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
+        }
+    }
+
+    checkExpiredTransations() {
+        const now = moment()
+        const openInvoiceStatuses = [InvoiceStatus.ACCEPTED, InvoiceStatus.OPEN]
+        const openPaymentStatuses = [PaymentStatus.IN_PROGRESS, PaymentStatus.UNKNOWN]
+
+        for (const {invoice, payment} of this.transactions) {
+            if (invoice && openInvoiceStatuses.includes(invoice.status) && moment(invoice.expiresAt).isBefore(now)) {
+                invoice.status = InvoiceStatus.EXPIRED
+            }if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
+                payment.status = PaymentStatus.EXPIRED
+            }
         }
     }
 
@@ -81,6 +99,4 @@ export class TransactionStore implements TransactionStoreInterface {
     setReady() {
         this.ready = true
     }
-
-    updateTransactions(data: lnrpc.Transaction) {}
 }

@@ -10,6 +10,7 @@ const useInvoiceStatusIcon = (status: InvoiceStatus): InvoiceStatusIcon => {
 
     switch (status) {
         case InvoiceStatus.CANCELLED:
+        case InvoiceStatus.EXPIRED:
             return [faCircleExclamation, colors.red["300"]]
         case InvoiceStatus.SETTLED:
             return [faCircleCheck, colors.green["300"]]

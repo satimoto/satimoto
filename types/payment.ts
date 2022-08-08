@@ -4,7 +4,8 @@ export enum PaymentStatus {
     UNKNOWN = "UNKNOWN",
     IN_PROGRESS = "IN_PROGRESS",
     SUCCEEDED = "SUCCEEDED",
-    FAILED = "FAILED"
+    FAILED = "FAILED",
+    EXPIRED = "EXPIRED"
 }
 
 const toPaymentStatus = (state: lnrpc.Payment.PaymentStatus): PaymentStatus => {

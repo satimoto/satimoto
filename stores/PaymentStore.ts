@@ -1,13 +1,14 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import PaymentModel from "models/Payment"
+import moment from "moment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq, listPayments, sendPaymentV2 } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { nanosecondsToDate } from "utils/conversion"
+import { nanosecondsToDate, toNumber } from "utils/conversion"
 import { SendPaymentV2Props } from "services/LightningService"
 import { PaymentStatus, toPaymentStatus } from "types/payment"
 
@@ -110,8 +111,10 @@ export class PaymentStore implements PaymentStoreInterface {
                 valueSat: valueSat.toString()
             })
         } else {
+            const createdAt = nanosecondsToDate(creationTimeNs)
             payment = {
-                createdAt: nanosecondsToDate(creationTimeNs).toISOString(),
+                createdAt: createdAt.toISOString(),
+                expiresAt: moment(createdAt).add(toNumber(payReq.expiry), "second").toISOString(),
                 description: payReq.description,
                 feeMsat: feeMsat.toString(),
                 feeSat: feeSat.toString(),
