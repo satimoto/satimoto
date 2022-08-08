@@ -9,4 +9,9 @@ const connectorIcons: any = {
     "UNKNOWN": require("assets/UNKNOWN.png")
 }
 
-export { connectorIcons }
+const transactionIcons: any = {
+    "PLUS": require("assets/plus.png"),
+    "MINUS": require("assets/minus.png")
+}
+
+export { connectorIcons, transactionIcons }

@@ -1,3 +1,5 @@
+import ButtonIcon from "components/ButtonIcon"
+import InvoiceBadge from "components/InvoiceBadge"
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import SatoshiBalance from "components/SatoshiBalance"
 import useColor from "hooks/useColor"
@@ -6,6 +8,7 @@ import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
 import React from "react"
 import { GestureResponderEvent } from "react-native"
 import TimeAgo from "react-native-timeago"
+import { transactionIcons } from "utils/assets"
 import styles from "utils/styles"
 
 interface InvoiceButtonItemProps {
@@ -24,6 +27,9 @@ const InvoiceButtonItem = ({ invoice, onPress = () => {} }: InvoiceButtonItemPro
     return (
         <TouchableOpacityOptional onPress={onButtonPress} style={[styles.transactionButton, { backgroundColor }]}>
             <HStack alignItems="center" space={1}>
+                <ButtonIcon source={transactionIcons["PLUS"]} style={[styles.buttonIcon, {paddingHorizontal: 6}]}>
+                     <InvoiceBadge invoice={invoice} />
+                </ButtonIcon>
                 <VStack>
                     <Text color="white" fontSize="lg" fontWeight="bold">
                         {invoice.hash.substring(0, 16)}

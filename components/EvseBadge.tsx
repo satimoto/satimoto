@@ -1,4 +1,4 @@
-import Badge from "components/Badge"
+import CircleBadge from "components/CircleBadge"
 import EvseModel from "models/Evse"
 import { useTheme } from "native-base"
 import React, { useEffect, useState } from "react"
@@ -26,7 +26,7 @@ const EvseBadge = ({ evse }: EvseBadgeProps) => {
         }
     }, [evse.status])
 
-    return <Badge color={backgroundColor} />
+    return <CircleBadge color={backgroundColor} />
 }
 
 export default EvseBadge

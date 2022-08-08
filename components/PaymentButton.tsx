@@ -1,3 +1,5 @@
+import ButtonIcon from "components/ButtonIcon"
+import PaymentBadge from "components/PaymentBadge"
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import SatoshiBalance from "components/SatoshiBalance"
 import useColor from "hooks/useColor"
@@ -6,6 +8,7 @@ import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
 import React from "react"
 import { GestureResponderEvent } from "react-native"
 import TimeAgo from "react-native-timeago"
+import { transactionIcons } from "utils/assets"
 import styles from "utils/styles"
 
 interface PaymentButtonItemProps {
@@ -24,6 +27,9 @@ const PaymentButtonItem = ({ payment, onPress = () => {} }: PaymentButtonItemPro
     return (
         <TouchableOpacityOptional onPress={onButtonPress} style={[styles.transactionButton, { backgroundColor }]}>
             <HStack alignItems="center" space={1}>
+                <ButtonIcon source={transactionIcons["MINUS"]} style={[styles.buttonIcon, {paddingHorizontal: 6}]}>
+                     <PaymentBadge payment={payment} />
+                </ButtonIcon>
                 <VStack>
                     <Text color="white" fontSize="lg" fontWeight="bold">
                         {payment.hash.substring(0, 16)}

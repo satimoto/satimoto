@@ -1,6 +1,12 @@
 import { StyleSheet } from "react-native"
 
 export default StyleSheet.create({
+    buttonIcon: {
+        alignItems: "flex-end",
+        justifyContent: "flex-start",
+        paddingVertical: 3,
+        paddingHorizontal: 3
+    },
     center: {
         justifyContent: "center",
         alignItems: "center"

@@ -3,19 +3,19 @@ import { StyleProp, StyleSheet, View, ViewStyle } from "react-native"
 
 const styleSheet = StyleSheet.create({
     badge: {
-        width: 10,
-        height: 10,
+        width: 15,
+        height: 15,
         borderRadius: 10
     }
 })
 
-interface BadgeProps {
+interface CircleBadgeProps {
     color: string
     style?: StyleProp<ViewStyle>
 }
 
-const Badge = ({ color, style = {} }: BadgeProps) => {
+const CircleBadge = ({ color, style = {} }: CircleBadgeProps) => {
     return <View style={[style, styleSheet.badge, { backgroundColor: color }]}></View>
 }
 
-export default Badge
+export default CircleBadge

@@ -1,4 +1,4 @@
-import Badge from "components/Badge"
+import CircleBadge from "components/CircleBadge"
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import React, { useState } from "react"
 import { StyleSheet, View } from "react-native"
@@ -76,7 +76,7 @@ const StackBarLegendItem = ({ item }: StackBarLegendItemProps) => {
 
     return (
         <HStack>
-            <Badge color={item.color} style={{ margin: 6 }} />
+            <CircleBadge color={item.color} style={{ margin: 6 }} />
             <Text color={textColor}>{item.label}</Text>
         </HStack>
     )
