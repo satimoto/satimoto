@@ -2,10 +2,13 @@
 
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
+#import <React/RCTLinkingManager.h>
 #import <React/RCTRootView.h>
 #if RCT_DEV
 #import <React/RCTDevLoadingView.h>
 #endif
+#import <Firebase.h>
+#import "RNFBMessagingModule.h"
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
@@ -32,6 +35,9 @@ static void InitializeFlipper(UIApplication *application) {
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
+  
+  NSDictionary *appProperties = [RNFBMessagingModule addCustomPropsToUserProps:nil
+                                                             withLaunchOptions:launchOptions];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   #if RCT_DEV
@@ -39,7 +45,7 @@ static void InitializeFlipper(UIApplication *application) {
   #endif
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"Satimoto"
-                                            initialProperties:nil];
+                                            initialProperties:appProperties];
 
   if (@available(iOS 13.0, *)) {
       rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -52,6 +58,27 @@ static void InitializeFlipper(UIApplication *application) {
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  
+  NSString *firebaseConfig;
+  #if RELEASE
+  #if NETWORK == "testnet"
+  firebaseConfig = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info-Testnet" ofType:@"plist"];
+  #elif NETWORK == "mainnet"
+  firebaseConfig = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
+  #endif
+  #endif
+
+  if (firebaseConfig != nil) {
+      FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:firebaseConfig];
+      if (options != nil) {
+          [FIRApp configureWithOptions:options];
+      }
+  }
+  
+  if ([FIRApp defaultApp] == nil) {
+    [FIRApp configure];
+  }
+
   return YES;
 }
 
@@ -62,6 +89,11 @@ static void InitializeFlipper(UIApplication *application) {
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+  return [RCTLinkingManager application:application openURL:url options:options];
 }
 
 @end

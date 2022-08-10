@@ -11,3 +11,8 @@
 -keep class **.BuildConfig { *; }
 
 -keep class lnrpc.** { *; }
+
+-keep class com.google.firebase.** { *; }
+-keep class com.facebook.react.turbomodule.** { *; }
+-keep class com.swmansion.reanimated.** { *; }
+

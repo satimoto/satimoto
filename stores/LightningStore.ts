@@ -2,46 +2,47 @@ import Long from "long"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
-import { getInfo, start, registerBlockEpochNtfn, subscribeState, listPeers } from "services/LightningService"
+import { chainrpc, lnrpc } from "proto/proto"
+import { StoreInterface, Store } from "stores/Store"
+import { getInfo, start, registerBlockEpochNtfn, subscribeState } from "services/LightningService"
 import { startLogEvents } from "services/LndUtilsService"
-import { Debug } from "utils/build"
-import { bytesToHex, reverseByteOrder, toString } from "utils/conversion"
+import { DEBUG } from "utils/build"
+import { bytesToHex, reverseByteOrder } from "utils/conversion"
 import { Log } from "utils/logging"
 import { timeout } from "utils/tools"
 
 const log = new Log("LightningStore")
 
-export interface ILightningStore extends IStore {
+export interface LightningStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
+
     blockHeight: number
+    identityPubkey?: string
     state: lnrpc.WalletState
-    stateSubscribed: boolean
+    startedLogEvents: boolean
+    subscribedBlockEpoch: boolean
+    subscribedState: boolean
     bestHeaderTimestamp: string
     syncHeaderTimestamp: string
     syncedToChain: boolean
     percentSynced: number
 
     getInfo(): void
-    setSyncHeaderTimestamp(timestamp: string): void
     syncToChain(): void
-    calculatePercentSynced(): void
-    updateChannels(): void
-    updateInfo(data: lnrpc.GetInfoResponse): void
-    updateState(data: lnrpc.SubscribeStateResponse): void
 }
 
-export class LightningStore implements ILightningStore {
-    // Store state
+export class LightningStore implements LightningStoreInterface {
     hydrated = false
     ready = false
     stores
-    // Lightning state
-    state = lnrpc.WalletState.WAITING_TO_START
-    stateSubscribed = false
+
     blockHeight = 0
+    identityPubkey?: string = undefined
+    state = lnrpc.WalletState.WAITING_TO_START
+    startedLogEvents = false
+    subscribedBlockEpoch = false
+    subscribedState = false
     bestHeaderTimestamp = "0"
     syncHeaderTimestamp = "0"
     syncedToChain = false
@@ -53,9 +54,13 @@ export class LightningStore implements ILightningStore {
         makeObservable(this, {
             hydrated: observable,
             ready: observable,
-            state: observable,
-            stateSubscribed: observable,
+
             blockHeight: observable,
+            identityPubkey: observable,
+            state: observable,
+            startedLogEvents: observable,
+            subscribedBlockEpoch: observable,
+            subscribedState: observable,
             bestHeaderTimestamp: observable,
             syncedToChain: observable,
             percentSynced: observable,
@@ -63,13 +68,14 @@ export class LightningStore implements ILightningStore {
             calculatePercentSynced: action,
             setReady: action,
             setSyncHeaderTimestamp: action,
+            updateBlockEpoch: action,
             updateInfo: action,
             updateState: action
         })
 
         makePersistable(
             this,
-            { name: "LightningStore", properties: ["blockHeight", "bestHeaderTimestamp"], storage: AsyncStorage, debugMode: Debug },
+            { name: "LightningStore", properties: ["identityPubkey", "blockHeight", "bestHeaderTimestamp"], storage: AsyncStorage, debugMode: DEBUG },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
@@ -104,13 +110,11 @@ export class LightningStore implements ILightningStore {
             const startReponse = await start()
             log.debug(startReponse)
 
-            if (Debug) {
-                startLogEvents()
-            }
+            this.startLogEvents()
 
             // When the wallet is unlocked or RPC active, set the store ready
             when(
-                () => this.state == lnrpc.WalletState.RPC_ACTIVE,
+                () => this.state == lnrpc.WalletState.RPC_ACTIVE || this.state == lnrpc.WalletState.SERVER_ACTIVE,
                 () => this.syncToChain()
             )
 
@@ -126,17 +130,17 @@ export class LightningStore implements ILightningStore {
     }
 
     subscribeBlockEpoch() {
-        registerBlockEpochNtfn((data) => {
-            const hash = reverseByteOrder(data.hash)
-            const hex = bytesToHex(hash)
-            log.debug(`Hex: ${hex}`)
-            this.getInfo()
-        })
+        if (!this.subscribedBlockEpoch) {
+            registerBlockEpochNtfn((data) => this.updateBlockEpoch(data))
+            this.subscribedBlockEpoch = true
+        }
     }
 
     subscribeState() {
-        subscribeState((data) => this.updateState(data))
-        this.stateSubscribed = true
+        if (!this.subscribedState) {
+            subscribeState((data) => this.updateState(data))
+            this.subscribedState = true
+        }
     }
 
     setReady() {
@@ -145,6 +149,13 @@ export class LightningStore implements ILightningStore {
 
     setSyncHeaderTimestamp(timestamp: string) {
         this.syncHeaderTimestamp = timestamp
+    }
+
+    startLogEvents() {
+        if (DEBUG && !this.startedLogEvents) {
+            startLogEvents()
+            this.startedLogEvents = true
+        }
     }
 
     async syncToChain() {
@@ -161,15 +172,21 @@ export class LightningStore implements ILightningStore {
             await timeout(6000)
         }
 
-        await listPeers()
-
         this.setReady()
+    }
+
+    updateBlockEpoch({ hash }: chainrpc.BlockEpoch) {
+        const reversedHash = reverseByteOrder(hash)
+        const hex = bytesToHex(reversedHash)
+        log.debug(`Hex: ${hex}`)
+        this.getInfo()
     }
 
     updateChannels() {}
 
-    updateInfo({ blockHeight, bestHeaderTimestamp, syncedToChain }: lnrpc.GetInfoResponse) {
+    updateInfo({ blockHeight, bestHeaderTimestamp, identityPubkey, syncedToChain }: lnrpc.GetInfoResponse) {
         this.blockHeight = blockHeight
+        this.identityPubkey = identityPubkey
         this.bestHeaderTimestamp = bestHeaderTimestamp.toString()
         this.syncedToChain = syncedToChain
     }

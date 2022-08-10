@@ -1,63 +1,102 @@
-import { action, makeObservable, observable, when } from "mobx"
+import { action, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { lnrpc } from "proto/proto"
-import { IStore, Store } from "stores/Store"
-import { subscribeTransactions } from "services/LightningService"
-import { Debug } from "utils/build"
+import { StoreInterface, Store } from "stores/Store"
+import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import TransactionModel from "models/Transaction"
+import { InvoiceStatus } from "types/invoice"
+import moment from "moment"
+import { PaymentStatus } from "types/payment"
 
 const log = new Log("TransactionStore")
 
-export interface ITransactionStore extends IStore {
+export interface TransactionStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
-    subscribeTransactions(): void
-    updateTransactions(data: lnrpc.Transaction): void
+    transactions: TransactionModel[]
+
+    addTransaction(transaction: TransactionModel): void
+    clearTransactions(): void
 }
 
-export class TransactionStore implements ITransactionStore {
-    // Store state
+export class TransactionStore implements TransactionStoreInterface {
     hydrated = false
     ready = false
     stores
-    // Transaction state
+
+    transactions
 
     constructor(stores: Store) {
         this.stores = stores
+        this.transactions = observable<TransactionModel>([])
 
         makeObservable(this, {
             hydrated: observable,
             ready: observable,
 
-            setReady: action
+            transactions: observable,
+
+            setReady: action,
+            addTransaction: action,
+            clearTransactions: action,
+            checkExpiredTransations: action
         })
 
-        makePersistable(this, { name: "TransactionStore", properties: [], storage: AsyncStorage, debugMode: Debug }, { delay: 1000 }).then(
-            action((persistStore) => (this.hydrated = persistStore.isHydrated))
-        )
+        makePersistable(
+            this,
+            {
+                name: "TransactionStore",
+                properties: ["transactions"],
+                storage: AsyncStorage,
+                debugMode: DEBUG
+            },
+            { delay: 1000 }
+        ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
 
     async initialize(): Promise<void> {
         try {
-            // When the synced to chain, subscribe to transactions
-            when(
-                () => this.stores.lightningStore.syncedToChain,
-                () => this.subscribeTransactions()
-            )
+            this.checkExpiredTransations()
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
     }
 
-    subscribeTransactions() {
-        subscribeTransactions((data: lnrpc.Transaction) => this.updateTransactions(data))
+    checkExpiredTransations() {
+        const now = moment()
+        const openInvoiceStatuses = [InvoiceStatus.ACCEPTED, InvoiceStatus.OPEN]
+        const openPaymentStatuses = [PaymentStatus.IN_PROGRESS, PaymentStatus.UNKNOWN]
+
+        for (const {invoice, payment} of this.transactions) {
+            if (invoice && openInvoiceStatuses.includes(invoice.status) && moment(invoice.expiresAt).isBefore(now)) {
+                invoice.status = InvoiceStatus.EXPIRED
+            }if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
+                payment.status = PaymentStatus.EXPIRED
+            }
+        }
+    }
+
+    addTransaction(transaction: TransactionModel) {
+        let existingTransaction = this.transactions.find(
+            ({ invoice, payment }) =>
+                (transaction.invoice && invoice && transaction.invoice.hash === invoice.hash) ||
+                (transaction.payment && payment && transaction.payment.hash === payment.hash)
+        )
+
+        if (existingTransaction) {
+            Object.assign(existingTransaction, transaction)
+        } else {
+            this.transactions.unshift(transaction)
+        }
+    }
+
+    clearTransactions() {
+        this.transactions.clear()
     }
 
     setReady() {
         this.ready = true
     }
-
-    updateTransactions(data: lnrpc.Transaction) {}
 }

@@ -1,18 +1,21 @@
-# react-mobile
+# Satimoto
 Satimoto mobile application using react native
 
 
-## Building LND mobile binaries
-Before running the app, the mobile binaries need to be built for LND so GRPC calls can be made during runtime.
+## Build Requirements
 
 _Required for iOS_
 * Xcode
 * cocoapods 1.7.2 (`brew install cocoapods`)
 
 _Required for Android_
-* [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Java OpenJDK 11 
 * [Android Studio](https://developer.android.com/studio)
 * [Android NDK](https://developer.android.com/ndk/guides)
+
+
+## Building LND mobile binaries
+Before running the app, the mobile binaries need to be built for LND so GRPC calls can be made during runtime.
 
 Switch go module aware build mode to auto
 ```bash
@@ -52,12 +55,12 @@ git fetch satimoto
 Checkout branch to build (Reset staged/unstaged changes if you need to)
 ```bash
 git reset --hard HEAD
-git checkout -b 0-13-2-branch satimoto/0-13-2-branch
+git checkout -b v0-15-0-beta satimoto/v0-15-0-beta
 ```
-Build for iOS platform (`Lndmobile.framework`)
+Build for iOS platform (`Lndmobile.xcframework`)
 ```bash
 make ios prefix="1" tags="chainrpc invoicesrpc routerrpc signrpc walletrpc"
-cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/ios/Lndmobile.framework <path/to>/react-mobile/ios/LndMobile
+cp -r $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/ios/Lndmobile.xcframework <path/to>/react-mobile/ios/LndMobile
 ```
 Build for android platform (`Lndmobile.aar`)
 ```bash

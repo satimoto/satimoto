@@ -20,27 +20,33 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 public class LndUtils extends ReactContextBaseJavaModule {
     final String TAG = "LndUtils";
-    private static final String logEventName = "logs";
+    private static final String logEventName = "logEvent";
 
     private FileObserver logObserver;
-    final String lndDirectory;
-    final String confFile;
-    final String logFile;
+    final String confPath;
+    final String lndPath;
+    final String logPath;
 
     public LndUtils(ReactApplicationContext reactContext) {
         super(reactContext);
 
-        lndDirectory = getReactApplicationContext().getFilesDir().toString();
-        confFile = lndDirectory + "/lnd.conf";
-        logFile = lndDirectory + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
+        lndPath = getReactApplicationContext().getFilesDir().toString();
+        confPath = lndPath + "/lnd_v1.conf";
+        logPath = lndPath + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
 
-        prepareFileDirectory(logFile);
+        prepareFileDirectory(logPath);
     }
 
     @Override
     public String getName() {
         return TAG;
     }
+
+    @ReactMethod
+    public void addListener(String eventName) {}
+
+    @ReactMethod
+    public void removeListeners(Integer count) {}
 
     private void prepareFileDirectory(String filename) {
         new File(filename).getParentFile().mkdirs();
@@ -52,7 +58,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
     }
 
     void writeConf(String content) throws Exception {
-        PrintWriter writer = getPrintWriter(confFile);
+        PrintWriter writer = getPrintWriter(confPath);
         writer.println(content);
         writer.close();
     }
@@ -61,18 +67,18 @@ public class LndUtils extends ReactContextBaseJavaModule {
     void writeConf(String content, Promise promise) {
         try {
             this.writeConf(content);
-            Log.d(TAG, "Saved LND conf to: " + confFile);
+            Log.d(TAG, "Saved LND conf to: " + confPath);
         } catch (Exception e) {
-            Log.e(TAG, "Could not write to " + confFile, e);
-            promise.reject("Could not write to : " + confFile, e);
+            Log.e(TAG, "Could not write to " + confPath, e);
+            promise.reject("Could not write to : " + confPath, e);
             return;
         }
 
-        promise.resolve("Saved LND conf to: " + confFile);
+        promise.resolve("Saved LND conf to: " + confPath);
     }
 
     void writeDefaultConf() throws Exception {
-        PrintWriter writer = getPrintWriter(confFile);
+        PrintWriter writer = getPrintWriter(confPath);
 
         if (BuildConfig.NETWORK.equals("mainnet")) {
             writer.println(
@@ -84,6 +90,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
                             "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
+                            "tlsdisableautofill=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -112,6 +119,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
                             "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
+                            "tlsdisableautofill=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -119,7 +127,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=neutrino\n" +
                             "\n" +
                             "[Neutrino]\n" +
-                            "neutrino.connect=btcd-testnet.lightning.computer\n" +
+                            "neutrino.connect=faucet.lightning.community\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +
@@ -139,6 +147,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "norest=1\n" +
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
+                            "tlsdisableautofill=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -146,11 +155,11 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=bitcoind\n" +
                             "\n" +
                             "[Bitcoind]\n" +
-                            "bitcoind.rpchost=127.0.0.1:18443\n" +
+                            "bitcoind.rpchost=10.0.2.2:18448\n" +
                             "bitcoind.rpcuser=polaruser\n" +
                             "bitcoind.rpcpass=polarpass\n" +
-                            "bitcoind.zmqpubrawblock=127.0.0.1:28334\n" +
-                            "bitcoind.zmqpubrawtx=127.0.0.1:29335\n" +
+                            "bitcoind.zmqpubrawblock=tcp://10.0.2.2:28339\n" +
+                            "bitcoind.zmqpubrawtx=tcp://10.0.2.2:29340\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +
@@ -170,33 +179,33 @@ public class LndUtils extends ReactContextBaseJavaModule {
     void writeDefaultConf(Promise promise) {
         try {
             this.writeDefaultConf();
-            Log.d(TAG, "Saved LND conf to: " + confFile);
+            Log.d(TAG, "Saved LND conf to: " + confPath);
         } catch (Exception e) {
-            Log.e(TAG, "Could not write to " + confFile, e);
-            promise.reject("Could not write to : " + confFile, e);
+            Log.e(TAG, "Could not write to " + confPath, e);
+            promise.reject("Could not write to : " + confPath, e);
             return;
         }
 
-        promise.resolve("Saved LND conf to: " + confFile);
+        promise.resolve("Saved LND conf to: " + confPath);
     }
 
     @ReactMethod
-    void startLogEvents(String content, Promise promise) {
+    void startLogEvents(Promise promise) {
         if (logObserver == null) {
             FileInputStream fileInputStream = null;
 
             try {
-                fileInputStream = new FileInputStream(logFile);
+                fileInputStream = new FileInputStream(logPath);
             } catch (FileNotFoundException fnfe) {
-                Log.e(TAG, "Error initializing log events: " + logFile, fnfe);
-                promise.reject("Error initializing log events: " + logFile, fnfe);
+                Log.e(TAG, "Error initializing log events: " + logPath, fnfe);
+                promise.reject("Error initializing log events: " + logPath, fnfe);
                 return;
             }
 
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-            logObserver = new FileObserver(logFile) {
+            logObserver = new FileObserver(logPath) {
                 @Override
                 public void onEvent(int event, String file) {
                     if (event != FileObserver.MODIFY) {
@@ -226,6 +235,4 @@ public class LndUtils extends ReactContextBaseJavaModule {
                     .emit(logEventName, lines);
         }
     }
-
-
 }

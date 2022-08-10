@@ -22,9 +22,6 @@ import java.util.Map;
 import lndmobile.Lndmobile;
 import lndmobile.SendStream;
 
-import lnrpc.Rpc;
-import lnrpc.Walletunlocker;
-
 public class LndMobile extends ReactContextBaseJavaModule {
 
     private final String TAG = "LndMobile";
@@ -72,20 +69,26 @@ public class LndMobile extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void addListener(String eventName) {}
+
+    @ReactMethod
+    public void removeListeners(Integer count) {}
+
+    @ReactMethod
     public void start(final Promise promise) {
         LndUtils lndUtils = new LndUtils(getReactApplicationContext());
-        File confFile = new File(lndUtils.confFile);
+        File confPath = new File(lndUtils.confPath);
 
-        if (!confFile.exists()) {
+        if (!confPath.exists()) {
             try {
                 lndUtils.writeDefaultConf();
             } catch (Exception e) {
-                Log.e(TAG, "Could not write to " + lndUtils.confFile, e);
-                promise.reject("Could not write to : " + lndUtils.confFile, e);
+                Log.e(TAG, "Could not write to " + lndUtils.confPath, e);
+                promise.reject("Could not write to : " + lndUtils.confPath, e);
             }
         }
 
-        String args = "--lnddir=" + lndUtils.lndDirectory;
+        String args = "--lnddir=" + lndUtils.lndPath + " --configfile=" + lndUtils.confPath;
         Log.i(TAG, "Starting LND with args " + args);
         Runnable startLnd = () -> Lndmobile.start(args, new StartLndCallback(promise));
         new Thread(startLnd).start();
@@ -93,7 +96,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initWallet(ReadableArray seed, String password, Integer recoveryWindow, final Promise promise) {
-        Walletunlocker.InitWalletRequest.Builder initWallet = Walletunlocker.InitWalletRequest.newBuilder();
+        lnrpc.Walletunlocker.InitWalletRequest.Builder initWallet = lnrpc.Walletunlocker.InitWalletRequest.newBuilder();
 
         // Add seed mnemonic
         ArrayList<String> seedMnemonic = new ArrayList<>();
@@ -133,7 +136,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void unlockWallet(String password, final Promise promise) {
-        Walletunlocker.UnlockWalletRequest.Builder unlockWallet = Walletunlocker.UnlockWalletRequest.newBuilder();
+        lnrpc.Walletunlocker.UnlockWalletRequest.Builder unlockWallet = lnrpc.Walletunlocker.UnlockWalletRequest.newBuilder();
         unlockWallet.setWalletPassword(ByteString.copyFromUtf8(password));
 
         Lndmobile.unlockWallet(unlockWallet.build().toByteArray(), new LndCallback(promise));
@@ -141,7 +144,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stop(final Promise promise) {
-        Rpc.StopRequest.Builder builder = Rpc.StopRequest.newBuilder();
+        lnrpc.LightningOuterClass.StopRequest.Builder builder = lnrpc.LightningOuterClass.StopRequest.newBuilder();
 
         Lndmobile.stopDaemon(builder.build().toByteArray(), new LndCallback(promise));
     }
@@ -150,7 +153,7 @@ public class LndMobile extends ReactContextBaseJavaModule {
     public void sendCommand(String method, String msg, final Promise promise) {
         Method syncMethod = syncMethods.get(method);
         if (syncMethod == null) {
-            promise.reject(TAG, "method not found");
+            promise.reject(TAG, "method not found: " + method);
             return;
         }
 

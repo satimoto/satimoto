@@ -1,41 +1,68 @@
 import type { InvoiceStreamResponse, TransactionStreamResponse } from "./lightning/lightning"
-import type { BlockEpochStreamResponse } from "./lightning/chain"
-import type { PaymentStreamResponse } from "./lightning/router"
+import type { BlockEpochStreamResponse } from "./lightning/chainNotifier"
+import type { PaymentStreamResponse, SendPaymentV2Props } from "./lightning/router"
 
-import { start, stop, getInfo, listPayments, listPeers, subscribeInvoices, subscribeTransactions } from "./lightning/lightning"
-import { registerBlockEpochNtfn } from "./lightning/chain"
-import { openChannel } from "./lightning/channel"
+import {
+    start,
+    stop,
+    addInvoice,
+    connectPeer,
+    decodePayReq, 
+    disconnectPeer,
+    getInfo,
+    listPayments,
+    listPeers,
+    sendCustomMessage,
+    signMessage,
+    subscribeCustomMessages,
+    subscribeInvoices,
+    subscribePeerEvents,
+    subscribeTransactions
+} from "./lightning/lightning"
+import { registerBlockEpochNtfn } from "./lightning/chainNotifier"
+import { channelBalance, openChannel, subscribeChannelEvents } from "./lightning/channel"
 import { sendPaymentV2 } from "./lightning/router"
 import { getState, subscribeState } from "./lightning/state"
-import { genSeed, initWallet, unlockWallet } from "./lightning/wallet"
+import { genSeed, initWallet, unlockWallet } from "./lightning/walletUnlocker"
 
 export type {
     InvoiceStreamResponse,
     TransactionStreamResponse,
-    // Chain
+    // ChainNotifier
     BlockEpochStreamResponse,
     // Router
-    PaymentStreamResponse
+    PaymentStreamResponse,
+    SendPaymentV2Props
 }
 
 export {
     start,
     stop,
+    addInvoice,
+    connectPeer,
+    decodePayReq,
+    disconnectPeer,
     getInfo,
     listPayments,
     listPeers,
+    sendCustomMessage,
+    signMessage,
+    subscribeCustomMessages,
     subscribeInvoices,
+    subscribePeerEvents,
     subscribeTransactions,
-    // Chain
+    // ChainNotifier
     registerBlockEpochNtfn,
     // Channel
+    channelBalance,
     openChannel,
+    subscribeChannelEvents,
     // Router
     sendPaymentV2,
     // State
     getState,
     subscribeState,
-    // Wallet
+    // WalletUnlocker
     genSeed,
     initWallet,
     unlockWallet

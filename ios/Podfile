@@ -1,8 +1,9 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 pod 'SwiftProtobuf', '~> 1.0'
+pod 'React-RCTLinking', :path => '../node_modules/react-native/Libraries/LinkingIOS'
 
-platform :ios, '11.0'
+platform :ios, '11.1'
 
 project 'Satimoto',
         'DebugTestnet' => :debug,
@@ -32,9 +33,26 @@ target 'Satimoto' do
   # you should disable the next line.
   use_flipper!()
 
+  pre_install do |installer|
+    # MapBoxGL pre install
+    $RNMBGL.pre_install(installer)
+  end
+
   post_install do |installer|
+    # MapBoxGL post install
+    $RNMBGL.post_install(installer)
+    # Reset iOS deployment target
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
+      end
+    end
+    # Set Build config to arm64
     react_native_post_install(installer)
       installer.pods_project.build_configurations.each do |config| config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] =  "arm64"
-      end
+    end
+    # We need to make one crude patch to RCT-Folly - set `__IPHONE_10_0` to our iOS target + 1
+    # https://github.com/facebook/flipper/issues/834 - 84 comments and still going...
+    `sed -i -e  $'s/__IPHONE_10_0/__IPHONE_12_0/' #{installer.sandbox.root}/RCT-Folly/folly/portability/Time.h`
   end
 end

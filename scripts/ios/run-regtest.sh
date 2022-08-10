@@ -1,0 +1,1 @@
+npm run ios:regtest-debug
