@@ -12,8 +12,7 @@ import { addInvoice, subscribeInvoices } from "services/LightningService"
 import { InvoiceStatus, toInvoiceStatus } from "types/invoice"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID, CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE } from "utils/constants"
-import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toNumber } from "utils/conversion"
+import { bytesToBase64, bytesToHex, secondsToDate, toLong, toMilliSatoshi, toNumber } from "utils/conversion"
 import { randomLong } from "utils/random"
 import { doWhileUntil } from "utils/tools"
 
@@ -98,7 +97,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
             })
             const node = channelRequest.data.createChannelRequest.node
             const peer = await this.stores.peerStore.connectPeer(node.pubkey, node.addr)
-            const chanId = randomLong()
+            const chanId = toLong(channelRequest.data.createChannelRequest.pendingChanId)
 
             routeHints.push(
                 lnrpc.RouteHint.create({
@@ -110,19 +109,6 @@ export class InvoiceStore implements InvoiceStoreInterface {
                     ]
                 })
             )
-
-            this.stores.peerStore.addCustomMessageResponder({
-                request: {
-                    peer: node.pubkey,
-                    type: CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID,
-                    data: chanId.toString(10)
-                },
-                response: {
-                    peer: node.pubkey,
-                    type: CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE,
-                    data: bytesToHex(preimage)
-                }
-            })
 
             this.stores.channelStore.addChannelRequest(node.pubkey, bytesToHex(paymentHash), amount.toString())
         }

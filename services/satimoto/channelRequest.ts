@@ -10,6 +10,7 @@ const CREATE_CHANNEL_REQUEST = gql`
             paymentHash
             paymentAddr
             amountMsat
+            pendingChanId
             node {
                 pubkey
                 addr

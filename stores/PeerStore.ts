@@ -8,7 +8,7 @@ import { StoreInterface, Store } from "stores/Store"
 import { connectPeer, disconnectPeer, listPeers, sendCustomMessage, subscribeCustomMessages, subscribePeerEvents } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID } from "utils/constants"
-import { bytesToHex, toString } from "utils/conversion"
+import { bytesToHex, errorToString, toString } from "utils/conversion"
 import { Log } from "utils/logging"
 
 const log = new Log("PeerStore")
@@ -98,25 +98,34 @@ export class PeerStore implements PeerStoreInterface {
     }
 
     async connectPeer(pubkey: string, host: string) {
-        try {
-            let peer: PeerModelLike = this.getPeer(pubkey)
+        let peer: PeerModelLike = this.getPeer(pubkey)
 
-            if (peer) {
-                log.debug(`Peer  ${peer.pubkey} is ${peer.online ? "online" : "offline"}`)
-            } else {
-                peer = {
-                    pubkey,
-                    online: false
-                }
-
-                await connectPeer(pubkey, host, true)
-                this.peers.push(peer)
+        if (peer) {
+            log.debug(`Peer  ${peer.pubkey} is ${peer.online ? "online" : "offline"}`)
+        } else {
+            peer = {
+                pubkey,
+                online: false
             }
 
-            return peer
-        } catch (error) {
-            throw error
+            try {
+                await connectPeer(pubkey, host, true)
+                this.peers.push(peer)
+            } catch (error) {
+                const errorString = errorToString(error)
+
+                if (errorString.includes("already connected to peer")) {
+                    peer.online = true
+                    this.peers.push(peer)
+
+                    return peer
+                }
+
+                throw error
+            }
         }
+
+        return peer
     }
 
     async disconnectPeer(pubkey: string) {

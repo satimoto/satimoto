@@ -110,10 +110,14 @@ export class ChannelStore implements ChannelStoreInterface {
         this.channelRequests.remove(channelRequest)
     }
 
-    updateChannelBalance({ balance, localBalance, remoteBalance }: lnrpc.ChannelBalanceResponse) {
-        log.debug(`Channel Balance: ${balance}`)
-        this.localBalance = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
-        this.remoteBalance = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
+    updateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {
+        const localBalanceSat = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
+        const remoteBalanceSat = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
+        const unsettledLocalBalanceSat = unsettledLocalBalance && unsettledLocalBalance.sat ? toNumber(unsettledLocalBalance.sat) : 0
+       
+        this.localBalance = localBalanceSat + unsettledLocalBalanceSat
+        this.remoteBalance = remoteBalanceSat
+        log.debug(`Channel Balance: ${this.localBalance}`)
     }
 
     updateChannelEvents({ type, openChannel }: lnrpc.ChannelEventUpdate) {
@@ -129,7 +133,6 @@ export class ChannelStore implements ChannelStoreInterface {
                 const channelRequest = this.findChannelRequest(remotePubkey, pushAmount.toString())
 
                 if (channelRequest) {
-                    this.stores.invoiceStore.settleInvoice(channelRequest.paymentHash)
                     this.removeChannelRequest(channelRequest)
                 }
             }
