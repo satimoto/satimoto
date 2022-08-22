@@ -35,7 +35,9 @@ const GET_LOCATION = gql`
                         elements {
                             priceComponents {
                                 type
-                                price
+                                priceMsat
+                                commissionMsat
+                                taxMsat
                                 stepSize
                             }
                             restrictions {

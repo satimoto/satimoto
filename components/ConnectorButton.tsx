@@ -5,13 +5,14 @@ import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import useColor from "hooks/useColor"
 import EvseModel from "models/Evse"
 import ConnectorModel from "models/Connector"
+import { calculateTotalPrice, getPriceComponentByType, getPriceComponents } from "models/PriceComponent"
 import { HStack, Spacer, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
+import { TariffDimension } from "types/tariff"
 import { connectorIcons } from "utils/assets"
+import { toNumber, toSatoshi } from "utils/conversion"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
-import { getPriceComponentByType, getPriceComponents } from "models/PriceComponent"
-import { TariffDimension } from "types/tariff"
 
 interface ConnectorButtonProps {
     connector: ConnectorModel
@@ -24,6 +25,8 @@ interface ConnectorButtonProps {
 const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () => {}, onPressOut = () => {} }: ConnectorButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
+    const primaryTextcolor = useColorModeValue("lightText", "darkText")
+    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
     const [dimension, setDimension] = useState("")
     const [price, setPrice] = useState(0)
     const [tariff] = useState(connector.tariff)
@@ -36,10 +39,10 @@ const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () 
 
             if (priceComponentEnergy) {
                 setDimension(I18n.t("Label_Kwh"))
-                setPrice(Math.floor(priceComponentEnergy.price * tariff.currencyRateMsat) / 1000)
+                setPrice(toNumber(toSatoshi(calculateTotalPrice(priceComponentEnergy))))
             } else if (priceComponentTime) {
                 setDimension(I18n.t("Label_Hour"))
-                setPrice(Math.floor(priceComponentTime.price * tariff.currencyRateMsat) / 1000)
+                setPrice(toNumber(toSatoshi(calculateTotalPrice(priceComponentTime))))
             }
         }
     }, [tariff?.currencyRateMsat])
@@ -55,10 +58,10 @@ const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () 
                 <HStack alignItems="center" space={1}>
                     <ButtonIcon justifyContent="flex-end" source={connectorIcons[connector.standard] || connectorIcons["UNKNOWN"]} />
                     <VStack>
-                        <Text color={useColorModeValue("lightText", "darkText")} fontSize="lg" fontWeight="bold">
+                        <Text color={primaryTextcolor} fontSize="lg" fontWeight="bold">
                             {I18n.t(connector.standard)}
                         </Text>
-                        <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg">
+                        <Text color={secondaryTextcolor} fontSize="lg">
                             {Math.floor(connector.wattage / 1000)} kW
                         </Text>
                     </VStack>
@@ -66,7 +69,7 @@ const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () 
                     {price > 0 && (
                         <VStack>
                             <SatoshiBalance size={18} color={"#ffffff"} satoshis={price} />
-                            <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg" textAlign="right">
+                            <Text color={secondaryTextcolor} fontSize="lg" textAlign="right">
                                 /{dimension}
                             </Text>
                         </VStack>

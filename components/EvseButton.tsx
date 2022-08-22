@@ -6,10 +6,11 @@ import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import useColor from "hooks/useColor"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
-import { getPriceComponentByType, getPriceComponents } from "models/PriceComponent"
+import { calculateTotalPrice, getPriceComponentByType, getPriceComponents } from "models/PriceComponent"
 import { HStack, Spacer, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
 import { TariffDimension } from "types/tariff"
+import { toNumber, toSatoshi } from "utils/conversion"
 import { connectorIcons } from "utils/assets"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
@@ -24,6 +25,8 @@ interface EvseButtonProps {
 const EvseButton = ({ connector, evse, onPress = () => {} }: EvseButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
+    const primaryTextcolor = useColorModeValue("lightText", "darkText")
+    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
     const [dimension, setDimension] = useState("")
     const [price, setPrice] = useState(0)
     const [tariff] = useState(connector.tariff)
@@ -36,10 +39,10 @@ const EvseButton = ({ connector, evse, onPress = () => {} }: EvseButtonProps) =>
 
             if (priceComponentEnergy) {
                 setDimension(I18n.t("Label_Kwh"))
-                setPrice(Math.floor(priceComponentEnergy.price * tariff.currencyRateMsat) / 1000)
+                setPrice(toNumber(toSatoshi(calculateTotalPrice(priceComponentEnergy))))
             } else if (priceComponentTime) {
                 setDimension(I18n.t("Label_Hour"))
-                setPrice(Math.floor(priceComponentTime.price * tariff.currencyRateMsat) / 1000)
+                setPrice(toNumber(toSatoshi(calculateTotalPrice(priceComponentTime))))
             }
         }
     }, [])
@@ -52,10 +55,10 @@ const EvseButton = ({ connector, evse, onPress = () => {} }: EvseButtonProps) =>
                         <EvseBadge evse={evse} />
                     </ButtonIcon>
                     <VStack>
-                        <Text color={useColorModeValue("lightText", "darkText")} fontSize="lg" fontWeight="bold">
+                        <Text color={primaryTextcolor} fontSize="lg" fontWeight="bold">
                             {evse.identifier || evse.uid}
                         </Text>
-                        <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg">
+                        <Text color={secondaryTextcolor} fontSize="lg">
                             {I18n.t(evse.status)}
                         </Text>
                     </VStack>
@@ -63,7 +66,7 @@ const EvseButton = ({ connector, evse, onPress = () => {} }: EvseButtonProps) =>
                     {price > 0 && (
                         <VStack>
                             <SatoshiBalance size={18} color={"#ffffff"} satoshis={price} />
-                            <Text color={useColorModeValue("warmGray.200", "dark.200")} fontSize="lg" textAlign="right">
+                            <Text color={secondaryTextcolor} fontSize="lg" textAlign="right">
                                 /{dimension}
                             </Text>
                         </VStack>
