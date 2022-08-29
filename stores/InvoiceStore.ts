@@ -96,21 +96,21 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 amountMsat: toMilliSatoshi(amount).toString(10)
             })
             const node = channelRequest.data.createChannelRequest.node
+            const pendingChanId = channelRequest.data.createChannelRequest.pendingChanId
             const peer = await this.stores.peerStore.connectPeer(node.pubkey, node.addr)
-            const chanId = toLong(channelRequest.data.createChannelRequest.pendingChanId)
 
             routeHints.push(
                 lnrpc.RouteHint.create({
                     hopHints: [
                         {
                             nodeId: peer.pubkey,
-                            chanId: chanId
+                            chanId: toLong(pendingChanId)
                         }
                     ]
                 })
             )
 
-            this.stores.channelStore.addChannelRequest(node.pubkey, bytesToHex(paymentHash), amount.toString())
+            this.stores.channelStore.addChannelRequest(node.pubkey, bytesToHex(paymentHash), pendingChanId)
         }
 
         const invoice = await addInvoice({ amt: +amount, paymentAddr, preimage, routeHints })

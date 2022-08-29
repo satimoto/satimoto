@@ -1,5 +1,6 @@
 import { lnrpc } from "proto/proto"
-import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { bidirectionalStreamRequest, sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
+import { Sendable } from "utils/sendable"
 import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType, LongLikeType } from "utils/types"
@@ -7,8 +8,27 @@ import { BytesLikeType, LongLikeType } from "utils/types"
 const log = new Log("Channel")
 const service = ""
 
+export type ChannelAcceptor = Sendable<lnrpc.IChannelAcceptResponse, lnrpc.ChannelAcceptRequest>
+export type ChannelAcceptorStreamRequest = (data: lnrpc.ChannelAcceptRequest) => void
+
 export type ChannelEventUpdateStreamResponse = (data: lnrpc.ChannelEventUpdate) => void
 export type OpenStatusUpdateStreamResponse = (data: lnrpc.OpenStatusUpdate) => void
+
+export const channelAcceptor = (onData: ChannelAcceptorStreamRequest): ChannelAcceptor => {
+    const request = lnrpc.ChannelAcceptResponse
+    const method = service + "ChannelAcceptor"
+    const stream = sendStreamCommand<lnrpc.IChannelAcceptResponse, lnrpc.ChannelAcceptResponse, lnrpc.ChannelAcceptRequest>({
+        request,
+        response: lnrpc.ChannelAcceptRequest,
+        method,
+        options: {}
+    })
+    return bidirectionalStreamRequest<lnrpc.IChannelAcceptResponse, lnrpc.ChannelAcceptResponse, lnrpc.ChannelAcceptRequest>(
+        request,
+        stream,
+        sendStreamResponse<lnrpc.ChannelAcceptRequest>({ stream, method, onData })
+    )
+}
 
 export const channelBalance = (): Promise<lnrpc.ChannelBalanceResponse> => {
     return sendCommand<lnrpc.IChannelBalanceRequest, lnrpc.ChannelBalanceRequest, lnrpc.ChannelBalanceResponse>({
@@ -36,7 +56,7 @@ export const openChannel = (
             private: privateChannel
         }
     })
-    return processStreamResponse<lnrpc.OpenStatusUpdate>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.OpenStatusUpdate>({ stream, method, onData })
 }
 
 export const subscribeChannelEvents = (onData: ChannelEventUpdateStreamResponse): Promise<lnrpc.ChannelEventUpdate> => {
@@ -47,5 +67,5 @@ export const subscribeChannelEvents = (onData: ChannelEventUpdateStreamResponse)
         method,
         options: {}
     })
-    return processStreamResponse<lnrpc.ChannelEventUpdate>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.ChannelEventUpdate>({ stream, method, onData })
 }

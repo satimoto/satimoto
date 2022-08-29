@@ -1,5 +1,5 @@
 import { lnrpc } from "proto/proto"
-import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
 import { Log } from "utils/logging"
 
 const log = new Log("State")
@@ -24,5 +24,5 @@ export const subscribeState = (onData: SubscribeStateStreamResponse): Promise<ln
         method,
         options: {}
     })
-    return processStreamResponse<lnrpc.SubscribeStateResponse>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.SubscribeStateResponse>({ stream, method, onData })
 }

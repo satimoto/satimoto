@@ -1,7 +1,7 @@
 interface ChannelRequestModel {
     pubkey: string
     paymentHash: string
-    pushAmount: string
+    pendingChanId: string
 }
 
 type ChannelRequestModelLike = ChannelRequestModel | undefined
