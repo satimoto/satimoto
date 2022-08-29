@@ -19,7 +19,7 @@ class LndUtils: RCTEventEmitter {
   }
   
   static var confFile: URL {
-    return lndDirectory.appendingPathComponent("lnd_v1.conf", isDirectory: false)
+    return lndDirectory.appendingPathComponent("lnd_v2.conf", isDirectory: false)
   }
   
   static private var logFile: URL {
@@ -86,7 +86,11 @@ bitcoin.node=neutrino
 
 [Neutrino]
 neutrino.connect=btcd-mainnet.lightning.computer
-      
+
+[protocol]
+protocol.option-scid-alias=true
+protocol.zero-conf=true
+
 [autopilot]
 autopilot.active=0
 autopilot.private=0
@@ -119,6 +123,10 @@ bitcoin.node=neutrino
 [Neutrino]
 neutrino.connect=faucet.lightning.community
 
+[protocol]
+protocol.option-scid-alias=true
+protocol.zero-conf=true
+
 [autopilot]
 autopilot.active=0
 autopilot.private=0
@@ -150,6 +158,10 @@ bitcoind.rpcuser=polaruser
 bitcoind.rpcpass=polarpass
 bitcoind.zmqpubrawblock=tcp://127.0.0.1:28339
 bitcoind.zmqpubrawtx=tcp://127.0.0.1:29340
+
+[protocol]
+protocol.option-scid-alias=true
+protocol.zero-conf=true
 
 [autopilot]
 autopilot.active=0

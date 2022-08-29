@@ -67,3 +67,8 @@ Build for android platform (`Lndmobile.aar`)
 make android prefix="1" tags="chainrpc invoicesrpc routerrpc signrpc walletrpc"
 cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/android/Lndmobile.aar <path/to>/react-mobile/android/Lndmobile
 ```
+
+## Building an LND docker image
+```bash
+docker build . --build-arg git_url=https://github.com/satimoto/lnd --build-arg checkout=v0.15.1-branch-rc2 -t satimoto/lnd:v0.15.1-branch-rc2
+```

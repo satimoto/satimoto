@@ -7,7 +7,7 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "postinstall": "npm run protobuf",
-    "protobuf": "pbjs -t static-module -w es6 --force-long -o proto/proto.js proto/lightning.proto proto/stateservice.proto proto/walletunlocker.proto proto/autopilotrpc/autopilot.proto proto/chainrpc/chainnotifier.proto proto/invoicesrpc/invoices.proto proto/routerrpc/router.proto proto/signrpc/signer.proto proto/walletrpc/walletkit.proto && pbts -o proto/proto.d.ts proto/proto.js",
+    "protobuf": "pbjs -t static-module -w es6 --force-long -o proto/proto.js proto/lightning.proto proto/stateservice.proto proto/walletunlocker.proto proto/autopilotrpc/autopilot.proto proto/chainrpc/chainnotifier.proto proto/devrpc/dev.proto proto/invoicesrpc/invoices.proto proto/neutrinorpc/neutrino.proto proto/peersrpc/peers.proto proto/routerrpc/router.proto proto/signrpc/signer.proto proto/walletrpc/walletkit.proto && pbts -o proto/proto.d.ts proto/proto.js",
     "react:clean": "rm -rf /tmp/metro-* && yarn start --reset-cache",
     "android": "react-native run-android",
     "android:clean": "cd android && ./gradlew clean",

@@ -84,6 +84,16 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     "InvoicesCancelInvoice": { (msg: Data?, cb: LndCallback) in LndmobileInvoicesCancelInvoice(msg, cb) },
     "InvoicesLookupInvoiceV2": { (msg: Data?, cb: LndCallback) in LndmobileInvoicesLookupInvoiceV2(msg, cb) },
     "InvoicesSettleInvoice": { (msg: Data?, cb: LndCallback) in LndmobileInvoicesSettleInvoice(msg, cb) },
+    // Neutrino RPC
+    "NeutrinoKitAddPeer": { (msg: Data?, cb: LndCallback) in LndmobileNeutrinoKitAddPeer(msg, cb) },
+    "NeutrinoKitDisconnectPeer": { (msg: Data?, cb: LndCallback) in LndmobileNeutrinoKitDisconnectPeer(msg, cb) },
+    "NeutrinoKitGetBlock": { (msg: Data?, cb: LndCallback) in LndmobileNeutrinoKitGetBlock(msg, cb) },
+    "NeutrinoKitGetBlockHeader": { (msg: Data?, cb: LndCallback) in LndmobileNeutrinoKitGetBlockHeader(msg, cb) },
+    "NeutrinoKitGetCFilter": { (msg: Data?, cb: LndCallback) in LndmobileNeutrinoKitGetCFilter(msg, cb) },
+    "NeutrinoKitIsBanned": { (msg: Data?, cb: LndCallback) in LndmobileNeutrinoKitIsBanned(msg, cb) },
+    "NeutrinoKitStatus": { (msg: Data?, cb: LndCallback) in LndmobileNeutrinoKitStatus(msg, cb) },
+    // Peers RPC
+    "PeersUpdateNodeAnnouncement": { (msg: Data?, cb: LndCallback) in LndmobilePeersUpdateNodeAnnouncement(msg, cb) },
     // Router RPC
     "RouterBuildRoute": { (msg: Data?, cb: LndCallback) in LndmobileRouterBuildRoute(msg, cb) },
     "RouterEstimateRouteFee": { (msg: Data?, cb: LndCallback) in LndmobileRouterEstimateRouteFee(msg, cb) },
@@ -99,9 +109,17 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     // Signer RPC
     "SignerComputeInputScript": { (msg: Data?, cb: LndCallback) in LndmobileSignerComputeInputScript(msg, cb) },
     "SignerDeriveSharedKey": { (msg: Data?, cb: LndCallback) in LndmobileSignerDeriveSharedKey(msg, cb) },
+    "SignerMuSig2Cleanup": { (msg: Data?, cb: LndCallback) in LndmobileSignerMuSig2Cleanup(msg, cb) },
+    "SignerMuSig2CombineKeys": { (msg: Data?, cb: LndCallback) in LndmobileSignerMuSig2CombineKeys(msg, cb) },
+    "SignerMuSig2CombineSig": { (msg: Data?, cb: LndCallback) in LndmobileSignerMuSig2CombineSig(msg, cb) },
+    "SignerMuSig2CreateSession": { (msg: Data?, cb: LndCallback) in LndmobileSignerMuSig2CreateSession(msg, cb) },
+    "SignerMuSig2RegisterNonces": { (msg: Data?, cb: LndCallback) in LndmobileSignerMuSig2RegisterNonces(msg, cb) },
+    "SignerMuSig2Sign": { (msg: Data?, cb: LndCallback) in LndmobileSignerMuSig2Sign(msg, cb) },
     "SignerSignMessage": { (msg: Data?, cb: LndCallback) in LndmobileSignerSignMessage(msg, cb) },
     "SignOutputRaw": { (msg: Data?, cb: LndCallback) in LndmobileSignerSignOutputRaw(msg, cb) },
     "SignerVerifyMessage": { (msg: Data?, cb: LndCallback) in LndmobileSignerVerifyMessage(msg, cb) },
+    // Versioner RPC
+    "VersionerGetVersion": { (msg: Data?, cb: LndCallback) in LndmobileVersionerGetVersion(msg, cb) },
     // Wallet RPC
     "WalletKitBumpFee": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitBumpFee(msg, cb) },
     "WalletKitDeriveKey": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitDeriveKey(msg, cb) },
@@ -123,6 +141,14 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     "WalletKitReleaseOutput": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitReleaseOutput(msg, cb) },
     "WalletKitSendOutputs": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitSendOutputs(msg, cb) },
     "WalletKitSignPsbt": { (msg: Data?, cb: LndCallback) in LndmobileWalletKitSignPsbt(msg, cb) },
+    // Watchtower RPC
+    "WatchtowerClientAddTower": { (msg: Data?, cb: LndCallback) in LndmobileWatchtowerClientAddTower(msg, cb) },
+    "WatchtowerClientGetTowerInfo": { (msg: Data?, cb: LndCallback) in LndmobileWatchtowerClientGetTowerInfo(msg, cb) },
+    "WatchtowerClientListTowers": { (msg: Data?, cb: LndCallback) in LndmobileWatchtowerClientListTowers(msg, cb) },
+    "WatchtowerClientPolicy": { (msg: Data?, cb: LndCallback) in LndmobileWatchtowerClientPolicy(msg, cb) },
+    "WatchtowerClientRemoveTower": { (msg: Data?, cb: LndCallback) in LndmobileWatchtowerClientRemoveTower(msg, cb) },
+    "WatchtowerClientStats": { (msg: Data?, cb: LndCallback) in LndmobileWatchtowerClientStats(msg, cb) },
+    "WatchtowerGetInfo": { (msg: Data?, cb: LndCallback) in LndmobileWatchtowerGetInfo(msg, cb) },
 ]
   
   static let recvStreamMethods: [String:LndMobileRecvStreamMethod] = [
@@ -151,12 +177,12 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
   ]
   
   static let biStreamMethods: [String:LndMobileBiStreamMethod] = [
-    "ChannelAcceptor": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileChannelAcceptor(cb, &err) },
-    "RegisterRPCMiddleware": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileRegisterRPCMiddleware(cb, &err) },
-    "SendPayment": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileSendPayment(cb, &err) },
-    "SendToRoute": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileSendToRoute(cb, &err) },
+    "ChannelAcceptor": { (cb: LndRecvStream, err: inout NSError?) -> LndmobileSendStreamProtocol? in return LndmobileChannelAcceptor(cb, &err) },
+    "RegisterRPCMiddleware": { (cb: LndRecvStream, err: inout NSError?) -> LndmobileSendStreamProtocol? in return LndmobileRegisterRPCMiddleware(cb, &err) },
+    "SendPayment": { (cb: LndRecvStream, err: inout NSError?) -> LndmobileSendStreamProtocol? in return LndmobileSendPayment(cb, &err) },
+    "SendToRoute": { (cb: LndRecvStream, err: inout NSError?) -> LndmobileSendStreamProtocol? in return LndmobileSendToRoute(cb, &err) },
     // Router RPC
-    "RouterHtlcInterceptor": { (cb: LndRecvStream, err: inout NSError?) in return LndmobileRouterHtlcInterceptor(cb, &err) },
+    "RouterHtlcInterceptor": { (cb: LndRecvStream, err: inout NSError?) -> LndmobileSendStreamProtocol? in return LndmobileRouterHtlcInterceptor(cb, &err) },
 ]
   
   @objc
@@ -283,39 +309,38 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
         return
       }
       
-      if (sendStream == nil) {
-        RCTLogError("no send stream for method \(method)")
+      if (sendStream != nil) {
+        self.activeStreams[streamId] = sendStream;
+        do {
+          try sendStream!.send(bytes)
+        } catch let err {
+          RCTLogError("got send error: \(err.localizedDescription)")
+        }
         return
       }
+
+      RCTLogError("no send stream for method \(method)")
+      return
+    }
+    
+    RCTLogError("stream method \(method) not found")
+  }
+  
+  @objc(sendStreamWrite:body:)
+  func sendStreamWrite(_ streamId: String, body msg: String) {
+    let sendStream = self.activeStreams[streamId]
+
+    if(sendStream != nil) {
+      let bytes = Data(base64Encoded: msg, options: [])
       
-      self.activeStreams[streamId] = sendStream;
       do {
-        try sendStream?.send(bytes)
+        try sendStream!.send(bytes)
       } catch let err {
         RCTLogError("got send error: \(err.localizedDescription)")
       }
       return
     }
     
-    RCTLogError("stream method \(method) not found")
-    return
-  }
-  
-  @objc(sendStreamWrite:body:)
-  func sendStreamWrite(_ streamId: String, body msg: String) {
-    let sendStream = self.activeStreams[streamId]
-    
-    if(sendStream == nil) {
-      RCTLogError("stream \(streamId) not found")
-      return
-    }
-    
-    let bytes = Data(base64Encoded: msg, options: [])
-    
-    do {
-      try sendStream?.send(bytes)
-    } catch let err {
-      RCTLogError("got send error: \(err.localizedDescription)")
-    }
+    RCTLogError("stream \(streamId) not found")
   }
 }
