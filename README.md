@@ -55,7 +55,7 @@ git fetch satimoto
 Checkout branch to build (Reset staged/unstaged changes if you need to)
 ```bash
 git reset --hard HEAD
-git checkout -b v0-15-0-beta satimoto/v0-15-0-beta
+git checkout -b v0.15.1-branch-rc2 satimoto/v0.15.1-branch-rc2
 ```
 Build for iOS platform (`Lndmobile.xcframework`)
 ```bash
