@@ -20,7 +20,7 @@ export interface ChannelStoreInterface extends StoreInterface {
     localBalance: number
     remoteBalance: number
 
-    addChannelRequest(pubkey: string, paymentHash: string, amountMsat: string): void
+    addChannelRequest(channelRequest: ChannelRequestModel): void
 }
 
 export class ChannelStore implements ChannelStoreInterface {
@@ -112,13 +112,11 @@ export class ChannelStore implements ChannelStoreInterface {
         this.ready = true
     }
 
-    addChannelRequest(pubkey: string, paymentHash: string, pendingChanId: string) {
-        log.debug(`Add channel request: ${pubkey}, hash: ${paymentHash}, pendingChanId ${pendingChanId}`)
-        this.channelRequests.push({
-            pubkey,
-            paymentHash,
-            pendingChanId
-        })
+    addChannelRequest(channelRequest: ChannelRequestModel) {
+        log.debug(
+            `Add channel request: ${channelRequest.pubkey}, hash: ${channelRequest.paymentHash}, pendingChanId ${channelRequest.pendingChanId}, scid ${channelRequest.scid}`
+        )
+        this.channelRequests.push(channelRequest)
     }
 
     findChannelRequest(pubkey: string, pendingChanId?: string): ChannelRequestModelLike {

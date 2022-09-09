@@ -11,6 +11,10 @@ const CREATE_CHANNEL_REQUEST = gql`
             paymentAddr
             amountMsat
             pendingChanId
+            scid
+            feeBaseMsat
+            feeProportionalMillionths
+            cltvExpiryDelta
             node {
                 pubkey
                 addr

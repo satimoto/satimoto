@@ -95,8 +95,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 paymentHash: bytesToBase64(paymentHash),
                 amountMsat: toMilliSatoshi(amount).toString(10)
             })
-            const node = channelRequest.data.createChannelRequest.node
-            const pendingChanId = channelRequest.data.createChannelRequest.pendingChanId
+            const { node, pendingChanId, scid, feeBaseMsat, feeProportionalMillionths, cltvExpiryDelta } = channelRequest.data.createChannelRequest
             const peer = await this.stores.peerStore.connectPeer(node.pubkey, node.addr)
 
             routeHints.push(
@@ -104,13 +103,16 @@ export class InvoiceStore implements InvoiceStoreInterface {
                     hopHints: [
                         {
                             nodeId: peer.pubkey,
-                            chanId: toLong(pendingChanId)
+                            chanId: toLong(scid),
+                            feeBaseMsat,
+                            feeProportionalMillionths,
+                            cltvExpiryDelta
                         }
                     ]
                 })
             )
 
-            this.stores.channelStore.addChannelRequest(node.pubkey, bytesToHex(paymentHash), pendingChanId)
+            this.stores.channelStore.addChannelRequest({ pubkey: node.pubkey, paymentHash: bytesToHex(paymentHash), pendingChanId, scid })
         }
 
         const invoice = await addInvoice({ amt: +amount, paymentAddr, preimage, routeHints })
@@ -164,7 +166,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 paymentRequest: data.paymentRequest,
                 status: toInvoiceStatus(data.state),
                 valueMsat: data.valueMsat.toString(),
-                valueSat: data.value.toString(),
+                valueSat: data.value.toString()
             }
 
             this.invoices.push(invoice)
