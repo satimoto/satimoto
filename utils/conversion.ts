@@ -64,8 +64,8 @@ export const toHashOrNull = (data?: BytesLikeType | null): Uint8Array | null => 
     return data ? sha256(toBytes(data)) : null
 }
 
-export const toLong = (value: LongLikeType): Long => {
-    return Long.fromValue(value)
+export const toLong = (value: LongLikeType | Uint8Array): Long => {
+    return value instanceof Uint8Array ? Long.fromBytes(toNumberArray(value)) : Long.fromValue(value)
 }
 
 export const toMilliSatoshi = (value: LongLikeType): Long => {
@@ -77,6 +77,16 @@ export const toSatoshi = (value: LongLikeType): Long => {
 
 export const toNumber = (value: LongLikeType): number => {
     return Long.fromValue(value).toNumber()
+}
+
+export const toNumberArray = (arr: Uint8Array): number[] => {
+    let numberArr: number[] = []
+
+    for (let i = 0; i < arr.length; i++) {
+        numberArr = numberArr.concat(arr[i])
+    }
+
+    return numberArr
 }
 
 export const toString = (data: BytesLikeType): string => {

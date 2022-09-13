@@ -1,7 +1,7 @@
 import Long from "long"
 import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
-import { sendCommand, sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
 import { INVOICE_EXPIRY } from "utils/constants"
 import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
@@ -62,7 +62,7 @@ export const addInvoice = ({
             expiry: toLong(expiry),
             rPreimage: preimage ? hexToBytes(preimage) : null,
             paymentAddr: paymentAddr ? hexToBytes(paymentAddr) : null,
-            private: true,
+            private: !(routeHints && routeHints.length > 0),
             routeHints
         }
     })
@@ -170,7 +170,7 @@ export const subscribeCustomMessages = (onData: CustomMessageStreamResponse): Pr
         method,
         options: {}
     })
-    return processStreamResponse<lnrpc.CustomMessage>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.CustomMessage>({ stream, method, onData })
 }
 
 export const subscribeInvoices = (
@@ -188,7 +188,7 @@ export const subscribeInvoices = (
             settleIndex: toLong(settleIndex)
         }
     })
-    return processStreamResponse<lnrpc.Invoice>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.Invoice>({ stream, method, onData })
 }
 
 export const subscribePeerEvents = async (onData: PeerStreamResponse): Promise<lnrpc.PeerEvent> => {
@@ -199,7 +199,7 @@ export const subscribePeerEvents = async (onData: PeerStreamResponse): Promise<l
         method,
         options: {}
     })
-    return processStreamResponse<lnrpc.PeerEvent>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.PeerEvent>({ stream, method, onData })
 }
 
 export const subscribeTransactions = async (onData: TransactionStreamResponse): Promise<lnrpc.Transaction> => {
@@ -210,5 +210,5 @@ export const subscribeTransactions = async (onData: TransactionStreamResponse): 
         method,
         options: {}
     })
-    return processStreamResponse<lnrpc.Transaction>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.Transaction>({ stream, method, onData })
 }

@@ -4,7 +4,9 @@ import { TariffDimension } from "types/tariff"
 
 interface PriceComponentModel {
     type: TariffDimension
-    price: number
+    priceMsat: number
+    commissionMsat: number
+    taxMsat?: number
     stepSize: number
 }
 
@@ -12,6 +14,10 @@ type PriceComponentModelLike = PriceComponentModel | undefined
 
 export default PriceComponentModel
 export type { PriceComponentModelLike }
+
+const calculateTotalPrice = (priceComponent: PriceComponentModel): number => {
+    return priceComponent.priceMsat + priceComponent.commissionMsat + (priceComponent.taxMsat || 0)
+}
 
 const getPriceComponents = (
     elements: TariffElementModel[],
@@ -42,4 +48,4 @@ const getPriceComponentByType = (priceComponents: PriceComponentModel[], type: T
     }
 }
 
-export { getPriceComponents, getPriceComponentByType }
+export { calculateTotalPrice, getPriceComponents, getPriceComponentByType }

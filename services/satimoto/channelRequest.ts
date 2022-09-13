@@ -10,6 +10,11 @@ const CREATE_CHANNEL_REQUEST = gql`
             paymentHash
             paymentAddr
             amountMsat
+            pendingChanId
+            scid
+            feeBaseMsat
+            feeProportionalMillionths
+            cltvExpiryDelta
             node {
                 pubkey
                 addr
@@ -36,4 +41,5 @@ const createChannelRequest = (client: ApolloClient<NormalizedCacheObject>) => {
     }
 }
 
+export type { CreateChannelRequestInput }
 export { createChannelRequest }

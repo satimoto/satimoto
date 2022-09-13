@@ -99,12 +99,28 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
-    updatePayments() {
-        this.payments.replace(this.stores.paymentStore.payments.filter((payment) => payment.hash === payment.hash))
+    get amountSat(): string {
+        return toSatoshi(this.amountMsat).toString()
     }
 
-    setReady() {
-        this.ready = true
+    get amountMsat(): string {
+        return this.payments
+            .reduce((amountMsat, payment) => {
+                return amountMsat.add(payment.valueMsat)
+            }, new Long(0))
+            .toString()
+    }
+
+    get feeSat(): string {
+        return toSatoshi(this.feeMsat).toString()
+    }
+
+    get feeMsat(): string {
+        return this.payments
+            .reduce((feeMsat, payment) => {
+                return feeMsat.add(payment.feeMsat)
+            }, new Long(0))
+            .toString()
     }
 
     async handleSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void> {
@@ -135,6 +151,10 @@ export class SessionStore implements SessionStoreInterface {
         this.updateSession(response.data.session as SessionModel)
     }
 
+    setReady() {
+        this.ready = true
+    }
+
     async startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void> {
         const result = await startSession({ locationUid: location.uid, evseUid: evse.uid })
 
@@ -145,35 +165,15 @@ export class SessionStore implements SessionStoreInterface {
         this.connector = connector
     }
 
-    get amountSat(): string {
-        return toSatoshi(this.amountMsat).toString()
-    }
-
-    get amountMsat(): string {
-        return this.payments
-            .reduce((amountMsat, payment) => {
-                return amountMsat.add(payment.valueMsat)
-            }, new Long(0))
-            .toString()
-    }
-
-    get feeSat(): string {
-        return toSatoshi(this.feeMsat).toString()
-    }
-
-    get feeMsat(): string {
-        return this.payments
-            .reduce((feeMsat, payment) => {
-                return feeMsat.add(payment.feeMsat)
-            }, new Long(0))
-            .toString()
-    }
-
     async stopSession(): Promise<void> {
         if (this.session) {
             await stopSession({ sessionUid: this.session.uid })
             this.status = ChargeSessionStatus.STOPPING
         }
+    }
+
+    updatePayments() {
+        this.payments.replace(this.stores.paymentStore.payments.filter((payment) => payment.hash === payment.hash))
     }
 
     updateSession(session: SessionModel) {

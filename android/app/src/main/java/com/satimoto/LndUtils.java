@@ -31,7 +31,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
         super(reactContext);
 
         lndPath = getReactApplicationContext().getFilesDir().toString();
-        confPath = lndPath + "/lnd_v1.conf";
+        confPath = lndPath + "/lnd_v2.conf";
         logPath = lndPath + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
 
         prepareFileDirectory(logPath);
@@ -100,6 +100,10 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "[Neutrino]\n" +
                             "neutrino.connect=btcd-mainnet.lightning.computer\n" +
                             "\n" +
+                            "[protocol]\n" +
+                            "protocol.option-scid-alias=true\n" +
+                            "protocol.zero-conf=true\n" +
+                            "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +
                             "autopilot.private=0\n" +
@@ -128,6 +132,10 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "\n" +
                             "[Neutrino]\n" +
                             "neutrino.connect=faucet.lightning.community\n" +
+                            "\n" +
+                            "[protocol]\n" +
+                            "protocol.option-scid-alias=true\n" +
+                            "protocol.zero-conf=true\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +
@@ -160,6 +168,10 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoind.rpcpass=polarpass\n" +
                             "bitcoind.zmqpubrawblock=tcp://10.0.2.2:28339\n" +
                             "bitcoind.zmqpubrawtx=tcp://10.0.2.2:29340\n" +
+                            "\n" +
+                            "[protocol]\n" +
+                            "protocol.option-scid-alias=true\n" +
+                            "protocol.zero-conf=true\n" +
                             "\n" +
                             "[autopilot]\n" +
                             "autopilot.active=0\n" +

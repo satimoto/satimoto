@@ -206,4 +206,20 @@ public class LndMobile extends ReactContextBaseJavaModule {
             e.printStackTrace();
         }
     }
+
+    @ReactMethod
+    public void closeStream(String streamId) {
+        SendStream stream = activeStreams.get(streamId);
+        if (stream == null) {
+            return;
+        }
+
+        activeStreams.remove(streamId);
+
+        try {
+            stream.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

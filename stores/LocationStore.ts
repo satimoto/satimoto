@@ -93,16 +93,14 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
-    setReady() {
-        this.ready = true
-    }
+    monitorLocationUpdates(enable: boolean) {
+        log.debug(`monitorLocationUpdates ${enable}`)
 
-    async setActiveLocation(uid: string) {
-        const location = await getLocation({ uid })
-
-        runInAction(() => {
-            this.activeLocation = location.data.getLocation as LocationModel
-        })
+        if (enable && !this.locationUpdateTimer) {
+            this.locationUpdateTimer = setInterval(this.requestLocations.bind(this), 60 * 1000)
+        } else {
+            clearInterval(this.locationUpdateTimer)
+        }
     }
 
     async refreshActiveLocation() {
@@ -117,6 +115,41 @@ export class LocationStore implements LocationStoreInterface {
         this.activeLocation = undefined
     }
 
+    async requestLocations() {
+        if (this.stores.settingStore.accessToken) {
+            if (this.bounds && this.bounds.length == 2) {
+                const locations = await listLocations({
+                    xMin: this.bounds[1][0],
+                    yMin: this.bounds[0][1],
+                    xMax: this.bounds[0][0],
+                    yMax: this.bounds[1][1],
+                    lastUpdate: this.lastLocationUpdate
+                })
+
+                this.updateLocations(locations.data.listLocations)
+            }
+        }
+    }
+
+    async setActiveLocation(uid: string) {
+        const location = await getLocation({ uid })
+
+        runInAction(() => {
+            this.activeLocation = location.data.getLocation as LocationModel
+        })
+    }
+
+    async setBounds(bounds: GeoJSON.Position[]) {
+        this.bounds.replace(bounds)
+        this.lastLocationUpdate = undefined
+
+        this.requestLocations()
+    }
+
+    setReady() {
+        this.ready = true
+    }
+    
     updateActiveConnectors() {
         if (this.activeLocation) {
             const evses: EvseModel[] = this.activeLocation.evses || []
@@ -148,39 +181,6 @@ export class LocationStore implements LocationStoreInterface {
             this.activeConnectors.replace(Object.values(connectors))
         } else {
             this.activeConnectors.clear()
-        }
-    }
-
-    async setBounds(bounds: GeoJSON.Position[]) {
-        this.bounds.replace(bounds)
-        this.lastLocationUpdate = undefined
-
-        this.requestLocations()
-    }
-
-    monitorLocationUpdates(enable: boolean) {
-        log.debug(`monitorLocationUpdates ${enable}`)
-
-        if (enable && !this.locationUpdateTimer) {
-            this.locationUpdateTimer = setInterval(this.requestLocations.bind(this), 60 * 1000)
-        } else {
-            clearInterval(this.locationUpdateTimer)
-        }
-    }
-
-    async requestLocations() {
-        if (this.stores.settingStore.accessToken) {
-            if (this.bounds && this.bounds.length == 2) {
-                const locations = await listLocations({
-                    xMin: this.bounds[1][0],
-                    yMin: this.bounds[0][1],
-                    xMax: this.bounds[0][0],
-                    yMax: this.bounds[1][1],
-                    lastUpdate: this.lastLocationUpdate
-                })
-
-                this.updateLocations(locations.data.listLocations)
-            }
         }
     }
 

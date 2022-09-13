@@ -1,9 +1,11 @@
-import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client"
+import { ApolloClient, ApolloLink, HttpLink } from "@apollo/client"
 import { setContext } from "@apollo/client/link/context"
 import { onError } from "@apollo/client/link/error"
+import { InvalidationPolicyCache } from "apollo-invalidation-policies"
 import * as Authentication from "./satimoto/authentication"
 import { AuthenticationAction } from "./satimoto/authentication"
 import * as ChannelRequest from "./satimoto/channelRequest"
+import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
 import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
@@ -20,6 +22,12 @@ const log = new Log("SatimotoService")
 
 const uploadLink = new HttpLink({
     uri: `${API_URI}/v1/query`
+})
+
+const invalidationPolicyCache = new InvalidationPolicyCache({
+    invalidationPolicies: {
+        timeToLive: 60 * 1000
+    }
 })
 
 const authLink = setContext((_, { headers }) => {
@@ -48,7 +56,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 })
 
 const client = new ApolloClient({
-    cache: new InMemoryCache(),
+    cache: invalidationPolicyCache,
     link: ApolloLink.from([errorLink, authLink, uploadLink])
 })
 
@@ -118,6 +126,8 @@ const getToken = async (pubkey: string, deviceToken: string) => {
         5000
     )
 }
+
+export type { CreateChannelRequestInput }
 
 export {
     AuthenticationAction,

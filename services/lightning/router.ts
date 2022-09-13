@@ -1,5 +1,5 @@
 import { lnrpc, routerrpc } from "proto/proto"
-import { sendStreamCommand, processStreamResponse } from "services/LndMobileService"
+import { sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
 import { PAYMENT_CLTV_LIMIT, PAYMENT_TIMEOUT_SECONDS, PAYMENT_FEE_LIMIT_SAT } from "utils/constants"
 import { hexToBytes, toHashOrNull, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
@@ -47,5 +47,5 @@ export const sendPaymentV2 = (
             cltvLimit
         }
     })
-    return processStreamResponse<lnrpc.Payment>({ stream, method, onData })
+    return sendStreamResponse<lnrpc.Payment>({ stream, method, onData })
 }

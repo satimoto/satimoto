@@ -4,10 +4,11 @@ import ChannelRequestModel, { ChannelRequestModelLike } from "models/ChannelRequ
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { channelBalance, subscribeChannelEvents } from "services/LightningService"
-import { toNumber } from "utils/conversion"
+import { ChannelAcceptor, channelAcceptor, channelBalance, subscribeChannelEvents } from "services/LightningService"
+import { bytesToHex, toLong, toNumber } from "utils/conversion"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import { createChannelRequest, CreateChannelRequestInput } from "services/SatimotoService"
 
 const log = new Log("ChannelStore")
 
@@ -20,7 +21,7 @@ export interface ChannelStoreInterface extends StoreInterface {
     localBalance: number
     remoteBalance: number
 
-    addChannelRequest(pubkey: string, paymentHash: string, amountMsat: string): void
+    createChannelRequest(channelRequest: CreateChannelRequestInput): Promise<lnrpc.IHopHint>
 }
 
 export class ChannelStore implements ChannelStoreInterface {
@@ -28,6 +29,7 @@ export class ChannelStore implements ChannelStoreInterface {
     ready = false
     stores
 
+    channelAcceptor: ChannelAcceptor | null = null
     channelRequests
     subscribedChannelEvents = false
     localBalance = 0
@@ -50,7 +52,7 @@ export class ChannelStore implements ChannelStoreInterface {
             addChannelRequest: action,
             removeChannelRequest: action,
             updateChannelBalance: action,
-            updateChannelEvents: action
+            onChannelEventUpdate: action
         })
 
         makePersistable(
@@ -77,62 +79,120 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
+    cancelChannelAcceptor() {
+        if (this.channelAcceptor) {
+            this.channelAcceptor.cancel()
+            this.channelAcceptor = null
+        }
+    }
+
     async getChannelBalance() {
         const channelBalanceResponse: lnrpc.ChannelBalanceResponse = await channelBalance()
         this.updateChannelBalance(channelBalanceResponse)
     }
 
-    subscribeChannelEvents() {
-        if (!this.subscribedChannelEvents) {
-            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.updateChannelEvents(data))
-            this.subscribedChannelEvents = true
+    addChannelRequest(channelRequest: ChannelRequestModel) {
+        log.debug(
+            `Add channel request: ${channelRequest.pubkey}, hash: ${channelRequest.paymentHash}, pendingChanId ${channelRequest.pendingChanId}, scid ${channelRequest.scid}`
+        )
+        this.channelRequests.push(channelRequest)
+    }
+
+    async createChannelRequest(input: CreateChannelRequestInput): Promise<lnrpc.IHopHint> {
+        const channelRequest = await createChannelRequest(input)
+        const { node, pendingChanId, scid, feeBaseMsat, feeProportionalMillionths, cltvExpiryDelta } = channelRequest.data.createChannelRequest
+        const peer = await this.stores.peerStore.connectPeer(node.pubkey, node.addr)
+        const hopHint: lnrpc.IHopHint = {
+            nodeId: peer.pubkey,
+            chanId: toLong(scid),
+            feeBaseMsat,
+            feeProportionalMillionths,
+            cltvExpiryDelta
+        }
+
+        this.addChannelRequest({ pubkey: node.pubkey, paymentHash: bytesToHex(input.paymentHash), pendingChanId, scid })
+        this.subscribeChannelAcceptor()
+
+        return hopHint
+    }
+
+    findChannelRequest(pubkey: string, pendingChanId?: string): ChannelRequestModelLike {
+        return this.channelRequests.find(
+            (channelRequest) => channelRequest.pubkey === pubkey && (!pendingChanId || channelRequest.pendingChanId === pendingChanId)
+        )
+    }
+
+    onChannelAcceptRequest({ nodePubkey, pendingChanId, wantsZeroConf }: lnrpc.ChannelAcceptRequest) {
+        log.debug(`Channel Acceptor`)
+
+        if (this.channelAcceptor) {
+            const pubkey = bytesToHex(nodePubkey)
+            log.debug(`Pubkey: ${pubkey}`)
+            log.debug(`PendingChanId: ${pendingChanId}`)
+
+            const channelRequest = this.findChannelRequest(pubkey)
+
+            this.channelAcceptor.send({
+                pendingChanId: pendingChanId,
+                accept: !!channelRequest,
+                zeroConf: wantsZeroConf
+            })
         }
     }
 
-    setReady() {
-        this.ready = true
-    }
+    onChannelEventUpdate({ type, openChannel }: lnrpc.ChannelEventUpdate) {
+        log.debug(`Channel Event: ${type}`)
+        this.getChannelBalance()
 
-    addChannelRequest(pubkey: string, paymentHash: string, pushAmount: string) {
-        log.debug(`Add channel request: ${pubkey}, hash: ${paymentHash}, pushAmount ${pushAmount}`)
-        this.channelRequests.push({
-            pubkey,
-            paymentHash,
-            pushAmount
-        })
-    }
+        if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
+            const remotePubkey = openChannel.remotePubkey
+            log.debug(`Remote pubkey: ${remotePubkey}`)
+            log.debug(`ChanID: ${openChannel.chanId}`)
 
-    findChannelRequest(pubkey: string, pushAmount: string): ChannelRequestModelLike {
-        return this.channelRequests.find((channelRequest) => channelRequest.pubkey === pubkey && channelRequest.pushAmount === pushAmount)
+            if (remotePubkey) {
+                const channelRequest = this.findChannelRequest(remotePubkey)
+
+                if (channelRequest) {
+                    this.removeChannelRequest(channelRequest)
+                    this.cancelChannelAcceptor()
+                }
+            }
+        }
     }
 
     removeChannelRequest(channelRequest: ChannelRequestModel) {
         this.channelRequests.remove(channelRequest)
     }
 
-    updateChannelBalance({ balance, localBalance, remoteBalance }: lnrpc.ChannelBalanceResponse) {
-        log.debug(`Channel Balance: ${balance}`)
-        this.localBalance = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
-        this.remoteBalance = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
+    setReady() {
+        this.ready = true
     }
 
-    updateChannelEvents({ type, openChannel }: lnrpc.ChannelEventUpdate) {
-        log.debug(`Channel Event: ${type}`)
-        this.getChannelBalance()
+    subscribeChannelAcceptor() {
+        this.cancelChannelAcceptor()
 
-        if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
-            const remotePubkey = openChannel.remotePubkey
-            const pushAmount = openChannel.pushAmountSat
-            log.debug(`Remote pubkey: ${remotePubkey}, Push amount: ${pushAmount}`)
+        this.channelAcceptor = channelAcceptor((data: lnrpc.ChannelAcceptRequest) => this.onChannelAcceptRequest(data))
 
-            if (remotePubkey && pushAmount) {
-                const channelRequest = this.findChannelRequest(remotePubkey, pushAmount.toString())
+        this.channelAcceptor.finally(() => {
+            log.debug(`Channel Acceptor shutdown`)
+            this.channelAcceptor = null
+        })
+    }
 
-                if (channelRequest) {
-                    this.stores.invoiceStore.settleInvoice(channelRequest.paymentHash)
-                    this.removeChannelRequest(channelRequest)
-                }
-            }
+    subscribeChannelEvents() {
+        if (!this.subscribedChannelEvents) {
+            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.onChannelEventUpdate(data))
+            this.subscribedChannelEvents = true
         }
+    }
+
+    updateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {
+        const localBalanceSat = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
+        const remoteBalanceSat = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
+        const unsettledLocalBalanceSat = unsettledLocalBalance && unsettledLocalBalance.sat ? toNumber(unsettledLocalBalance.sat) : 0
+
+        this.localBalance = localBalanceSat + unsettledLocalBalanceSat
+        this.remoteBalance = remoteBalanceSat
+        log.debug(`Channel Balance: ${this.localBalance}`)
     }
 }

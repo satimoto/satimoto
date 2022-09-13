@@ -20,7 +20,7 @@ export default {
     LnUrlAuthModal_Title: "Do you want to login to",
     SendToAddressModal_Title: "Send to lightning address",
     ReceiveLightningModal_Title: "Amount to receive",
-    ReceiveLightningModal_InputAmountWarning: "A new channel is needed",
+    ReceiveLightningModal_InputAmountWarning: "We'll create a new payment channel",
     Tariff_StartDateText: "available from {{startDate}}",
     Tariff_EndDateText: "available until {{startDate}}",
     Tariff_StartEndDateText: "available from {{startDate}} until {{startDate}}",

@@ -55,7 +55,7 @@ git fetch satimoto
 Checkout branch to build (Reset staged/unstaged changes if you need to)
 ```bash
 git reset --hard HEAD
-git checkout -b v0-15-0-beta satimoto/v0-15-0-beta
+git checkout -b v0.15.1-branch-rc2 satimoto/v0.15.1-branch-rc2
 ```
 Build for iOS platform (`Lndmobile.xcframework`)
 ```bash
@@ -66,4 +66,9 @@ Build for android platform (`Lndmobile.aar`)
 ```bash
 make android prefix="1" tags="chainrpc invoicesrpc routerrpc signrpc walletrpc"
 cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/android/Lndmobile.aar <path/to>/react-mobile/android/Lndmobile
+```
+
+## Building an LND docker image
+```bash
+docker build . --build-arg git_url=https://github.com/satimoto/lnd --build-arg checkout=v0.15.1-branch-rc2 -t satimoto/lnd:v0.15.1-branch-rc2
 ```

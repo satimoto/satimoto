@@ -12,8 +12,7 @@ import { addInvoice, subscribeInvoices } from "services/LightningService"
 import { InvoiceStatus, toInvoiceStatus } from "types/invoice"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID, CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE } from "utils/constants"
-import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toNumber } from "utils/conversion"
+import { bytesToBase64, bytesToHex, secondsToDate, toLong, toMilliSatoshi, toNumber } from "utils/conversion"
 import { randomLong } from "utils/random"
 import { doWhileUntil } from "utils/tools"
 
@@ -61,7 +60,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
             setReady: action,
             settleInvoice: action,
             subscribeInvoices: action,
-            updateInvoice: action
+            onInvoice: action
         })
 
         makePersistable(
@@ -90,41 +89,17 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
         if (this.stores.channelStore.remoteBalance < amount) {
             const paymentHash = new Hash().update(preimage).digest()
-
-            const channelRequest = await createChannelRequest({
+            const hopHint = await this.stores.channelStore.createChannelRequest({
                 paymentAddr: bytesToBase64(paymentAddr),
                 paymentHash: bytesToBase64(paymentHash),
                 amountMsat: toMilliSatoshi(amount).toString(10)
             })
-            const node = channelRequest.data.createChannelRequest.node
-            const peer = await this.stores.peerStore.connectPeer(node.pubkey, node.addr)
-            const chanId = randomLong()
 
             routeHints.push(
                 lnrpc.RouteHint.create({
-                    hopHints: [
-                        {
-                            nodeId: peer.pubkey,
-                            chanId: chanId
-                        }
-                    ]
+                    hopHints: [hopHint]
                 })
             )
-
-            this.stores.peerStore.addCustomMessageResponder({
-                request: {
-                    peer: node.pubkey,
-                    type: CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID,
-                    data: chanId.toString(10)
-                },
-                response: {
-                    peer: node.pubkey,
-                    type: CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE,
-                    data: bytesToHex(preimage)
-                }
-            })
-
-            this.stores.channelStore.addChannelRequest(node.pubkey, bytesToHex(paymentHash), amount.toString())
         }
 
         const invoice = await addInvoice({ amt: +amount, paymentAddr, preimage, routeHints })
@@ -135,29 +110,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
         return this.invoices.find((invoice) => invoice.hash === hash)
     }
 
-    settleInvoice(hash: string) {
-        log.debug(`Settle invoice: ${hash}`)
-        const invoice = this.findInvoice(hash)
-
-        if (invoice) {
-            log.debug(`Invoice marked settled: ${hash}`)
-            invoice.status = InvoiceStatus.SETTLED
-            this.stores.transactionStore.addTransaction({ hash, invoice })
-        }
-    }
-
-    subscribeInvoices() {
-        if (!this.subscribedInvoices) {
-            subscribeInvoices((data: lnrpc.Invoice) => this.updateInvoice(data), this.addIndex, this.settleIndex)
-            this.subscribedInvoices = true
-        }
-    }
-
-    setReady() {
-        this.ready = true
-    }
-
-    updateInvoice(data: lnrpc.Invoice) {
+    onInvoice(data: lnrpc.Invoice) {
         const hash = bytesToHex(data.rHash)
         log.debug(`Update invoice: ${hash}`)
 
@@ -178,7 +131,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 paymentRequest: data.paymentRequest,
                 status: toInvoiceStatus(data.state),
                 valueMsat: data.valueMsat.toString(),
-                valueSat: data.value.toString(),
+                valueSat: data.value.toString()
             }
 
             this.invoices.push(invoice)
@@ -190,6 +143,28 @@ export class InvoiceStore implements InvoiceStoreInterface {
         if (data.settled) {
             this.stores.channelStore.getChannelBalance()
         }
+    }
+
+    settleInvoice(hash: string) {
+        log.debug(`Settle invoice: ${hash}`)
+        const invoice = this.findInvoice(hash)
+
+        if (invoice) {
+            log.debug(`Invoice marked settled: ${hash}`)
+            invoice.status = InvoiceStatus.SETTLED
+            this.stores.transactionStore.addTransaction({ hash, invoice })
+        }
+    }
+
+    subscribeInvoices() {
+        if (!this.subscribedInvoices) {
+            subscribeInvoices((data: lnrpc.Invoice) => this.onInvoice(data), this.addIndex, this.settleIndex)
+            this.subscribedInvoices = true
+        }
+    }
+
+    setReady() {
+        this.ready = true
     }
 
     waitForInvoice(hash: string): Promise<InvoiceModel> {

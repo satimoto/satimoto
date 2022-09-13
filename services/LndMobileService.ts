@@ -1,8 +1,8 @@
 import { IConversionOptions, Reader, Writer } from "protobufjs"
 import { NativeModules, NativeEventEmitter } from "react-native"
 import { Duplex } from "stream"
-import type { Cancelable } from "utils/cancelable"
-import cancelable from "utils/cancelable"
+import cancelable, { Cancelable } from "utils/cancelable"
+import sendable, { Sendable } from "utils/sendable"
 import { base64ToBytes, bytesToBase64 } from "utils/conversion"
 import { Log } from "utils/logging"
 
@@ -50,9 +50,13 @@ export interface IStreamResponse<Response> {
     onData: (data: Response) => void
 }
 
-export const serializeRequest = <IRequest, Request>(request: ISendRequest<IRequest, Request>, options: IRequest): string => {
+export const encodeRequest = <IRequest, Request>(request: ISendRequest<IRequest, Request>, options: IRequest): Uint8Array => {
     const message = request.create(options)
-    return bytesToBase64(request.encode(message).finish())
+    return request.encode(message).finish()
+}
+
+export const serializeRequest = <IRequest, Request>(request: ISendRequest<IRequest, Request>, options: IRequest): string => {
+    return bytesToBase64(encodeRequest(request, options))
 }
 
 export const deserializeResponse = <Response>(response: ISendResponse<Response>, base64Data: any): Response => {
@@ -99,12 +103,12 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     const stream = new Duplex({
         destroy() {
             log.debug(`${method} Destroy <${streamId}>`)
+            LndMobile.closeStream(streamId)
             listener.remove()
         },
         read() {},
         write(data) {
-            data = JSON.parse(data.toString("utf8"))
-            const base64Command = serializeRequest(request, data)
+            const base64Command = bytesToBase64(data)
             LndMobile.sendStreamWrite(streamId, base64Command)
         }
     })
@@ -129,15 +133,32 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     return stream
 }
 
-export const processStreamResponse = <Response>({ stream, method, onData }: IStreamResponse<Response>): Cancelable<Response> => {
-    const response = cancelable(new Promise<Response>((resolve, reject) => {
-        stream.on("data", onData)
-        stream.on("end", resolve)
-        stream.on("error", reject)
-        stream.on("status", (status) => log.info(`${method}: ${status}`))
-    }), canceled => {
-        stream.destroy()
-        throw canceled
-    })
+export const sendStreamResponse = <Response>({ stream, method, onData }: IStreamResponse<Response>): Cancelable<Response> => {
+    const response = cancelable(
+        new Promise<Response>((resolve, reject) => {
+            stream.on("data", onData)
+            stream.on("end", (response: Response) => {
+                log.debug(`Stream End ${method}`)
+                resolve(response)
+            })
+            stream.on("error", (err) => {
+                log.debug(`Stream Error ${method}: ${err}`)
+                reject(err)
+            })
+            stream.on("status", (status) => log.info(`${method}: ${status}`))
+        }),
+        (canceled) => {
+            stream.destroy()
+        }
+    )
+    return response
+}
+
+export const bidirectionalStreamRequest = <IRequest, Request, Response>(
+    request: ISendRequest<IRequest, Request>,
+    stream: Duplex,
+    cancelable: Cancelable<Response>
+): Sendable<IRequest, Response> => {
+    const response = sendable(request, stream, cancelable)
     return response
 }

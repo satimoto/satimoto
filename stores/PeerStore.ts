@@ -8,7 +8,7 @@ import { StoreInterface, Store } from "stores/Store"
 import { connectPeer, disconnectPeer, listPeers, sendCustomMessage, subscribeCustomMessages, subscribePeerEvents } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID } from "utils/constants"
-import { bytesToHex, toString } from "utils/conversion"
+import { bytesToHex, errorToString, toString } from "utils/conversion"
 import { Log } from "utils/logging"
 
 const log = new Log("PeerStore")
@@ -63,8 +63,8 @@ export class PeerStore implements PeerStoreInterface {
             listPeers: action,
             subscribeCustomMessages: action,
             subscribePeerEvents: action,
-            updateCustomMessages: action,
-            updatePeer: action
+            onCustomMessage: action,
+            onPeerEvent: action
         })
 
         makePersistable(
@@ -92,31 +92,35 @@ export class PeerStore implements PeerStoreInterface {
         this.customMessageResponders.push(responder)
     }
 
-    removeCustomMessageResponder(responder: CustomMessageResponder) {
-        log.debug("Remove CustomMessageResponder")
-        this.customMessageResponders.remove(responder)
-    }
-
     async connectPeer(pubkey: string, host: string) {
-        try {
-            let peer: PeerModelLike = this.getPeer(pubkey)
+        let peer: PeerModelLike = this.getPeer(pubkey)
 
-            if (peer) {
-                log.debug(`Peer  ${peer.pubkey} is ${peer.online ? "online" : "offline"}`)
-            } else {
-                peer = {
-                    pubkey,
-                    online: false
-                }
-
-                await connectPeer(pubkey, host, true)
-                this.peers.push(peer)
+        if (peer) {
+            log.debug(`Peer  ${peer.pubkey} is ${peer.online ? "online" : "offline"}`)
+        } else {
+            peer = {
+                pubkey,
+                online: false
             }
 
-            return peer
-        } catch (error) {
-            throw error
+            try {
+                await connectPeer(pubkey, host, true)
+                this.peers.push(peer)
+            } catch (error) {
+                const errorString = errorToString(error)
+
+                if (errorString.includes("already connected to peer")) {
+                    peer.online = true
+                    this.peers.push(peer)
+
+                    return peer
+                }
+
+                throw error
+            }
         }
+
+        return peer
     }
 
     async disconnectPeer(pubkey: string) {
@@ -155,25 +159,7 @@ export class PeerStore implements PeerStoreInterface {
         } catch (e) {}
     }
 
-    subscribeCustomMessages() {
-        if (!this.subscribedCustomMessages) {
-            subscribeCustomMessages((data: lnrpc.CustomMessage) => this.updateCustomMessages(data))
-            this.subscribedPeerEvents = true
-        }
-    }
-
-    subscribePeerEvents() {
-        if (!this.subscribedPeerEvents) {
-            subscribePeerEvents((data: lnrpc.PeerEvent) => this.updatePeer(data))
-            this.subscribedPeerEvents = true
-        }
-    }
-
-    setReady() {
-        this.ready = true
-    }
-
-    async updateCustomMessages({ peer, type, data }: lnrpc.CustomMessage) {
+    async onCustomMessage({ peer, type, data }: lnrpc.CustomMessage) {
         const peerStr = bytesToHex(peer)
         const dataStr = toString(data)
         log.debug(`Custom Message ${type} from ${peerStr}: ${dataStr}`)
@@ -193,7 +179,7 @@ export class PeerStore implements PeerStoreInterface {
         }
     }
 
-    updatePeer({ pubKey, type }: lnrpc.PeerEvent) {
+    onPeerEvent({ pubKey, type }: lnrpc.PeerEvent) {
         log.debug(`Peer ${pubKey} is ${type}`)
 
         this.peers.forEach((peer) => {
@@ -201,5 +187,28 @@ export class PeerStore implements PeerStoreInterface {
                 peer.online = type === lnrpc.PeerEvent.EventType.PEER_ONLINE
             }
         })
+    }
+
+    removeCustomMessageResponder(responder: CustomMessageResponder) {
+        log.debug("Remove CustomMessageResponder")
+        this.customMessageResponders.remove(responder)
+    }
+
+    setReady() {
+        this.ready = true
+    }
+
+    subscribeCustomMessages() {
+        if (!this.subscribedCustomMessages) {
+            subscribeCustomMessages((data: lnrpc.CustomMessage) => this.onCustomMessage(data))
+            this.subscribedPeerEvents = true
+        }
+    }
+
+    subscribePeerEvents() {
+        if (!this.subscribedPeerEvents) {
+            subscribePeerEvents((data: lnrpc.PeerEvent) => this.onPeerEvent(data))
+            this.subscribedPeerEvents = true
+        }
     }
 }

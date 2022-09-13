@@ -90,8 +90,17 @@ export class UiStore implements UiStoreInterface {
         this.setReady()
     }
 
-    setReady() {
-        this.ready = true
+    clearLnUrl() {
+        this.lnUrl = undefined
+        this.lnUrlAuthParams = undefined
+        this.lnUrlChannelParams = undefined
+        this.lnUrlPayParams = undefined
+        this.lnUrlWithdrawParams = undefined
+    }
+
+    clearPaymentRequest() {
+        this.paymentRequest = undefined
+        this.decodedPaymentRequest = undefined
     }
 
     /**
@@ -171,16 +180,7 @@ export class UiStore implements UiStoreInterface {
         })
     }
 
-    clearLnUrl() {
-        this.lnUrl = undefined
-        this.lnUrlAuthParams = undefined
-        this.lnUrlChannelParams = undefined
-        this.lnUrlPayParams = undefined
-        this.lnUrlWithdrawParams = undefined
-    }
-
-    clearPaymentRequest() {
-        this.paymentRequest = undefined
-        this.decodedPaymentRequest = undefined
+    setReady() {
+        this.ready = true
     }
 }

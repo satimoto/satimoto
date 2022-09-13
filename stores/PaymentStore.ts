@@ -78,6 +78,8 @@ export class PaymentStore implements PaymentStoreInterface {
                     const payment = await this.updatePayment(data)
 
                     if (payment.status === PaymentStatus.FAILED || payment.status === PaymentStatus.SUCCEEDED) {
+                        this.stores.channelStore.getChannelBalance()
+
                         resolve(payment)
                     }
                 }, payment)
@@ -89,6 +91,10 @@ export class PaymentStore implements PaymentStoreInterface {
 
     setReady() {
         this.ready = true
+    }
+
+    updateIndexOffset(payment: lnrpc.Payment) {
+        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
     }
 
     async updatePayment(payment: lnrpc.Payment): Promise<PaymentModel> {
@@ -143,9 +149,5 @@ export class PaymentStore implements PaymentStoreInterface {
         }
 
         this.setReady()
-    }
-
-    updateIndexOffset(payment: lnrpc.Payment) {
-        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
     }
 }

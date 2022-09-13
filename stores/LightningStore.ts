@@ -68,9 +68,9 @@ export class LightningStore implements LightningStoreInterface {
             calculatePercentSynced: action,
             setReady: action,
             setSyncHeaderTimestamp: action,
-            updateBlockEpoch: action,
+            onBlockEpoch: action,
             updateInfo: action,
-            updateState: action
+            onState: action
         })
 
         makePersistable(
@@ -78,30 +78,6 @@ export class LightningStore implements LightningStoreInterface {
             { name: "LightningStore", properties: ["identityPubkey", "blockHeight", "bestHeaderTimestamp"], storage: AsyncStorage, debugMode: DEBUG },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
-    }
-
-    calculatePercentSynced() {
-        if (this.syncHeaderTimestamp === "0") {
-            this.setSyncHeaderTimestamp(this.bestHeaderTimestamp)
-        }
-
-        if (this.syncedToChain) {
-            this.percentSynced = 100
-        } else {
-            const bestHeaderTimestamp = Long.fromString(this.bestHeaderTimestamp)
-            const syncHeaderTimestamp = Long.fromString(this.syncHeaderTimestamp)
-            const timestamp = Long.fromValue(new Date().getTime() / 1000)
-            const progress = bestHeaderTimestamp.subtract(syncHeaderTimestamp).toNumber()
-            const total = timestamp.subtract(syncHeaderTimestamp).toNumber()
-            this.percentSynced = (100.0 / total) * progress
-        }
-
-        log.debug(`Percent Synced: ${this.percentSynced}`)
-    }
-
-    async getInfo() {
-        const getInfoResponse: lnrpc.GetInfoResponse = await getInfo()
-        this.updateInfo(getInfoResponse)
     }
 
     async initialize(): Promise<void> {
@@ -129,18 +105,40 @@ export class LightningStore implements LightningStoreInterface {
         }
     }
 
-    subscribeBlockEpoch() {
-        if (!this.subscribedBlockEpoch) {
-            registerBlockEpochNtfn((data) => this.updateBlockEpoch(data))
-            this.subscribedBlockEpoch = true
+    calculatePercentSynced() {
+        if (this.syncHeaderTimestamp === "0") {
+            this.setSyncHeaderTimestamp(this.bestHeaderTimestamp)
         }
+
+        if (this.syncedToChain) {
+            this.percentSynced = 100
+        } else {
+            const bestHeaderTimestamp = Long.fromString(this.bestHeaderTimestamp)
+            const syncHeaderTimestamp = Long.fromString(this.syncHeaderTimestamp)
+            const timestamp = Long.fromValue(new Date().getTime() / 1000)
+            const progress = bestHeaderTimestamp.subtract(syncHeaderTimestamp).toNumber()
+            const total = timestamp.subtract(syncHeaderTimestamp).toNumber()
+            this.percentSynced = (100.0 / total) * progress
+        }
+
+        log.debug(`Percent Synced: ${this.percentSynced}`)
     }
 
-    subscribeState() {
-        if (!this.subscribedState) {
-            subscribeState((data) => this.updateState(data))
-            this.subscribedState = true
-        }
+    async getInfo() {
+        const getInfoResponse: lnrpc.GetInfoResponse = await getInfo()
+        this.updateInfo(getInfoResponse)
+    }
+
+    onBlockEpoch({ hash }: chainrpc.BlockEpoch) {
+        const reversedHash = reverseByteOrder(hash)
+        const hex = bytesToHex(reversedHash)
+        log.debug(`Hex: ${hex}`)
+        this.getInfo()
+    }
+
+    onState({ state }: lnrpc.SubscribeStateResponse) {
+        log.debug(`State: ${state}`)
+        this.state = state
     }
 
     setReady() {
@@ -155,6 +153,20 @@ export class LightningStore implements LightningStoreInterface {
         if (DEBUG && !this.startedLogEvents) {
             startLogEvents()
             this.startedLogEvents = true
+        }
+    }
+
+    subscribeBlockEpoch() {
+        if (!this.subscribedBlockEpoch) {
+            registerBlockEpochNtfn((data) => this.onBlockEpoch(data))
+            this.subscribedBlockEpoch = true
+        }
+    }
+
+    subscribeState() {
+        if (!this.subscribedState) {
+            subscribeState((data) => this.onState(data))
+            this.subscribedState = true
         }
     }
 
@@ -175,13 +187,6 @@ export class LightningStore implements LightningStoreInterface {
         this.setReady()
     }
 
-    updateBlockEpoch({ hash }: chainrpc.BlockEpoch) {
-        const reversedHash = reverseByteOrder(hash)
-        const hex = bytesToHex(reversedHash)
-        log.debug(`Hex: ${hex}`)
-        this.getInfo()
-    }
-
     updateChannels() {}
 
     updateInfo({ blockHeight, bestHeaderTimestamp, identityPubkey, syncedToChain }: lnrpc.GetInfoResponse) {
@@ -189,10 +194,5 @@ export class LightningStore implements LightningStoreInterface {
         this.identityPubkey = identityPubkey
         this.bestHeaderTimestamp = bestHeaderTimestamp.toString()
         this.syncedToChain = syncedToChain
-    }
-
-    updateState({ state }: lnrpc.SubscribeStateResponse) {
-        log.debug(`State: ${state}`)
-        this.state = state
     }
 }

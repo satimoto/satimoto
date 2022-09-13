@@ -14,7 +14,9 @@ const GET_TARIFF = gql`
             elements {
                 priceComponents {
                     type
-                    price
+                    priceMsat
+                    commissionMsat
+                    taxMsat
                     stepSize
                 }
                 restrictions {
