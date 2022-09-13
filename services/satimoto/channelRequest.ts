@@ -41,4 +41,5 @@ const createChannelRequest = (client: ApolloClient<NormalizedCacheObject>) => {
     }
 }
 
+export type { CreateChannelRequestInput }
 export { createChannelRequest }

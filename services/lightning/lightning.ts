@@ -62,7 +62,7 @@ export const addInvoice = ({
             expiry: toLong(expiry),
             rPreimage: preimage ? hexToBytes(preimage) : null,
             paymentAddr: paymentAddr ? hexToBytes(paymentAddr) : null,
-            private: true,
+            private: !(routeHints && routeHints.length > 0),
             routeHints
         }
     })

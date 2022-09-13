@@ -80,10 +80,6 @@ export class SettingStore implements SettingStoreInterface {
         this.setReady()
     }
 
-    setReady() {
-        this.ready = true
-    }
-
     async requestPushNotificationPermission() {
         const authStatus = await messaging().requestPermission()
         const token = await messaging().getToken()
@@ -105,5 +101,9 @@ export class SettingStore implements SettingStoreInterface {
         this.pushNotificationToken = token
 
         log.debug(`Notification settings changed: ${enabled} token: ${token}`)
+    }
+
+    setReady() {
+        this.ready = true
     }
 }

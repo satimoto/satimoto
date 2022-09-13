@@ -38,6 +38,24 @@ export class WalletStore implements WalletStoreInterface {
         )
     }
 
+    async initialize(): Promise<void> {
+        try {
+            // When the wallet not existing, create a wallet
+            when(
+                () => this.stores.lightningStore.state == lnrpc.WalletState.NON_EXISTING,
+                () => this.createWallet()
+            )
+
+            // When the wallet is locked, unlock the wallet
+            when(
+                () => this.stores.lightningStore.state == lnrpc.WalletState.LOCKED,
+                () => this.unlockWallet()
+            )
+        } catch (error) {
+            log.error(`Error Initializing: ${error}`)
+        }
+    }
+
     async createWallet(): Promise<void> {
         let seedMnemonic: string[] = await getSecureItem(SECURE_KEY_CIPHER_SEED_MNEMONIC)
         let password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
@@ -64,30 +82,12 @@ export class WalletStore implements WalletStoreInterface {
         await initWallet(seedMnemonic, password, recoveryWindow)
     }
 
-    async initialize(): Promise<void> {
-        try {
-            // When the wallet not existing, create a wallet
-            when(
-                () => this.stores.lightningStore.state == lnrpc.WalletState.NON_EXISTING,
-                () => this.createWallet()
-            )
-
-            // When the wallet is locked, unlock the wallet
-            when(
-                () => this.stores.lightningStore.state == lnrpc.WalletState.LOCKED,
-                () => this.unlockWallet()
-            )
-        } catch (error) {
-            log.error(`Error Initializing: ${error}`)
-        }
+    setReady() {
+        this.ready = true
     }
 
     async unlockWallet(): Promise<void> {
         const password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
         await unlockWallet(password)
-    }
-
-    setReady() {
-        this.ready = true
     }
 }

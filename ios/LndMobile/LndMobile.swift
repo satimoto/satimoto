@@ -343,4 +343,21 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     
     RCTLogError("stream \(streamId) not found")
   }
+  
+  @objc(closeStream:)
+  func closeStream(_ streamId: String) {
+    let sendStream = self.activeStreams[streamId]
+
+    if(sendStream != nil) {
+      self.activeStreams.removeValue(forKey: streamId)
+      do {
+        try sendStream!.stop()
+      } catch let err {
+        RCTLogError("got close error: \(err.localizedDescription)")
+      }
+      return
+    }
+    
+    RCTLogError("stream \(streamId) not found")
+  }
 }

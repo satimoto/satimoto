@@ -45,4 +45,8 @@ RCT_EXTERN_METHOD(
   body:(NSString*)msg
 )
 
+RCT_EXTERN_METHOD(
+  closeStream:(NSString*)streamId
+)
+
 @end

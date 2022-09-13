@@ -8,6 +8,7 @@ import { ChannelAcceptor, channelAcceptor, channelBalance, subscribeChannelEvent
 import { bytesToHex, toLong, toNumber } from "utils/conversion"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import { createChannelRequest, CreateChannelRequestInput } from "services/SatimotoService"
 
 const log = new Log("ChannelStore")
 
@@ -20,7 +21,7 @@ export interface ChannelStoreInterface extends StoreInterface {
     localBalance: number
     remoteBalance: number
 
-    addChannelRequest(channelRequest: ChannelRequestModel): void
+    createChannelRequest(channelRequest: CreateChannelRequestInput): Promise<lnrpc.IHopHint>
 }
 
 export class ChannelStore implements ChannelStoreInterface {
@@ -30,7 +31,6 @@ export class ChannelStore implements ChannelStoreInterface {
 
     channelAcceptor: ChannelAcceptor | null = null
     channelRequests
-    subscribedChannelAcceptor = false
     subscribedChannelEvents = false
     localBalance = 0
     remoteBalance = 0
@@ -44,7 +44,6 @@ export class ChannelStore implements ChannelStoreInterface {
             ready: observable,
 
             channelRequests: observable,
-            subscribedChannelAcceptor: observable,
             subscribedChannelEvents: observable,
             localBalance: observable,
             remoteBalance: observable,
@@ -53,7 +52,7 @@ export class ChannelStore implements ChannelStoreInterface {
             addChannelRequest: action,
             removeChannelRequest: action,
             updateChannelBalance: action,
-            updateChannelEvents: action
+            onChannelEventUpdate: action
         })
 
         makePersistable(
@@ -73,11 +72,6 @@ export class ChannelStore implements ChannelStoreInterface {
 
             when(
                 () => this.stores.lightningStore.syncedToChain,
-                () => this.subscribeChannelAcceptor()
-            )
-
-            when(
-                () => this.stores.lightningStore.syncedToChain,
                 () => this.getChannelBalance()
             )
         } catch (error) {
@@ -85,31 +79,16 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
+    cancelChannelAcceptor() {
+        if (this.channelAcceptor) {
+            this.channelAcceptor.cancel()
+            this.channelAcceptor = null
+        }
+    }
+
     async getChannelBalance() {
         const channelBalanceResponse: lnrpc.ChannelBalanceResponse = await channelBalance()
         this.updateChannelBalance(channelBalanceResponse)
-    }
-
-    subscribeChannelAcceptor() {
-        if (!this.channelAcceptor) {
-            this.channelAcceptor = channelAcceptor((data: lnrpc.ChannelAcceptRequest) => this.updateChannelAcceptor(data))
-
-            this.channelAcceptor.finally(() => {
-                log.debug(`Channel Acceptor shutdown`)
-                this.channelAcceptor = null
-            })
-        }
-    }
-
-    subscribeChannelEvents() {
-        if (!this.subscribedChannelEvents) {
-            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.updateChannelEvents(data))
-            this.subscribedChannelEvents = true
-        }
-    }
-
-    setReady() {
-        this.ready = true
     }
 
     addChannelRequest(channelRequest: ChannelRequestModel) {
@@ -119,17 +98,31 @@ export class ChannelStore implements ChannelStoreInterface {
         this.channelRequests.push(channelRequest)
     }
 
+    async createChannelRequest(input: CreateChannelRequestInput): Promise<lnrpc.IHopHint> {
+        const channelRequest = await createChannelRequest(input)
+        const { node, pendingChanId, scid, feeBaseMsat, feeProportionalMillionths, cltvExpiryDelta } = channelRequest.data.createChannelRequest
+        const peer = await this.stores.peerStore.connectPeer(node.pubkey, node.addr)
+        const hopHint: lnrpc.IHopHint = {
+            nodeId: peer.pubkey,
+            chanId: toLong(scid),
+            feeBaseMsat,
+            feeProportionalMillionths,
+            cltvExpiryDelta
+        }
+
+        this.addChannelRequest({ pubkey: node.pubkey, paymentHash: bytesToHex(input.paymentHash), pendingChanId, scid })
+        this.subscribeChannelAcceptor()
+
+        return hopHint
+    }
+
     findChannelRequest(pubkey: string, pendingChanId?: string): ChannelRequestModelLike {
         return this.channelRequests.find(
             (channelRequest) => channelRequest.pubkey === pubkey && (!pendingChanId || channelRequest.pendingChanId === pendingChanId)
         )
     }
 
-    removeChannelRequest(channelRequest: ChannelRequestModel) {
-        this.channelRequests.remove(channelRequest)
-    }
-
-    updateChannelAcceptor({ nodePubkey, pendingChanId, wantsZeroConf }: lnrpc.ChannelAcceptRequest) {
+    onChannelAcceptRequest({ nodePubkey, pendingChanId, wantsZeroConf }: lnrpc.ChannelAcceptRequest) {
         log.debug(`Channel Acceptor`)
 
         if (this.channelAcceptor) {
@@ -147,17 +140,7 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
-    updateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {
-        const localBalanceSat = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
-        const remoteBalanceSat = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
-        const unsettledLocalBalanceSat = unsettledLocalBalance && unsettledLocalBalance.sat ? toNumber(unsettledLocalBalance.sat) : 0
-
-        this.localBalance = localBalanceSat + unsettledLocalBalanceSat
-        this.remoteBalance = remoteBalanceSat
-        log.debug(`Channel Balance: ${this.localBalance}`)
-    }
-
-    updateChannelEvents({ type, openChannel }: lnrpc.ChannelEventUpdate) {
+    onChannelEventUpdate({ type, openChannel }: lnrpc.ChannelEventUpdate) {
         log.debug(`Channel Event: ${type}`)
         this.getChannelBalance()
 
@@ -171,8 +154,45 @@ export class ChannelStore implements ChannelStoreInterface {
 
                 if (channelRequest) {
                     this.removeChannelRequest(channelRequest)
+                    this.cancelChannelAcceptor()
                 }
             }
         }
+    }
+
+    removeChannelRequest(channelRequest: ChannelRequestModel) {
+        this.channelRequests.remove(channelRequest)
+    }
+
+    setReady() {
+        this.ready = true
+    }
+
+    subscribeChannelAcceptor() {
+        this.cancelChannelAcceptor()
+
+        this.channelAcceptor = channelAcceptor((data: lnrpc.ChannelAcceptRequest) => this.onChannelAcceptRequest(data))
+
+        this.channelAcceptor.finally(() => {
+            log.debug(`Channel Acceptor shutdown`)
+            this.channelAcceptor = null
+        })
+    }
+
+    subscribeChannelEvents() {
+        if (!this.subscribedChannelEvents) {
+            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.onChannelEventUpdate(data))
+            this.subscribedChannelEvents = true
+        }
+    }
+
+    updateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {
+        const localBalanceSat = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
+        const remoteBalanceSat = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
+        const unsettledLocalBalanceSat = unsettledLocalBalance && unsettledLocalBalance.sat ? toNumber(unsettledLocalBalance.sat) : 0
+
+        this.localBalance = localBalanceSat + unsettledLocalBalanceSat
+        this.remoteBalance = remoteBalanceSat
+        log.debug(`Channel Balance: ${this.localBalance}`)
     }
 }

@@ -1,10 +1,11 @@
 import { ApolloClient, ApolloLink, HttpLink } from "@apollo/client"
 import { setContext } from "@apollo/client/link/context"
 import { onError } from "@apollo/client/link/error"
-import { InvalidationPolicyCache } from "apollo-invalidation-policies";
+import { InvalidationPolicyCache } from "apollo-invalidation-policies"
 import * as Authentication from "./satimoto/authentication"
 import { AuthenticationAction } from "./satimoto/authentication"
 import * as ChannelRequest from "./satimoto/channelRequest"
+import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
 import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
@@ -125,6 +126,8 @@ const getToken = async (pubkey: string, deviceToken: string) => {
         5000
     )
 }
+
+export type { CreateChannelRequestInput }
 
 export {
     AuthenticationAction,

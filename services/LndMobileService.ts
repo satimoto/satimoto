@@ -103,6 +103,7 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     const stream = new Duplex({
         destroy() {
             log.debug(`${method} Destroy <${streamId}>`)
+            LndMobile.closeStream(streamId)
             listener.remove()
         },
         read() {},
@@ -136,13 +137,18 @@ export const sendStreamResponse = <Response>({ stream, method, onData }: IStream
     const response = cancelable(
         new Promise<Response>((resolve, reject) => {
             stream.on("data", onData)
-            stream.on("end", resolve)
-            stream.on("error", reject)
+            stream.on("end", (response: Response) => {
+                log.debug(`Stream End ${method}`)
+                resolve(response)
+            })
+            stream.on("error", (err) => {
+                log.debug(`Stream Error ${method}: ${err}`)
+                reject(err)
+            })
             stream.on("status", (status) => log.info(`${method}: ${status}`))
         }),
         (canceled) => {
             stream.destroy()
-            throw canceled
         }
     )
     return response

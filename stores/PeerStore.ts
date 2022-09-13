@@ -63,8 +63,8 @@ export class PeerStore implements PeerStoreInterface {
             listPeers: action,
             subscribeCustomMessages: action,
             subscribePeerEvents: action,
-            updateCustomMessages: action,
-            updatePeer: action
+            onCustomMessage: action,
+            onPeerEvent: action
         })
 
         makePersistable(
@@ -90,11 +90,6 @@ export class PeerStore implements PeerStoreInterface {
         log.debug("Add CustomMessageResponder")
         log.debug(JSON.stringify(responder, undefined, 2))
         this.customMessageResponders.push(responder)
-    }
-
-    removeCustomMessageResponder(responder: CustomMessageResponder) {
-        log.debug("Remove CustomMessageResponder")
-        this.customMessageResponders.remove(responder)
     }
 
     async connectPeer(pubkey: string, host: string) {
@@ -164,25 +159,7 @@ export class PeerStore implements PeerStoreInterface {
         } catch (e) {}
     }
 
-    subscribeCustomMessages() {
-        if (!this.subscribedCustomMessages) {
-            subscribeCustomMessages((data: lnrpc.CustomMessage) => this.updateCustomMessages(data))
-            this.subscribedPeerEvents = true
-        }
-    }
-
-    subscribePeerEvents() {
-        if (!this.subscribedPeerEvents) {
-            subscribePeerEvents((data: lnrpc.PeerEvent) => this.updatePeer(data))
-            this.subscribedPeerEvents = true
-        }
-    }
-
-    setReady() {
-        this.ready = true
-    }
-
-    async updateCustomMessages({ peer, type, data }: lnrpc.CustomMessage) {
+    async onCustomMessage({ peer, type, data }: lnrpc.CustomMessage) {
         const peerStr = bytesToHex(peer)
         const dataStr = toString(data)
         log.debug(`Custom Message ${type} from ${peerStr}: ${dataStr}`)
@@ -202,7 +179,7 @@ export class PeerStore implements PeerStoreInterface {
         }
     }
 
-    updatePeer({ pubKey, type }: lnrpc.PeerEvent) {
+    onPeerEvent({ pubKey, type }: lnrpc.PeerEvent) {
         log.debug(`Peer ${pubKey} is ${type}`)
 
         this.peers.forEach((peer) => {
@@ -210,5 +187,28 @@ export class PeerStore implements PeerStoreInterface {
                 peer.online = type === lnrpc.PeerEvent.EventType.PEER_ONLINE
             }
         })
+    }
+
+    removeCustomMessageResponder(responder: CustomMessageResponder) {
+        log.debug("Remove CustomMessageResponder")
+        this.customMessageResponders.remove(responder)
+    }
+
+    setReady() {
+        this.ready = true
+    }
+
+    subscribeCustomMessages() {
+        if (!this.subscribedCustomMessages) {
+            subscribeCustomMessages((data: lnrpc.CustomMessage) => this.onCustomMessage(data))
+            this.subscribedPeerEvents = true
+        }
+    }
+
+    subscribePeerEvents() {
+        if (!this.subscribedPeerEvents) {
+            subscribePeerEvents((data: lnrpc.PeerEvent) => this.onPeerEvent(data))
+            this.subscribedPeerEvents = true
+        }
     }
 }

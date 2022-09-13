@@ -64,20 +64,6 @@ export class TransactionStore implements TransactionStoreInterface {
         }
     }
 
-    checkExpiredTransations() {
-        const now = moment()
-        const openInvoiceStatuses = [InvoiceStatus.ACCEPTED, InvoiceStatus.OPEN]
-        const openPaymentStatuses = [PaymentStatus.IN_PROGRESS, PaymentStatus.UNKNOWN]
-
-        for (const {invoice, payment} of this.transactions) {
-            if (invoice && openInvoiceStatuses.includes(invoice.status) && moment(invoice.expiresAt).isBefore(now)) {
-                invoice.status = InvoiceStatus.EXPIRED
-            }if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
-                payment.status = PaymentStatus.EXPIRED
-            }
-        }
-    }
-
     addTransaction(transaction: TransactionModel) {
         let existingTransaction = this.transactions.find(
             ({ invoice, payment }) =>
@@ -89,6 +75,20 @@ export class TransactionStore implements TransactionStoreInterface {
             Object.assign(existingTransaction, transaction)
         } else {
             this.transactions.unshift(transaction)
+        }
+    }
+
+    checkExpiredTransations() {
+        const now = moment()
+        const openInvoiceStatuses = [InvoiceStatus.ACCEPTED, InvoiceStatus.OPEN]
+        const openPaymentStatuses = [PaymentStatus.IN_PROGRESS, PaymentStatus.UNKNOWN]
+
+        for (const {invoice, payment} of this.transactions) {
+            if (invoice && openInvoiceStatuses.includes(invoice.status) && moment(invoice.expiresAt).isBefore(now)) {
+                invoice.status = InvoiceStatus.EXPIRED
+            }if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
+                payment.status = PaymentStatus.EXPIRED
+            }
         }
     }
 
