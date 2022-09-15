@@ -7,9 +7,10 @@ import moment from "moment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { getLocation, listLocations } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
-import { DEBUG } from "utils/build"
-import { Log } from "utils/logging"
 import { EvseStatus, EvseStatusSortMap } from "types/evse"
+import { DEBUG } from "utils/build"
+import { LOCATION_UPDATE_INTERVAL } from "utils/constants"
+import { Log } from "utils/logging"
 
 const log = new Log("LocationStore")
 
@@ -42,7 +43,7 @@ export class LocationStore implements LocationStoreInterface {
     activeConnectors
 
     locationUpdatesEnabled = false
-    lastLocationUpdate?: string = undefined
+    lastLocationChanged: boolean = true
     locationUpdateTimer: any = undefined
 
     constructor(stores: Store) {
@@ -97,7 +98,7 @@ export class LocationStore implements LocationStoreInterface {
         log.debug(`monitorLocationUpdates ${enable}`)
 
         if (enable && !this.locationUpdateTimer) {
-            this.locationUpdateTimer = setInterval(this.requestLocations.bind(this), 60 * 1000)
+            this.locationUpdateTimer = setInterval(this.requestLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
         } else {
             clearInterval(this.locationUpdateTimer)
         }
@@ -123,7 +124,7 @@ export class LocationStore implements LocationStoreInterface {
                     yMin: this.bounds[0][1],
                     xMax: this.bounds[0][0],
                     yMax: this.bounds[1][1],
-                    lastUpdate: this.lastLocationUpdate
+                    interval: LOCATION_UPDATE_INTERVAL
                 })
 
                 this.updateLocations(locations.data.listLocations)
@@ -141,7 +142,7 @@ export class LocationStore implements LocationStoreInterface {
 
     async setBounds(bounds: GeoJSON.Position[]) {
         this.bounds.replace(bounds)
-        this.lastLocationUpdate = undefined
+        this.lastLocationChanged = true
 
         this.requestLocations()
     }
@@ -187,7 +188,9 @@ export class LocationStore implements LocationStoreInterface {
     updateLocations(locations: LocationModel[]) {
         log.debug(`updateLocations ${this.locations.length} ${locations.length}`)
 
-        if (this.lastLocationUpdate) {
+        if (this.lastLocationChanged) {
+            this.locations.replace(locations)
+        } else {
             // Update/add to existing locations
             locations.forEach((location) => {
                 let existingLocation = this.locations.find((l) => l.uid === location.uid)
@@ -198,10 +201,8 @@ export class LocationStore implements LocationStoreInterface {
                     this.locations.push(location)
                 }
             })
-        } else {
-            this.locations.replace(locations)
         }
 
-        this.lastLocationUpdate = moment().format("YYYY-MM-DDTHH:mm:ssZ")
+        this.lastLocationChanged = false
     }
 }

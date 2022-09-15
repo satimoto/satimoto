@@ -115,7 +115,7 @@ interface ListLocationsInput {
     yMin: number
     xMax: number
     yMax: number
-    lastUpdate?: string
+    interval?: number
 }
 
 const listLocations = (client: ApolloClient<NormalizedCacheObject>) => {
