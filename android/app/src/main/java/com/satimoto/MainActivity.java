@@ -5,13 +5,13 @@ import android.os.Bundle;
 import android.view.WindowManager;
 
 import com.facebook.react.ReactActivity;
-import org.devio.rn.splashscreen.SplashScreen;
+import com.zoontek.rnbootsplash.RNBootSplash;
 
 public class MainActivity extends ReactActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SplashScreen.show(this);
+        RNBootSplash.init(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();

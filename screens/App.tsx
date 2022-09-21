@@ -4,8 +4,8 @@ import * as protobuf from "protobufjs"
 import { StoreProvider } from "providers/StoreProvider"
 import React, { useEffect } from "react"
 import messaging from "@react-native-firebase/messaging"
+import RNBootSplash from "react-native-bootsplash"
 import { SafeAreaProvider } from "react-native-safe-area-context"
-import SplashScreen from "react-native-splash-screen"
 import { NavigationContainer } from "@react-navigation/native"
 import AppStack from "screens/AppStack"
 import notificationMessageHandler from "services/NotificationService"
@@ -34,19 +34,17 @@ const App = () => {
             log.debug(`onNotificationOpenedApp: ${JSON.stringify(remoteMessage)}`)
         })
 
-        messaging().getInitialNotification().then((remoteMessage) => {
-            if (remoteMessage) {
-                log.debug(`getInitialNotification: ${JSON.stringify(remoteMessage)}`)
-            }
-        })
+        messaging()
+            .getInitialNotification()
+            .then((remoteMessage) => {
+                if (remoteMessage) {
+                    log.debug(`getInitialNotification: ${JSON.stringify(remoteMessage)}`)
+                }
+            })
 
         return () => {
             unsubscribeMessages()
         }
-    }, [])
-
-    useEffect(() => {
-        SplashScreen.hide()
     }, [])
 
     return (
@@ -60,7 +58,7 @@ const App = () => {
                 <NativeBaseProvider theme={NativeBaseTheme}>
                     <SafeAreaProvider>
                         <StoreProvider store={store}>
-                            <NavigationContainer>
+                            <NavigationContainer onReady={() => RNBootSplash.hide({ fade: true })}>
                                 <AppStack />
                             </NavigationContainer>
                         </StoreProvider>
