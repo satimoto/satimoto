@@ -126,9 +126,9 @@ const Home = ({ navigation }: HomeProps) => {
     }, [locationStore.activeLocation])
 
     useEffect(() => {
-        locationStore.monitorLocationUpdates(true)
+        locationStore.startLocationUpdates()
 
-        return () => locationStore.monitorLocationUpdates(false)
+        return () => locationStore.stopLocationUpdates()
     }, [])
 
     useEffect(
@@ -176,7 +176,7 @@ const Home = ({ navigation }: HomeProps) => {
             </MapboxGL.MapView>
             <BalanceCard onLayout={onBalanceCardLayout} />
             <ChargeButton
-                satoshis={parseInt(sessionStore.amountSat)}
+                satoshis={parseInt(sessionStore.valueSat)}
                 top={balanceCardRectangle.y + balanceCardRectangle.height}
                 onPress={onChargeButtonPress}
             />

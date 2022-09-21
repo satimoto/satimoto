@@ -50,12 +50,14 @@ export { getSession }
             currency
             currencyRate
             currencyRateMsat
-            amountFiat
-            amountMsat
+            priceFiat
+            priceMsat
             commissionFiat
             commissionMsat
             taxFiat
             taxMsat
+            totalFiat
+            totalMsat
             paymentRequest
             isSettled
             isExpired

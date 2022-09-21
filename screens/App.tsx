@@ -30,6 +30,16 @@ const App = () => {
 
         const unsubscribeMessages = messaging().onMessage(notificationMessageHandler)
 
+        messaging().onNotificationOpenedApp((remoteMessage) => {
+            log.debug(`onNotificationOpenedApp: ${JSON.stringify(remoteMessage)}`)
+        })
+
+        messaging().getInitialNotification().then((remoteMessage) => {
+            if (remoteMessage) {
+                log.debug(`getInitialNotification: ${JSON.stringify(remoteMessage)}`)
+            }
+        })
+
         return () => {
             unsubscribeMessages()
         }

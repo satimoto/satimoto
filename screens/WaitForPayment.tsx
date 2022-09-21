@@ -53,11 +53,10 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
     }, [navigation])
 
     useEffect(() => {
-        let minutes = moment(invoice.expiresAt).diff(moment(), "minutes")
         const promise = doWhile(
             "Countdown",
             () => {
-                minutes--
+                const minutes = moment(invoice.expiresAt).diff(moment(), "minutes")
 
                 setExpiryMinutes(minutes)
 

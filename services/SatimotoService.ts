@@ -7,6 +7,8 @@ import { AuthenticationAction } from "./satimoto/authentication"
 import * as ChannelRequest from "./satimoto/channelRequest"
 import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
+import * as InvoiceRequest from "./satimoto/invoiceRequest"
+import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
@@ -26,7 +28,7 @@ const uploadLink = new HttpLink({
 
 const invalidationPolicyCache = new InvalidationPolicyCache({
     invalidationPolicies: {
-        timeToLive: 60 * 1000
+        timeToLive: 59 * 1000
     }
 })
 
@@ -71,6 +73,10 @@ const createChannelRequest = ChannelRequest.createChannelRequest(client)
 // Command
 const startSession = Command.startSession(client)
 const stopSession = Command.stopSession(client)
+
+// Invoice Request
+const listInvoiceRequests = InvoiceRequest.listInvoiceRequests(client)
+const updateInvoiceRequest = InvoiceRequest.updateInvoiceRequest(client)
 
 // Location
 const getLocation = Location.getLocation(client)
@@ -127,7 +133,7 @@ const getToken = async (pubkey: string, deviceToken: string) => {
     )
 }
 
-export type { CreateChannelRequestInput }
+export type { CreateChannelRequestInput, UpdateInvoiceRequestInput }
 
 export {
     AuthenticationAction,
@@ -140,6 +146,9 @@ export {
     // Command
     startSession,
     stopSession,
+    // Invoice Request
+    listInvoiceRequests,
+    updateInvoiceRequest,
     // Location
     getLocation,
     listLocations,

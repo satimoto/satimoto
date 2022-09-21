@@ -1,5 +1,5 @@
 import Long from "long"
-import { action, computed, makeObservable, observable, reaction } from "mobx"
+import { action, computed, makeObservable, observable, reaction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel, { ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
@@ -32,8 +32,8 @@ export interface SessionStoreInterface extends StoreInterface {
     sessionInvoices: SessionInvoiceModel[]
     payments: PaymentModel[]
 
-    handleSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void>
-    handleSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void>
+    onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void>
+    onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void>
 
     startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void>
     stopSession(): Promise<void>
@@ -71,16 +71,17 @@ export class SessionStore implements SessionStoreInterface {
             sessionInvoices: observable,
             payments: observable,
 
-            amountMsat: computed,
-            amountSat: computed,
+            valueMsat: computed,
+            valueSat: computed,
             feeMsat: computed,
             feeSat: computed,
 
             setReady: action,
             startSession: action,
             stopSession: action,
+            updatePayments: action,
             updateSession: action,
-            updatePayments: action
+            updateSessionInvoice: action
         })
 
         makePersistable(this, { name: "SessionStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
@@ -99,16 +100,19 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
-    get amountSat(): string {
-        return toSatoshi(this.amountMsat).toString()
+    get valueSat(): string {
+        return toSatoshi(this.valueMsat).toString()
     }
 
-    get amountMsat(): string {
-        return this.payments
-            .reduce((amountMsat, payment) => {
-                return amountMsat.add(payment.valueMsat)
-            }, new Long(0))
-            .toString()
+    get valueMsat(): string {
+        return this.session
+            ? this.payments
+                  .filter((payment) => payment.description === this.session!.uid)
+                  .reduce((valueMsat, payment) => {
+                      return valueMsat.add(payment.valueMsat)
+                  }, new Long(0))
+                  .toString()
+            : "0"
     }
 
     get feeSat(): string {
@@ -116,39 +120,42 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     get feeMsat(): string {
-        return this.payments
-            .reduce((feeMsat, payment) => {
-                return feeMsat.add(payment.feeMsat)
-            }, new Long(0))
-            .toString()
+        return this.session
+            ? this.payments
+                  .filter((payment) => payment.description === this.session!.uid)
+                  .reduce((feeMsat, payment) => {
+                      return feeMsat.add(payment.feeMsat)
+                  }, new Long(0))
+                  .toString()
+            : "0"
     }
 
-    async handleSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void> {
+    async onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void> {
         if (this.session) {
             const response = await getSessionInvoice(notification.sessionInvoiceId)
-            const sessionInvoice = response.data.sessionInvoice as SessionInvoiceModel
+            const sessionInvoice = response.data.getSessionInvoice as SessionInvoiceModel
 
             if (sessionInvoice && notification.paymentRequest === sessionInvoice.paymentRequest) {
-                let existingSessionInvoice = this.sessionInvoices.find(({ id }) => id === notification.sessionInvoiceId)
-                const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
+                when(
+                    () => this.stores.lightningStore.syncedToChain,
+                    async () => {
+                        const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
 
-                if (payment.status === PaymentStatus.SUCCEEDED) {
-                    sessionInvoice.isSettled = true
-                }
+                        if (payment.status === PaymentStatus.SUCCEEDED) {
+                            sessionInvoice.isSettled = true
+                        }
 
-                if (existingSessionInvoice) {
-                    Object.assign(existingSessionInvoice, sessionInvoice)
-                } else {
-                    this.sessionInvoices.push(sessionInvoice)
-                }
+                        this.updateSessionInvoice(sessionInvoice)
+                    }
+                )
             }
         }
     }
 
-    async handleSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void> {
+    async onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void> {
         const response = await getSession({ uid: notification.sessionUid })
 
-        this.updateSession(response.data.session as SessionModel)
+        this.updateSession(response.data.getSession as SessionModel)
     }
 
     setReady() {
@@ -179,5 +186,15 @@ export class SessionStore implements SessionStoreInterface {
     updateSession(session: SessionModel) {
         this.session = session
         this.status = toChargeSessionStatus(this.session.status)
+    }
+
+    updateSessionInvoice(sessionInvoice: SessionInvoiceModel) {
+        let existingSessionInvoice = this.sessionInvoices.find(({ id }) => id === sessionInvoice.id)
+
+        if (existingSessionInvoice) {
+            Object.assign(existingSessionInvoice, sessionInvoice)
+        } else {
+            this.sessionInvoices.push(sessionInvoice)
+        }
     }
 }

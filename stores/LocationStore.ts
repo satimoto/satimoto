@@ -28,7 +28,8 @@ export interface LocationStoreInterface extends StoreInterface {
     refreshActiveLocation(): void
     removeActiveLocation(): void
     setBounds(bounds: GeoJSON.Position[]): void
-    monitorLocationUpdates(enable: boolean): void
+    startLocationUpdates(): void
+    stopLocationUpdates(): void
 }
 
 export class LocationStore implements LocationStoreInterface {
@@ -42,7 +43,6 @@ export class LocationStore implements LocationStoreInterface {
     activeLocation: LocationModelLike = undefined
     activeConnectors
 
-    locationUpdatesEnabled = false
     lastLocationChanged: boolean = true
     locationUpdateTimer: any = undefined
 
@@ -94,13 +94,19 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
-    monitorLocationUpdates(enable: boolean) {
-        log.debug(`monitorLocationUpdates ${enable}`)
+    async fetchLocations() {
+        if (this.stores.settingStore.accessToken) {
+            if (this.bounds && this.bounds.length == 2) {
+                const locations = await listLocations({
+                    xMin: this.bounds[1][0],
+                    yMin: this.bounds[0][1],
+                    xMax: this.bounds[0][0],
+                    yMax: this.bounds[1][1],
+                    interval: this.lastLocationChanged ? 0 : LOCATION_UPDATE_INTERVAL
+                })
 
-        if (enable && !this.locationUpdateTimer) {
-            this.locationUpdateTimer = setInterval(this.requestLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
-        } else {
-            clearInterval(this.locationUpdateTimer)
+                this.updateLocations(locations.data.listLocations)
+            }
         }
     }
 
@@ -116,22 +122,6 @@ export class LocationStore implements LocationStoreInterface {
         this.activeLocation = undefined
     }
 
-    async requestLocations() {
-        if (this.stores.settingStore.accessToken) {
-            if (this.bounds && this.bounds.length == 2) {
-                const locations = await listLocations({
-                    xMin: this.bounds[1][0],
-                    yMin: this.bounds[0][1],
-                    xMax: this.bounds[0][0],
-                    yMax: this.bounds[1][1],
-                    interval: LOCATION_UPDATE_INTERVAL
-                })
-
-                this.updateLocations(locations.data.listLocations)
-            }
-        }
-    }
-
     async setActiveLocation(uid: string) {
         const location = await getLocation({ uid })
 
@@ -144,13 +134,28 @@ export class LocationStore implements LocationStoreInterface {
         this.bounds.replace(bounds)
         this.lastLocationChanged = true
 
-        this.requestLocations()
+        this.fetchLocations()
     }
 
     setReady() {
         this.ready = true
     }
-    
+
+    startLocationUpdates() {
+        log.debug(`startLocationUpdates`)
+
+        if (!this.locationUpdateTimer) {
+            this.fetchLocations()
+            this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
+        }
+    }
+
+    stopLocationUpdates() {
+        log.debug(`stopLocationUpdates`)
+        clearInterval(this.locationUpdateTimer)
+        this.locationUpdateTimer = null
+    }
+
     updateActiveConnectors() {
         if (this.activeLocation) {
             const evses: EvseModel[] = this.activeLocation.evses || []

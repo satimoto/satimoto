@@ -56,7 +56,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
             {sessionStore.location && <LocationAddress location={sessionStore.location} alignItems="center" />}
             <VStack space={2} alignContent="flex-start" marginTop={5} marginBottom={2}>
                 <View style={{ backgroundColor, alignItems: "center" }}>
-                    <SatoshiBalance size={36} color={textColor} satoshis={parseInt(sessionStore.amountSat)} />
+                    <SatoshiBalance size={36} color={textColor} satoshis={parseInt(sessionStore.valueMsat)} />
                     <SatoshiBalance size={16} color={textColor} satoshis={parseInt(sessionStore.feeSat)} prependText="FEE" />
                 </View>
             </VStack>

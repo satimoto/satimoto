@@ -2,21 +2,30 @@ import { Hash } from "fast-sha256"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import InvoiceModel, { InvoiceModelLike } from "models/Invoice"
+import InvoiceRequestModel from "models/InvoiceRequest"
 import moment from "moment"
 import { lnrpc } from "proto/proto"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { generateSecureRandom } from "react-native-securerandom"
-import { createChannelRequest } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { addInvoice, subscribeInvoices } from "services/LightningService"
+import { listInvoiceRequests, updateInvoiceRequest } from "services/SatimotoService"
 import { InvoiceStatus, toInvoiceStatus } from "types/invoice"
+import { InvoiceRequestNotification } from "types/notification"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { bytesToBase64, bytesToHex, secondsToDate, toLong, toMilliSatoshi, toNumber } from "utils/conversion"
-import { randomLong } from "utils/random"
+import { INVOICE_REQUEST_UPDATE_INTERVAL } from "utils/constants"
+import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toNumber, toSatoshi } from "utils/conversion"
 import { doWhileUntil } from "utils/tools"
 
 const log = new Log("InvoiceStore")
+
+interface AddInvoiceProps {
+    value?: number
+    valueMsat?: number
+    memo?: string
+    createChannel?: boolean
+}
 
 export interface InvoiceStoreInterface extends StoreInterface {
     hydrated: boolean
@@ -27,8 +36,9 @@ export interface InvoiceStoreInterface extends StoreInterface {
     invoices: InvoiceModel[]
     subscribedInvoices: boolean
 
-    addInvoice(amount: number): Promise<lnrpc.AddInvoiceResponse>
+    addInvoice(addInvoiceProps: AddInvoiceProps): Promise<lnrpc.AddInvoiceResponse>
     findInvoice(hash: string): InvoiceModelLike
+    onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void>
     settleInvoice(hash: string): void
     waitForInvoice(hash: string): Promise<InvoiceModel>
 }
@@ -42,6 +52,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
     addIndex = "0"
     settleIndex = "0"
     invoices
+    invoiceRequestUpdateTimer: any = undefined
     subscribedInvoices = false
 
     constructor(stores: Store) {
@@ -75,39 +86,70 @@ export class InvoiceStore implements InvoiceStoreInterface {
             // When the synced to chain, subscribe to transactions
             when(
                 () => this.stores.lightningStore.syncedToChain,
-                () => this.subscribeInvoices()
+                () => this.onSyncedToChain()
             )
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
     }
 
-    async addInvoice(amount: number) {
+    async addInvoice({ value, valueMsat, memo, createChannel = false }: AddInvoiceProps) {
         const preimage: Uint8Array = await generateSecureRandom(32)
         const paymentAddr: Uint8Array = await generateSecureRandom(32)
         const routeHints: lnrpc.RouteHint[] = []
 
-        if (this.stores.channelStore.remoteBalance < amount) {
-            const paymentHash = new Hash().update(preimage).digest()
-            const hopHint = await this.stores.channelStore.createChannelRequest({
-                paymentAddr: bytesToBase64(paymentAddr),
-                paymentHash: bytesToBase64(paymentHash),
-                amountMsat: toMilliSatoshi(amount).toString(10)
-            })
-
-            routeHints.push(
-                lnrpc.RouteHint.create({
-                    hopHints: [hopHint]
-                })
-            )
+        if (!value && !valueMsat) {
+            throw new Error("No value set")
         }
 
-        const invoice = await addInvoice({ amt: +amount, paymentAddr, preimage, routeHints })
+        value = value || toSatoshi(valueMsat!).toNumber()
+        valueMsat = valueMsat || toMilliSatoshi(value!).toNumber()
+
+        if (this.stores.channelStore.remoteBalance < value) {
+            if (createChannel) {
+                const paymentHash = new Hash().update(preimage).digest()
+                const hopHint = await this.stores.channelStore.createChannelRequest({
+                    paymentAddr: bytesToBase64(paymentAddr),
+                    paymentHash: bytesToBase64(paymentHash),
+                    amountMsat: valueMsat.toString(10)
+                })
+
+                routeHints.push(
+                    lnrpc.RouteHint.create({
+                        hopHints: [hopHint]
+                    })
+                )
+            } else {
+                throw new Error("Insufficient funds")
+            }
+        }
+
+        const invoice = await addInvoice({ valueMsat, memo, paymentAddr, preimage, routeHints })
         return invoice
     }
 
     findInvoice(hash: string): InvoiceModelLike {
         return this.invoices.find((invoice) => invoice.hash === hash)
+    }
+
+    async fetchInvoiceRequests(): Promise<void> {
+        const response = await listInvoiceRequests()
+        const invoiceRequests = response.data.listInvoiceRequests as InvoiceRequestModel[]
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            async () => {
+                for (const invoiceRequest of invoiceRequests) {
+                    try {
+                        const invoice = await this.addInvoice({ valueMsat: invoiceRequest.totalMsat, memo: invoiceRequest.memo })
+
+                        await updateInvoiceRequest({ id: invoiceRequest.id, paymentRequest: invoice.paymentRequest })
+                    } catch (error) {
+                        log.error(`Error adding invoice: ${error}`)
+                    }
+                }
+            }
+        )
     }
 
     onInvoice(data: lnrpc.Invoice) {
@@ -145,6 +187,19 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
     }
 
+    async onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void> {
+        await this.fetchInvoiceRequests()
+    }
+
+    async onSyncedToChain(): Promise<void> {
+        this.subscribeInvoices()
+        this.startInvoiceRequestUpdates()
+    }
+
+    setReady() {
+        this.ready = true
+    }
+
     settleInvoice(hash: string) {
         log.debug(`Settle invoice: ${hash}`)
         const invoice = this.findInvoice(hash)
@@ -156,15 +211,26 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
     }
 
+    startInvoiceRequestUpdates() {
+        log.debug(`startInvoiceRequestUpdates`)
+
+        if (!this.invoiceRequestUpdateTimer) {
+            this.fetchInvoiceRequests()
+            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), INVOICE_REQUEST_UPDATE_INTERVAL * 1000)
+        }
+    }
+
+    stopInvoiceRequestUpdates() {
+        log.debug(`stopInvoiceRequestUpdates`)
+        clearInterval(this.invoiceRequestUpdateTimer)
+        this.invoiceRequestUpdateTimer = null
+    }
+
     subscribeInvoices() {
         if (!this.subscribedInvoices) {
             subscribeInvoices((data: lnrpc.Invoice) => this.onInvoice(data), this.addIndex, this.settleIndex)
             this.subscribedInvoices = true
         }
-    }
-
-    setReady() {
-        this.ready = true
     }
 
     waitForInvoice(hash: string): Promise<InvoiceModel> {
