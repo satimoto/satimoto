@@ -13,6 +13,7 @@ interface SessionInvoiceModel {
     totalFiat: number
     totalMsat: number
     paymentRequest: string
+    signature: string
     isSettled: boolean
     isExpired: boolean
     lastUpdated: string

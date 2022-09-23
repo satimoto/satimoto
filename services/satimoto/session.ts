@@ -59,6 +59,7 @@ export { getSession }
             totalFiat
             totalMsat
             paymentRequest
+            signature
             isSettled
             isExpired
             lastUpdated

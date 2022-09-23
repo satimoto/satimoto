@@ -8,6 +8,7 @@ import PaymentModel from "models/Payment"
 import SessionModel, { SessionModelLike } from "models/Session"
 import SessionInvoiceModel from "models/SessionInvoice"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { ecdsaVerify, signatureImport } from "secp256k1"
 import { getSession, getSessionInvoice, startSession, stopSession } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
@@ -15,7 +16,8 @@ import { PaymentStatus } from "types/payment"
 import { SessionInvoiceNotification, SessionUpdateNotification } from "types/notification"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { toSatoshi } from "utils/conversion"
+import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
+import { Hash } from "fast-sha256"
 
 const log = new Log("SessionStore")
 
@@ -46,6 +48,7 @@ export class SessionStore implements SessionStoreInterface {
 
     status = ChargeSessionStatus.IDLE
     authorizationId?: string = undefined
+    verificationKey?: Uint8Array
     location?: LocationModel = undefined
     evse?: EvseModel = undefined
     connector?: ConnectorModel = undefined
@@ -135,19 +138,29 @@ export class SessionStore implements SessionStoreInterface {
             const response = await getSessionInvoice(notification.sessionInvoiceId)
             const sessionInvoice = response.data.getSessionInvoice as SessionInvoiceModel
 
-            if (sessionInvoice && notification.paymentRequest === sessionInvoice.paymentRequest) {
-                when(
-                    () => this.stores.lightningStore.syncedToChain,
-                    async () => {
-                        const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
+            if (
+                sessionInvoice &&
+                this.verificationKey &&
+                notification.paymentRequest === sessionInvoice.paymentRequest &&
+                notification.signature === sessionInvoice.signature
+            ) {
+                const hash = new Hash().update(toBytes(sessionInvoice.paymentRequest)).digest()
+                const signature = signatureImport(hexToBytes(sessionInvoice.signature))
 
-                        if (payment.status === PaymentStatus.SUCCEEDED) {
-                            sessionInvoice.isSettled = true
+                if (ecdsaVerify(signature, hash, this.verificationKey)) {
+                    when(
+                        () => this.stores.lightningStore.syncedToChain,
+                        async () => {
+                            const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
+
+                            if (payment.status === PaymentStatus.SUCCEEDED) {
+                                sessionInvoice.isSettled = true
+                            }
+
+                            this.updateSessionInvoice(sessionInvoice)
                         }
-
-                        this.updateSessionInvoice(sessionInvoice)
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -166,6 +179,7 @@ export class SessionStore implements SessionStoreInterface {
         const result = await startSession({ locationUid: location.uid, evseUid: evse.uid })
 
         this.authorizationId = result.data.authorizationId
+        this.verificationKey = hexToBytes(result.data.verificationKey)
         this.status = ChargeSessionStatus.STARTING
         this.location = location
         this.evse = evse
@@ -184,6 +198,7 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     updateSession(session: SessionModel) {
+        // TODO: When the session status is FINAL, dispose of the private key
         this.session = session
         this.status = toChargeSessionStatus(this.session.status)
     }

@@ -13,6 +13,7 @@ export interface InvoiceRequestNotification {
 export interface SessionInvoiceNotification {
     type: NotificationType
     paymentRequest: string
+    signature: string
     sessionUid: string
     sessionInvoiceId: number
     status: SessionStatus
