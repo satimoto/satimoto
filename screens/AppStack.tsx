@@ -20,7 +20,7 @@ import LnUrlPay from "screens/LnUrlPay"
 import LnUrlWithdraw from "screens/LnUrlWithdraw"
 import PaymentRequest from "screens/PaymentRequest"
 import Scanner from "screens/Scanner"
-import TransactionDetail from "screens/TransactionDetail"
+import Settings from "screens/Settings"
 import TransactionList from "screens/TransactionList"
 import WaitForPayment from "screens/WaitForPayment"
 import { LinkingEvent } from "types/linking"
@@ -38,8 +38,8 @@ export type AppStackParamList = {
     LnUrlWithdraw: {withdrawParams: LNURLWithdrawParams}
     PaymentRequest: {payReq: string, decodedPayReq: lnrpc.PayReq}
     Scanner: undefined
+    Settings: undefined
     TransactionList: undefined
-    TransactionDetail: { identifier: string }
     WaitForPayment: { invoice: InvoiceModel }
 }
 
@@ -53,8 +53,8 @@ export type AppStackScreenParams = {
     LnUrlWithdraw: undefined
     PaymentRequest: undefined
     Scanner: undefined
+    Settings: undefined
     TransactionList: undefined
-    TransactionDetail: undefined
     WaitForPayment: undefined
 }
 
@@ -120,8 +120,8 @@ const AppStack = () => {
             <AppStackNav.Screen name="LnUrlWithdraw" component={LnUrlWithdraw} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="PaymentRequest" component={PaymentRequest} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Scanner" component={Scanner} options={navigationWithoutHeaderOptions} />
+            <AppStackNav.Screen name="Settings" component={Settings} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="TransactionList" component={TransactionList} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="TransactionDetail" component={TransactionDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="WaitForPayment" component={WaitForPayment} options={navigationWithHeaderOptions} />
         </AppStackNav.Navigator>
     )

@@ -59,16 +59,11 @@ export class PaymentStore implements PaymentStoreInterface {
             // When the synced to chain, list missed payments
             when(
                 () => this.stores.lightningStore.syncedToChain,
-                () => this.postSync()
+                () => this.whenSyncedToChain()
             )
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
-    }
-
-    async postSync() {
-        const listPaymentsResponse: lnrpc.ListPaymentsResponse = await listPayments(true, this.indexOffset)
-        this.updatePayments(listPaymentsResponse)
     }
 
     sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel> {
@@ -149,5 +144,10 @@ export class PaymentStore implements PaymentStoreInterface {
         }
 
         this.setReady()
+    }
+
+    async whenSyncedToChain() {
+        const listPaymentsResponse: lnrpc.ListPaymentsResponse = await listPayments(true, this.indexOffset)
+        this.updatePayments(listPaymentsResponse)
     }
 }

@@ -86,7 +86,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
             // When the synced to chain, subscribe to transactions
             when(
                 () => this.stores.lightningStore.syncedToChain,
-                () => this.onSyncedToChain()
+                () => this.whenSyncedToChain()
             )
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
@@ -191,11 +191,6 @@ export class InvoiceStore implements InvoiceStoreInterface {
         await this.fetchInvoiceRequests()
     }
 
-    async onSyncedToChain(): Promise<void> {
-        this.subscribeInvoices()
-        this.startInvoiceRequestUpdates()
-    }
-
     setReady() {
         this.ready = true
     }
@@ -235,5 +230,10 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
     waitForInvoice(hash: string): Promise<InvoiceModel> {
         return doWhileUntil("GetInvoice", () => this.findInvoice(hash), 500, 10)
+    }
+
+    async whenSyncedToChain(): Promise<void> {
+        this.subscribeInvoices()
+        this.startInvoiceRequestUpdates()
     }
 }

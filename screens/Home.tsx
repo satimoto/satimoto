@@ -47,25 +47,26 @@ interface HomeProps {
 const Home = ({ navigation }: HomeProps) => {
     const slidingLocationPanelRef = createSlidingUpPanelRef()
     const mapViewRef = useRef<MapboxGL.MapView>(null)
+    const mapCameraRef = useRef<MapboxGL.Camera>(null)
     const [balanceCardRectangle, onBalanceCardLayout] = useLayout()
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
     const [isReceiveLightningModalVisible, setIsReceiveLightningModalVisible] = useState(false)
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
-    const { uiStore, locationStore, sessionStore } = useStore()
+    const { uiStore, lightningStore, locationStore, sessionStore } = useStore()
 
     const includeCamera = () => {
         if (hasLocationPermission) {
             return (
                 <>
-                    <MapboxGL.Camera zoomLevel={9} followUserLocation />
+                    <MapboxGL.Camera ref={mapCameraRef} zoomLevel={9} followUserLocation={true} />
                     <MapboxGL.UserLocation />
                 </>
             )
         }
 
-        return <MapboxGL.Camera zoomLevel={9} />
+        return <MapboxGL.Camera ref={mapCameraRef} zoomLevel={9} />
     }
 
     const onChargeButtonPress = () => {
@@ -130,6 +131,13 @@ const Home = ({ navigation }: HomeProps) => {
 
         return () => locationStore.stopLocationUpdates()
     }, [])
+
+    useEffect(() => {
+        if (hasLocationPermission) {
+            log.debug("zoom")
+            mapCameraRef.current?.zoomTo(9)
+        }
+    }, [lightningStore.syncedToChain])
 
     useEffect(
         () =>

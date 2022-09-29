@@ -94,6 +94,7 @@ const getTariff = Tariff.getTariff(client)
 
 // User
 const createUser = User.createUser(client)
+const getUser = User.getUser(client)
 const updateUser = User.updateUser(client)
 
 // Token
@@ -163,6 +164,7 @@ export {
     getToken,
     // User
     createUser,
+    getUser,
     updateUser
 }
 

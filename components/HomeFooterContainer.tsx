@@ -1,10 +1,11 @@
+import { observer } from "mobx-react"
 import React from "react"
 import { StyleSheet, View } from "react-native"
-import { Button, IconButton } from "native-base"
-import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
+import { Button } from "native-base"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import I18n from "utils/i18n"
 import { useStore } from "hooks/useStore"
+import CircularProgressButton from "components/CircularProgressButton"
 
 const styles = StyleSheet.create({
     container: {
@@ -43,14 +44,11 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
                 </Button>
             </View>
             <View style={styles.iconButtonSpacer}>
-                <IconButton
-                    borderRadius="full"
-                    size="lg"
-                    variant="solid"
-                    style={styles.button}
+                <CircularProgressButton
+                    isBusy={!lightningStore.syncedToChain}
+                    value={lightningStore.percentSynced}
                     onPress={() => onPress("qr")}
-                    icon={<QrCodeIcon />}
-                    _icon={{ color: "#ffffff", size: 50 }}
+                    style={styles.button}
                 />
             </View>
             <View style={styles.buttonSpacer}>
@@ -68,4 +66,4 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
     )
 }
 
-export default HomeFooterContainer
+export default observer(HomeFooterContainer)

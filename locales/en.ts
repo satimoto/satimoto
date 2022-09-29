@@ -56,7 +56,8 @@ export default {
     PaymentRequest_HeaderTitle: "Send Payment",
     Scanner_QrCodeError: "Could not read QR code",
     Scanner_NfcTagError: "Could not read NFC tag",
-    TransactionDetail_HeaderTitle: "Transaction",
+    Settings_HeaderTitle: "Settings",
+    Settings_ButtonTransactions: "Transactions",
     TransactionList_HeaderTitle: "Transactions",
     // Evse status
     AVAILABLE: "Available",
