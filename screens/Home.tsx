@@ -87,7 +87,7 @@ const Home = ({ navigation }: HomeProps) => {
         log.debug(JSON.stringify(coordinates))
 
         if (features.length) {
-            store.locationStore.setActiveLocation(features[0].properties?.uid)
+            store.locationStore.setSelectedLocation(features[0].properties?.uid)
         }
 
         log.debug(JSON.stringify(features))
@@ -103,7 +103,7 @@ const Home = ({ navigation }: HomeProps) => {
 
     const onSlidingLocationPanelHide = () => {
         log.debug("onSlidingLocationPanelHide")
-        locationStore.removeActiveLocation()
+        locationStore.removeSelectedLocation()
     }
 
     useEffect(() => {
@@ -119,12 +119,12 @@ const Home = ({ navigation }: HomeProps) => {
     }, [])
 
     useEffect(() => {
-        if (locationStore.activeLocation) {
+        if (locationStore.selectedLocation) {
             slidingLocationPanelRef.current?.show({ toValue: Dimensions.get("window").height / 2, velocity: 0.1 })
         } else {
             slidingLocationPanelRef.current?.hide()
         }
-    }, [locationStore.activeLocation])
+    }, [locationStore.selectedLocation])
 
     useEffect(() => {
         locationStore.startLocationUpdates()

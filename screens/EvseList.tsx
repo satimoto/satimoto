@@ -52,12 +52,12 @@ const EvseList = ({ navigation, route }: EvseListProps) => {
     }, [navigation])
 
     const onPress = useCallback((connector, evse) => {
-        navigation.navigate("ConnectorDetail", { location: locationStore.activeLocation!, evse, connector })
+        navigation.navigate("ConnectorDetail", { location: locationStore.selectedLocation!, evse, connector })
     }, [])
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true)
-        const location = await locationStore.refreshActiveLocation()
+        const location = await locationStore.refreshSelectedLocation()
         setRefreshing(false)
     }, [])
 
@@ -68,7 +68,7 @@ const EvseList = ({ navigation, route }: EvseListProps) => {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
                 <VStack space={3}>
-                    <LocationHeader location={locationStore.activeLocation!} />
+                    <LocationHeader location={locationStore.selectedLocation!} />
                     {evses.map((evse) => (
                         <EvseButton key={evse.uid} connector={connector} evse={evse} onPress={onPress} />
                     ))}

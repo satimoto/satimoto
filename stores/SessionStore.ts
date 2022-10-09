@@ -18,6 +18,7 @@ import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
 import { Hash } from "fast-sha256"
+import { SessionStatus } from "types/session"
 
 const log = new Log("SessionStore")
 
@@ -32,6 +33,7 @@ export interface SessionStoreInterface extends StoreInterface {
     connector?: ConnectorModelLike
     session?: SessionModelLike
     sessionInvoices: SessionInvoiceModel[]
+    sessions: SessionModel[]
     payments: PaymentModel[]
 
     onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void>
@@ -48,17 +50,19 @@ export class SessionStore implements SessionStoreInterface {
 
     status = ChargeSessionStatus.IDLE
     authorizationId?: string = undefined
-    verificationKey?: Uint8Array
+    verificationKey?: Uint8Array = undefined
     location?: LocationModel = undefined
     evse?: EvseModel = undefined
     connector?: ConnectorModel = undefined
     session?: SessionModel = undefined
     sessionInvoices
+    sessions
     payments
 
     constructor(stores: Store) {
         this.stores = stores
         this.sessionInvoices = observable<SessionInvoiceModel>([])
+        this.sessions = observable<SessionModel>([])
         this.payments = observable<PaymentModel>([])
 
         makeObservable(this, {
@@ -72,6 +76,7 @@ export class SessionStore implements SessionStoreInterface {
             connector: observable,
             session: observable,
             sessionInvoices: observable,
+            sessions: observable,
             payments: observable,
 
             valueMsat: computed,
@@ -87,7 +92,7 @@ export class SessionStore implements SessionStoreInterface {
             updateSessionInvoice: action
         })
 
-        makePersistable(this, { name: "SessionStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
+        makePersistable(this, { name: "SessionStore", properties: ["sessions"], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
             action((persistStore) => (this.hydrated = persistStore.isHydrated))
         )
     }
@@ -194,13 +199,29 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     updatePayments() {
-        this.payments.replace(this.stores.paymentStore.payments.filter((payment) => payment.hash === payment.hash))
+        if (this.session && this.status != ChargeSessionStatus.IDLE) {
+            this.payments.replace(this.stores.paymentStore.payments.filter((payment) => payment.description === this.session!.uid))
+        }
     }
 
     updateSession(session: SessionModel) {
-        // TODO: When the session status is FINAL, dispose of the private key
+        // When the session status is INVOICED, dispose of the verification key
         this.session = session
         this.status = toChargeSessionStatus(this.session.status)
+
+        if (this.session.status == SessionStatus.INVOICED) {
+            session.connector = this.connector!
+            session.evse = this.evse!
+            session.location = this.location!
+            session.sessionInvoices = this.sessionInvoices
+
+            this.sessions.push(session)
+            this.payments.clear()
+
+            this.authorizationId = undefined
+            this.verificationKey = undefined
+            this.session = undefined
+        }
     }
 
     updateSessionInvoice(sessionInvoice: SessionInvoiceModel) {

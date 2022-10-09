@@ -1,6 +1,9 @@
 import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
 import { action, makeObservable, observable, runInAction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import ConnectorModel from "models/Connector"
+import EvseModel from "models/Evse"
+import LocationModel from "models/Location"
 import { lnrpc } from "proto/proto"
 import { Linking } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -12,11 +15,13 @@ import { Log } from "utils/logging"
 import { assertNetwork } from "utils/assert"
 
 const log = new Log("UiStore")
+const EVSE_ID_REGEX = /[A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+/
 
 export interface UiStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
+    connector?: ConnectorModel
     lnUrl?: string
     lnUrlAuthParams?: LNURLAuthParams
     lnUrlChannelParams?: LNURLChannelParams
@@ -25,9 +30,11 @@ export interface UiStoreInterface extends StoreInterface {
     paymentRequest?: string
     decodedPaymentRequest?: lnrpc.PayReq
 
+    clearChargePoint(): void
     clearLnUrl(): void
     clearPaymentRequest(): void
     parseIntent(intent: string): Promise<boolean>
+    setChargePoint(connector: ConnectorModel): void
     setLightningAddress(address: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
@@ -38,6 +45,9 @@ export class UiStore implements UiStoreInterface {
     ready = false
     stores
 
+    connector?: ConnectorModel = undefined
+    evse?: EvseModel = undefined
+    location?: LocationModel = undefined
     lnUrl?: string = undefined
     lnUrlAuthParams?: LNURLAuthParams = undefined
     lnUrlChannelParams?: LNURLChannelParams = undefined
@@ -53,6 +63,9 @@ export class UiStore implements UiStoreInterface {
             hydrated: observable,
             ready: observable,
 
+            connector: observable,
+            evse: observable,
+            location: observable,
             lnUrl: observable,
             lnUrlAuthParams: observable,
             lnUrlChannelParams: observable,
@@ -61,11 +74,13 @@ export class UiStore implements UiStoreInterface {
             paymentRequest: observable,
             decodedPaymentRequest: observable,
 
+            clearChargePoint: action,
+            clearLnUrl: action,
+            clearPaymentRequest: action,
+            setChargePoint: action,
             setLnUrl: action,
             setLnUrlPayParams: action,
-            setPaymentRequest: action,
-            clearLnUrl: action,
-            clearPaymentRequest: action
+            setPaymentRequest: action
         })
 
         makePersistable(
@@ -88,6 +103,12 @@ export class UiStore implements UiStoreInterface {
         }
 
         this.setReady()
+    }
+
+    clearChargePoint() {
+        this.connector = undefined
+        this.evse = undefined
+        this.location = undefined
     }
 
     clearLnUrl() {
@@ -127,7 +148,18 @@ export class UiStore implements UiStoreInterface {
                 await this.setLightningAddress(intent)
                 return true
             } else if (lowerCaseIntent.startsWith("http")) {
-                // TODO: EVSE ID
+                // URL, Charge Point identifier
+                const indentifierMatches = lowerCaseIntent.match(EVSE_ID_REGEX)
+
+                if (indentifierMatches && indentifierMatches.length > 0) {
+                    const connector = await this.stores.locationStore.searchConnector(indentifierMatches[0])
+
+                    if (connector) {
+                        this.setChargePoint(connector)
+                    }
+                }
+
+                return false
             } else {
                 // Payment Request
                 await this.setPaymentRequest(intent)
@@ -136,6 +168,12 @@ export class UiStore implements UiStoreInterface {
         } catch {}
 
         return false
+    }
+
+    setChargePoint(connector: ConnectorModel) {
+        this.connector = connector
+        this.evse = this.connector.evse
+        this.location = this.evse?.location
     }
 
     async setLightningAddress(address: string) {

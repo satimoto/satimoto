@@ -10,6 +10,7 @@ interface ConnectorModel {
     voltage: number
     amperage: number
     wattage: number
+    evse?: EvseModel
     tariff?: TariffModel 
 }
 

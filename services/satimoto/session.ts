@@ -14,6 +14,7 @@ const GET_SESSION = gql`
             kwh
             authMethod
             meterId
+            invoiceRequest
             status
             lastUpdated
         }

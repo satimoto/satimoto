@@ -31,12 +31,12 @@ const log = new Log("AppStack")
 export type AppStackParamList = {
     Home: undefined
     ChargeDetail: undefined
-    ConnectorDetail: { location: LocationModel, evse: EvseModel, connector: ConnectorModel }
+    ConnectorDetail: { location: LocationModel; evse: EvseModel; connector: ConnectorModel }
     Developer: undefined
-    EvseList: { location: LocationModel, evses: EvseModel[], connector: ConnectorModel },
-    LnUrlPay: {payParams: LNURLPayParams}
-    LnUrlWithdraw: {withdrawParams: LNURLWithdrawParams}
-    PaymentRequest: {payReq: string, decodedPayReq: lnrpc.PayReq}
+    EvseList: { location: LocationModel; evses: EvseModel[]; connector: ConnectorModel }
+    LnUrlPay: { payParams: LNURLPayParams }
+    LnUrlWithdraw: { withdrawParams: LNURLWithdrawParams }
+    PaymentRequest: { payReq: string; decodedPayReq: lnrpc.PayReq }
     Scanner: undefined
     Settings: undefined
     TransactionList: undefined
@@ -92,20 +92,26 @@ const AppStack = () => {
     }, [])
 
     useEffect(() => {
+        if (uiStore.connector && uiStore.evse && uiStore.location) {
+            navigation.navigate("ConnectorDetail", { connector: uiStore.connector, evse: uiStore.evse, location: uiStore.location })
+        }
+    }, [uiStore.connector, uiStore.evse, uiStore.location])
+
+    useEffect(() => {
         if (uiStore.lnUrlPayParams) {
-            navigation.navigate("LnUrlPay", {payParams: uiStore.lnUrlPayParams})
+            navigation.navigate("LnUrlPay", { payParams: uiStore.lnUrlPayParams })
         }
     }, [uiStore.lnUrlPayParams])
 
     useEffect(() => {
         if (uiStore.lnUrlWithdrawParams) {
-            navigation.navigate("LnUrlWithdraw", {withdrawParams: uiStore.lnUrlWithdrawParams})
+            navigation.navigate("LnUrlWithdraw", { withdrawParams: uiStore.lnUrlWithdrawParams })
         }
     }, [uiStore.lnUrlWithdrawParams])
 
     useEffect(() => {
         if (uiStore.paymentRequest && uiStore.decodedPaymentRequest) {
-            navigation.navigate("PaymentRequest", {payReq: uiStore.paymentRequest, decodedPayReq: uiStore.decodedPaymentRequest})
+            navigation.navigate("PaymentRequest", { payReq: uiStore.paymentRequest, decodedPayReq: uiStore.decodedPaymentRequest })
         }
     }, [uiStore.decodedPaymentRequest, uiStore.paymentRequest])
 

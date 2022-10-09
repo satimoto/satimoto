@@ -1,11 +1,10 @@
 import { action, makeObservable, observable, reaction, runInAction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import ConnectorModel, { ConnectorGroup, ConnectorGroupMap } from "models/Connector"
+import ConnectorModel, { ConnectorGroup, ConnectorGroupMap, ConnectorModelLike } from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel, { LocationModelLike } from "models/Location"
-import moment from "moment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { getLocation, listLocations } from "services/SatimotoService"
+import { getConnector, getLocation, listLocations } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { EvseStatus, EvseStatusSortMap } from "types/evse"
 import { DEBUG } from "utils/build"
@@ -21,12 +20,13 @@ export interface LocationStoreInterface extends StoreInterface {
     bounds: GeoJSON.Position[]
     locations: LocationModel[]
 
-    activeLocation: LocationModelLike
-    activeConnectors: ConnectorGroup[]
+    selectedLocation: LocationModelLike
+    selectedConnectors: ConnectorGroup[]
 
-    setActiveLocation(uid: string): void
-    refreshActiveLocation(): void
-    removeActiveLocation(): void
+    searchConnector(identifier: string): Promise<ConnectorModelLike>
+    setSelectedLocation(uid: string): void
+    refreshSelectedLocation(): void
+    removeSelectedLocation(): void
     setBounds(bounds: GeoJSON.Position[]): void
     startLocationUpdates(): void
     stopLocationUpdates(): void
@@ -40,8 +40,8 @@ export class LocationStore implements LocationStoreInterface {
     bounds
     locations
 
-    activeLocation: LocationModelLike = undefined
-    activeConnectors
+    selectedLocation: LocationModelLike = undefined
+    selectedConnectors
 
     lastLocationChanged: boolean = true
     locationUpdateTimer: any = undefined
@@ -50,7 +50,7 @@ export class LocationStore implements LocationStoreInterface {
         this.stores = stores
         this.bounds = observable<GeoJSON.Position>([])
         this.locations = observable<LocationModel>([])
-        this.activeConnectors = observable<ConnectorGroup>([])
+        this.selectedConnectors = observable<ConnectorGroup>([])
 
         makeObservable(this, {
             hydrated: observable,
@@ -59,14 +59,14 @@ export class LocationStore implements LocationStoreInterface {
             bounds: observable,
             locations: observable,
 
-            activeLocation: observable,
-            activeConnectors: observable,
+            selectedLocation: observable,
+            selectedConnectors: observable,
 
             setBounds: action,
             updateLocations: action,
 
-            setActiveLocation: action,
-            removeActiveLocation: action,
+            setSelectedLocation: action,
+            removeSelectedLocation: action,
             updateActiveConnectors: action
         })
 
@@ -86,7 +86,7 @@ export class LocationStore implements LocationStoreInterface {
         try {
             // When location is changed, update connectors
             reaction(
-                () => this.activeLocation,
+                () => this.selectedLocation,
                 () => this.updateActiveConnectors()
             )
         } catch (error) {
@@ -110,24 +110,35 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
-    async refreshActiveLocation() {
-        if (this.activeLocation) {
-            return await this.setActiveLocation(this.activeLocation.uid)
+    async refreshSelectedLocation() {
+        if (this.selectedLocation) {
+            return await this.setSelectedLocation(this.selectedLocation.uid)
         }
 
         throw Error("No location set")
     }
 
-    removeActiveLocation(): void {
-        this.activeLocation = undefined
+    removeSelectedLocation(): void {
+        this.selectedLocation = undefined
     }
 
-    async setActiveLocation(uid: string) {
+    async setSelectedLocation(uid: string) {
         const location = await getLocation({ uid })
 
         runInAction(() => {
-            this.activeLocation = location.data.getLocation as LocationModel
+            this.selectedLocation = location.data.getLocation as LocationModel
         })
+    }
+
+    async searchConnector(identifier: string): Promise<ConnectorModelLike> {
+        const connectorResponse = await getConnector({ identifier })
+        const connector = connectorResponse.data.getConnector as ConnectorModel
+
+        if (connector.evse && connector.evse.location) {
+            return connector
+        }
+
+        return undefined
     }
 
     async setBounds(bounds: GeoJSON.Position[]) {
@@ -157,8 +168,8 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     updateActiveConnectors() {
-        if (this.activeLocation) {
-            const evses: EvseModel[] = this.activeLocation.evses || []
+        if (this.selectedLocation) {
+            const evses: EvseModel[] = this.selectedLocation.evses || []
             const connectors = evses.reduce((connectorGroupMap: ConnectorGroupMap, evse: EvseModel) => {
                 return evse.connectors.reduce((connectorGroupMap: ConnectorGroupMap, connector: ConnectorModel) => {
                     const groupKey = `${connector.standard}:${connector.wattage}`
@@ -184,9 +195,9 @@ export class LocationStore implements LocationStoreInterface {
                 }, connectorGroupMap)
             }, {})
 
-            this.activeConnectors.replace(Object.values(connectors))
+            this.selectedConnectors.replace(Object.values(connectors))
         } else {
-            this.activeConnectors.clear()
+            this.selectedConnectors.clear()
         }
     }
 

@@ -1,7 +1,9 @@
 import BusyButton from "components/BusyButton"
 import ConfirmationModal from "components/ConfirmationModal"
+import HeaderBackButton from "components/HeaderBackButton"
 import LocationHeader from "components/LocationHeader"
 import useColor from "hooks/useColor"
+import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { Text, useColorModeValue, useTheme, VStack } from "native-base"
@@ -28,8 +30,8 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const errorColor = useColorModeValue("error.300", "error.500")
-    const textColor = useColorModeValue("lightText", "darkText")
     const energySourceColors = useEnergySourceColors()
+    const navigationOptions = useNavigationOptions({ headerShown: true })
     const [isBusy, setIsBusy] = useState(false)
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [isSessionConnector, setIsSessionConnector] = useState(false)
@@ -41,7 +43,12 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [evse] = useState(route.params.evse)
     const [connector] = useState(route.params.connector)
     const [energySources, setEnergySources] = useState<StackedBarItems>([])
-    const { channelStore, sessionStore } = useStore()
+    const { channelStore, sessionStore, uiStore } = useStore()
+
+    const onClose = () => {
+        uiStore.clearChargePoint()
+        navigation.navigate("Home")
+    }
 
     const onShowStartConfirmation = () => {
         setConfirmationModalText(I18n.t("ConfirmationModal_StartConfirmationText"))
@@ -111,6 +118,12 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
+            headerLeft: () => (
+                <HeaderBackButton
+                    tintColor={navigationOptions.headerTintColor}
+                    onPress={onClose}
+                />
+            ),
             title: I18n.t("ConnectorDetail_HeaderTitle")
         })
     }, [navigation])

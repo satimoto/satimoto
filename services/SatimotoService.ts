@@ -7,6 +7,7 @@ import { AuthenticationAction } from "./satimoto/authentication"
 import * as ChannelRequest from "./satimoto/channelRequest"
 import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
+import * as Connector from "./satimoto/connector"
 import * as InvoiceRequest from "./satimoto/invoiceRequest"
 import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
@@ -73,6 +74,9 @@ const createChannelRequest = ChannelRequest.createChannelRequest(client)
 // Command
 const startSession = Command.startSession(client)
 const stopSession = Command.stopSession(client)
+
+// Connector
+const getConnector = Connector.getConnector(client)
 
 // Invoice Request
 const listInvoiceRequests = InvoiceRequest.listInvoiceRequests(client)
@@ -147,6 +151,8 @@ export {
     // Command
     startSession,
     stopSession,
+    // Connector
+    getConnector,
     // Invoice Request
     listInvoiceRequests,
     updateInvoiceRequest,
