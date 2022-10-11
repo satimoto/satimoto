@@ -178,6 +178,7 @@ android {
             applicationIdSuffix ".regtest"
             buildConfigField "String", "API_URI", '"http://10.0.2.2:9000"'
             buildConfigField "String", "NETWORK", '"regtest"'
+            buildConfigField "String", "MAPBOX_API_KEY", project.property('satimoto.mapboxApiKey')          
             manifestPlaceholders = [network: " Regtest"]
         }
         networktestnet {
@@ -185,12 +186,14 @@ android {
             applicationIdSuffix ".testnet"
             buildConfigField "String", "API_URI", '"https://api.testnet.satimoto.com"'
             buildConfigField "String", "NETWORK", '"testnet"'
+            buildConfigField "String", "MAPBOX_API_KEY", project.property('satimoto.mapboxApiKey')          
             manifestPlaceholders = [network: " Testnet"]
         }
         networkmainnet {
             dimension "network"
             buildConfigField "String", "API_URI", '"https://api.satimoto.com"'
             buildConfigField "String", "NETWORK", '"mainnet"'
+            buildConfigField "String", "MAPBOX_API_KEY", project.property('satimoto.mapboxApiKey')          
             manifestPlaceholders = [network: ""]
         }
     }

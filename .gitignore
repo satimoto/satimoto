@@ -16,6 +16,7 @@ ios/LndMobile/Lndmobile.xcframework
 
 # Xcode
 #
+Secrets.xcconfig
 build/
 *.pbxuser
 !default.pbxuser

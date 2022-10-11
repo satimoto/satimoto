@@ -9,3 +9,5 @@ export const DEBUG: boolean = Platform.select({
 export const NETWORK: string = BuildConfig.NETWORK
 
 export const API_URI: string = BuildConfig.API_URI
+
+export const MAPBOX_API_KEY: string = BuildConfig.MAPBOX_API_KEY

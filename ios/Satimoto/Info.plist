@@ -65,6 +65,8 @@
 	<string>YES</string>
 	<key>NETWORK</key>
 	<string>$(NETWORK)</string>
+	<key>MAPBOX_API_KEY</key>
+	<string>$(MAPBOX_API_KEY)</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to NFC.</string>
 	<key>NSAppTransportSecurity</key>

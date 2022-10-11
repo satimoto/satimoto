@@ -53,6 +53,7 @@
 		2BB5170F72D89F5045F38689 /* Pods-Satimoto.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releaseregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releaseregtest.xcconfig"; sourceTree = "<group>"; };
 		33FE4B1D897DF402295AF46C /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; sourceTree = "<group>"; };
 		468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Satimoto.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		7362934E26E63CDD006F70C2 /* LndMobile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LndMobile.m; sourceTree = "<group>"; };
 		7362938D26E8DEA3006F70C2 /* Satimoto-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Satimoto-Bridging-Header.h"; sourceTree = "<group>"; };
 		7362938E26E8DEA4006F70C2 /* LndMobile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LndMobile.swift; sourceTree = "<group>"; };
@@ -131,6 +132,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */,
 			);
 			name = Satimoto;
 			sourceTree = "<group>";
@@ -602,6 +604,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -639,6 +642,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -655,6 +659,7 @@
 		};
 		7362935226E7A2D7006F70C2 /* DebugTestnet */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -741,6 +746,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -786,6 +792,7 @@
 		};
 		7362938426E7A972006F70C2 /* DebugRegtest */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -872,6 +879,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -917,6 +925,7 @@
 		};
 		7362938726E7A980006F70C2 /* ReleaseTestnet */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -995,6 +1004,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1036,6 +1046,7 @@
 		};
 		7362938A26E7A987006F70C2 /* ReleaseRegtest */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -1114,6 +1125,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1155,6 +1167,7 @@
 		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -1220,6 +1233,7 @@
 		};
 		83CBBA211A601CBA00E9B192 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
