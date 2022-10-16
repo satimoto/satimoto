@@ -1,3 +1,4 @@
+import { Hash } from "fast-sha256"
 import Long from "long"
 import { action, computed, makeObservable, observable, reaction, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
@@ -14,11 +15,11 @@ import { StoreInterface, Store } from "stores/Store"
 import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
 import { PaymentStatus } from "types/payment"
 import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNotification } from "types/notification"
+import { SessionStatus } from "types/session"
 import { DEBUG } from "utils/build"
+import { MINIMUM_CHARGE_BALANCE } from "utils/constants"
 import { Log } from "utils/logging"
 import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
-import { Hash } from "fast-sha256"
-import { SessionStatus } from "types/session"
 
 const log = new Log("SessionStore")
 
@@ -176,7 +177,8 @@ export class SessionStore implements SessionStoreInterface {
 
     async onTokenAuthorizeNotification(notification: TokenAuthorizeNotification): Promise<void> {
         try {
-            const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorize: true })
+            const authorize = this.stores.channelStore.localBalance > MINIMUM_CHARGE_BALANCE
+            const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorize })
 
             runInAction(() => {
                 this.authorizationId = response.data.authorizationId
