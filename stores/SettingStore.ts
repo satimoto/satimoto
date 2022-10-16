@@ -3,7 +3,7 @@ import { makePersistable } from "mobx-persist-store"
 import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import messaging from "@react-native-firebase/messaging"
-import { updateUser, getToken, getUser } from "services/SatimotoService"
+import { updateUser, getAccessToken, getUser } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
@@ -90,7 +90,7 @@ export class SettingStore implements SettingStoreInterface {
 
     async reactionGetToken() {
         if (!this.accessToken && this.pushNotificationToken && this.stores.lightningStore.identityPubkey) {
-            const token = await getToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
+            const token = await getAccessToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
 
             this.setAccessToken(token)
         }

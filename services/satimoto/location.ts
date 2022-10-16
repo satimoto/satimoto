@@ -1,75 +1,40 @@
 import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
+import { EVSE_WITH_CONNECTORS_FRAGMENT } from "./evse"
+
+const LOCATION_FRAGMENT = gql`
+    fragment LocationFragment on Location {
+        uid
+        name
+        address
+        city
+        postalCode
+        country
+        geom
+    }
+`
+
+const LOCATION_WITH_EVSES_FRAGMENT = gql`
+    ${LOCATION_FRAGMENT}
+    ${EVSE_WITH_CONNECTORS_FRAGMENT}
+    fragment LocationWithEvsesFragment on Location {
+        ...LocationFragment
+        evses {
+            ...EvseWithConnectorsFragment
+        }
+    }
+`
+
+export { LOCATION_FRAGMENT, LOCATION_WITH_EVSES_FRAGMENT }
 
 /**
  * Get Location
  */
 
 const GET_LOCATION = gql`
+    ${LOCATION_WITH_EVSES_FRAGMENT}
     query GetLocation($input: GetLocationInput!) {
         getLocation(input: $input) {
-            uid
-            name
-            address
-            city
-            postalCode
-            country
-            geom
-            evses {
-                uid
-                identifier
-                status
-                connectors {
-                    uid
-                    identifier
-                    standard
-                    format
-                    voltage
-                    amperage
-                    wattage
-                    powerType
-                    tariff {
-                        uid
-                        currency
-                        currencyRate
-                        currencyRateMsat
-                        elements {
-                            priceComponents {
-                                type
-                                priceMsat
-                                commissionMsat
-                                taxMsat
-                                stepSize
-                            }
-                            restrictions {
-                                startTime
-                                endTime
-                                startDate
-                                endDate
-                                minKwh
-                                maxKwh
-                                minPower
-                                maxPower
-                                minDuration
-                                maxDuration
-                                dayOfWeek
-                            }
-                        }
-                        energyMix {
-                            isGreenEnergy
-                            energySources {
-                                source
-                                percentage
-                            }
-                            environmentalImpact {
-                                source
-                                amount
-                            }
-                            supplierName 
-                            energyProductName 
-                        }
-                    }
-                }
-            }
+            ...LocationWithEvsesFragment
         }
     }
 `

@@ -1,7 +1,13 @@
 import { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
 import store from "stores/Store"
 import { Log } from "utils/logging"
-import { InvoiceRequestNotification, NotificationType, SessionInvoiceNotification, SessionUpdateNotification } from "types/notification"
+import {
+    InvoiceRequestNotification,
+    NotificationType,
+    SessionInvoiceNotification,
+    SessionUpdateNotification,
+    TokenAuthorizeNotification
+} from "types/notification"
 
 const log = new Log("NotificationService")
 
@@ -24,6 +30,9 @@ const notificationMessageHandler = async (remoteMessage: FirebaseMessagingTypes.
             case NotificationType.SESSION_UPDATE:
                 await store.sessionStore.onSessionUpdateNotification(notification as SessionUpdateNotification)
                 break
+            case NotificationType.TOKEN_AUTHORIZE:
+                await store.sessionStore.onTokenAuthorizeNotification(notification as TokenAuthorizeNotification)
+                break
         }
     } catch (error) {
         log.debug(`FCM message not handled`)
@@ -40,6 +49,8 @@ const remoteMessageToNotification = (data: unknown): NotificationTypes => {
                 return anyData as SessionInvoiceNotification
             case NotificationType.SESSION_UPDATE:
                 return anyData as SessionUpdateNotification
+            case NotificationType.TOKEN_AUTHORIZE:
+                return anyData as TokenAuthorizeNotification
         }
     }
 

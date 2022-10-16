@@ -36,6 +36,8 @@ const NfcReceiver = ({ onNfcTag, color, size = 50, style = {} }: NfcReceiverProp
             NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
                 setIsActive(false)
             })
+
+            NfcManager.registerTagEvent();
         } catch {
             setIsActive(false)
         }

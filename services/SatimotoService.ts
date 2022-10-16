@@ -14,6 +14,8 @@ import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
 import * as Tariff from "./satimoto/tariff"
+import * as Token from "./satimoto/token"
+import * as TokenAuthorization from "./satimoto/tokenAuthorization"
 import * as User from "./satimoto/user"
 import store from "stores/Store"
 import { API_URI } from "utils/build"
@@ -96,15 +98,22 @@ const getSessionInvoice = Session.getSessionInvoice(client)
 // Tariff
 const getTariff = Tariff.getTariff(client)
 
+// Token
+const createToken = Token.createToken(client)
+const listTokens = Token.listTokens(client)
+
+// Token Authorization
+const updateTokenAuthorization = TokenAuthorization.updateTokenAuthorization(client)
+
 // User
 const createUser = User.createUser(client)
 const getUser = User.getUser(client)
 const updateUser = User.updateUser(client)
 
 // Token
-const getToken = async (pubkey: string, deviceToken: string) => {
+const getAccessToken = async (pubkey: string, deviceToken: string) => {
     return doWhileBackoff(
-        "getToken",
+        "getAccessToken",
         async () => {
             try {
                 const createAuthenticationResult = await createAuthentication(AuthenticationAction.REGISTER)
@@ -141,8 +150,10 @@ const getToken = async (pubkey: string, deviceToken: string) => {
 export type { CreateChannelRequestInput, UpdateInvoiceRequestInput }
 
 export {
-    AuthenticationAction,
+    // Access Token
+    getAccessToken,
     // Authentication
+    AuthenticationAction,
     createAuthentication,
     exchangeAuthentication,
     verifyAuthentication,
@@ -167,7 +178,10 @@ export {
     // Tariff
     getTariff,
     // Token
-    getToken,
+    createToken,
+    listTokens,
+    // Token Authorization
+    updateTokenAuthorization,
     // User
     createUser,
     getUser,

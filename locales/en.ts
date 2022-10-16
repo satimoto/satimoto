@@ -12,6 +12,7 @@ export default {
     // Modal
     ConfirmationModal_StartConfirmationText: "If the cable is locked, press Start first then connect the cable",    
     ConfirmationModal_StopConfirmationText: "Are you sure you want to end this charging session?",    
+    ScanNfcModal_Title: "Tap an RFID card here",
     // Components
     CameraScanner_PermissionTitle: "Camera Permission",
     CameraScanner_PermissionMessage: "Satimoto needs access to your Camera",
@@ -37,6 +38,7 @@ export default {
     Tariff_MinDurationText: "from {{min}} minutes charging",
     Tariff_MaxDurationText: "up to {{max}} minutes charging",
     Tariff_MinMaxDurationText: "from {{min}} and up to {{max}} minutes charging",
+    TokenButton_Subtitle: "RFID Charge Card",
     // Screens
     ChargeDetail_HeaderTitle: "Charging",
     ConnectorDetail_HeaderTitle: "Connector",
@@ -57,7 +59,11 @@ export default {
     Scanner_QrCodeError: "Could not read QR code",
     Scanner_NfcTagError: "Could not read NFC tag",
     Settings_HeaderTitle: "Settings",
+    Settings_ButtonTokens: "Cards",
     Settings_ButtonTransactions: "Transactions",
+    TokenList_HeaderTitle: "Cards",
+    TokenList_EmptyInfoTitle: "Use any RFID card to manage your charge sessions",
+    TokenList_EmptyInfoSubtitle: "avoid other charge cards",
     TransactionList_HeaderTitle: "Transactions",
     // Evse status
     AVAILABLE: "Available",

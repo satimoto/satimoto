@@ -10,6 +10,7 @@ import styles from "utils/styles"
 import useColor from "hooks/useColor"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
+import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 
 type SettingsProps = {
@@ -32,6 +33,12 @@ const Settings = ({ navigation }: SettingsProps) => {
             <CircuitCard />
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
+                    {IS_ANDROID && <ListButtonItem
+                        key="tokens"
+                        title={I18n.t("Settings_ButtonTokens")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("TokenList")}
+                    />}
                     <ListButtonItem
                         key="transactions"
                         title={I18n.t("Settings_ButtonTransactions")}

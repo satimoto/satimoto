@@ -1,5 +1,5 @@
 import Long from "long"
-import { action, computed, makeObservable, observable, reaction, when } from "mobx"
+import { action, computed, makeObservable, observable, reaction, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel, { ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
@@ -9,11 +9,11 @@ import SessionModel, { SessionModelLike } from "models/Session"
 import SessionInvoiceModel from "models/SessionInvoice"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { ecdsaVerify, signatureImport } from "secp256k1"
-import { getSession, getSessionInvoice, startSession, stopSession } from "services/SatimotoService"
+import { getSession, getSessionInvoice, startSession, stopSession, updateTokenAuthorization } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
 import { PaymentStatus } from "types/payment"
-import { SessionInvoiceNotification, SessionUpdateNotification } from "types/notification"
+import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNotification } from "types/notification"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
@@ -85,8 +85,6 @@ export class SessionStore implements SessionStoreInterface {
             feeSat: computed,
 
             setReady: action,
-            startSession: action,
-            stopSession: action,
             updatePayments: action,
             updateSession: action,
             updateSessionInvoice: action
@@ -176,25 +174,46 @@ export class SessionStore implements SessionStoreInterface {
         this.updateSession(response.data.getSession as SessionModel)
     }
 
+    async onTokenAuthorizeNotification(notification: TokenAuthorizeNotification): Promise<void> {
+        try {
+            const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorize: true })
+
+            runInAction(() => {
+                this.authorizationId = response.data.authorizationId
+                this.verificationKey = hexToBytes(response.data.verificationKey)
+                this.status = ChargeSessionStatus.STARTING
+
+                if (response.data.location) {
+                    this.location = response.data.location as LocationModel
+                }
+            })
+        } catch {}
+    }
+
     setReady() {
         this.ready = true
     }
 
     async startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void> {
-        const result = await startSession({ locationUid: location.uid, evseUid: evse.uid })
+        const response = await startSession({ locationUid: location.uid, evseUid: evse.uid })
 
-        this.authorizationId = result.data.authorizationId
-        this.verificationKey = hexToBytes(result.data.verificationKey)
-        this.status = ChargeSessionStatus.STARTING
-        this.location = location
-        this.evse = evse
-        this.connector = connector
+        runInAction(() => {
+            this.authorizationId = response.data.authorizationId
+            this.verificationKey = hexToBytes(response.data.verificationKey)
+            this.status = ChargeSessionStatus.STARTING
+            this.location = location
+            this.evse = evse
+            this.connector = connector
+        })
     }
 
     async stopSession(): Promise<void> {
         if (this.session) {
             await stopSession({ sessionUid: this.session.uid })
-            this.status = ChargeSessionStatus.STOPPING
+
+            runInAction(() => {
+                this.status = ChargeSessionStatus.STOPPING
+            })
         }
     }
 

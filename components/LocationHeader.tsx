@@ -14,10 +14,16 @@ interface LocationHeaderProps {
 const LocationHeader = ({ location }: LocationHeaderProps) => {
     return (
         <HStack alignItems="flex-start" space={1}>
-            <IconButton size="lg" borderRadius="full" icon={<FontAwesomeIcon icon={faHeartRegular} />} _icon={{ color: "#ffffff" }} />
+            <IconButton
+                size="lg"
+                borderRadius="full"
+                isDisabled={true}
+                icon={<FontAwesomeIcon icon={faHeartRegular} />}
+                _icon={{ color: "#ffffff" }}
+            />
             <LocationAddress location={location} />
             <Spacer />
-            <IconButton size="lg" borderRadius="full" icon={<FontAwesomeIcon icon={faRoute} />} _icon={{ color: "#ffffff" }} />
+            <IconButton size="lg" borderRadius="full" isDisabled={true} icon={<FontAwesomeIcon icon={faRoute} />} _icon={{ color: "#ffffff" }} />
         </HStack>
     )
 }
