@@ -1,6 +1,4 @@
-import { LN_BECH32_PREFIX } from "utils/constants"
-
-const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+import { EMAIL_REGEX, LN_BECH32_PREFIX } from "utils/constants"
 
 export const assertEmail = (address: string) => {
     if (!EMAIL_REGEX.test(address)) {

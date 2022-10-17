@@ -1,74 +1,74 @@
 import Modal from "components/Modal"
+import NfcReceiver from "components/NfcReceiver"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faWifi } from "@fortawesome/free-solid-svg-icons"
-import { Text, useColorModeValue, useTheme, VStack } from "native-base"
-import React, { useEffect } from "react"
-import NfcManager, { NfcEvents, TagEvent } from "react-native-nfc-manager"
-import I18n from "utils/i18n"
 import useColor from "hooks/useColor"
+import { Text, useColorModeValue, useTheme, VStack } from "native-base"
+import React, { useEffect, useState } from "react"
+import { TagEvent } from "react-native-nfc-manager"
+import I18n from "utils/i18n"
+import { IS_ANDROID } from "utils/constants"
+import { toString } from "utils/conversion"
+import { isAction } from "mobx"
 
 interface ScanNfcModalProps {
     isVisible: boolean
+    schemes?: RegExp[]
     onNfcTag: (nfcTagEvent: TagEvent) => void
     onClose: () => void
 }
 
-const ScanNfcModal = ({ isVisible, onNfcTag, onClose }: ScanNfcModalProps) => {
+const ScanNfcModal = ({ isVisible, schemes = [], onNfcTag, onClose }: ScanNfcModalProps) => {
     const { colors } = useTheme()
+    const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const iconColor = useColor(colors.lightText, colors.darkText)
+    const [lastError, setLastError] = useState("")
 
-    const startReceiver = async () => {
-        stopReceiver()
+    const onTag = (tag: TagEvent) => {
+        setLastError("")
 
-        try {
-            await NfcManager.start()
-
-            NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag: TagEvent) => {
-                onNfcTag(tag)
-                onClose()
-
-                NfcManager.unregisterTagEvent().catch(() => {})
-            })
-
-            NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
-                onClose()
-            })
-
-            NfcManager.registerTagEvent();
-        } catch {
-            onClose()
+        if (schemes.length == 0) {
+            onNfcTag(tag)
+            return
         }
-    }
 
-    const stopReceiver = () => {
-        NfcManager.setEventListener(NfcEvents.DiscoverTag, null)
-        NfcManager.setEventListener(NfcEvents.SessionClosed, null)
+        if (tag.ndefMessage && tag.ndefMessage.length && tag.ndefMessage[0].payload) {
+            const tagBytes = new Uint8Array(tag.ndefMessage[0].payload)
+            const tagStr = toString(tagBytes)
+
+            for (const scheme of schemes) {
+                if (scheme.test(tagStr)) {
+                    onNfcTag(tag)
+                    break
+                }
+            }
+        }
+
+        setLastError(I18n.t("ScanNfcModal_SchemeError"))
+        setTimeout(() => onClose(), 2500)
     }
 
     useEffect(() => {
-        if (isVisible) {
-            startReceiver()
-        } else {
-            stopReceiver()
+        if (!isVisible) {
+            setLastError("")
         }
-    }, [isVisible])
-
-    useEffect(() => {
-        return () => {
-            stopReceiver()
-        }
-    }, [])
+    })
 
     return (
-        <Modal isVisible={isVisible} onClose={onClose}>
-            <VStack alignItems="center">
-                <Text color={textColor} fontSize="xl">
-                    {I18n.t("ScanNfcModal_Title")}
-                </Text>
-                <FontAwesomeIcon color={iconColor} size={48} icon={faWifi} />
-            </VStack>
-        </Modal>
+        <NfcReceiver isActive={isVisible} onTag={onTag} onClose={onClose}>
+            {IS_ANDROID && (
+                <Modal isVisible={isVisible} onClose={onClose}>
+                    <VStack alignItems="center">
+                        <Text color={textColor} fontSize="xl">
+                            {I18n.t("ScanNfcModal_Title")}
+                        </Text>
+                        <FontAwesomeIcon color={iconColor} size={48} icon={faWifi} />
+                        {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
+                    </VStack>
+                </Modal>
+            )}
+        </NfcReceiver>
     )
 }
 

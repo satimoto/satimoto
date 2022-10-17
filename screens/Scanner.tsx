@@ -1,6 +1,5 @@
 import CameraScanner from "components/CameraScanner"
 import HeaderBackButton from "components/HeaderBackButton"
-import NfcReceiver from "components/NfcReceiver"
 import React, { useEffect, useState } from "react"
 import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
@@ -66,18 +65,6 @@ const Scanner = ({ navigation }: ScannerProps) => {
         }
     }
 
-    const onNfcTag = async (nfcTag: string) => {
-        setIsActive(false)
-        setLastError("")
-
-        const valid = await uiStore.parseIntent(nfcTag)
-
-        if (!valid) {
-            setIsActive(true)
-            setLastError(I18n.t("Scanner_NfcTagError"))
-        }
-    }
-
     return (
         <CameraScanner isActive={isActive} onNotAuthorized={onNotAuthorized} onQrCode={onQrCode}>
             {!IS_ANDROID && (
@@ -85,7 +72,6 @@ const Scanner = ({ navigation }: ScannerProps) => {
                     <HeaderBackButton tintColor={textColor} onPress={() => navigation.goBack()} />
                 </View>
             )}
-            <NfcReceiver onNfcTag={onNfcTag} color={textColor} size={30} />
             {lastError.length > 0 && (
                 <Text color={errorColor} fontSize="xl" style={[styleSheet.errorText, {bottom: safeAreaInsets.bottom}]}>
                     {lastError}

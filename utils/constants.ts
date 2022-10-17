@@ -1,6 +1,8 @@
 import { Platform } from "react-native"
 import { NETWORK } from "utils/build"
 
+export const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+
 export const CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID = 51727
 export const CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE = 51728
 
