@@ -2,12 +2,14 @@ import { Hash } from "fast-sha256"
 import Long from "long"
 import { action, computed, makeObservable, observable, reaction, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import StartCommandModel from "models/Command"
 import ConnectorModel, { ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel from "models/Location"
 import PaymentModel from "models/Payment"
 import SessionModel, { SessionModelLike } from "models/Session"
 import SessionInvoiceModel from "models/SessionInvoice"
+import TokenAuthorizationModel from "models/TokenAuthorization"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { ecdsaVerify, signatureImport } from "secp256k1"
 import { getSession, getSessionInvoice, startSession, stopSession, updateTokenAuthorization } from "services/SatimotoService"
@@ -17,7 +19,7 @@ import { PaymentStatus } from "types/payment"
 import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNotification } from "types/notification"
 import { SessionStatus } from "types/session"
 import { DEBUG } from "utils/build"
-import { MINIMUM_CHARGE_BALANCE } from "utils/constants"
+import { MINIMUM_CHARGE_BALANCE, START_SESSION_TIMEOUT_SECONDS } from "utils/constants"
 import { Log } from "utils/logging"
 import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
 
@@ -179,16 +181,19 @@ export class SessionStore implements SessionStoreInterface {
         try {
             const authorize = this.stores.channelStore.localBalance > MINIMUM_CHARGE_BALANCE
             const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorize })
+            const tokenAuthorization = response.data.updateTokenAuthorization as TokenAuthorizationModel
 
-            runInAction(() => {
-                this.authorizationId = response.data.authorizationId
-                this.verificationKey = hexToBytes(response.data.verificationKey)
-                this.status = ChargeSessionStatus.STARTING
+            if (tokenAuthorization.authorized && tokenAuthorization.verificationKey) {
+                runInAction(() => {
+                    this.authorizationId = tokenAuthorization.authorizationId
+                    this.verificationKey = hexToBytes(tokenAuthorization.verificationKey!)
+                    this.status = ChargeSessionStatus.STARTING
 
-                if (response.data.location) {
-                    this.location = response.data.location as LocationModel
-                }
-            })
+                    if (tokenAuthorization.location) {
+                        this.location = tokenAuthorization.location
+                    }
+                })
+            }
         } catch {}
     }
 
@@ -198,15 +203,34 @@ export class SessionStore implements SessionStoreInterface {
 
     async startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void> {
         const response = await startSession({ locationUid: location.uid, evseUid: evse.uid })
+        const startCommand = response.data.startSession as StartCommandModel
 
         runInAction(() => {
-            this.authorizationId = response.data.authorizationId
-            this.verificationKey = hexToBytes(response.data.verificationKey)
+            this.authorizationId = startCommand.authorizationId
+            this.verificationKey = hexToBytes(startCommand.verificationKey)
             this.status = ChargeSessionStatus.STARTING
             this.location = location
             this.evse = evse
             this.connector = connector
         })
+
+        setTimeout(this.onStartSessionTimeout.bind(this), START_SESSION_TIMEOUT_SECONDS * 1000)
+    }
+
+    async onStartSessionTimeout() {
+        if (this.status === ChargeSessionStatus.STARTING && this.authorizationId) {
+            // Cancel the start session command
+            const response = await updateTokenAuthorization({ authorizationId: this.authorizationId, authorize: false })
+            const tokenAuthorization = response.data.updateTokenAuthorization as TokenAuthorizationModel
+
+            if (!tokenAuthorization.authorized) {
+                runInAction(() => {
+                    this.authorizationId = undefined
+                    this.verificationKey = undefined
+                    this.status = ChargeSessionStatus.IDLE
+                })    
+            }
+        }
     }
 
     async stopSession(): Promise<void> {
@@ -230,7 +254,11 @@ export class SessionStore implements SessionStoreInterface {
         this.session = session
         this.status = toChargeSessionStatus(this.session.status)
 
-        if (this.session.status == SessionStatus.INVOICED) {
+        if (this.session.status == SessionStatus.INVALID) {
+            this.authorizationId = undefined
+            this.verificationKey = undefined
+            this.session = undefined
+        } else if (this.session.status == SessionStatus.INVOICED) {
             session.connector = this.connector!
             session.evse = this.evse!
             session.location = this.location!
