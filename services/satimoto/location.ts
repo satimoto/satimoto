@@ -1,30 +1,5 @@
 import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
-import { EVSE_WITH_CONNECTORS_FRAGMENT } from "./evse"
-
-const LOCATION_FRAGMENT = gql`
-    fragment LocationFragment on Location {
-        uid
-        name
-        address
-        city
-        postalCode
-        country
-        geom
-    }
-`
-
-const LOCATION_WITH_EVSES_FRAGMENT = gql`
-    ${LOCATION_FRAGMENT}
-    ${EVSE_WITH_CONNECTORS_FRAGMENT}
-    fragment LocationWithEvsesFragment on Location {
-        ...LocationFragment
-        evses {
-            ...EvseWithConnectorsFragment
-        }
-    }
-`
-
-export { LOCATION_FRAGMENT, LOCATION_WITH_EVSES_FRAGMENT }
+import { LOCATION_WITH_EVSES_FRAGMENT } from "./fragment"
 
 /**
  * Get Location

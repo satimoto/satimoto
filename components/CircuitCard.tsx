@@ -4,7 +4,7 @@ import { observer } from "mobx-react"
 import React, { useEffect, useState } from "react"
 import { Dimensions, Share, StyleSheet } from "react-native"
 import { useStore } from "hooks/useStore"
-import { HStack, IconButton, Text, useColorModeValue, useTheme, VStack } from "native-base"
+import { HStack, IconButton, useColorModeValue, useTheme } from "native-base"
 import useColor from "hooks/useColor"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 

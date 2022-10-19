@@ -18,8 +18,9 @@ import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
 import { PaymentStatus } from "types/payment"
 import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNotification } from "types/notification"
 import { SessionStatus } from "types/session"
+import { TokenType } from "types/token"
 import { DEBUG } from "utils/build"
-import { MINIMUM_CHARGE_BALANCE, START_SESSION_TIMEOUT_SECONDS } from "utils/constants"
+import { MINIMUM_RFID_CHARGE_BALANCE, START_SESSION_TIMEOUT_SECONDS } from "utils/constants"
 import { Log } from "utils/logging"
 import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
 
@@ -31,6 +32,7 @@ export interface SessionStoreInterface extends StoreInterface {
 
     status: ChargeSessionStatus
     authorizationId?: string
+    tokenType?: TokenType
     location?: LocationModel
     evse?: EvseModelLike
     connector?: ConnectorModelLike
@@ -53,6 +55,7 @@ export class SessionStore implements SessionStoreInterface {
 
     status = ChargeSessionStatus.IDLE
     authorizationId?: string = undefined
+    tokenType?: TokenType = undefined
     verificationKey?: Uint8Array = undefined
     location?: LocationModel = undefined
     evse?: EvseModel = undefined
@@ -74,6 +77,7 @@ export class SessionStore implements SessionStoreInterface {
 
             status: observable,
             authorizationId: observable,
+            tokenType: observable,
             location: observable,
             evse: observable,
             connector: observable,
@@ -172,14 +176,14 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void> {
-        const response = await getSession({ uid: notification.sessionUid })
+        const response = await getSession({ uid: notification.sessionUid }, !this.session)
 
         this.updateSession(response.data.getSession as SessionModel)
     }
 
     async onTokenAuthorizeNotification(notification: TokenAuthorizeNotification): Promise<void> {
         try {
-            const authorize = this.stores.channelStore.localBalance > MINIMUM_CHARGE_BALANCE
+            const authorize = this.stores.channelStore.localBalance >= MINIMUM_RFID_CHARGE_BALANCE
             const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorize })
             const tokenAuthorization = response.data.updateTokenAuthorization as TokenAuthorizationModel
 
@@ -187,6 +191,7 @@ export class SessionStore implements SessionStoreInterface {
                 runInAction(() => {
                     this.authorizationId = tokenAuthorization.authorizationId
                     this.verificationKey = hexToBytes(tokenAuthorization.verificationKey!)
+                    this.tokenType = TokenType.RFID
                     this.status = ChargeSessionStatus.STARTING
 
                     if (tokenAuthorization.location) {
@@ -208,6 +213,7 @@ export class SessionStore implements SessionStoreInterface {
         runInAction(() => {
             this.authorizationId = startCommand.authorizationId
             this.verificationKey = hexToBytes(startCommand.verificationKey)
+            this.tokenType = TokenType.OTHER
             this.status = ChargeSessionStatus.STARTING
             this.location = location
             this.evse = evse
@@ -227,6 +233,7 @@ export class SessionStore implements SessionStoreInterface {
                 runInAction(() => {
                     this.authorizationId = undefined
                     this.verificationKey = undefined
+                    this.tokenType = undefined
                     this.status = ChargeSessionStatus.IDLE
                 })    
             }
@@ -254,21 +261,24 @@ export class SessionStore implements SessionStoreInterface {
         this.session = session
         this.status = toChargeSessionStatus(this.session.status)
 
-        if (this.session.status == SessionStatus.INVALID) {
+        this.location = this.location || this.session.location
+        this.evse = this.evse || this.session.evse
+        this.connector = this.connector || this.session.connector
+
+        if (this.session.status == SessionStatus.INVALID || this.session.status == SessionStatus.INVOICED) {
+            if (this.session.status == SessionStatus.INVOICED) {
+                session.connector = this.connector!
+                session.evse = this.evse!
+                session.location = this.location!
+                session.sessionInvoices = this.sessionInvoices
+    
+                this.sessions.push(session)
+                this.payments.clear()
+            }
+
             this.authorizationId = undefined
             this.verificationKey = undefined
-            this.session = undefined
-        } else if (this.session.status == SessionStatus.INVOICED) {
-            session.connector = this.connector!
-            session.evse = this.evse!
-            session.location = this.location!
-            session.sessionInvoices = this.sessionInvoices
-
-            this.sessions.push(session)
-            this.payments.clear()
-
-            this.authorizationId = undefined
-            this.verificationKey = undefined
+            this.tokenType = undefined
             this.session = undefined
         }
     }

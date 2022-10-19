@@ -12,9 +12,9 @@ interface SessionModel {
     endDatetime?: string
     kwh: number
     authMethod: string
-    location: LocationModel
-    evse: EvseModel
-    connector: ConnectorModel
+    location?: LocationModel
+    evse?: EvseModel
+    connector?: ConnectorModel
     meterId?: string
     sessionInvoices?: SessionInvoiceModel[]
     invoiceRequest?: InvoiceRequestModel

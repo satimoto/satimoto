@@ -1,7 +1,7 @@
 import BusyButton from "components/BusyButton"
 import Modal from "components/Modal"
 import { observer } from "mobx-react"
-import { Button, Text, useColorModeValue, VStack } from "native-base"
+import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useState } from "react"
 
 interface ConfirmationModalProps {

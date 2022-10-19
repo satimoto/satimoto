@@ -47,6 +47,8 @@ export default {
     // Screens
     ChargeDetail_HeaderTitle: "Charging",
     ConnectorDetail_HeaderTitle: "Connector",
+    ConnectorDetail_NfcStartText: "Tap your NFC card on the charge point to start charging.",
+    ConnectorDetail_NfcStopText: "Tap your NFC card on the charge point to stop charging.",
     ConnectorDetail_ChargeStatusError: "Currently charging at another charge point.",
     ConnectorDetail_EvseStatusError: "Unfortunately this charge point is {{status}}.",
     ConnectorDetail_LocalBalanceError: "Please add a minimum of {{satoshis}} sats to start charging.",

@@ -1,5 +1,5 @@
 import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
-import { LOCATION_FRAGMENT } from "./location"
+import { LOCATION_FRAGMENT } from "./fragment"
 
 /**
  * Update Token Authorization

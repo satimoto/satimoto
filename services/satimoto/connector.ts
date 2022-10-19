@@ -1,33 +1,5 @@
 import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
-import { EVSE_WITH_LOCATION_FRAGMENT } from "./evse"
-import { TARIFF_FRAGMENT } from "./tariff"
-
-const CONNECTOR_FRAGMENT = gql`
-    fragment ConnectorFragment on Connector {
-        uid
-        identifier
-        standard
-        format
-        voltage
-        amperage
-        wattage
-        powerType
-    }
-`
-
-const CONNECTOR_WITH_TARIFF_FRAGMENT = gql`
-    ${CONNECTOR_FRAGMENT}
-    ${TARIFF_FRAGMENT}
-    fragment ConnectorWithTariffFragment on Connector {
-        ...ConnectorFragment
-        tariff {
-            ...TariffFragment
-        }
-    }
-`
-
-export { CONNECTOR_FRAGMENT, CONNECTOR_WITH_TARIFF_FRAGMENT }
-
+import { CONNECTOR_FRAGMENT, EVSE_WITH_LOCATION_FRAGMENT, TARIFF_FRAGMENT } from "./fragment"
 
 /**
  * Get Connector

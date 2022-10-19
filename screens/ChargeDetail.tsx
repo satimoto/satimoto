@@ -16,6 +16,7 @@ import styles from "utils/styles"
 import { useStore } from "hooks/useStore"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ChargeSessionStatus } from "types/chargeSession"
+import { TokenType } from "types/token"
 
 type ChargeDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ChargeDetail">
@@ -37,17 +38,20 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             title: I18n.t("ChargeDetail_HeaderTitle"),
-            headerRight: () => (
-                <IconButton
-                    colorScheme="muted"
-                    variant="ghost"
-                    p={0.5}
-                    onPress={() => setIsConfirmationModalVisible(true)}
-                    isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
-                    icon={<FontAwesomeIcon icon={faStop} />}
-                    _icon={{ color: "#ffffff", size: 32 }}
-                />
-            )
+            headerRight:
+                sessionStore.tokenType === TokenType.OTHER
+                    ? () => (
+                          <IconButton
+                              colorScheme="muted"
+                              variant="ghost"
+                              p={0.5}
+                              onPress={() => setIsConfirmationModalVisible(true)}
+                              isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
+                              icon={<FontAwesomeIcon icon={faStop} />}
+                              _icon={{ color: "#ffffff", size: 32 }}
+                          />
+                      )
+                    : undefined
         })
     }, [navigation])
 
