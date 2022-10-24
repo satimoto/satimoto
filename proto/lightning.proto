@@ -571,6 +571,12 @@ service Lightning {
     rpc SubscribeCustomMessages (SubscribeCustomMessagesRequest)
         returns (stream CustomMessage);
 
+    /*
+    AllocateAlias returns a new ALIAS ShortChannelID to the caller by allocating
+    the next un-allocated ShortChannelID.
+    */
+    rpc AllocateAlias (AllocateAliasRequest) returns (AllocateAliasResponse);
+
     /* lncli: `listaliases`
     ListAliases returns the set of all aliases that have ever existed with
     their confirmed SCID (if it exists) and/or the base SCID (in the case of
@@ -1528,6 +1534,12 @@ message ListChannelsResponse {
     repeated Channel channels = 11;
 }
 
+message AllocateAliasRequest {
+}
+message AllocateAliasResponse {
+    uint64 scid = 1;
+}
+
 message AliasMap {
     /*
     For non-zero-conf channels, this is the confirmed SCID. Otherwise, this is
@@ -2189,6 +2201,12 @@ message OpenChannelRequest {
     attempted.
     */
     bool scid_alias = 20;
+
+    /*
+    If this is set, then this ALIAS ShortChannelID will be used instead of
+    allocating the next un-allocated ShortChannelID.
+    */
+    uint64 scid = 21;
 }
 message OpenStatusUpdate {
     oneof update {
