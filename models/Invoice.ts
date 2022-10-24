@@ -5,6 +5,7 @@ interface InvoiceModel {
     expiresAt: string
     description: string
     hash: string
+    preimage: string
     paymentRequest: string
     status: InvoiceStatus
     valueMsat: string

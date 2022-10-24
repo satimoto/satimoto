@@ -1,4 +1,37 @@
 import { lnrpc } from "proto/proto"
+import { bytesToHex } from "utils/conversion"
+
+interface PayReq {
+    destination: string
+    paymentHash: string
+    numSatoshis: Long
+    timestamp: Long
+    expiry: Long
+    description: string
+    descriptionHash: string
+    fallbackAddr: string
+    cltvExpiry: Long
+    paymentAddr: string
+    numMsat: Long
+}
+
+export type { PayReq }
+
+const toPayReq = (payReq: lnrpc.PayReq): PayReq => {
+    return {
+        destination: payReq.destination,
+        paymentHash: payReq.paymentHash,
+        numSatoshis: payReq.numSatoshis,
+        timestamp: payReq.timestamp,
+        expiry: payReq.expiry,
+        description: payReq.description,
+        descriptionHash: payReq.descriptionHash,
+        fallbackAddr: payReq.fallbackAddr,
+        cltvExpiry: payReq.cltvExpiry,
+        paymentAddr: bytesToHex(payReq.paymentAddr),
+        numMsat: payReq.numMsat
+    } as PayReq
+}
 
 export enum PaymentStatus {
     UNKNOWN = "UNKNOWN",
@@ -21,4 +54,4 @@ const toPaymentStatus = (state: lnrpc.Payment.PaymentStatus): PaymentStatus => {
     return PaymentStatus.UNKNOWN
 }
 
-export { toPaymentStatus }
+export { toPayReq, toPaymentStatus }

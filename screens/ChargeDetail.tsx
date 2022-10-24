@@ -1,22 +1,24 @@
 import ConfirmationModal from "components/ConfirmationModal"
 import LocationAddress from "components/LocationAddress"
 import PaymentButton from "components/PaymentButton"
+import PaymentInfoModal from "components/PaymentInfoModal"
 import SatoshiBalance from "components/SatoshiBalance"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faStop } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
+import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
+import PaymentModel from "models/Payment"
 import { IconButton, useTheme, VStack } from "native-base"
 import React, { useLayoutEffect, useState } from "react"
 import { ScrollView, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import I18n from "utils/i18n"
-import styles from "utils/styles"
-import { useStore } from "hooks/useStore"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ChargeSessionStatus } from "types/chargeSession"
 import { TokenType } from "types/token"
+import I18n from "utils/i18n"
+import styles from "utils/styles"
 
 type ChargeDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ChargeDetail">
@@ -28,11 +30,16 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
     const textColor = useColor(colors.lightText, colors.darkText)
     const safeAreaInsets = useSafeAreaInsets()
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
+    const [shownPayment, setShownPayment] = useState<PaymentModel>()
     const { sessionStore } = useStore()
 
     const onStopPress = async () => {
         await sessionStore.stopSession()
         setIsConfirmationModalVisible(false)
+    }
+
+    const onPaymentPress = (payment: PaymentModel) => {
+        setShownPayment(payment)
     }
 
     useLayoutEffect(() => {
@@ -67,7 +74,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
                     {sessionStore.payments.map((payment) => (
-                        <PaymentButton key={payment.hash} payment={payment} />
+                        <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />
                     ))}
                 </VStack>
             </ScrollView>
@@ -78,6 +85,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                 onClose={() => setIsConfirmationModalVisible(false)}
                 onPress={onStopPress}
             />
+            <PaymentInfoModal payment={shownPayment} onClose={() => setShownPayment(undefined)} />
         </View>
     )
 }

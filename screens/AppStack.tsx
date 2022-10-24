@@ -6,7 +6,6 @@ import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
 import InvoiceModel from "models/Invoice"
-import { lnrpc } from "proto/proto"
 import React, { useEffect } from "react"
 import { AppState, AppStateStatus, Linking } from "react-native"
 import { useNavigation } from "@react-navigation/native"
@@ -24,7 +23,9 @@ import Settings from "screens/Settings"
 import TokenList from "screens/TokenList"
 import TransactionList from "screens/TransactionList"
 import WaitForPayment from "screens/WaitForPayment"
+import Welcome from "screens/Welcome"
 import { LinkingEvent } from "types/linking"
+import { PayReq } from "types/payment"
 import { Log } from "utils/logging"
 
 const log = new Log("AppStack")
@@ -37,12 +38,13 @@ export type AppStackParamList = {
     EvseList: { location: LocationModel; evses: EvseModel[]; connector: ConnectorModel }
     LnUrlPay: { payParams: LNURLPayParams }
     LnUrlWithdraw: { withdrawParams: LNURLWithdrawParams }
-    PaymentRequest: { payReq: string; decodedPayReq: lnrpc.PayReq }
+    PaymentRequest: { payReq: string; decodedPayReq: PayReq }
     Scanner: undefined
     Settings: undefined
     TokenList: undefined
     TransactionList: undefined
     WaitForPayment: { invoice: InvoiceModel }
+    Welcome: undefined
 }
 
 export type AppStackScreenParams = {
@@ -59,6 +61,7 @@ export type AppStackScreenParams = {
     TokenList: undefined
     TransactionList: undefined
     WaitForPayment: undefined
+    Welcome: undefined
 }
 
 type AppStackParams = AppStackParamList | AppStackScreenParams
@@ -119,7 +122,7 @@ const AppStack = () => {
     }, [uiStore.decodedPaymentRequest, uiStore.paymentRequest])
 
     return (
-        <AppStackNav.Navigator initialRouteName={"Home"} screenOptions={screenOptions}>
+        <AppStackNav.Navigator initialRouteName={uiStore.hasOnboardingUpdates ? "Welcome" : "Home"} screenOptions={screenOptions}>
             <AppStackNav.Screen name="ChargeDetail" component={ChargeDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ConnectorDetail" component={ConnectorDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Home" component={Home} options={navigationWithoutHeaderOptions} />
@@ -133,6 +136,7 @@ const AppStack = () => {
             <AppStackNav.Screen name="TokenList" component={TokenList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="TransactionList" component={TransactionList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="WaitForPayment" component={WaitForPayment} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="Welcome" component={Welcome} options={navigationWithoutHeaderOptions} />
         </AppStackNav.Navigator>
     )
 }

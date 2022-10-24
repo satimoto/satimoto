@@ -63,6 +63,7 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
     useEffect(() => {
         if (!isVisible) {
             setAmount("")
+            setLastError("")
             setIsBusy(false)
         }
     }, [isVisible])

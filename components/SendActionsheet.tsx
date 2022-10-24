@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faAt, faWifi } from "@fortawesome/free-solid-svg-icons"
+import { faAt, faBolt, faWifi } from "@fortawesome/free-solid-svg-icons"
 import I18n from "i18n-js"
 import { Actionsheet } from "native-base"
 import React from "react"
@@ -27,8 +27,11 @@ const SendActionsheet = ({ isOpen, onPress, onClose }: SendActionsheetProps) => 
     return (
         <Actionsheet isOpen={isOpen} onClose={onClose} hideDragIndicator>
             <Actionsheet.Content>
-                <Actionsheet.Item onPress={() => onActionsheetPress("send_address")} startIcon={<FontAwesomeIcon icon={faAt} />} style={styleSheet.item}>
+            <Actionsheet.Item onPress={() => onActionsheetPress("send_address")} startIcon={<FontAwesomeIcon icon={faAt} />} style={styleSheet.item}>
                     {I18n.t("SendActionsheet_SendAddress")}
+                </Actionsheet.Item>
+                <Actionsheet.Item onPress={() => onActionsheetPress("send_lightning")} startIcon={<FontAwesomeIcon icon={faBolt} />} style={styleSheet.item}>
+                    {I18n.t("SendActionsheet_SendLightning")}
                 </Actionsheet.Item>
                 <Actionsheet.Item onPress={() => onActionsheetPress("send_nfc")} startIcon={<FontAwesomeIcon icon={faWifi} />}>
                     {I18n.t("SendActionsheet_SendNfc")}

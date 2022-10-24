@@ -1,5 +1,5 @@
 import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
-import { action, makeObservable, observable, runInAction } from "mobx"
+import { action, computed, makeObservable, observable, runInAction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
@@ -10,9 +10,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq } from "services/LightningService"
 import { getParams, getTag, identifier } from "services/LnUrlService"
-import { DEBUG } from "utils/build"
-import { Log } from "utils/logging"
 import { assertNetwork } from "utils/assert"
+import { DEBUG } from "utils/build"
+import { ONBOARDING_VERSION } from "utils/constants"
+import { Log } from "utils/logging"
+import { PayReq, toPayReq } from "types/payment"
 
 const log = new Log("UiStore")
 const EVSE_ID_REGEX = /[A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+/
@@ -28,7 +30,9 @@ export interface UiStoreInterface extends StoreInterface {
     lnUrlPayParams?: LNURLPayParams
     lnUrlWithdrawParams?: LNURLWithdrawParams
     paymentRequest?: string
-    decodedPaymentRequest?: lnrpc.PayReq
+    decodedPaymentRequest?: PayReq
+    onboardingWelcomed: boolean
+    onboardingVersion: string
 
     clearChargePoint(): void
     clearLnUrl(): void
@@ -54,7 +58,9 @@ export class UiStore implements UiStoreInterface {
     lnUrlPayParams?: LNURLPayParams = undefined
     lnUrlWithdrawParams?: LNURLWithdrawParams = undefined
     paymentRequest?: string = undefined
-    decodedPaymentRequest?: lnrpc.PayReq = undefined
+    decodedPaymentRequest?: PayReq = undefined
+    onboardingWelcomed: boolean = false
+    onboardingVersion: string = ""
 
     constructor(stores: Store) {
         this.stores = stores
@@ -73,6 +79,10 @@ export class UiStore implements UiStoreInterface {
             lnUrlWithdrawParams: observable,
             paymentRequest: observable,
             decodedPaymentRequest: observable,
+            onboardingWelcomed: observable,
+            onboardingVersion: observable,
+
+            hasOnboardingUpdates: computed,
 
             clearChargePoint: action,
             clearLnUrl: action,
@@ -80,7 +90,8 @@ export class UiStore implements UiStoreInterface {
             setChargePoint: action,
             setLnUrl: action,
             setLnUrlPayParams: action,
-            setPaymentRequest: action
+            setPaymentRequest: action,
+            setOnboarding: action
         })
 
         makePersistable(
@@ -122,6 +133,10 @@ export class UiStore implements UiStoreInterface {
     clearPaymentRequest() {
         this.paymentRequest = undefined
         this.decodedPaymentRequest = undefined
+    }
+
+    get hasOnboardingUpdates(): boolean {
+        return !this.onboardingWelcomed || this.onboardingVersion !== ONBOARDING_VERSION
     }
 
     /**
@@ -212,7 +227,7 @@ export class UiStore implements UiStoreInterface {
         const decodedPaymentRequest = await decodePayReq(paymentRequest)
 
         runInAction(() => {
-            this.decodedPaymentRequest = decodedPaymentRequest
+            this.decodedPaymentRequest = toPayReq(decodedPaymentRequest)
             this.paymentRequest = paymentRequest
             log.debug(JSON.stringify(this.decodedPaymentRequest))
         })
@@ -220,5 +235,10 @@ export class UiStore implements UiStoreInterface {
 
     setReady() {
         this.ready = true
+    }
+
+    setOnboarding(welcomed: boolean, version: string) {
+        this.onboardingWelcomed = welcomed
+        this.onboardingVersion = version
     }
 }

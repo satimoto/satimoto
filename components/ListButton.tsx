@@ -7,14 +7,14 @@ import { GestureResponderEvent, StyleSheet } from "react-native"
 import styles from "utils/styles"
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 
-interface ListButtonItemProps {
+interface ListButtonProps {
     title: string
     description?: string
     iconRight?: IconProp
     onPress?: (event: GestureResponderEvent) => void
 }
 
-const ListButtonItem = ({ title, description, iconRight, onPress = () => {} }: ListButtonItemProps) => {
+const ListButton = ({ title, description, iconRight, onPress = () => {} }: ListButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
     const textColor = useColor(colors.lightText, colors.darkText)
@@ -40,4 +40,4 @@ const ListButtonItem = ({ title, description, iconRight, onPress = () => {} }: L
     )
 }
 
-export default ListButtonItem
+export default ListButton

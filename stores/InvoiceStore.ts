@@ -170,6 +170,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 expiresAt: moment(createdAt).add(toNumber(data.expiry), "second").toISOString(),
                 description: data.memo,
                 hash,
+                preimage: bytesToHex(data.rPreimage),
                 paymentRequest: data.paymentRequest,
                 status: toInvoiceStatus(data.state),
                 valueMsat: data.valueMsat.toString(),

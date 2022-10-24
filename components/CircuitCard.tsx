@@ -4,7 +4,7 @@ import { observer } from "mobx-react"
 import React, { useEffect, useState } from "react"
 import { Dimensions, Share, StyleSheet } from "react-native"
 import { useStore } from "hooks/useStore"
-import { HStack, IconButton, useColorModeValue, useTheme } from "native-base"
+import { HStack, IconButton, useTheme } from "native-base"
 import useColor from "hooks/useColor"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 
@@ -25,7 +25,6 @@ interface CircuitCardProps {}
 const CircuitCard = ({}: CircuitCardProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const textColor = useColorModeValue("lightText", "darkText")
     const { settingStore } = useStore()
     const [referralLink, setReferralLink] = useState<string | null>(null)
 

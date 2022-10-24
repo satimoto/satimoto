@@ -7,6 +7,7 @@ import ReceiveLightningModal from "components/ReceiveLightningModal"
 import ScanNfcModal from "components/ScanNfcModal"
 import SendActionsheet from "components/SendActionsheet"
 import SendToAddressModal from "components/SendToAddressModal"
+import SendLightningModal from "components/SendLightningModal"
 import SlidingLocationPanel, { createSlidingUpPanelRef } from "components/SlidingLocationPanel"
 import useLayout from "hooks/useLayout"
 import { useStore } from "hooks/useStore"
@@ -14,6 +15,7 @@ import { autorun } from "mobx"
 import { observer } from "mobx-react"
 import React, { useEffect, useRef, useState } from "react"
 import { Dimensions, View } from "react-native"
+import { TagEvent } from "react-native-nfc-manager"
 import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
@@ -22,7 +24,6 @@ import { MAPBOX_API_KEY } from "utils/build"
 import { EMAIL_REGEX, IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
-import { TagEvent } from "react-native-nfc-manager"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -64,6 +65,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [isReceiveNfcModalVisible, setIsReceiveNfcModalVisible] = useState(false)
     const [isSendActionsheetOpen, setIsSendActionsheetOpen] = useState(false)
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
+    const [isSendLightningModalVisible, setIsSendLightningModalVisible] = useState(false)
     const [isSendNfcModalVisible, setIsSendNfcModalVisible] = useState(false)
     const { uiStore, locationStore, sessionStore } = useStore()
 
@@ -97,6 +99,8 @@ const Home = ({ navigation }: HomeProps) => {
     const onActionsheetPress = (event: string) => {
         if (event === "send_address") {
             setIsSendToAddressModalVisible(true)
+        } else if (event === "send_lightning") {
+            setIsSendLightningModalVisible(true)
         } else if (event === "send_nfc") {
             setIsSendNfcModalVisible(true)
         } else if (event === "receive_qr") {
@@ -207,6 +211,7 @@ const Home = ({ navigation }: HomeProps) => {
             <SendActionsheet isOpen={isSendActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsSendActionsheetOpen(false)} />
             <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />
             <SendToAddressModal isVisible={isSendToAddressModalVisible} onClose={() => setIsSendToAddressModalVisible(false)} />
+            <SendLightningModal isVisible={isSendLightningModalVisible} onClose={() => setIsSendLightningModalVisible(false)} />
             <ScanNfcModal
                 isVisible={isSendNfcModalVisible}
                 onNfcTag={onNfcTag}
