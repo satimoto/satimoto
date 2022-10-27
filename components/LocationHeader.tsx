@@ -6,12 +6,18 @@ import { IconButton, HStack, Spacer } from "native-base"
 import React from "react"
 import LocationModel from "models/location"
 import LocationAddress from "components/LocationAddress"
+import { launchRouteIntent } from "utils/routeIntent"
+import { locale } from "moment"
 
 interface LocationHeaderProps {
     location: LocationModel
 }
 
 const LocationHeader = ({ location }: LocationHeaderProps) => {
+    const onRoutePress = () => {
+        launchRouteIntent(location.geom.coordinates[1], location.geom.coordinates[0])
+    }
+
     return (
         <HStack alignItems="flex-start" space={1}>
             <IconButton
@@ -23,7 +29,7 @@ const LocationHeader = ({ location }: LocationHeaderProps) => {
             />
             <LocationAddress location={location} />
             <Spacer />
-            <IconButton size="lg" borderRadius="full" isDisabled={true} icon={<FontAwesomeIcon icon={faRoute} />} _icon={{ color: "#ffffff" }} />
+            <IconButton size="lg" borderRadius="full" icon={<FontAwesomeIcon icon={faRoute} />} onPress={onRoutePress} _icon={{ color: "#ffffff" }} />
         </HStack>
     )
 }

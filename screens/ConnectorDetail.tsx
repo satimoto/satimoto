@@ -24,6 +24,11 @@ import useEnergySourceColors from "hooks/useEnergySourceColors"
 import { TokenType } from "types/token"
 
 const styleSheet = StyleSheet.create({
+    connectorInfo: {
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        paddingBottom: 30
+    },
     nfcInfo: {
         paddingVertical: 20
     }
@@ -37,6 +42,7 @@ type ConnectorDetailProps = {
 const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
+    const operatorBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const energySourceColors = useEnergySourceColors()
@@ -92,8 +98,18 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         setIsBusy(false)
     }
 
+    const renderError = () => {
+        return lastError.length > 0 ? (
+            <Text textAlign="center" color={errorColor} fontSize={18} bold>
+                {lastError}
+            </Text>
+        ) : (
+            <></>
+        )
+    }
+
     const renderStop = () => {
-        if (isSessionConnector) {
+        if (lastError.length == 0 && isSessionConnector) {
             return sessionStore.tokenType === TokenType.OTHER ? (
                 <BusyButton
                     isBusy={isBusy}
@@ -111,8 +127,18 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         }
     }
 
+    const renderStartInfo = () => {
+        return (lastError.length == 0 && sessionStore.status === ChargeSessionStatus.IDLE) || sessionStore.status == ChargeSessionStatus.STARTING ? (
+            <Text style={styleSheet.nfcInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                {I18n.t("ConnectorDetail_StartInfoText")}
+            </Text>
+        ) : (
+            <></>
+        )
+    }
+
     const renderStart = () => {
-        if (!isSessionConnector) {
+        if (lastError.length == 0 && !isSessionConnector) {
             return isRemoteCapable ? (
                 <BusyButton
                     isBusy={isBusy}
@@ -184,21 +210,37 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     }, [])
 
     return (
-        <View style={[styles.matchParent, { backgroundColor, padding: 10 }]}>
-            <LocationHeader location={route.params.location} />
-            <VStack space={2}>
-                {energySources.length > 0 && <StackedBar items={energySources} />}
-                {renderStart()}
-                {renderStop()}
-                {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-            </VStack>
-            <ConfirmationModal
-                isVisible={isConfirmationModalVisible}
-                text={confirmationModalText}
-                buttonText={confirmationButtonText}
-                onClose={() => setIsConfirmationModalVisible(false)}
-                onPress={onPress}
-            />
+        <View style={[styles.matchParent, { backgroundColor: operatorBackgroundColor }]}>
+            <View style={[styleSheet.connectorInfo, { backgroundColor, padding: 10 }]}>
+                <LocationHeader location={route.params.location} />
+                <VStack space={5} marginTop={10}>
+                    {energySources.length > 0 && <StackedBar items={energySources} />}
+                    {renderStartInfo()}
+                    {renderStart()}
+                    {renderStop()}
+                    {renderError()}
+                </VStack>
+                <ConfirmationModal
+                    isVisible={isConfirmationModalVisible}
+                    text={confirmationModalText}
+                    buttonText={confirmationButtonText}
+                    onClose={() => setIsConfirmationModalVisible(false)}
+                    onPress={onPress}
+                />
+            </View>
+            <View style={{ padding: 20 }}>
+                <VStack>
+                    <Text color={textColor} fontSize={12}>
+                        {I18n.t("ConnectorDetail_OperatorInfoText")}
+                    </Text>
+                    <Text paddingTop={5} color={textColor} fontSize={12}>
+                        {I18n.t("ConnectorDetail_EvseIdentityText", { evseId: evse.identifier || evse.uid })}
+                    </Text>
+                    <Text color={textColor} fontSize={12}>
+                        {I18n.t("ConnectorDetail_ConnectorIdentityText", { connectorId: connector.identifier || connector.uid })}
+                    </Text>
+                </VStack>
+            </View>
         </View>
     )
 }

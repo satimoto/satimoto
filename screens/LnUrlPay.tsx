@@ -13,13 +13,14 @@ import { AppStackParamList } from "screens/AppStack"
 import { decodePayReq } from "services/LightningService"
 import { getMetadataElement, payRequest } from "services/LnUrlService"
 import { assertNetwork } from "utils/assert"
-import { errorToString, toHashOrNull, toMilliSatoshi, toNumber, toSatoshi, toStringOrNull } from "utils/conversion"
+import { bytesToHex, errorToString, toHash, toHashOrNull, toMilliSatoshi, toNumber, toSatoshi, toStringOrNull } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { useConfetti } from "providers/ConfettiProvider"
 import { RouteProp } from "@react-navigation/native"
+import { PaymentStatus } from "types/payment"
 
 const log = new Log("LnUrlPay")
 
@@ -72,9 +73,12 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
 
                 if (decodedPayReq.descriptionHash === metadataHash && toNumber(decodedPayReq.numSatoshis) === amountNumber) {
                     // Pay
-                    await paymentStore.sendPayment({ paymentRequest: response.pr })
-                    await startConfetti()
-                    onClose()
+                    const payment = await paymentStore.sendPayment({ paymentRequest: response.pr })
+
+                    if (payment.status === PaymentStatus.SUCCEEDED) {
+                        await startConfetti()
+                        onClose()
+                    }
                 } else {
                     setLastError(I18n.t("LnUrlPay_PayReqError"))
                 }
@@ -111,7 +115,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         setDescription(getMetadataElement(payParams.decodedMetadata, "text/plain") || "")
         setMaxSendable(maxSats)
         setMinSendable(minSats)
-        setMetadataHash(toStringOrNull(toHashOrNull(payParams.metadata)))
+        setMetadataHash(bytesToHex(toHash(payParams.metadata)))
         setAmountError(I18n.t("LnUrlPay_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
     }, [route.params.payParams])
 

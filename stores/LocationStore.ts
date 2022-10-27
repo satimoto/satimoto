@@ -74,7 +74,7 @@ export class LocationStore implements LocationStoreInterface {
             this,
             {
                 name: "LocationStore",
-                properties: [],
+                properties: ["selectedLocation", "selectedConnectors"],
                 storage: AsyncStorage,
                 debugMode: DEBUG
             },

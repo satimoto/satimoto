@@ -97,9 +97,28 @@ export class SessionStore implements SessionStoreInterface {
             updateSessionInvoice: action
         })
 
-        makePersistable(this, { name: "SessionStore", properties: ["sessions"], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
-            action((persistStore) => (this.hydrated = persistStore.isHydrated))
-        )
+        makePersistable(
+            this,
+            {
+                name: "SessionStore",
+                properties: [
+                    "status",
+                    "authorizationId",
+                    "tokenType",
+                    "verificationKey",
+                    "location",
+                    "evse",
+                    "connector",
+                    "session",
+                    "sessionInvoices",
+                    "sessions",
+                    "payments"
+                ],
+                storage: AsyncStorage,
+                debugMode: DEBUG
+            },
+            { delay: 1000 }
+        ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
 
     async initialize(): Promise<void> {
@@ -235,7 +254,7 @@ export class SessionStore implements SessionStoreInterface {
                     this.verificationKey = undefined
                     this.tokenType = undefined
                     this.status = ChargeSessionStatus.IDLE
-                })    
+                })
             }
         }
     }
@@ -271,7 +290,7 @@ export class SessionStore implements SessionStoreInterface {
                 session.evse = this.evse!
                 session.location = this.location!
                 session.sessionInvoices = this.sessionInvoices
-    
+
                 this.sessions.push(session)
                 this.payments.clear()
             }

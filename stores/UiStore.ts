@@ -102,7 +102,20 @@ export class UiStore implements UiStoreInterface {
             this,
             {
                 name: "UiStore",
-                properties: [],
+                properties: [
+                    "connector",
+                    "evse",
+                    "location",
+                    "lnUrl",
+                    "lnUrlAuthParams",
+                    "lnUrlChannelParams",
+                    "lnUrlPayParams",
+                    "lnUrlWithdrawParams",
+                    "paymentRequest",
+                    "decodedPaymentRequest",
+                    "onboardingWelcomed",
+                    "onboardingVersion"
+                ],
                 storage: AsyncStorage,
                 debugMode: DEBUG
             },

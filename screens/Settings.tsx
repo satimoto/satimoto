@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
+import { useStore } from "hooks/useStore"
 
 type SettingsProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "Settings">
@@ -21,6 +22,7 @@ const Settings = ({ navigation }: SettingsProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
+    const { uiStore } = useStore()
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -33,7 +35,7 @@ const Settings = ({ navigation }: SettingsProps) => {
             <CircuitCard />
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
-                    {IS_ANDROID && <ListButtonItem
+                    {IS_ANDROID && uiStore.nfcAvailable && <ListButtonItem
                         key="tokens"
                         title={I18n.t("Settings_ButtonTokens")}
                         iconRight={faChevronRight}

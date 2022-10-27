@@ -1,4 +1,6 @@
+import PlatformSafeAreaView from "components/PlatformSafeAreaView"
 import { useStore } from "hooks/useStore"
+import I18n from "i18n-js"
 import { observer } from "mobx-react"
 import { Button, Text, useColorModeValue } from "native-base"
 import React, { useState } from "react"
@@ -9,7 +11,6 @@ import { AppStackParamList } from "screens/AppStack"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { ONBOARDING_VERSION } from "utils/constants"
-import I18n from "i18n-js"
 
 const log = new Log("Welcome")
 const logo = require("assets/Logo.png")
@@ -71,13 +72,13 @@ const Welcome = ({ navigation }: WelcomeProps) => {
     }
 
     return (
-        <View style={[styles.matchParent, { backgroundColor, justifyContent: "center", alignItems: "center" }]}>
-            <Swiper loop={false} onIndexChanged={onIndexChanged} activeDotColor={dotColor}>
+        <PlatformSafeAreaView style={[styles.matchParent, { backgroundColor, justifyContent: "center", alignItems: "center" }]}>
+            <Swiper loop={false} onIndexChanged={onIndexChanged} activeDotColor={dotColor} showsPagination={true}>
                 <View style={[styleSheet.slide, { backgroundColor: backgroundColors[0] }]}>
-                <ImageBackground
+                    <ImageBackground
                         resizeMode="contain"
                         source={logo}
-                        style={[styleSheet.image, { width: logoWidth, height, top: 45, left: halfWidth-280 }]}
+                        style={[styleSheet.image, { width: logoWidth, height, top: 45, left: halfWidth - 280 }]}
                     />
                     <Text color={textColor} fontSize={64} fontWeight="bold" textAlign="center">
                         {I18n.t("Welcome_OnboardingSlide1Title")}
@@ -90,7 +91,7 @@ const Welcome = ({ navigation }: WelcomeProps) => {
                     <ImageBackground
                         resizeMode="contain"
                         source={logo}
-                        style={[styleSheet.image, { width: 1548, height: 1500, top: halfHeight - 500, left: halfWidth-440 }]}
+                        style={[styleSheet.image, { width: 1548, height: 1500, top: halfHeight - 500, left: halfWidth - 440 }]}
                     />
                     <Text color={textColor} fontSize={48} fontWeight="bold" textAlign="center" style={{ marginTop: 200 }}>
                         {I18n.t("Welcome_OnboardingSlide2Title")}
@@ -100,10 +101,10 @@ const Welcome = ({ navigation }: WelcomeProps) => {
                     </Text>
                 </View>
                 <View style={[styleSheet.slide, { backgroundColor: backgroundColors[2] }]}>
-                <ImageBackground
+                    <ImageBackground
                         resizeMode="contain"
                         source={logo}
-                        style={[styleSheet.image, { width: 1548, height: 1500, top: halfHeight - 850, left: halfWidth-545 }]}
+                        style={[styleSheet.image, { width: 1548, height: 1500, top: halfHeight - 850, left: halfWidth - 545 }]}
                     />
                     <Text color={textColor} fontSize={48} fontWeight="bold" textAlign="center" style={{ marginTop: -200 }}>
                         {I18n.t("Welcome_OnboardingSlide3Title")}
@@ -116,7 +117,7 @@ const Welcome = ({ navigation }: WelcomeProps) => {
                     </Button>
                 </View>
             </Swiper>
-        </View>
+        </PlatformSafeAreaView>
     )
 }
 
