@@ -133,23 +133,25 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     async fetchInvoiceRequests(): Promise<void> {
-        const response = await listInvoiceRequests()
-        const invoiceRequests = response.data.listInvoiceRequests as InvoiceRequestModel[]
+        if (this.stores.settingStore.accessToken) {
+            const response = await listInvoiceRequests()
+            const invoiceRequests = response.data.listInvoiceRequests as InvoiceRequestModel[]
 
-        when(
-            () => this.stores.lightningStore.syncedToChain,
-            async () => {
-                for (const invoiceRequest of invoiceRequests) {
-                    try {
-                        const invoice = await this.addInvoice({ valueMsat: invoiceRequest.totalMsat, memo: invoiceRequest.memo })
+            when(
+                () => this.stores.lightningStore.syncedToChain,
+                async () => {
+                    for (const invoiceRequest of invoiceRequests) {
+                        try {
+                            const invoice = await this.addInvoice({ valueMsat: invoiceRequest.totalMsat, memo: invoiceRequest.memo })
 
-                        await updateInvoiceRequest({ id: invoiceRequest.id, paymentRequest: invoice.paymentRequest })
-                    } catch (error) {
-                        log.error(`Error adding invoice: ${error}`)
+                            await updateInvoiceRequest({ id: invoiceRequest.id, paymentRequest: invoice.paymentRequest })
+                        } catch (error) {
+                            log.error(`Error adding invoice: ${error}`)
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 
     onInvoice(data: lnrpc.Invoice) {

@@ -5,7 +5,7 @@ import moment from "moment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { decodePayReq, listPayments, sendPaymentV2 } from "services/LightningService"
+import { decodePayReq, listPayments, resetMissionControl, sendPaymentV2 } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { nanosecondsToDate, toNumber } from "utils/conversion"
@@ -66,18 +66,26 @@ export class PaymentStore implements PaymentStoreInterface {
         }
     }
 
-    sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel> {
+    sendPayment(request: SendPaymentV2Props, withReset: boolean = true): Promise<PaymentModel> {
         return new Promise<PaymentModel>(async (resolve, reject) => {
             try {
-                await sendPaymentV2(async (data: lnrpc.Payment) => {
-                    const payment = await this.updatePayment(data)
+                await sendPaymentV2(async (response: lnrpc.Payment) => {
+                    let payment = await this.updatePayment(response)
 
-                    if (payment.status === PaymentStatus.FAILED || payment.status === PaymentStatus.SUCCEEDED) {
+                    if (payment.status === PaymentStatus.FAILED) {
+                        if (response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE && withReset) {
+                            log.error(`Payment failure with no route, resetting mission control`)
+                            await resetMissionControl()
+                            payment = await this.sendPayment(request, false)
+                        }
+
+                        resolve(payment)
+                    } else if (payment.status === PaymentStatus.SUCCEEDED) {
                         this.stores.channelStore.getChannelBalance()
 
                         resolve(payment)
                     }
-                }, payment)
+                }, request)
             } catch (error) {
                 reject(error)
             }

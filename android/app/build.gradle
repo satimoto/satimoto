@@ -131,8 +131,8 @@ android {
         applicationId "com.satimoto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 6
+        versionName "0.3.0"
         missingDimensionStrategy 'react-native-camera', 'general'
         manifestPlaceholders = [appName: "Satimoto"]
     }
@@ -141,7 +141,8 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+            //include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+            include "arm", "arm-v7a", "arm64", "arm64-v8a", "armeabi-v7a", "mips", "x86", "x86_64"
         }
     }
     signingConfigs {
@@ -151,6 +152,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('SATIMOTO_UPLOAD_STORE_FILE')) {
+                storeFile file(SATIMOTO_UPLOAD_STORE_FILE)
+                storePassword SATIMOTO_UPLOAD_STORE_PASSWORD
+                keyAlias SATIMOTO_UPLOAD_KEY_ALIAS
+                keyPassword SATIMOTO_UPLOAD_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
@@ -159,13 +168,11 @@ android {
             manifestPlaceholders = [buildType: " Debug"]
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
             manifestPlaceholders = [buildType: ""]
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+            if (project.hasProperty('SATIMOTO_UPLOAD_STORE_FILE')) {
                 signingConfig signingConfigs.release
             }
         }

@@ -120,8 +120,12 @@ const getAccessToken = async (pubkey: string, deviceToken: string) => {
                 const lnUrlParams = await getParams(createAuthenticationResult.data.createAuthentication.lnUrl)
                 const lnUrlAuthParams = lnUrlParams as LNURLAuthParams
 
+                log.debug("CreateAuthentication: " + JSON.stringify(createAuthenticationResult.data.createAuthentication))
+
                 if (lnUrlAuthParams) {
                     const authenticateOk = await authenticate(lnUrlAuthParams)
+                    
+                    log.debug("Authentication: " + JSON.stringify(authenticateOk))
 
                     if (authenticateOk) {
                         try {
@@ -135,6 +139,8 @@ const getAccessToken = async (pubkey: string, deviceToken: string) => {
                         }
 
                         const exchangeAuthenticationResult = await exchangeAuthentication(createAuthenticationResult.data.createAuthentication.code)
+
+                        log.debug("ExchangeAuthentication: " + JSON.stringify(exchangeAuthenticationResult.data.exchangeAuthentication))
 
                         return exchangeAuthenticationResult.data.exchangeAuthentication.token
                     }

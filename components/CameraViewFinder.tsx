@@ -21,9 +21,7 @@ interface CameraViewFinderProps {
 }
 
 const CameraViewFinder = ({ width, height, style = {} }: CameraViewFinderProps) => {
-    return (
-            <SvgXml xml={xml} width={width} height={height} style={style} />
-    )
+    return <SvgXml xml={xml} width={width} height={height} style={style} />
 }
 
 export default CameraViewFinder

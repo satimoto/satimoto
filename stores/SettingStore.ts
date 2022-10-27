@@ -63,7 +63,7 @@ export class SettingStore implements SettingStoreInterface {
 
     async initialize(): Promise<void> {
         reaction(
-            () => [this.pushNotificationToken, this.stores.lightningStore.identityPubkey],
+            () => [this.pushNotificationToken, this.stores.lightningStore.identityPubkey, this.stores.lightningStore.syncedToChain],
             () => this.reactionGetToken()
         )
 

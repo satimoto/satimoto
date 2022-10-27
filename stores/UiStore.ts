@@ -1,5 +1,5 @@
 import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
-import { action, computed, makeObservable, observable, runInAction } from "mobx"
+import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
@@ -7,6 +7,7 @@ import LocationModel from "models/Location"
 import { lnrpc } from "proto/proto"
 import { Linking } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import NfcManager from "react-native-nfc-manager"
 import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq } from "services/LightningService"
 import { getParams, getTag, identifier } from "services/LnUrlService"
@@ -31,6 +32,7 @@ export interface UiStoreInterface extends StoreInterface {
     lnUrlWithdrawParams?: LNURLWithdrawParams
     paymentRequest?: string
     decodedPaymentRequest?: PayReq
+    nfcAvailable: boolean
     onboardingWelcomed: boolean
     onboardingVersion: string
 
@@ -59,6 +61,7 @@ export class UiStore implements UiStoreInterface {
     lnUrlWithdrawParams?: LNURLWithdrawParams = undefined
     paymentRequest?: string = undefined
     decodedPaymentRequest?: PayReq = undefined
+    nfcAvailable: boolean = false
     onboardingWelcomed: boolean = false
     onboardingVersion: string = ""
 
@@ -79,6 +82,7 @@ export class UiStore implements UiStoreInterface {
             lnUrlWithdrawParams: observable,
             paymentRequest: observable,
             decodedPaymentRequest: observable,
+            nfcAvailable: observable,
             onboardingWelcomed: observable,
             onboardingVersion: observable,
 
@@ -107,13 +111,28 @@ export class UiStore implements UiStoreInterface {
     }
 
     async initialize(): Promise<void> {
+        when(
+            () => this.hydrated,
+            () => this.onHydrated()
+        )
+
+        this.setReady()
+    }
+
+    async onHydrated() {
+        // Get NFC availability
+        const isSupported = await NfcManager.isSupported()
+
+        runInAction(() => {
+            this.nfcAvailable = isSupported
+        })
+
+        // Process initial intent
         const intent = await Linking.getInitialURL()
 
         if (intent) {
             this.parseIntent(intent)
         }
-
-        this.setReady()
     }
 
     clearChargePoint() {

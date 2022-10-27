@@ -3,15 +3,20 @@
     package="com.satimoto">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.NFC" android:required="false" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
     <uses-feature android:glEsVersion="0x00030001" android:required="true" />
-    <uses-feature android:name="android.hardware.nfc" android:required="true" />
-    <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.fingerprint" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
+    <uses-feature android:name="android.hardware.nfc.hce" android:required="false" />
+    <uses-feature android:name="android.hardware.nfc.hcef" android:required="false" />
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
 
     <application
         android:name=".MainApplication"

@@ -63,7 +63,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
 
         if (uiStore.lnUrlWithdrawParams && uiStore.lnUrlWithdrawParams.callback) {
             try {
-                const lnInvoice = await invoiceStore.addInvoice(amountNumber)
+                const lnInvoice = await invoiceStore.addInvoice({value: amountNumber, createChannel: true})
                 const response = await withdrawRequest(uiStore.lnUrlWithdrawParams.callback, uiStore.lnUrlWithdrawParams.k1, lnInvoice.paymentRequest)
 
                 if (response.status === "OK") {

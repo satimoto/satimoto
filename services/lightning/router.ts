@@ -1,5 +1,5 @@
 import { lnrpc, routerrpc } from "proto/proto"
-import { sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
+import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
 import { PAYMENT_CLTV_LIMIT, PAYMENT_TIMEOUT_SECONDS, PAYMENT_FEE_LIMIT_SAT } from "utils/constants"
 import { hexToBytes, toHashOrNull, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
@@ -18,6 +18,16 @@ export interface SendPaymentV2Props {
     timeoutSeconds?: number
     feeLimitSat?: LongLikeType
     cltvLimit?: number
+    amp?: boolean
+}
+
+export const resetMissionControl = (): Promise<routerrpc.ResetMissionControlResponse> => {
+    return sendCommand<routerrpc.IResetMissionControlRequest, routerrpc.ResetMissionControlRequest, routerrpc.ResetMissionControlResponse>({
+        request: routerrpc.ResetMissionControlRequest,
+        response: routerrpc.ResetMissionControlResponse,
+        method: service + "ResetMissionControl",
+        options: {}
+    })
 }
 
 export const sendPaymentV2 = (
@@ -29,7 +39,8 @@ export const sendPaymentV2 = (
         preImage,
         timeoutSeconds = PAYMENT_TIMEOUT_SECONDS,
         feeLimitSat = PAYMENT_FEE_LIMIT_SAT,
-        cltvLimit = PAYMENT_CLTV_LIMIT
+        cltvLimit = PAYMENT_CLTV_LIMIT,
+        amp = false
     }: SendPaymentV2Props
 ): Promise<lnrpc.Payment> => {
     const method = service + "SendPaymentV2"
@@ -44,7 +55,8 @@ export const sendPaymentV2 = (
             paymentRequest,
             timeoutSeconds,
             feeLimitSat: toLong(feeLimitSat),
-            cltvLimit
+            cltvLimit,
+            amp
         }
     })
     return sendStreamResponse<lnrpc.Payment>({ stream, method, onData })

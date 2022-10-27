@@ -4,6 +4,8 @@ import I18n from "i18n-js"
 import { Actionsheet, useColorModeValue } from "native-base"
 import React from "react"
 import { StyleSheet } from "react-native"
+import { observer } from "mobx-react"
+import { useStore } from "hooks/useStore"
 
 const styleSheet = StyleSheet.create({
     item: {
@@ -19,6 +21,8 @@ interface ReceiveActionsheetProps {
 }
 
 const ReceiveActionsheet = ({ isOpen, onPress, onClose }: ReceiveActionsheetProps) => {
+    const { uiStore } = useStore()
+
     const onActionsheetPress = (event: string) => {
         onPress(event)
         onClose()
@@ -27,15 +31,21 @@ const ReceiveActionsheet = ({ isOpen, onPress, onClose }: ReceiveActionsheetProp
     return (
         <Actionsheet isOpen={isOpen} onClose={onClose} hideDragIndicator>
             <Actionsheet.Content>
-                <Actionsheet.Item onPress={() => onActionsheetPress("receive_qr")} startIcon={<FontAwesomeIcon icon={faQrcode} />} style={styleSheet.item}>
+                <Actionsheet.Item
+                    onPress={() => onActionsheetPress("receive_qr")}
+                    startIcon={<FontAwesomeIcon icon={faQrcode} />}
+                    style={uiStore.nfcAvailable ? styleSheet.item: {}}
+                >
                     {I18n.t("ReceiveActionsheet_ReceiveQr")}
                 </Actionsheet.Item>
-                <Actionsheet.Item onPress={() => onActionsheetPress("receive_nfc")} startIcon={<FontAwesomeIcon icon={faWifi} />}>
-                    {I18n.t("ReceiveActionsheet_ReceiveNfc")}
-                </Actionsheet.Item>
+                {uiStore.nfcAvailable && (
+                    <Actionsheet.Item onPress={() => onActionsheetPress("receive_nfc")} startIcon={<FontAwesomeIcon icon={faWifi} />}>
+                        {I18n.t("ReceiveActionsheet_ReceiveNfc")}
+                    </Actionsheet.Item>
+                )}
             </Actionsheet.Content>
         </Actionsheet>
     )
 }
 
-export default ReceiveActionsheet
+export default observer(ReceiveActionsheet)
