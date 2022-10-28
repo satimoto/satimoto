@@ -22,6 +22,7 @@ export default {
     // Components
     CameraScanner_PermissionTitle: "Camera Permission",
     CameraScanner_PermissionMessage: "Satimoto needs access to your Camera",
+    CircularProgressButton_TooltipText: "Please wait a moment while we finish syncing",
     HomeFooterContainer_ButtonSend: "Send",
     HomeFooterContainer_ButtonReceive: "Receive",
     SendActionsheet_SendAddress: "Send to a lightning address",
@@ -62,6 +63,8 @@ export default {
     WaitForPayment_HeaderTitle: "Receive Payment",
     WaitForPayment_ExpiryPlural: "Expires in {{minutes}} minutes",
     WaitForPayment_Expiry: "Expires in 1 minute",
+    WaitForPayment_ChannelRequestNegotiatingText: "Negotiating channel opening",
+    WaitForPayment_ChannelRequestOpenedText: "Payment channel opened",
     LnUrlPay_HeaderTitle: "Send Payment",
     LnUrlPay_AmountError: "Must be between {{minSats}} and {{maxSats}} sats",
     LnUrlPay_PayReqError: "Payment request invalid",

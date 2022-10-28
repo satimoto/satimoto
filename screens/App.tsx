@@ -54,7 +54,7 @@ const App = () => {
                 count={300}
                 colors={["#0099FF", "#3874ED", "#744CD8", "#957AE3", "#A12EC9", "#CC11BB"]}
                 fallSpeed={5000}
-                origin={{ x: 0, y: 0 }}
+                origin={{ x: -20, y: 0 }}
             >
                 <NativeBaseProvider theme={NativeBaseTheme}>
                     <SafeAreaProvider>

@@ -75,6 +75,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                     // Pay
                     const payment = await paymentStore.sendPayment({ paymentRequest: response.pr })
 
+                    // TODO: Display payment failure error
                     if (payment.status === PaymentStatus.SUCCEEDED) {
                         await startConfetti()
                         onClose()

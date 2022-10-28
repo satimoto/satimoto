@@ -10,6 +10,7 @@ import { EvseStatus, EvseStatusSortMap } from "types/evse"
 import { DEBUG } from "utils/build"
 import { LOCATION_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
+import { delta } from "utils/delta"
 
 const log = new Log("LocationStore")
 
@@ -142,10 +143,18 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     async setBounds(bounds: GeoJSON.Position[]) {
-        this.bounds.replace(bounds)
-        this.lastLocationChanged = true
+        if (
+            this.bounds.length != bounds.length ||
+            delta(this.bounds[0][0], bounds[0][0]) > 0.0005 ||
+            delta(this.bounds[0][1], bounds[0][1]) > 0.0005 ||
+            delta(this.bounds[1][0], bounds[1][0]) > 0.0005 ||
+            delta(this.bounds[1][1], bounds[1][1]) > 0.0005
+        ) {
+            this.bounds.replace(bounds)
+            this.lastLocationChanged = true
 
-        this.fetchLocations()
+            this.fetchLocations()
+        }
     }
 
     setReady() {
@@ -156,8 +165,8 @@ export class LocationStore implements LocationStoreInterface {
         log.debug(`startLocationUpdates`)
 
         if (!this.locationUpdateTimer) {
-            this.fetchLocations()
             this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
+            this.fetchLocations()
         }
     }
 

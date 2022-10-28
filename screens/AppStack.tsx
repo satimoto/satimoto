@@ -1,11 +1,13 @@
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
+import I18n from "i18n-js"
 import { LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
 import { observer } from "mobx-react"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
 import InvoiceModel from "models/Invoice"
+import { useToast } from "native-base"
 import React, { useEffect } from "react"
 import { AppState, AppStateStatus, Linking } from "react-native"
 import { useNavigation } from "@react-navigation/native"
@@ -24,6 +26,7 @@ import TokenList from "screens/TokenList"
 import TransactionList from "screens/TransactionList"
 import WaitForPayment from "screens/WaitForPayment"
 import Welcome from "screens/Welcome"
+import { ChannelRequestStatus } from "types/channelRequest"
 import { LinkingEvent } from "types/linking"
 import { PayReq } from "types/payment"
 import { Log } from "utils/logging"
@@ -76,7 +79,8 @@ const AppStack = () => {
     const navigationWithHeaderOptions = useNavigationOptions({ headerShown: true })
     const navigationWithoutHeaderOptions = useNavigationOptions({ headerShown: false })
     const navigation = useNavigation<HomeNavigationProp>()
-    const { uiStore } = useStore()
+    const { channelStore, uiStore } = useStore()
+    const toast = useToast()
 
     const onAppStateChange = (state: AppStateStatus) => {
         log.debug(`onAppStateChange: ${state}`)
@@ -96,6 +100,20 @@ const AppStack = () => {
             Linking.removeEventListener("url", onLinkingUrl)
         }
     }, [])
+
+    useEffect(() => {
+        if (channelStore.channelRequestStatus === ChannelRequestStatus.NEGOTIATING) {
+            toast.show({
+                title: I18n.t("WaitForPayment_ChannelRequestNegotiatingText"),
+                placement: "top"
+            })
+        } else if (channelStore.channelRequestStatus === ChannelRequestStatus.OPENED) {
+            toast.show({
+                title: I18n.t("WaitForPayment_ChannelRequestOpenedText"),
+                placement: "top"
+            })
+        }
+    }, [channelStore.channelRequestStatus])
 
     useEffect(() => {
         if (uiStore.connector && uiStore.evse && uiStore.location) {
@@ -121,7 +139,7 @@ const AppStack = () => {
         }
     }, [uiStore.decodedPaymentRequest, uiStore.paymentRequest])
 
-    return (
+    return uiStore.hydrated ? (
         <AppStackNav.Navigator initialRouteName={uiStore.hasOnboardingUpdates ? "Welcome" : "Home"} screenOptions={screenOptions}>
             <AppStackNav.Screen name="ChargeDetail" component={ChargeDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ConnectorDetail" component={ConnectorDetail} options={navigationWithHeaderOptions} />
@@ -138,6 +156,8 @@ const AppStack = () => {
             <AppStackNav.Screen name="WaitForPayment" component={WaitForPayment} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Welcome" component={Welcome} options={navigationWithoutHeaderOptions} />
         </AppStackNav.Navigator>
+    ) : (
+        <></>
     )
 }
 

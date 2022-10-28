@@ -16,6 +16,7 @@ import { DEBUG } from "utils/build"
 import { ONBOARDING_VERSION } from "utils/constants"
 import { Log } from "utils/logging"
 import { PayReq, toPayReq } from "types/payment"
+import { Tooltip } from "types/tooltip"
 
 const log = new Log("UiStore")
 const EVSE_ID_REGEX = /[A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+/
@@ -35,6 +36,7 @@ export interface UiStoreInterface extends StoreInterface {
     nfcAvailable: boolean
     onboardingWelcomed: boolean
     onboardingVersion: string
+    tooltipShownSyncing: boolean
 
     clearChargePoint(): void
     clearLnUrl(): void
@@ -44,6 +46,7 @@ export interface UiStoreInterface extends StoreInterface {
     setLightningAddress(address: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
+    setTooltipShown(tooltips: Tooltip): void
 }
 
 export class UiStore implements UiStoreInterface {
@@ -64,6 +67,7 @@ export class UiStore implements UiStoreInterface {
     nfcAvailable: boolean = false
     onboardingWelcomed: boolean = false
     onboardingVersion: string = ""
+    tooltipShownSyncing: boolean = false
 
     constructor(stores: Store) {
         this.stores = stores
@@ -85,6 +89,7 @@ export class UiStore implements UiStoreInterface {
             nfcAvailable: observable,
             onboardingWelcomed: observable,
             onboardingVersion: observable,
+            tooltipShownSyncing: observable,
 
             hasOnboardingUpdates: computed,
 
@@ -95,7 +100,8 @@ export class UiStore implements UiStoreInterface {
             setLnUrl: action,
             setLnUrlPayParams: action,
             setPaymentRequest: action,
-            setOnboarding: action
+            setOnboarding: action,
+            setTooltipShown: action
         })
 
         makePersistable(
@@ -114,7 +120,8 @@ export class UiStore implements UiStoreInterface {
                     "paymentRequest",
                     "decodedPaymentRequest",
                     "onboardingWelcomed",
-                    "onboardingVersion"
+                    "onboardingVersion",
+                    "tooltipShownSyncing"
                 ],
                 storage: AsyncStorage,
                 debugMode: DEBUG
@@ -272,5 +279,11 @@ export class UiStore implements UiStoreInterface {
     setOnboarding(welcomed: boolean, version: string) {
         this.onboardingWelcomed = welcomed
         this.onboardingVersion = version
+    }
+
+    setTooltipShown({syncing}: Tooltip) {
+        if (syncing) {
+            this.tooltipShownSyncing = true
+        }
     }
 }
