@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -61,12 +61,12 @@
 	<string>$(DEBUG)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MAPBOX_API_KEY</key>
+	<string>$(MAPBOX_API_KEY)</string>
 	<key>MGLMapboxMetricsEnabledSettingShownInApp</key>
 	<string>YES</string>
 	<key>NETWORK</key>
 	<string>$(NETWORK)</string>
-	<key>MAPBOX_API_KEY</key>
-	<string>$(MAPBOX_API_KEY)</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to NFC.</string>
 	<key>NSAppTransportSecurity</key>
@@ -86,6 +86,11 @@
 	<string>Save location data with transactions</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Save location data with transactions</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -605,6 +605,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
+				MARKETING_VERSION = 0.3.0;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -628,8 +629,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG = false;
+				DEVELOPMENT_TEAM = F922YVP6UQ;
 				DISPLAY_NAME = Satimoto;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -643,6 +647,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
+				MARKETING_VERSION = 0.3.0;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -651,6 +656,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto;
 				PRODUCT_NAME = Satimoto;
+				PROVISIONING_PROFILE_SPECIFIER = Satimoto;
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -747,6 +753,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
+				MARKETING_VERSION = 0.3.0;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -880,6 +887,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
+				MARKETING_VERSION = 0.3.0;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1005,6 +1013,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
+				MARKETING_VERSION = 0.3.0;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1126,6 +1135,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
+				MARKETING_VERSION = 0.3.0;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
