@@ -55,7 +55,7 @@ git fetch satimoto
 Checkout branch to build (Reset staged/unstaged changes if you need to)
 ```bash
 git reset --hard HEAD
-git checkout -b v0.15.1-branch-rc3 satimoto/v0.15.1-branch-rc3
+git checkout -b allocate-alias satimoto/allocate-alias
 ```
 Build for iOS platform (`Lndmobile.xcframework`)
 ```bash
@@ -70,5 +70,5 @@ cp $GOPATH/src/github.com/lightningnetwork/lnd/mobile/build/android/Lndmobile.aa
 
 ## Building an LND docker image
 ```bash
-docker build . --build-arg git_url=https://github.com/satimoto/lnd --build-arg checkout=v0.15.1-branch-rc3 -t satimoto/lnd:v0.15.1-branch-rc3
+docker build . --build-arg git_url=https://github.com/satimoto/lnd --build-arg checkout=allocate-alias -t satimoto/lnd:allocate-alias
 ```

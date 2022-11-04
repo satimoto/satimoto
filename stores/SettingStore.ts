@@ -83,8 +83,13 @@ export class SettingStore implements SettingStoreInterface {
     async reactionGetUser() {
         if (this.accessToken) {
             const getUserResult = await getUser()
+            const user = getUserResult.data.getUser as UserModel
 
-            this.setUser(getUserResult.data.getUser as UserModel)
+            this.setUser(user)
+
+            if (user.node) {
+                await this.stores.peerStore.connectPeer(user.node.pubkey, user.node.addr)
+            }
         }
     }
 

@@ -1,6 +1,9 @@
+import NodeModel from "models/Node"
+
 interface UserModel {
     pubkey?: string
-    referralCode?: string,
+    referralCode?: string
+    node?: NodeModel
 }
 
 type UserModelLike = UserModel | undefined

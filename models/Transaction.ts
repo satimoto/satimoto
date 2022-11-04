@@ -2,7 +2,7 @@ import InvoiceModel from "models/Invoice"
 import PaymentModel from "models/Payment"
 
 interface TransactionModel {
-    hash: string,
+    hash: string
     payment?: PaymentModel
     invoice?: InvoiceModel
 }

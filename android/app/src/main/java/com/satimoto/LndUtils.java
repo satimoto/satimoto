@@ -31,7 +31,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
         super(reactContext);
 
         lndPath = getReactApplicationContext().getFilesDir().toString();
-        confPath = lndPath + "/lnd_v3.conf";
+        confPath = lndPath + "/lnd_v4.conf";
         logPath = lndPath + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
 
         prepareFileDirectory(logPath);
@@ -168,11 +168,11 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=bitcoind\n" +
                             "\n" +
                             "[Bitcoind]\n" +
-                            "bitcoind.rpchost=10.0.2.2:18448\n" +
+                            "bitcoind.rpchost=10.0.2.2:18449\n" +
                             "bitcoind.rpcuser=polaruser\n" +
                             "bitcoind.rpcpass=polarpass\n" +
-                            "bitcoind.zmqpubrawblock=tcp://10.0.2.2:28339\n" +
-                            "bitcoind.zmqpubrawtx=tcp://10.0.2.2:29340\n" +
+                            "bitcoind.zmqpubrawblock=tcp://10.0.2.2:28340\n" +
+                            "bitcoind.zmqpubrawtx=tcp://10.0.2.2:29341\n" +
                             "\n" +
                             "[protocol]\n" +
                             "protocol.option-scid-alias=true\n" +

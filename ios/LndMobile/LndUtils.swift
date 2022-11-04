@@ -19,7 +19,7 @@ class LndUtils: RCTEventEmitter {
   }
   
   static var confFile: URL {
-    return lndDirectory.appendingPathComponent("lnd_v3.conf", isDirectory: false)
+    return lndDirectory.appendingPathComponent("lnd_v4.conf", isDirectory: false)
   }
   
   static private var logFile: URL {
@@ -152,11 +152,11 @@ bitcoin.regtest=1
 bitcoin.node=bitcoind
 
 [Bitcoind]
-bitcoind.rpchost=127.0.0.1:18448
+bitcoind.rpchost=127.0.0.1:18449
 bitcoind.rpcuser=polaruser
 bitcoind.rpcpass=polarpass
-bitcoind.zmqpubrawblock=tcp://127.0.0.1:28339
-bitcoind.zmqpubrawtx=tcp://127.0.0.1:29340
+bitcoind.zmqpubrawblock=tcp://127.0.0.1:28340
+bitcoind.zmqpubrawtx=tcp://127.0.0.1:29341
 
 [protocol]
 protocol.option-scid-alias=true

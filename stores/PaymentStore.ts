@@ -73,8 +73,12 @@ export class PaymentStore implements PaymentStoreInterface {
                     let payment = await this.updatePayment(response)
 
                     if (payment.status === PaymentStatus.FAILED) {
-                        if (response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE && withReset) {
-                            log.error(`Payment failure with no route, resetting mission control`)
+                        const tryReset =
+                            response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE ||
+                            response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
+
+                        if (tryReset && withReset) {
+                            log.debug(`Payment failure, resetting mission control`)
                             await resetMissionControl()
                             payment = await this.sendPayment(request, false)
                         }
@@ -106,7 +110,10 @@ export class PaymentStore implements PaymentStoreInterface {
         return this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
     }
 
-    updatePaymentWithPayReq({ creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment, payReq: lnrpc.PayReq): PaymentModel {
+    updatePaymentWithPayReq(
+        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment,
+        payReq: lnrpc.PayReq
+    ): PaymentModel {
         let payment = this.payments.find(({ hash }) => hash === paymentHash)
 
         if (payment) {

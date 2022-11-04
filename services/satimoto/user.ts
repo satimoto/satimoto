@@ -44,6 +44,10 @@ const GET_USER = gql`
             id
             pubkey
             referralCode
+            node {
+                pubkey
+                addr
+            }
         }
     }
 `

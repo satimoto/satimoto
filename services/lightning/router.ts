@@ -18,6 +18,7 @@ export interface SendPaymentV2Props {
     timeoutSeconds?: number
     feeLimitSat?: LongLikeType
     cltvLimit?: number
+    maxParts?: number
     amp?: boolean
 }
 
@@ -40,6 +41,7 @@ export const sendPaymentV2 = (
         timeoutSeconds = PAYMENT_TIMEOUT_SECONDS,
         feeLimitSat = PAYMENT_FEE_LIMIT_SAT,
         cltvLimit = PAYMENT_CLTV_LIMIT,
+        maxParts = 16,
         amp = false
     }: SendPaymentV2Props
 ): Promise<lnrpc.Payment> => {
@@ -56,6 +58,7 @@ export const sendPaymentV2 = (
             timeoutSeconds,
             feeLimitSat: toLong(feeLimitSat),
             cltvLimit,
+            maxParts,
             amp
         }
     })
