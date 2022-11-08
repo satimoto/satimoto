@@ -32,6 +32,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
+    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
@@ -63,7 +64,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
 
         if (uiStore.lnUrlWithdrawParams && uiStore.lnUrlWithdrawParams.callback) {
             try {
-                const lnInvoice = await invoiceStore.addInvoice({value: amountNumber, createChannel: true})
+                const lnInvoice = await invoiceStore.addInvoice({ value: amountNumber, createChannel: true })
                 const response = await withdrawRequest(uiStore.lnUrlWithdrawParams.callback, uiStore.lnUrlWithdrawParams.k1, lnInvoice.paymentRequest)
 
                 if (response.status === "OK") {
@@ -84,12 +85,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerLeft: () => (
-                <HeaderBackButton
-                    tintColor={navigationOptions.headerTintColor}
-                    onPress={onClose}
-                />
-            ),
+            headerLeft: () => <HeaderBackButton tintColor={navigationOptions.headerTintColor} onPress={onClose} />,
             title: I18n.t("LnUrlWithdraw_HeaderTitle")
         })
     }, [navigation])
@@ -118,28 +114,30 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
             startConfetti().then(onClose)
         }
     }, [invoice?.status])
-    
+
     return (
-        <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            <VStack space={5}>
-                {description.length > 0 && (
-                    <Text color={textColor} fontSize="lg">
-                        {description}
-                    </Text>
-                )}
-                <FormControl isInvalid={isInvalid} isRequired={true}>
-                    <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
-                    <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
-                    {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
-                    <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
-                        {amountError}
-                    </FormControl.ErrorMessage>
-                </FormControl>
-                {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
-                    {I18n.t("Button_Next")}
-                </BusyButton>
-            </VStack>
+        <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
+            <View style={[styles.focusViewPanel, { backgroundColor }]}>
+                <VStack space={5}>
+                    {description.length > 0 && (
+                        <Text color={textColor} fontSize="lg">
+                            {description}
+                        </Text>
+                    )}
+                    <FormControl isInvalid={isInvalid} isRequired={true}>
+                        <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
+                        <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
+                        {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
+                        <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
+                            {amountError}
+                        </FormControl.ErrorMessage>
+                    </FormControl>
+                    {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
+                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
+                        {I18n.t("Button_Next")}
+                    </BusyButton>
+                </VStack>
+            </View>
         </View>
     )
 }

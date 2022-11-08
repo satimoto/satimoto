@@ -92,6 +92,7 @@ const TARIFF_FRAGMENT = gql`
         currency
         currencyRate
         currencyRateMsat
+        isIntermediateCdrCapable
         elements {
             priceComponents {
                 type

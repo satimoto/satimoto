@@ -6,6 +6,7 @@ interface TariffModel {
     currency: string
     currencyRate: number
     currencyRateMsat: number
+    isIntermediateCdrCapable: boolean
     elements: TariffElementModel[]
     energyMix?: EnergyMixModel
 }

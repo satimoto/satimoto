@@ -31,7 +31,7 @@ const CircuitCard = ({}: CircuitCardProps) => {
     const size = (Dimensions.get("window").width - 20) / 2
 
     const onPress = async () => {
-        await Share.share({ message: `Join me on Satimoto and every time you charge your electric vehicle, I receive satoshis!\n\n${referralLink}` })
+        await Share.share({ message: `Join me on Satimoto and every time you charge your electric vehicle, I receive satoshis!\n\n#Bitcoin #UsingBitcoin\n\n${referralLink}` })
     }
 
     useEffect(() => {

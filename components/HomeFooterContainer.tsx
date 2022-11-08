@@ -1,3 +1,4 @@
+import RoundedButton from "components/RoundedButton"
 import { observer } from "mobx-react"
 import React from "react"
 import { StyleSheet, View } from "react-native"
@@ -39,9 +40,9 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
-                <Button borderRadius="3xl" isDisabled={!lightningStore.syncedToChain} onPress={() => onPress("send")} size="lg" style={styles.button}>
+                <RoundedButton isDisabled={!lightningStore.syncedToChain} onPress={() => onPress("send")} style={styles.button}>
                     {I18n.t("HomeFooterContainer_ButtonSend")}
-                </Button>
+                </RoundedButton>
             </View>
             <View style={styles.iconButtonSpacer}>
                 <CircularProgressButton
@@ -52,15 +53,13 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
                 />
             </View>
             <View style={styles.buttonSpacer}>
-                <Button
-                    borderRadius="3xl"
+                <RoundedButton
                     isDisabled={!lightningStore.syncedToChain}
                     onPress={() => onPress("receive")}
-                    size="lg"
                     style={styles.button}
                 >
                     {I18n.t("HomeFooterContainer_ButtonReceive")}
-                </Button>
+                </RoundedButton>
             </View>
         </View>
     )

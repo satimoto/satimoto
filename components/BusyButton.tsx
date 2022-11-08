@@ -1,3 +1,4 @@
+import RoundedButton from "components/RoundedButton"
 import { Button, IButtonProps, Spinner } from "native-base"
 import { ResponsiveValue } from "native-base/lib/typescript/components/types"
 import React from "react"
@@ -11,9 +12,9 @@ const BusyButton = ({ children, isBusy, marginBottom, marginTop, spinnerSize = "
     return isBusy ? (
         <Spinner marginBottom={marginBottom} marginTop={marginTop} size={spinnerSize} />
     ) : (
-        <Button marginBottom={marginBottom} marginTop={marginTop} {...props}>
+        <RoundedButton marginBottom={marginBottom} marginTop={marginTop} {...props}>
             {children}
-        </Button>
+        </RoundedButton>
     )
 }
 

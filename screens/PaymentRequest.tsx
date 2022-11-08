@@ -29,6 +29,7 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
+    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColor(colors.lightText, colors.darkText)
     const navigationOptions = useNavigationOptions({ headerShown: true })
@@ -71,21 +72,23 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
     }, [navigation])
 
     return (
-        <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            <VStack space={5}>
-                <View style={{ backgroundColor, alignItems: "center" }}>
-                    <SatoshiBalance size={36} color={textColor} satoshis={toNumber(decodedPayReq.numSatoshis)} />
-                </View>
-                {decodedPayReq.description.length > 0 && (
-                    <Text color={textColor} fontSize="lg">
-                        {decodedPayReq.description}
-                    </Text>
-                )}
-                {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                <BusyButton isBusy={isBusy} onPress={onConfirmPress}>
-                    {I18n.t("Button_Next")}
-                </BusyButton>
-            </VStack>
+        <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
+            <View style={[styles.focusViewPanel, { backgroundColor }]}>
+                <VStack space={5}>
+                    <View style={{ backgroundColor, alignItems: "center" }}>
+                        <SatoshiBalance size={36} color={textColor} satoshis={toNumber(decodedPayReq.numSatoshis)} />
+                    </View>
+                    {decodedPayReq.description.length > 0 && (
+                        <Text color={textColor} fontSize="lg">
+                            {decodedPayReq.description}
+                        </Text>
+                    )}
+                    {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
+                    <BusyButton isBusy={isBusy} onPress={onConfirmPress}>
+                        {I18n.t("Button_Next")}
+                    </BusyButton>
+                </VStack>
+            </View>
         </View>
     )
 }

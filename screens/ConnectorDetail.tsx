@@ -24,11 +24,6 @@ import useEnergySourceColors from "hooks/useEnergySourceColors"
 import { TokenType } from "types/token"
 
 const styleSheet = StyleSheet.create({
-    connectorInfo: {
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        paddingBottom: 30
-    },
     nfcInfo: {
         paddingVertical: 20
     }
@@ -42,7 +37,7 @@ type ConnectorDetailProps = {
 const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const operatorBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
+    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const energySourceColors = useEnergySourceColors()
@@ -62,7 +57,6 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const { channelStore, sessionStore, uiStore } = useStore()
 
     const onClose = () => {
-        uiStore.clearChargePoint()
         navigation.navigate("Home")
     }
 
@@ -116,6 +110,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     marginTop={5}
                     onPress={onShowStopConfirmation}
                     isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
+                    style={styles.focusViewButton}
                 >
                     {I18n.t("Button_Stop")}
                 </BusyButton>
@@ -149,6 +144,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                         sessionStore.status !== ChargeSessionStatus.IDLE ||
                         evse.status !== EvseStatus.AVAILABLE
                     }
+                    style={styles.focusViewButton}
                 >
                     {I18n.t("Button_Start")}
                 </BusyButton>
@@ -210,8 +206,8 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     }, [])
 
     return (
-        <View style={[styles.matchParent, { backgroundColor: operatorBackgroundColor }]}>
-            <View style={[styleSheet.connectorInfo, { backgroundColor, padding: 10 }]}>
+        <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
+            <View style={[styles.focusViewPanel, { backgroundColor, paddingHorizontal: 10 }]}>
                 <LocationHeader location={route.params.location} />
                 <VStack space={5} marginTop={10}>
                     {energySources.length > 0 && <StackedBar items={energySources} />}
@@ -220,17 +216,13 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     {renderStop()}
                     {renderError()}
                 </VStack>
-                <ConfirmationModal
-                    isVisible={isConfirmationModalVisible}
-                    text={confirmationModalText}
-                    buttonText={confirmationButtonText}
-                    onClose={() => setIsConfirmationModalVisible(false)}
-                    onPress={onPress}
-                />
             </View>
-            <View style={{ padding: 20 }}>
+            <View style={styles.focusViewBackground}>
                 <VStack>
                     <Text color={textColor} fontSize={12}>
+                        * {I18n.t("ConnectorDetail_PriceDisclaimerText")}
+                    </Text>
+                    <Text paddingTop={5} color={textColor} fontSize={12}>
                         {I18n.t("ConnectorDetail_OperatorInfoText")}
                     </Text>
                     <Text paddingTop={5} color={textColor} fontSize={12}>
@@ -241,6 +233,13 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     </Text>
                 </VStack>
             </View>
+            <ConfirmationModal
+                isVisible={isConfirmationModalVisible}
+                text={confirmationModalText}
+                buttonText={confirmationButtonText}
+                onClose={() => setIsConfirmationModalVisible(false)}
+                onPress={onPress}
+            />
         </View>
     )
 }

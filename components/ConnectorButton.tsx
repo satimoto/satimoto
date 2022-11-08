@@ -70,7 +70,7 @@ const ConnectorButton = ({ connector, evses, onPress = () => {}, onPressIn = () 
                         <VStack>
                             <SatoshiBalance size={18} color={"#ffffff"} satoshis={price} />
                             <Text color={secondaryTextcolor} fontSize="lg" textAlign="right">
-                                /{dimension}
+                                /{dimension}*
                             </Text>
                         </VStack>
                     )}

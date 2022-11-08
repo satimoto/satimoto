@@ -56,6 +56,7 @@ export default {
     ConnectorDetail_ChargeStatusError: "Currently charging at another charge point.",
     ConnectorDetail_EvseStatusError: "Unfortunately this charge point is {{status}}.",
     ConnectorDetail_LocalBalanceError: "Please add a minimum of {{satoshis}} sats to start charging.",
+    ConnectorDetail_PriceDisclaimerText: "Operator costs may vary due to tariff prices and available charging data. Any excess costs will be rebated at the end of the charging session.",
     ConnectorDetail_OperatorInfoText: "If you encounter problems with this charge point, please find the operator contact information at or around the charge point location.",
     ConnectorDetail_EvseIdentityText: "EVSE: {{evseId}}",
     ConnectorDetail_ConnectorIdentityText: "Connector: {{connectorId}}",
