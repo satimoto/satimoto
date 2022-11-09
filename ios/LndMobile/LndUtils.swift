@@ -19,7 +19,7 @@ class LndUtils: RCTEventEmitter {
   }
   
   static var confFile: URL {
-    return lndDirectory.appendingPathComponent("lnd_v2.conf", isDirectory: false)
+    return lndDirectory.appendingPathComponent("lnd_v4.conf", isDirectory: false)
   }
   
   static private var logFile: URL {
@@ -68,7 +68,7 @@ class LndUtils: RCTEventEmitter {
       content =
         """
 [Application Options]
-debuglevel=info
+debuglevel=warn
 maxbackoff=2s
 nolisten=1
 norest=1
@@ -76,16 +76,18 @@ sync-freelist=1
 accept-keysend=1
 feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json
 
-[Routing]
-routing.assumechanvalid=1
-
 [Bitcoin]
 bitcoin.active=1
 bitcoin.mainnet=1
 bitcoin.node=neutrino
 
 [Neutrino]
-neutrino.connect=btcd-mainnet.lightning.computer
+neutrino.addpeer=btcd-mainnet.lightning.computer
+neutrino.addpeer=mainnet1-btcd.zaphq.io
+neutrino.addpeer=mainnet2-btcd.zaphq.io
+neutrino.addpeer=mainnet3-btcd.zaphq.io
+neutrino.addpeer=mainnet4-btcd.zaphq.io
+neutrino.addpeer=bb2.breez.technology
 
 [protocol]
 protocol.option-scid-alias=true
@@ -111,9 +113,6 @@ norest=1
 sync-freelist=1
 accept-keysend=1
 feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json
-
-[Routing]
-routing.assumechanvalid=1
 
 [Bitcoin]
 bitcoin.active=1
@@ -153,11 +152,11 @@ bitcoin.regtest=1
 bitcoin.node=bitcoind
 
 [Bitcoind]
-bitcoind.rpchost=127.0.0.1:18448
+bitcoind.rpchost=127.0.0.1:18449
 bitcoind.rpcuser=polaruser
 bitcoind.rpcpass=polarpass
-bitcoind.zmqpubrawblock=tcp://127.0.0.1:28339
-bitcoind.zmqpubrawtx=tcp://127.0.0.1:29340
+bitcoind.zmqpubrawblock=tcp://127.0.0.1:28340
+bitcoind.zmqpubrawtx=tcp://127.0.0.1:29341
 
 [protocol]
 protocol.option-scid-alias=true

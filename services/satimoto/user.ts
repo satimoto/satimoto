@@ -10,6 +10,7 @@ const CREATE_USER = gql`
             id
             pubkey
             deviceToken
+            referralCode
         }
     }
 `
@@ -32,6 +33,34 @@ const createUser = (client: ApolloClient<NormalizedCacheObject>) => {
 }
 
 export { createUser }
+
+/**
+ * Get User
+ */
+
+const GET_USER = gql`
+    query GetUser {
+        getUser {
+            id
+            pubkey
+            referralCode
+            node {
+                pubkey
+                addr
+            }
+        }
+    }
+`
+const getUser = (client: ApolloClient<NormalizedCacheObject>) => {
+    return async () => {
+        return await client.query({
+            query: GET_USER,
+            variables: {}
+        })
+    }
+}
+
+export { getUser }
 
 /**
  * Update User

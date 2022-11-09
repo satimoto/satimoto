@@ -1,9 +1,12 @@
+import RoundedButton from "components/RoundedButton"
+import { observer } from "mobx-react"
 import React from "react"
 import { StyleSheet, View } from "react-native"
-import { Button, IconButton } from "native-base"
-import { QrCodeIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
+import { Button } from "native-base"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import I18n from "utils/i18n"
+import { useStore } from "hooks/useStore"
+import CircularProgressButton from "components/CircularProgressButton"
 
 const styles = StyleSheet.create({
     container: {
@@ -32,32 +35,34 @@ interface HomeFooterContainerProps {
 
 const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
     const safeAreaInsets = useSafeAreaInsets()
+    const { lightningStore } = useStore()
 
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
-                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("send")}>
+                <RoundedButton isDisabled={!lightningStore.syncedToChain} onPress={() => onPress("send")} style={styles.button}>
                     {I18n.t("HomeFooterContainer_ButtonSend")}
-                </Button>
+                </RoundedButton>
             </View>
             <View style={styles.iconButtonSpacer}>
-                <IconButton
-                    borderRadius="full"
-                    size="lg"
-                    variant="solid"
-                    style={styles.button}
+                <CircularProgressButton
+                    isBusy={!lightningStore.syncedToChain}
+                    value={lightningStore.percentSynced}
                     onPress={() => onPress("qr")}
-                    icon={<QrCodeIcon />}
-                    _icon={{ color: "#ffffff", size: 50 }}
+                    style={styles.button}
                 />
             </View>
             <View style={styles.buttonSpacer}>
-                <Button borderRadius="3xl" size="lg" style={styles.button} onPress={() => onPress("receive")}>
+                <RoundedButton
+                    isDisabled={!lightningStore.syncedToChain}
+                    onPress={() => onPress("receive")}
+                    style={styles.button}
+                >
                     {I18n.t("HomeFooterContainer_ButtonReceive")}
-                </Button>
+                </RoundedButton>
             </View>
         </View>
     )
 }
 
-export default HomeFooterContainer
+export default observer(HomeFooterContainer)

@@ -36,7 +36,8 @@ export const stop = async (): Promise<void> => {
 }
 
 interface AddInvoiceProps {
-    amt: number
+    value?: number
+    valueMsat?: number
     expiry?: number
     memo?: string
     paymentAddr?: BytesLikeType
@@ -45,7 +46,8 @@ interface AddInvoiceProps {
 }
 
 export const addInvoice = ({
-    amt,
+    value,
+    valueMsat,
     memo,
     expiry = INVOICE_EXPIRY,
     paymentAddr,
@@ -57,7 +59,8 @@ export const addInvoice = ({
         response: lnrpc.AddInvoiceResponse,
         method: service + "AddInvoice",
         options: {
-            value: toLong(amt),
+            value: value ? toLong(value) : null,
+            valueMsat: valueMsat ? toLong(valueMsat) : null,
             memo,
             expiry: toLong(expiry),
             rPreimage: preimage ? hexToBytes(preimage) : null,

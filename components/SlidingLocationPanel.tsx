@@ -52,9 +52,9 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
 
     const onConnectorPress = (connector: ConnectorModel, evses: EvseModel[]) => {
         if (evses.length > 1) {
-            navigation.navigate("EvseList", { location: locationStore.activeLocation!, evses, connector })
+            navigation.navigate("EvseList", { location: locationStore.selectedLocation!, evses, connector })
         } else {
-            navigation.navigate("ConnectorDetail", { location: locationStore.activeLocation!, evse: evses[0], connector })
+            navigation.navigate("ConnectorDetail", { location: locationStore.selectedLocation!, evse: evses[0], connector })
         }
     }
 
@@ -62,8 +62,8 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
     const onConnectorPressOut = () => setAllowDragging(true)
 
     useEffect(() => {
-        setIsBusy(!locationStore.activeLocation)
-    }, [locationStore.activeLocation])
+        setIsBusy(!locationStore.selectedLocation)
+    }, [locationStore.selectedLocation])
 
     return (
         <SlidingUpPanel
@@ -76,11 +76,11 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
             backdropStyle={{ alignItems: "flex-start" }}
         >
             <BusySpinner isBusy={isBusy}>
-                {locationStore.activeLocation && (
+                {locationStore.selectedLocation && (
                     <View style={[styles.slidingUpPanel, { backgroundColor }]}>
                         <VStack space={3}>
-                            <LocationHeader location={locationStore.activeLocation} />
-                            {locationStore.activeConnectors.map((connector) => (
+                            <LocationHeader location={locationStore.selectedLocation} />
+                            {locationStore.selectedConnectors.map((connector) => (
                                 <ConnectorButton
                                     key={`${connector.standard}:${connector.wattage}`}
                                     connector={connector}

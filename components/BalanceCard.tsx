@@ -1,6 +1,6 @@
 import SatoshiBalance from "components/SatoshiBalance"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faListCheck } from "@fortawesome/free-solid-svg-icons"
+import { faGear } from "@fortawesome/free-solid-svg-icons"
 import { observer } from "mobx-react"
 import { IconButton } from "native-base"
 import React from "react"
@@ -20,7 +20,7 @@ const styleSheet = StyleSheet.create({
         paddingVertical: 20,
         justifyContent: "center"
     },
-    transactionsButton: {
+    settingsButton: {
         position: "absolute",
         borderColor: "#ffffff",
         top: 10,
@@ -49,10 +49,10 @@ const BalanceCard = ({ onLayout = () => {}}: BalanceCardProps) => {
             <IconButton
                 variant="outline"
                 borderRadius="xl"
-                onPress={() => navigation.navigate("TransactionList")}
-                icon={<FontAwesomeIcon icon={faListCheck} />}
+                onPress={() => navigation.navigate("Settings")}
+                icon={<FontAwesomeIcon icon={faGear} />}
                 _icon={{ color: "#ffffff" }}
-                style={styleSheet.transactionsButton}
+                style={styleSheet.settingsButton}
             />
         </LinearGradient>
     )

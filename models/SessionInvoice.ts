@@ -4,13 +4,16 @@ interface SessionInvoiceModel {
     currency: string
     currencyRate: number
     currencyRateMsat: number
-    amountFiat: number
-    amountMsat: number
+    priceFiat: number
+    priceMsat: number
     commissionFiat: number
     commissionMsat: number
     taxFiat: number
     taxMsat: number
+    totalFiat: number
+    totalMsat: number
     paymentRequest: string
+    signature: string
     isSettled: boolean
     isExpired: boolean
     lastUpdated: string

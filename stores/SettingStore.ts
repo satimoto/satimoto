@@ -1,11 +1,12 @@
-import { action, makeObservable, observable, reaction } from "mobx"
+import { action, makeObservable, observable, reaction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import messaging from "@react-native-firebase/messaging"
+import { updateUser, getAccessToken, getUser } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { updateUser, getToken } from "services/SatimotoService"
 
 const log = new Log("SettingStore")
 
@@ -14,6 +15,7 @@ export interface SettingStoreInterface extends StoreInterface {
     stores: Store
 
     accessToken?: string
+    referralCode?: string
     pushNotificationEnabled: boolean
     pushNotificationToken?: string
 
@@ -28,6 +30,7 @@ export class SettingStore implements SettingStoreInterface {
     accessToken?: string = undefined
     pushNotificationEnabled = false
     pushNotificationToken?: string = undefined
+    referralCode?: string = undefined
 
     constructor(stores: Store) {
         this.stores = stores
@@ -39,8 +42,10 @@ export class SettingStore implements SettingStoreInterface {
             accessToken: observable,
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
+            referralCode: observable,
 
             setAccessToken: action,
+            setUser: action,
             setPushNotificationSettings: action
         })
 
@@ -48,7 +53,7 @@ export class SettingStore implements SettingStoreInterface {
             this,
             {
                 name: "SettingStore",
-                properties: ["accessToken", "pushNotificationEnabled", "pushNotificationToken"],
+                properties: ["accessToken", "pushNotificationEnabled", "pushNotificationToken", "referralCode"],
                 storage: AsyncStorage,
                 debugMode: DEBUG
             },
@@ -58,26 +63,48 @@ export class SettingStore implements SettingStoreInterface {
 
     async initialize(): Promise<void> {
         reaction(
-            () => [this.pushNotificationToken, this.stores.lightningStore.identityPubkey],
-            async () => {
-                if (!this.accessToken && this.pushNotificationToken && this.stores.lightningStore.identityPubkey) {
-                    const token = await getToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
-
-                    this.setAccessToken(token)
-                }
-            }
+            () => [this.pushNotificationToken, this.stores.lightningStore.identityPubkey, this.stores.lightningStore.syncedToChain],
+            () => this.reactionGetToken()
         )
 
         reaction(
             () => this.pushNotificationToken,
-            () => {
-                if (this.accessToken && this.pushNotificationToken) {
-                    updateUser({ deviceToken: this.pushNotificationToken })
-                }
-            }
+            () => this.reactionUpdateUser()
+        )
+
+        reaction(
+            () => [this.accessToken, this.stores.lightningStore.syncedToChain],
+            () => this.reactionGetUser()
         )
 
         this.setReady()
+    }
+
+    async reactionGetUser() {
+        if (this.accessToken) {
+            const getUserResult = await getUser()
+            const user = getUserResult.data.getUser as UserModel
+
+            this.setUser(user)
+
+            if (user.node) {
+                await this.stores.peerStore.connectPeer(user.node.pubkey, user.node.addr)
+            }
+        }
+    }
+
+    async reactionGetToken() {
+        if (!this.accessToken && this.pushNotificationToken && this.stores.lightningStore.identityPubkey) {
+            const token = await getAccessToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
+
+            this.setAccessToken(token)
+        }
+    }
+
+    async reactionUpdateUser() {
+        if (this.accessToken && this.pushNotificationToken) {
+            updateUser({ deviceToken: this.pushNotificationToken })
+        }
     }
 
     async requestPushNotificationPermission() {
@@ -105,5 +132,9 @@ export class SettingStore implements SettingStoreInterface {
 
     setReady() {
         this.ready = true
+    }
+
+    setUser(user?: UserModel) {
+        this.referralCode = user?.referralCode
     }
 }

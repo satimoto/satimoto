@@ -31,7 +31,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
         super(reactContext);
 
         lndPath = getReactApplicationContext().getFilesDir().toString();
-        confPath = lndPath + "/lnd_v2.conf";
+        confPath = lndPath + "/lnd_v4.conf";
         logPath = lndPath + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
 
         prepareFileDirectory(logPath);
@@ -83,7 +83,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
         if (BuildConfig.NETWORK.equals("mainnet")) {
             writer.println(
                     "[Application Options]\n" +
-                            "debuglevel=info\n" +
+                            "debuglevel=warn\n" +
                             "maxbackoff=2s\n" +
                             "nolisten=1\n" +
                             "norest=1\n" +
@@ -98,7 +98,12 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=neutrino\n" +
                             "\n" +
                             "[Neutrino]\n" +
-                            "neutrino.connect=btcd-mainnet.lightning.computer\n" +
+                            "neutrino.addpeer=btcd-mainnet.lightning.computer\n" +
+                            "neutrino.addpeer=mainnet1-btcd.zaphq.io\n" +
+                            "neutrino.addpeer=mainnet2-btcd.zaphq.io\n" +
+                            "neutrino.addpeer=mainnet3-btcd.zaphq.io\n" +
+                            "neutrino.addpeer=mainnet4-btcd.zaphq.io\n" +
+                            "neutrino.addpeer=bb2.breez.technology\n" +
                             "\n" +
                             "[protocol]\n" +
                             "protocol.option-scid-alias=true\n" +
@@ -163,11 +168,11 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "bitcoin.node=bitcoind\n" +
                             "\n" +
                             "[Bitcoind]\n" +
-                            "bitcoind.rpchost=10.0.2.2:18448\n" +
+                            "bitcoind.rpchost=10.0.2.2:18449\n" +
                             "bitcoind.rpcuser=polaruser\n" +
                             "bitcoind.rpcpass=polarpass\n" +
-                            "bitcoind.zmqpubrawblock=tcp://10.0.2.2:28339\n" +
-                            "bitcoind.zmqpubrawtx=tcp://10.0.2.2:29340\n" +
+                            "bitcoind.zmqpubrawblock=tcp://10.0.2.2:28340\n" +
+                            "bitcoind.zmqpubrawtx=tcp://10.0.2.2:29341\n" +
                             "\n" +
                             "[protocol]\n" +
                             "protocol.option-scid-alias=true\n" +

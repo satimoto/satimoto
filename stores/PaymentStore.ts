@@ -5,7 +5,7 @@ import moment from "moment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { decodePayReq, listPayments, sendPaymentV2 } from "services/LightningService"
+import { decodePayReq, listPayments, resetMissionControl, sendPaymentV2 } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { nanosecondsToDate, toNumber } from "utils/conversion"
@@ -59,30 +59,37 @@ export class PaymentStore implements PaymentStoreInterface {
             // When the synced to chain, list missed payments
             when(
                 () => this.stores.lightningStore.syncedToChain,
-                () => this.postSync()
+                () => this.whenSyncedToChain()
             )
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
     }
 
-    async postSync() {
-        const listPaymentsResponse: lnrpc.ListPaymentsResponse = await listPayments(true, this.indexOffset)
-        this.updatePayments(listPaymentsResponse)
-    }
-
-    sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel> {
+    sendPayment(request: SendPaymentV2Props, withReset: boolean = true): Promise<PaymentModel> {
         return new Promise<PaymentModel>(async (resolve, reject) => {
             try {
-                await sendPaymentV2(async (data: lnrpc.Payment) => {
-                    const payment = await this.updatePayment(data)
+                await sendPaymentV2(async (response: lnrpc.Payment) => {
+                    let payment = await this.updatePayment(response)
 
-                    if (payment.status === PaymentStatus.FAILED || payment.status === PaymentStatus.SUCCEEDED) {
+                    if (payment.status === PaymentStatus.FAILED) {
+                        const tryReset =
+                            response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE ||
+                            response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
+
+                        if (tryReset && withReset) {
+                            log.debug(`Payment failure, resetting mission control`)
+                            await resetMissionControl()
+                            payment = await this.sendPayment(request, false)
+                        }
+
+                        resolve(payment)
+                    } else if (payment.status === PaymentStatus.SUCCEEDED) {
                         this.stores.channelStore.getChannelBalance()
 
                         resolve(payment)
                     }
-                }, payment)
+                }, request)
             } catch (error) {
                 reject(error)
             }
@@ -103,7 +110,10 @@ export class PaymentStore implements PaymentStoreInterface {
         return this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
     }
 
-    updatePaymentWithPayReq({ creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment, payReq: lnrpc.PayReq): PaymentModel {
+    updatePaymentWithPayReq(
+        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment,
+        payReq: lnrpc.PayReq
+    ): PaymentModel {
         let payment = this.payments.find(({ hash }) => hash === paymentHash)
 
         if (payment) {
@@ -149,5 +159,10 @@ export class PaymentStore implements PaymentStoreInterface {
         }
 
         this.setReady()
+    }
+
+    async whenSyncedToChain() {
+        const listPaymentsResponse: lnrpc.ListPaymentsResponse = await listPayments(true, this.indexOffset)
+        this.updatePayments(listPaymentsResponse)
     }
 }

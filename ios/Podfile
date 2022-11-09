@@ -46,6 +46,9 @@ target 'Satimoto' do
       target.build_configurations.each do |config|
         config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
       end
+      if target.name == "React-Core.common-AccessibilityResources"
+        target.remove_from_project
+      end
     end
     # Set Build config to arm64
     react_native_post_install(installer)

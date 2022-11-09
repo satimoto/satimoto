@@ -13,13 +13,14 @@ import { AppStackParamList } from "screens/AppStack"
 import { decodePayReq } from "services/LightningService"
 import { getMetadataElement, payRequest } from "services/LnUrlService"
 import { assertNetwork } from "utils/assert"
-import { errorToString, toHashOrNull, toMilliSatoshi, toNumber, toSatoshi, toStringOrNull } from "utils/conversion"
+import { bytesToHex, errorToString, toHash, toHashOrNull, toMilliSatoshi, toNumber, toSatoshi, toStringOrNull } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { useConfetti } from "providers/ConfettiProvider"
 import { RouteProp } from "@react-navigation/native"
+import { PaymentStatus } from "types/payment"
 
 const log = new Log("LnUrlPay")
 
@@ -32,6 +33,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
+    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
@@ -72,9 +74,13 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
 
                 if (decodedPayReq.descriptionHash === metadataHash && toNumber(decodedPayReq.numSatoshis) === amountNumber) {
                     // Pay
-                    await paymentStore.sendPayment({ paymentRequest: response.pr })
-                    await startConfetti()
-                    onClose()
+                    const payment = await paymentStore.sendPayment({ paymentRequest: response.pr })
+
+                    // TODO: Display payment failure error
+                    if (payment.status === PaymentStatus.SUCCEEDED) {
+                        await startConfetti()
+                        onClose()
+                    }
                 } else {
                     setLastError(I18n.t("LnUrlPay_PayReqError"))
                 }
@@ -89,12 +95,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerLeft: () => (
-                <HeaderBackButton
-                    tintColor={navigationOptions.headerTintColor}
-                    onPress={onClose}
-                />
-            ),
+            headerLeft: () => <HeaderBackButton tintColor={navigationOptions.headerTintColor} onPress={onClose} />,
             title: I18n.t("LnUrlPay_HeaderTitle")
         })
     }, [navigation])
@@ -111,7 +112,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         setDescription(getMetadataElement(payParams.decodedMetadata, "text/plain") || "")
         setMaxSendable(maxSats)
         setMinSendable(minSats)
-        setMetadataHash(toStringOrNull(toHashOrNull(payParams.metadata)))
+        setMetadataHash(bytesToHex(toHash(payParams.metadata)))
         setAmountError(I18n.t("LnUrlPay_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
     }, [route.params.payParams])
 
@@ -120,26 +121,28 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     }, [amountNumber])
 
     return (
-        <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            <VStack space={5}>
-                {description.length > 0 && (
-                    <Text color={textColor} fontSize="lg">
-                        {description}
-                    </Text>
-                )}
-                <FormControl isInvalid={isInvalid} isRequired={true}>
-                    <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
-                    <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
-                    {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
-                    <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
-                        {amountError}
-                    </FormControl.ErrorMessage>
-                </FormControl>
-                {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
-                    {I18n.t("Button_Next")}
-                </BusyButton>
-            </VStack>
+        <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
+            <View style={[styles.focusViewPanel, { backgroundColor }]}>
+                <VStack space={5}>
+                    {description.length > 0 && (
+                        <Text color={textColor} fontSize="lg">
+                            {description}
+                        </Text>
+                    )}
+                    <FormControl isInvalid={isInvalid} isRequired={true}>
+                        <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
+                        <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
+                        {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
+                        <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
+                            {amountError}
+                        </FormControl.ErrorMessage>
+                    </FormControl>
+                    {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
+                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
+                        {I18n.t("Button_Next")}
+                    </BusyButton>
+                </VStack>
+            </View>
         </View>
     )
 }

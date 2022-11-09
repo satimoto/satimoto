@@ -34,8 +34,8 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
         setIsBusy(true)
 
         try {
-            const lnInvoice = await invoiceStore.addInvoice(+amount)
-            const hash = bytesToHex(lnInvoice.rHash)
+            const addInvoiceResponse = await invoiceStore.addInvoice({ value: +amount, createChannel: true })
+            const hash = bytesToHex(addInvoiceResponse.rHash)
             const invoice = await invoiceStore.waitForInvoice(hash)
 
             navigation.navigate("WaitForPayment", { invoice })
@@ -63,6 +63,7 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
     useEffect(() => {
         if (!isVisible) {
             setAmount("")
+            setLastError("")
             setIsBusy(false)
         }
     }, [isVisible])

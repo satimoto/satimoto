@@ -1,36 +1,52 @@
 import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
-import { action, makeObservable, observable, runInAction } from "mobx"
+import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import ConnectorModel from "models/Connector"
+import EvseModel from "models/Evse"
+import LocationModel from "models/Location"
 import { lnrpc } from "proto/proto"
 import { Linking } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import NfcManager from "react-native-nfc-manager"
 import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq } from "services/LightningService"
 import { getParams, getTag, identifier } from "services/LnUrlService"
-import { DEBUG } from "utils/build"
-import { Log } from "utils/logging"
 import { assertNetwork } from "utils/assert"
+import { DEBUG } from "utils/build"
+import { ONBOARDING_VERSION } from "utils/constants"
+import { Log } from "utils/logging"
+import { PayReq, toPayReq } from "types/payment"
+import { Tooltip } from "types/tooltip"
 
 const log = new Log("UiStore")
+const EVSE_ID_REGEX = /[A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+/
 
 export interface UiStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
+    connector?: ConnectorModel
     lnUrl?: string
     lnUrlAuthParams?: LNURLAuthParams
     lnUrlChannelParams?: LNURLChannelParams
     lnUrlPayParams?: LNURLPayParams
     lnUrlWithdrawParams?: LNURLWithdrawParams
     paymentRequest?: string
-    decodedPaymentRequest?: lnrpc.PayReq
+    decodedPaymentRequest?: PayReq
+    nfcAvailable: boolean
+    onboardingWelcomed: boolean
+    onboardingVersion: string
+    tooltipShownSyncing: boolean
 
+    clearChargePoint(): void
     clearLnUrl(): void
     clearPaymentRequest(): void
     parseIntent(intent: string): Promise<boolean>
+    setChargePoint(connector: ConnectorModel): void
     setLightningAddress(address: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
+    setTooltipShown(tooltips: Tooltip): void
 }
 
 export class UiStore implements UiStoreInterface {
@@ -38,13 +54,20 @@ export class UiStore implements UiStoreInterface {
     ready = false
     stores
 
+    connector?: ConnectorModel = undefined
+    evse?: EvseModel = undefined
+    location?: LocationModel = undefined
     lnUrl?: string = undefined
     lnUrlAuthParams?: LNURLAuthParams = undefined
     lnUrlChannelParams?: LNURLChannelParams = undefined
     lnUrlPayParams?: LNURLPayParams = undefined
     lnUrlWithdrawParams?: LNURLWithdrawParams = undefined
     paymentRequest?: string = undefined
-    decodedPaymentRequest?: lnrpc.PayReq = undefined
+    decodedPaymentRequest?: PayReq = undefined
+    nfcAvailable: boolean = false
+    onboardingWelcomed: boolean = false
+    onboardingVersion: string = ""
+    tooltipShownSyncing: boolean = false
 
     constructor(stores: Store) {
         this.stores = stores
@@ -53,6 +76,9 @@ export class UiStore implements UiStoreInterface {
             hydrated: observable,
             ready: observable,
 
+            connector: observable,
+            evse: observable,
+            location: observable,
             lnUrl: observable,
             lnUrlAuthParams: observable,
             lnUrlChannelParams: observable,
@@ -60,19 +86,43 @@ export class UiStore implements UiStoreInterface {
             lnUrlWithdrawParams: observable,
             paymentRequest: observable,
             decodedPaymentRequest: observable,
+            nfcAvailable: observable,
+            onboardingWelcomed: observable,
+            onboardingVersion: observable,
+            tooltipShownSyncing: observable,
 
+            hasOnboardingUpdates: computed,
+
+            clearChargePoint: action,
+            clearLnUrl: action,
+            clearPaymentRequest: action,
+            setChargePoint: action,
             setLnUrl: action,
             setLnUrlPayParams: action,
             setPaymentRequest: action,
-            clearLnUrl: action,
-            clearPaymentRequest: action
+            setOnboarding: action,
+            setTooltipShown: action
         })
 
         makePersistable(
             this,
             {
                 name: "UiStore",
-                properties: [],
+                properties: [
+                    "connector",
+                    "evse",
+                    "location",
+                    "lnUrl",
+                    "lnUrlAuthParams",
+                    "lnUrlChannelParams",
+                    "lnUrlPayParams",
+                    "lnUrlWithdrawParams",
+                    "paymentRequest",
+                    "decodedPaymentRequest",
+                    "onboardingWelcomed",
+                    "onboardingVersion",
+                    "tooltipShownSyncing"
+                ],
                 storage: AsyncStorage,
                 debugMode: DEBUG
             },
@@ -81,13 +131,34 @@ export class UiStore implements UiStoreInterface {
     }
 
     async initialize(): Promise<void> {
+        when(
+            () => this.hydrated,
+            () => this.onHydrated()
+        )
+
+        this.setReady()
+    }
+
+    async onHydrated() {
+        // Get NFC availability
+        const isSupported = await NfcManager.isSupported()
+
+        runInAction(() => {
+            this.nfcAvailable = isSupported
+        })
+
+        // Process initial intent
         const intent = await Linking.getInitialURL()
 
         if (intent) {
             this.parseIntent(intent)
         }
+    }
 
-        this.setReady()
+    clearChargePoint() {
+        this.connector = undefined
+        this.evse = undefined
+        this.location = undefined
     }
 
     clearLnUrl() {
@@ -101,6 +172,10 @@ export class UiStore implements UiStoreInterface {
     clearPaymentRequest() {
         this.paymentRequest = undefined
         this.decodedPaymentRequest = undefined
+    }
+
+    get hasOnboardingUpdates(): boolean {
+        return !this.onboardingWelcomed || this.onboardingVersion !== ONBOARDING_VERSION
     }
 
     /**
@@ -127,7 +202,18 @@ export class UiStore implements UiStoreInterface {
                 await this.setLightningAddress(intent)
                 return true
             } else if (lowerCaseIntent.startsWith("http")) {
-                // TODO: EVSE ID
+                // URL, Charge Point identifier
+                const indentifierMatches = lowerCaseIntent.match(EVSE_ID_REGEX)
+
+                if (indentifierMatches && indentifierMatches.length > 0) {
+                    const connector = await this.stores.locationStore.searchConnector(indentifierMatches[0])
+
+                    if (connector) {
+                        this.setChargePoint(connector)
+                    }
+                }
+
+                return false
             } else {
                 // Payment Request
                 await this.setPaymentRequest(intent)
@@ -136,6 +222,12 @@ export class UiStore implements UiStoreInterface {
         } catch {}
 
         return false
+    }
+
+    setChargePoint(connector: ConnectorModel) {
+        this.connector = connector
+        this.evse = this.connector.evse
+        this.location = this.evse?.location
     }
 
     async setLightningAddress(address: string) {
@@ -174,7 +266,7 @@ export class UiStore implements UiStoreInterface {
         const decodedPaymentRequest = await decodePayReq(paymentRequest)
 
         runInAction(() => {
-            this.decodedPaymentRequest = decodedPaymentRequest
+            this.decodedPaymentRequest = toPayReq(decodedPaymentRequest)
             this.paymentRequest = paymentRequest
             log.debug(JSON.stringify(this.decodedPaymentRequest))
         })
@@ -182,5 +274,16 @@ export class UiStore implements UiStoreInterface {
 
     setReady() {
         this.ready = true
+    }
+
+    setOnboarding(welcomed: boolean, version: string) {
+        this.onboardingWelcomed = welcomed
+        this.onboardingVersion = version
+    }
+
+    setTooltipShown({syncing}: Tooltip) {
+        if (syncing) {
+            this.tooltipShownSyncing = true
+        }
     }
 }

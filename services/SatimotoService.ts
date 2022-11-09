@@ -7,10 +7,15 @@ import { AuthenticationAction } from "./satimoto/authentication"
 import * as ChannelRequest from "./satimoto/channelRequest"
 import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
+import * as Connector from "./satimoto/connector"
+import * as InvoiceRequest from "./satimoto/invoiceRequest"
+import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
 import * as Tariff from "./satimoto/tariff"
+import * as Token from "./satimoto/token"
+import * as TokenAuthorization from "./satimoto/tokenAuthorization"
 import * as User from "./satimoto/user"
 import store from "stores/Store"
 import { API_URI } from "utils/build"
@@ -26,7 +31,7 @@ const uploadLink = new HttpLink({
 
 const invalidationPolicyCache = new InvalidationPolicyCache({
     invalidationPolicies: {
-        timeToLive: 60 * 1000
+        timeToLive: 59 * 1000
     }
 })
 
@@ -72,6 +77,13 @@ const createChannelRequest = ChannelRequest.createChannelRequest(client)
 const startSession = Command.startSession(client)
 const stopSession = Command.stopSession(client)
 
+// Connector
+const getConnector = Connector.getConnector(client)
+
+// Invoice Request
+const listInvoiceRequests = InvoiceRequest.listInvoiceRequests(client)
+const updateInvoiceRequest = InvoiceRequest.updateInvoiceRequest(client)
+
 // Location
 const getLocation = Location.getLocation(client)
 const listLocations = Location.listLocations(client)
@@ -86,22 +98,34 @@ const getSessionInvoice = Session.getSessionInvoice(client)
 // Tariff
 const getTariff = Tariff.getTariff(client)
 
+// Token
+const createToken = Token.createToken(client)
+const listTokens = Token.listTokens(client)
+
+// Token Authorization
+const updateTokenAuthorization = TokenAuthorization.updateTokenAuthorization(client)
+
 // User
 const createUser = User.createUser(client)
+const getUser = User.getUser(client)
 const updateUser = User.updateUser(client)
 
 // Token
-const getToken = async (pubkey: string, deviceToken: string) => {
+const getAccessToken = async (pubkey: string, deviceToken: string) => {
     return doWhileBackoff(
-        "getToken",
+        "getAccessToken",
         async () => {
             try {
                 const createAuthenticationResult = await createAuthentication(AuthenticationAction.REGISTER)
                 const lnUrlParams = await getParams(createAuthenticationResult.data.createAuthentication.lnUrl)
                 const lnUrlAuthParams = lnUrlParams as LNURLAuthParams
 
+                log.debug("CreateAuthentication: " + JSON.stringify(createAuthenticationResult.data.createAuthentication))
+
                 if (lnUrlAuthParams) {
                     const authenticateOk = await authenticate(lnUrlAuthParams)
+                    
+                    log.debug("Authentication: " + JSON.stringify(authenticateOk))
 
                     if (authenticateOk) {
                         try {
@@ -116,6 +140,8 @@ const getToken = async (pubkey: string, deviceToken: string) => {
 
                         const exchangeAuthenticationResult = await exchangeAuthentication(createAuthenticationResult.data.createAuthentication.code)
 
+                        log.debug("ExchangeAuthentication: " + JSON.stringify(exchangeAuthenticationResult.data.exchangeAuthentication))
+
                         return exchangeAuthenticationResult.data.exchangeAuthentication.token
                     }
                 }
@@ -127,11 +153,13 @@ const getToken = async (pubkey: string, deviceToken: string) => {
     )
 }
 
-export type { CreateChannelRequestInput }
+export type { CreateChannelRequestInput, UpdateInvoiceRequestInput }
 
 export {
-    AuthenticationAction,
+    // Access Token
+    getAccessToken,
     // Authentication
+    AuthenticationAction,
     createAuthentication,
     exchangeAuthentication,
     verifyAuthentication,
@@ -140,6 +168,11 @@ export {
     // Command
     startSession,
     stopSession,
+    // Connector
+    getConnector,
+    // Invoice Request
+    listInvoiceRequests,
+    updateInvoiceRequest,
     // Location
     getLocation,
     listLocations,
@@ -151,9 +184,13 @@ export {
     // Tariff
     getTariff,
     // Token
-    getToken,
+    createToken,
+    listTokens,
+    // Token Authorization
+    updateTokenAuthorization,
     // User
     createUser,
+    getUser,
     updateUser
 }
 

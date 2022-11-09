@@ -95,8 +95,8 @@ export class PeerStore implements PeerStoreInterface {
     async connectPeer(pubkey: string, host: string) {
         let peer: PeerModelLike = this.getPeer(pubkey)
 
-        if (peer) {
-            log.debug(`Peer  ${peer.pubkey} is ${peer.online ? "online" : "offline"}`)
+        if (peer && peer.online) {
+            log.debug(`Peer ${peer.pubkey} is online`)
         } else {
             peer = {
                 pubkey,

@@ -34,5 +34,18 @@ export default StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 12
+    },
+    focusViewPanel: {
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        paddingBottom: 30,
+        paddingHorizontal: 20,
+        paddingTop: 10
+    },
+    focusViewBackground: {
+        padding: 20
+    },
+    focusViewButton: {
+        marginHorizontal: 20
     }
 })

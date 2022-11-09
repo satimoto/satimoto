@@ -9,6 +9,7 @@ import { bytesToHex, toLong, toNumber } from "utils/conversion"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { createChannelRequest, CreateChannelRequestInput } from "services/SatimotoService"
+import { ChannelRequestStatus } from "types/channelRequest"
 
 const log = new Log("ChannelStore")
 
@@ -16,6 +17,7 @@ export interface ChannelStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
+    channelRequestStatus: ChannelRequestStatus
     channelRequests: ChannelRequestModel[]
     subscribedChannelEvents: boolean
     localBalance: number
@@ -29,6 +31,7 @@ export class ChannelStore implements ChannelStoreInterface {
     ready = false
     stores
 
+    channelRequestStatus = ChannelRequestStatus.IDLE
     channelAcceptor: ChannelAcceptor | null = null
     channelRequests
     subscribedChannelEvents = false
@@ -43,6 +46,7 @@ export class ChannelStore implements ChannelStoreInterface {
             hydrated: observable,
             ready: observable,
 
+            channelRequestStatus: observable,
             channelRequests: observable,
             subscribedChannelEvents: observable,
             localBalance: observable,
@@ -51,6 +55,7 @@ export class ChannelStore implements ChannelStoreInterface {
             setReady: action,
             addChannelRequest: action,
             removeChannelRequest: action,
+            updateChannelRequestStatus: action,
             updateChannelBalance: action,
             onChannelEventUpdate: action
         })
@@ -95,6 +100,7 @@ export class ChannelStore implements ChannelStoreInterface {
         log.debug(
             `Add channel request: ${channelRequest.pubkey}, hash: ${channelRequest.paymentHash}, pendingChanId ${channelRequest.pendingChanId}, scid ${channelRequest.scid}`
         )
+        this.channelRequestStatus = ChannelRequestStatus.IDLE
         this.channelRequests.push(channelRequest)
     }
 
@@ -132,6 +138,10 @@ export class ChannelStore implements ChannelStoreInterface {
 
             const channelRequest = this.findChannelRequest(pubkey)
 
+            if (channelRequest) {
+                this.updateChannelRequestStatus(ChannelRequestStatus.NEGOTIATING)
+            }
+
             this.channelAcceptor.send({
                 pendingChanId: pendingChanId,
                 accept: !!channelRequest,
@@ -153,6 +163,7 @@ export class ChannelStore implements ChannelStoreInterface {
                 const channelRequest = this.findChannelRequest(remotePubkey)
 
                 if (channelRequest) {
+                    this.updateChannelRequestStatus(ChannelRequestStatus.OPENED)
                     this.removeChannelRequest(channelRequest)
                     this.cancelChannelAcceptor()
                 }
@@ -184,6 +195,10 @@ export class ChannelStore implements ChannelStoreInterface {
             subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.onChannelEventUpdate(data))
             this.subscribedChannelEvents = true
         }
+    }
+
+    updateChannelRequestStatus(status: ChannelRequestStatus) {
+        this.channelRequestStatus = status
     }
 
     updateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {

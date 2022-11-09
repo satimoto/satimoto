@@ -19,6 +19,7 @@ import { INTERVAL_MINUTE, IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
 import { doWhile } from "utils/tools"
+import { useStore } from "hooks/useStore"
 
 type WaitForPaymentProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "WaitForPayment">
@@ -34,6 +35,7 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
     const safeAreaInsets = useSafeAreaInsets()
     const [invoice] = useState(route.params.invoice)
     const [expiryMinutes, setExpiryMinutes] = useState(60)
+    const { uiStore } = useStore()
 
     const size = Dimensions.get("window").width - 20
 
@@ -53,11 +55,10 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
     }, [navigation])
 
     useEffect(() => {
-        let minutes = moment(invoice.expiresAt).diff(moment(), "minutes")
         const promise = doWhile(
             "Countdown",
             () => {
-                minutes--
+                const minutes = moment(invoice.expiresAt).diff(moment(), "minutes")
 
                 setExpiryMinutes(minutes)
 
@@ -88,7 +89,7 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
             <SatoshiBalance size={36} color={textColor} satoshis={parseInt(invoice.valueSat)} />
             <View style={{ alignItems: "center" }}>
                 <QrCode value={invoice.paymentRequest} color="white" backgroundColor={backgroundColor} onPress={onPress} size={size} />
-                {IS_ANDROID && <NfcTransmitter value={invoice.paymentRequest} size={30} />}
+                {IS_ANDROID && uiStore.nfcAvailable && <NfcTransmitter value={invoice.paymentRequest} size={30} />}
             </View>
             <Text color={textColor} fontSize="xl" paddingTop={IS_ANDROID ? 0 : 4}>
                 {expiryMinutes === 1 ? I18n.t("WaitForPayment_Expiry") : I18n.t("WaitForPayment_ExpiryPlural", { minutes: expiryMinutes })}
