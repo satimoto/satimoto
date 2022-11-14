@@ -35,7 +35,6 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const navigation = useNavigation<SlidingLocationNavigationProp>()
-    const [isBusy, setIsBusy] = useState<boolean>(false)
     const [allowDragging, setAllowDragging] = useState(true)
     const { locationStore } = useStore()
 
@@ -61,10 +60,6 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
     const onConnectorPressIn = () => setAllowDragging(false)
     const onConnectorPressOut = () => setAllowDragging(true)
 
-    useEffect(() => {
-        setIsBusy(!locationStore.selectedLocation)
-    }, [locationStore.selectedLocation])
-
     return (
         <SlidingUpPanel
             draggableRange={draggableRange}
@@ -75,25 +70,23 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
             allowDragging={allowDragging}
             backdropStyle={{ alignItems: "flex-start" }}
         >
-            <BusySpinner isBusy={isBusy}>
-                {locationStore.selectedLocation && (
-                    <View style={[styles.slidingUpPanel, { backgroundColor }]}>
-                        <VStack space={3}>
-                            <LocationHeader location={locationStore.selectedLocation} />
-                            {locationStore.selectedConnectors.map((connector) => (
-                                <ConnectorButton
-                                    key={`${connector.standard}:${connector.wattage}`}
-                                    connector={connector}
-                                    evses={connector.evses}
-                                    onPress={onConnectorPress}
-                                    onPressIn={onConnectorPressIn}
-                                    onPressOut={onConnectorPressOut}
-                                />
-                            ))}
-                        </VStack>
-                    </View>
-                )}
-            </BusySpinner>
+            {locationStore.selectedLocation && (
+                <View style={[styles.slidingUpPanel, { backgroundColor }]}>
+                    <VStack space={3}>
+                        <LocationHeader location={locationStore.selectedLocation} />
+                        {locationStore.selectedConnectors.map((connector) => (
+                            <ConnectorButton
+                                key={`${connector.standard}:${connector.wattage}`}
+                                connector={connector}
+                                evses={connector.evses}
+                                onPress={onConnectorPress}
+                                onPressIn={onConnectorPressIn}
+                                onPressOut={onConnectorPressOut}
+                            />
+                        ))}
+                    </VStack>
+                </View>
+            )}
         </SlidingUpPanel>
     )
 })

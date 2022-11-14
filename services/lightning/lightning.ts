@@ -54,6 +54,9 @@ export const addInvoice = ({
     preimage,
     routeHints
 }: AddInvoiceProps): Promise<lnrpc.AddInvoiceResponse> => {
+    const isPrivate = !routeHints || routeHints.length === 0
+    log.debug(`Add invoice: private=${isPrivate}`)
+
     return sendCommand<lnrpc.IInvoice, lnrpc.Invoice, lnrpc.AddInvoiceResponse>({
         request: lnrpc.Invoice,
         response: lnrpc.AddInvoiceResponse,
@@ -65,7 +68,7 @@ export const addInvoice = ({
             expiry: toLong(expiry),
             rPreimage: preimage ? hexToBytes(preimage) : null,
             paymentAddr: paymentAddr ? hexToBytes(paymentAddr) : null,
-            private: !(routeHints && routeHints.length > 0),
+            private: isPrivate,
             routeHints
         }
     })
@@ -115,6 +118,18 @@ export const getInfo = (): Promise<lnrpc.GetInfoResponse> => {
         response: lnrpc.GetInfoResponse,
         method: service + "GetInfo",
         options: {}
+    })
+}
+
+export const getNodeInfo = (pubkey: string, includeChannels: boolean = false): Promise<lnrpc.NodeInfo> => {
+    return sendCommand<lnrpc.INodeInfoRequest, lnrpc.NodeInfoRequest, lnrpc.NodeInfo>({
+        request: lnrpc.NodeInfoRequest,
+        response: lnrpc.NodeInfo,
+        method: service + "GetNodeInfo",
+        options: {
+            pubKey: pubkey,
+            includeChannels
+        }
     })
 }
 

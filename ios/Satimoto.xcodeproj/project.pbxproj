@@ -591,6 +591,7 @@
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
 				CURRENT_PROJECT_VERSION = 3;
 				DEBUG = true;
+				DEVELOPMENT_TEAM = F922YVP6UQ;
 				DISPLAY_NAME = "Satimoto Debug";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -605,7 +606,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -614,6 +615,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug;
 				PRODUCT_NAME = "Satimoto Debug";
+				PROVISIONING_PROFILE_SPECIFIER = "Satimoto Debug";
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -647,7 +649,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -753,7 +755,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -887,7 +889,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1013,7 +1015,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1135,7 +1137,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",

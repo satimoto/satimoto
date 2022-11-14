@@ -42,7 +42,7 @@ export interface UiStoreInterface extends StoreInterface {
     clearLnUrl(): void
     clearPaymentRequest(): void
     parseIntent(intent: string): Promise<boolean>
-    setChargePoint(connector: ConnectorModel): void
+    setChargePoint(evse: EvseModel): void
     setLightningAddress(address: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
@@ -203,17 +203,17 @@ export class UiStore implements UiStoreInterface {
                 return true
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
-                const indentifierMatches = lowerCaseIntent.match(EVSE_ID_REGEX)
+                const indentifierMatches = intent.match(EVSE_ID_REGEX)
 
                 if (indentifierMatches && indentifierMatches.length > 0) {
-                    const connector = await this.stores.locationStore.searchConnector(indentifierMatches[0])
+                    log.debug("EvseID: " + indentifierMatches[0])
+                    const evse = await this.stores.locationStore.searchEvse(indentifierMatches[0])
 
-                    if (connector) {
-                        this.setChargePoint(connector)
+                    if (evse) {
+                        this.setChargePoint(evse)
+                        return true
                     }
                 }
-
-                return false
             } else {
                 // Payment Request
                 await this.setPaymentRequest(intent)
@@ -224,10 +224,21 @@ export class UiStore implements UiStoreInterface {
         return false
     }
 
-    setChargePoint(connector: ConnectorModel) {
-        this.connector = connector
-        this.evse = this.connector.evse
-        this.location = this.evse?.location
+    setChargePoint(evse: EvseModel) {
+        if (evse.location) {
+            if (evse.connectors.length == 1) {
+                this.evse = evse
+                this.connector = this.evse.connectors[0]
+                this.location = this.evse.location
+            } else {
+                const location = evse.location
+                delete evse.location
+
+                location.evses = [evse]
+
+                this.stores.locationStore.setSelectedLocation(location)
+            }
+        }
     }
 
     async setLightningAddress(address: string) {
@@ -281,7 +292,7 @@ export class UiStore implements UiStoreInterface {
         this.onboardingVersion = version
     }
 
-    setTooltipShown({syncing}: Tooltip) {
+    setTooltipShown({ syncing }: Tooltip) {
         if (syncing) {
             this.tooltipShownSyncing = true
         }

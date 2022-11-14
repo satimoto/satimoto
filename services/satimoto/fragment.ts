@@ -48,7 +48,6 @@ const EVSE_WITH_CONNECTORS_FRAGMENT = gql`
     }
 `
 
-
 const EVSE_WITH_LOCATION_FRAGMENT = gql`
     ${EVSE_FRAGMENT}
     ${LOCATION_FRAGMENT}
@@ -142,11 +141,28 @@ const CONNECTOR_WITH_TARIFF_FRAGMENT = gql`
     }
 `
 
+const EVSE_WITH_CONNECTORS_AND_LOCATION_FRAGMENT = gql`
+    ${EVSE_FRAGMENT}
+    ${CONNECTOR_WITH_TARIFF_FRAGMENT}
+    ${LOCATION_FRAGMENT}
+    fragment EvseWithConnectorsAndLocationFragment on Evse {
+        ...EvseFragment
+        connectors {
+            ...ConnectorWithTariffFragment
+        }
+        location {
+            ...LocationFragment
+        }
+    }
+`
+
+
 export {
     CONNECTOR_FRAGMENT,
     CONNECTOR_WITH_TARIFF_FRAGMENT,
     EVSE_FRAGMENT,
     EVSE_WITH_CONNECTORS_FRAGMENT,
+    EVSE_WITH_CONNECTORS_AND_LOCATION_FRAGMENT,
     EVSE_WITH_LOCATION_FRAGMENT,
     LOCATION_FRAGMENT,
     LOCATION_WITH_EVSES_FRAGMENT,

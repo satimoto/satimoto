@@ -19,7 +19,7 @@ export interface SettingStoreInterface extends StoreInterface {
     pushNotificationEnabled: boolean
     pushNotificationToken?: string
 
-    requestPushNotificationPermission(): void
+    requestPushNotificationPermission(): Promise<boolean>
 }
 
 export class SettingStore implements SettingStoreInterface {
@@ -107,7 +107,7 @@ export class SettingStore implements SettingStoreInterface {
         }
     }
 
-    async requestPushNotificationPermission() {
+    async requestPushNotificationPermission(): Promise<boolean> {
         const authStatus = await messaging().requestPermission()
         const token = await messaging().getToken()
 
@@ -117,6 +117,8 @@ export class SettingStore implements SettingStoreInterface {
         messaging().onTokenRefresh((token) => {
             this.setPushNotificationSettings(enabled, token)
         })
+
+        return enabled
     }
 
     setAccessToken(accessToken?: string) {

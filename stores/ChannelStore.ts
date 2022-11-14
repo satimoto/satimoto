@@ -72,12 +72,7 @@ export class ChannelStore implements ChannelStoreInterface {
             // When the synced to chain, subscribe to channel events
             when(
                 () => this.stores.lightningStore.syncedToChain,
-                () => this.subscribeChannelEvents()
-            )
-
-            when(
-                () => this.stores.lightningStore.syncedToChain,
-                () => this.getChannelBalance()
+                () => this.whenSyncedToChain()
             )
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
@@ -209,5 +204,10 @@ export class ChannelStore implements ChannelStoreInterface {
         this.localBalance = localBalanceSat + unsettledLocalBalanceSat
         this.remoteBalance = remoteBalanceSat
         log.debug(`Channel Balance: ${this.localBalance}`)
+    }
+
+    async whenSyncedToChain() {
+        this.subscribeChannelEvents()
+        this.getChannelBalance()
     }
 }

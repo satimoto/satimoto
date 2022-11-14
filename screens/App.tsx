@@ -15,6 +15,7 @@ import { API_URI, MAPBOX_API_KEY, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
 import ConfettiProvider from "providers/ConfettiProvider"
+import { observer } from "mobx-react"
 
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
@@ -48,6 +49,30 @@ const App = () => {
         }
     }, [])
 
+    /*
+    useEffect(() => {
+        if (store.settingStore.pushNotificationEnabled) {
+            const unsubscribeMessages = messaging().onMessage(notificationMessageHandler)
+
+            messaging().onNotificationOpenedApp((remoteMessage) => {
+                log.debug(`onNotificationOpenedApp: ${JSON.stringify(remoteMessage)}`)
+            })
+
+            messaging()
+                .getInitialNotification()
+                .then((remoteMessage) => {
+                    if (remoteMessage) {
+                        log.debug(`getInitialNotification: ${JSON.stringify(remoteMessage)}`)
+                    }
+                })
+
+            return () => {
+                unsubscribeMessages()
+            }
+        }
+    }, [store.settingStore.pushNotificationEnabled])
+    */
+
     return (
         <ApolloProvider client={client}>
             <ConfettiProvider
@@ -70,4 +95,4 @@ const App = () => {
     )
 }
 
-export default App
+export default observer(App)

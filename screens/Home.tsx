@@ -1,9 +1,11 @@
 import BalanceCard from "components/BalanceCard"
 import ChargeButton from "components/ChargeButton"
 import HomeFooterContainer, { HomeFooterContainerEvent } from "components/HomeFooterContainer"
+import HomeSideContainer from "components/HomeSideContainer"
 import LnUrlAuthModal from "components/LnUrlAuthModal"
 import ReceiveActionsheet from "components/ReceiveActionsheet"
 import ReceiveLightningModal from "components/ReceiveLightningModal"
+import RecenterButton from "components/RecenterButton"
 import ScanNfcModal from "components/ScanNfcModal"
 import SendActionsheet from "components/SendActionsheet"
 import SendToAddressModal from "components/SendToAddressModal"
@@ -16,10 +18,11 @@ import { observer } from "mobx-react"
 import React, { useEffect, useRef, useState } from "react"
 import { Dimensions, View } from "react-native"
 import { TagEvent } from "react-native-nfc-manager"
-import MapboxGL, { OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
+import MapboxGL, { CameraSettings, OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import store from "stores/Store"
+import { Position } from "@turf/helpers"
 import { MAPBOX_API_KEY } from "utils/build"
 import { EMAIL_REGEX, IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
@@ -49,6 +52,11 @@ const symbolLayer: SymbolLayerStyle = {
 
 export type HomeNavigationProp = NativeStackNavigationProp<AppStackParamList, "Home">
 
+const defaultSettings: CameraSettings = {
+    centerCoordinate: [19.054483, 47.560772],
+    zoomLevel: 10
+}
+
 interface HomeProps {
     navigation: HomeNavigationProp
 }
@@ -67,20 +75,11 @@ const Home = ({ navigation }: HomeProps) => {
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
     const [isSendLightningModalVisible, setIsSendLightningModalVisible] = useState(false)
     const [isSendNfcModalVisible, setIsSendNfcModalVisible] = useState(false)
+    const [centerCoordinate, setCenterCoordinate] = useState<Position>([19.054483, 47.560772])
+    const [followUserLocation, setFollowUserLocation] = useState(true)
     const { uiStore, locationStore, sessionStore } = useStore()
 
-    const includeCamera = () => {
-        if (hasLocationPermission) {
-            return (
-                <>
-                    <MapboxGL.Camera zoomLevel={9} followZoomLevel={9} followUserLocation={true} />
-                    <MapboxGL.UserLocation />
-                </>
-            )
-        }
-
-        return <MapboxGL.Camera zoomLevel={9} />
-    }
+    let userCoordinate: Position | null = null
 
     const onChargeButtonPress = () => {
         navigation.navigate("ChargeDetail")
@@ -112,11 +111,23 @@ const Home = ({ navigation }: HomeProps) => {
 
     const onLocationPress = ({ features }: OnPressEvent) => {
         if (features.length) {
-            store.locationStore.setSelectedLocation(features[0].properties?.uid)
+            store.locationStore.selectLocation(features[0].properties?.uid)
         }
     }
 
+    const onMapPress = () => {
+        setFollowUserLocation(false)
+    }
+
     const onNfcTag = (tag: TagEvent) => {}
+
+    const onRecenterButtonPress = () => {
+        setFollowUserLocation(true)
+
+        if (userCoordinate) {
+            setCenterCoordinate(userCoordinate)
+        }
+    }
 
     const onRegionDidChange = async () => {
         if (mapViewRef.current) {
@@ -128,6 +139,14 @@ const Home = ({ navigation }: HomeProps) => {
 
     const onSlidingLocationPanelHide = () => {
         locationStore.removeSelectedLocation()
+    }
+
+    const onUserLocationUpdate = ({ coords }: MapboxGL.Location) => {
+        userCoordinate = [coords.longitude, coords.latitude]
+
+        if (followUserLocation) {
+            setCenterCoordinate(userCoordinate)
+        }
     }
 
     useEffect(() => {
@@ -183,11 +202,13 @@ const Home = ({ navigation }: HomeProps) => {
                 compassEnabled={false}
                 logoEnabled={false}
                 onRegionDidChange={onRegionDidChange}
+                onTouchMove={onMapPress}
                 ref={mapViewRef}
                 style={styles.matchParent}
                 styleURL={MapboxGL.StyleURL.Street}
             >
-                {includeCamera()}
+                <MapboxGL.Camera defaultSettings={defaultSettings} centerCoordinate={centerCoordinate} />
+                <MapboxGL.UserLocation minDisplacement={1} onUpdate={onUserLocationUpdate} visible={hasLocationPermission} />
                 <MapboxGL.Images
                     images={{
                         busy,
@@ -200,11 +221,10 @@ const Home = ({ navigation }: HomeProps) => {
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard onLayout={onBalanceCardLayout} />
-            <ChargeButton
-                satoshis={parseInt(sessionStore.valueSat)}
-                top={balanceCardRectangle.y + balanceCardRectangle.height}
-                onPress={onChargeButtonPress}
-            />
+            <HomeSideContainer top={balanceCardRectangle.y + balanceCardRectangle.height}>
+                <ChargeButton satoshis={parseInt(sessionStore.valueSat)} onPress={onChargeButtonPress} />
+                {!followUserLocation && <RecenterButton onPress={onRecenterButtonPress} />}
+            </HomeSideContainer>
             <HomeFooterContainer onPress={onHomeButtonPress} />
             <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
             <ReceiveActionsheet isOpen={isReceiveActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsReceiveActionsheetOpen(false)} />

@@ -60,8 +60,11 @@ const Scanner = ({ navigation }: ScannerProps) => {
         const valid = await uiStore.parseIntent(qrCode)
 
         if (!valid) {
-            setIsActive(true)
             setLastError(I18n.t("Scanner_QrCodeError"))
+
+            setTimeout(() => {
+                setIsActive(true)
+            }, 2000)
         }
     }
 

@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, reaction, runInAction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel, { ConnectorGroup, ConnectorGroupMap, ConnectorModelLike } from "models/Connector"
-import EvseModel from "models/Evse"
+import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel, { LocationModelLike } from "models/Location"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { getConnector, getLocation, listLocations } from "services/SatimotoService"
@@ -11,6 +11,7 @@ import { DEBUG } from "utils/build"
 import { LOCATION_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { delta } from "utils/delta"
+import { getEvse } from "services/SatimotoService"
 
 const log = new Log("LocationStore")
 
@@ -25,7 +26,7 @@ export interface LocationStoreInterface extends StoreInterface {
     selectedConnectors: ConnectorGroup[]
 
     searchConnector(identifier: string): Promise<ConnectorModelLike>
-    setSelectedLocation(uid: string): void
+    selectLocation(uid: string): void
     refreshSelectedLocation(): void
     removeSelectedLocation(): void
     setBounds(bounds: GeoJSON.Position[]): void
@@ -113,7 +114,7 @@ export class LocationStore implements LocationStoreInterface {
 
     async refreshSelectedLocation() {
         if (this.selectedLocation) {
-            return await this.setSelectedLocation(this.selectedLocation.uid)
+            return await this.selectLocation(this.selectedLocation.uid)
         }
 
         throw Error("No location set")
@@ -123,12 +124,17 @@ export class LocationStore implements LocationStoreInterface {
         this.selectedLocation = undefined
     }
 
-    async setSelectedLocation(uid: string) {
-        const location = await getLocation({ uid })
+    async selectLocation(uid: string) {
+        const locationResponse = await getLocation({ uid })
+        const location = locationResponse.data.getLocation as LocationModel
 
-        runInAction(() => {
-            this.selectedLocation = location.data.getLocation as LocationModel
-        })
+        if (location) {
+            this.setSelectedLocation(location)
+        }
+    }
+
+    async setSelectedLocation(location: LocationModel) {
+        this.selectedLocation = location
     }
 
     async searchConnector(identifier: string): Promise<ConnectorModelLike> {
@@ -137,6 +143,17 @@ export class LocationStore implements LocationStoreInterface {
 
         if (connector.evse && connector.evse.location) {
             return connector
+        }
+
+        return undefined
+    }
+
+    async searchEvse(evseId: string): Promise<EvseModelLike> {
+        const evseResponse = await getEvse({ evseId })
+        const evse = evseResponse.data.getEvse as EvseModel
+
+        if (evse.location && evse.connectors) {
+            return evse
         }
 
         return undefined

@@ -8,6 +8,7 @@ import * as ChannelRequest from "./satimoto/channelRequest"
 import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
 import * as Connector from "./satimoto/connector"
+import * as Evse from "./satimoto/evse"
 import * as InvoiceRequest from "./satimoto/invoiceRequest"
 import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
@@ -79,6 +80,9 @@ const stopSession = Command.stopSession(client)
 
 // Connector
 const getConnector = Connector.getConnector(client)
+
+// Evse
+const getEvse = Evse.getEvse(client)
 
 // Invoice Request
 const listInvoiceRequests = InvoiceRequest.listInvoiceRequests(client)
@@ -170,6 +174,8 @@ export {
     stopSession,
     // Connector
     getConnector,
+    // Evse
+    getEvse,
     // Invoice Request
     listInvoiceRequests,
     updateInvoiceRequest,
