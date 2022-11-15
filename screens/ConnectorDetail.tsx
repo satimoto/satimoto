@@ -54,7 +54,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [confirmationStatus, setConfirmationStatus] = useState(ChargeSessionStatus.IDLE)
     const [lastError, setLastError] = useState("")
     const [energySources, setEnergySources] = useState<StackedBarItems>([])
-    const { channelStore, sessionStore, uiStore } = useStore()
+    const { channelStore, sessionStore, settingStore } = useStore()
 
     const onClose = () => {
         navigation.navigate("Home")
@@ -79,7 +79,11 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
 
         try {
             if (confirmationStatus === ChargeSessionStatus.STARTING) {
-                await sessionStore.startSession(location, evse, connector)
+                const notificationsEnabled = await settingStore.requestPushNotificationPermission()
+
+                if (notificationsEnabled) {
+                    await sessionStore.startSession(location, evse, connector)
+                }
             } else {
                 await sessionStore.stopSession()
             }
@@ -195,6 +199,8 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         if (!isSessionConnector) {
             if (evse.status !== EvseStatus.AVAILABLE) {
                 setLastError(I18n.t("ConnectorDetail_EvseStatusError", { status: I18n.t(evse.status).toLowerCase() }))
+            } else if (sessionStore.status === ChargeSessionStatus.AWAITING_PAYMENT) {
+                setLastError(I18n.t("ConnectorDetail_AwaitingPaymentError"))
             } else if (sessionStore.status !== ChargeSessionStatus.IDLE) {
                 setLastError(I18n.t("ConnectorDetail_ChargeStatusError"))
             } else if (isRemoteCapable && channelStore.localBalance < MINIMUM_REMOTE_CHARGE_BALANCE) {
@@ -226,10 +232,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                         {I18n.t("ConnectorDetail_OperatorInfoText")}
                     </Text>
                     <Text paddingTop={5} color={textColor} fontSize={12}>
-                        {I18n.t("ConnectorDetail_EvseIdentityText", { evseId: evse.identifier || evse.uid })}
-                    </Text>
-                    <Text color={textColor} fontSize={12}>
-                        {I18n.t("ConnectorDetail_ConnectorIdentityText", { connectorId: connector.identifier || connector.uid })}
+                        {I18n.t("ConnectorDetail_EvseIdentityText", { evseId: evse.evseId || evse.identifier || evse.uid })}
                     </Text>
                 </VStack>
             </View>

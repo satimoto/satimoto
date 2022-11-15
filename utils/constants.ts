@@ -12,6 +12,7 @@ export const IS_ANDROID = Platform.OS === "android"
 export const IS_IOS = Platform.OS === "ios"
 
 export const INVOICE_REQUEST_UPDATE_INTERVAL = 3600
+export const SESSION_INVOICE_UPDATE_INTERVAL = 600
 export const LOCATION_UPDATE_INTERVAL = 60
 export const START_SESSION_TIMEOUT_SECONDS = 90
 

@@ -9,9 +9,10 @@ import { AppStackParamList } from "screens/AppStack"
 import { Log } from "utils/logging"
 import { Text, useColorModeValue, useTheme } from "native-base"
 import { StyleSheet, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { errorToString } from "utils/conversion"
 
 const log = new Log("Scanner")
 
@@ -57,15 +58,16 @@ const Scanner = ({ navigation }: ScannerProps) => {
         setIsActive(false)
         setLastError("")
 
-        const valid = await uiStore.parseIntent(qrCode)
-
-        if (!valid) {
-            setLastError(I18n.t("Scanner_QrCodeError"))
+        try {
+            await uiStore.parseIntent(qrCode)
+        } catch (error) {
+            setLastError(I18n.t(errorToString(error)))
 
             setTimeout(() => {
                 setIsActive(true)
             }, 2000)
         }
+
     }
 
     return (

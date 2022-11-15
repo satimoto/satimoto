@@ -90,6 +90,15 @@ export const connectPeer = (pubkey: string, host: string, perm: boolean = false,
     })
 }
 
+export const describeGraph = (): Promise<lnrpc.ChannelGraph> => {
+    return sendCommand<lnrpc.IChannelGraphRequest, lnrpc.ChannelGraphRequest, lnrpc.ChannelGraph>({
+        request: lnrpc.ChannelGraphRequest,
+        response: lnrpc.ChannelGraph,
+        method: service + "DescribeGraph",
+        options: {}
+    })
+}
+
 export const decodePayReq = (payReq: string): Promise<lnrpc.PayReq> => {
     return sendCommand<lnrpc.IPayReqString, lnrpc.PayReqString, lnrpc.PayReq>({
         request: lnrpc.PayReqString,

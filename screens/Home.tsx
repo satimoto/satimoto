@@ -23,6 +23,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import store from "stores/Store"
 import { Position } from "@turf/helpers"
+import { ChargeSessionStatus } from "types/chargeSession"
 import { MAPBOX_API_KEY } from "utils/build"
 import { EMAIL_REGEX, IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
@@ -222,7 +223,7 @@ const Home = ({ navigation }: HomeProps) => {
             </MapboxGL.MapView>
             <BalanceCard onLayout={onBalanceCardLayout} />
             <HomeSideContainer top={balanceCardRectangle.y + balanceCardRectangle.height}>
-                <ChargeButton satoshis={parseInt(sessionStore.valueSat)} onPress={onChargeButtonPress} />
+                {sessionStore.status !== ChargeSessionStatus.IDLE && <ChargeButton onPress={onChargeButtonPress} />}
                 {!followUserLocation && <RecenterButton onPress={onRecenterButtonPress} />}
             </HomeSideContainer>
             <HomeFooterContainer onPress={onHomeButtonPress} />

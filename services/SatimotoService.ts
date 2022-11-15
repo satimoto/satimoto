@@ -14,6 +14,7 @@ import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
+import * as SessionInvoice from "./satimoto/sessionInvoice"
 import * as Tariff from "./satimoto/tariff"
 import * as Token from "./satimoto/token"
 import * as TokenAuthorization from "./satimoto/tokenAuthorization"
@@ -97,7 +98,11 @@ const getRate = Rate.getRate(client)
 
 // Session
 const getSession = Session.getSession(client)
-const getSessionInvoice = Session.getSessionInvoice(client)
+
+// Session Invoice
+const getSessionInvoice = SessionInvoice.getSessionInvoice(client)
+const listSessionInvoices = SessionInvoice.listSessionInvoices(client)
+const updateSessionInvoice = SessionInvoice.updateSessionInvoice(client)
 
 // Tariff
 const getTariff = Tariff.getTariff(client)
@@ -115,7 +120,7 @@ const getUser = User.getUser(client)
 const updateUser = User.updateUser(client)
 
 // Token
-const getAccessToken = async (pubkey: string, deviceToken: string) => {
+const getAccessToken = async (pubkey: string, deviceToken?: string) => {
     return doWhileBackoff(
         "getAccessToken",
         async () => {
@@ -186,7 +191,10 @@ export {
     getRate,
     // Session
     getSession,
+    // SEssion Invoice
     getSessionInvoice,
+    listSessionInvoices,
+    updateSessionInvoice,
     // Tariff
     getTariff,
     // Token

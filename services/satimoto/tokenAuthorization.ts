@@ -13,6 +13,7 @@ const UPDATE_TOKEN_AUTHORIZATION = gql`
                 ...LocationFragment
             }
             authorizationId
+            authorized
             verificationKey
         }
     }

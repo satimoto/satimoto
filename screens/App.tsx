@@ -28,33 +28,15 @@ log.debug(`Starting: Mapbox API key: ${MAPBOX_API_KEY}`)
 
 const App = () => {
     useEffect(() => {
-        store.settingStore.requestPushNotificationPermission()
-
-        const unsubscribeMessages = messaging().onMessage(notificationMessageHandler)
-
-        messaging().onNotificationOpenedApp((remoteMessage) => {
-            log.debug(`onNotificationOpenedApp: ${JSON.stringify(remoteMessage)}`)
-        })
-
-        messaging()
-            .getInitialNotification()
-            .then((remoteMessage) => {
-                if (remoteMessage) {
-                    log.debug(`getInitialNotification: ${JSON.stringify(remoteMessage)}`)
-                }
-            })
-
-        return () => {
-            unsubscribeMessages()
-        }
-    }, [])
-
-    /*
-    useEffect(() => {
         if (store.settingStore.pushNotificationEnabled) {
+            log.debug(`Initialize push notification handling`)
             const unsubscribeMessages = messaging().onMessage(notificationMessageHandler)
 
-            messaging().onNotificationOpenedApp((remoteMessage) => {
+            const unsubscribeTokenRefresh = messaging().onTokenRefresh((token) => {
+                store.settingStore.setPushNotificationSettings(token.length > 0, token)
+            })
+
+            const unsubscribeOpenedApp = messaging().onNotificationOpenedApp((remoteMessage) => {
                 log.debug(`onNotificationOpenedApp: ${JSON.stringify(remoteMessage)}`)
             })
 
@@ -68,10 +50,11 @@ const App = () => {
 
             return () => {
                 unsubscribeMessages()
+                unsubscribeTokenRefresh()
+                unsubscribeOpenedApp()
             }
         }
     }, [store.settingStore.pushNotificationEnabled])
-    */
 
     return (
         <ApolloProvider client={client}>

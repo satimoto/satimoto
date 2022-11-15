@@ -15,6 +15,7 @@ import { AppStackParamList } from "screens/AppStack"
 import { createToken, listTokens } from "services/SatimotoService"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
+import { useStore } from "hooks/useStore"
 
 type TokenListProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "TokenList">
@@ -26,8 +27,16 @@ const TokenList = ({ navigation }: TokenListProps) => {
     const textColor = useColorModeValue("lightText", "darkText")
     const safeAreaInsets = useSafeAreaInsets()
     const [tokens, setTokens] = useState<TokenModel[]>([])
-    const [isBusy, setIsBusy] = useState(true)
     const [isScanNfcModalVisible, setIsScanNfcModalVisible] = useState(false)
+    const { settingStore } = useStore()
+
+    const onAddButtonPress = async () => {
+        const notificationsEnabled = await settingStore.requestPushNotificationPermission()
+
+        if (notificationsEnabled) {
+            setIsScanNfcModalVisible(true)
+        }
+    }
 
     const onNfcTag = async (nfcTag: TagEvent) => {
         if (nfcTag.id) {
@@ -40,7 +49,7 @@ const TokenList = ({ navigation }: TokenListProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             title: I18n.t("TokenList_HeaderTitle"),
-            headerRight: () => <HeaderButton icon={faPlus} onPress={() => setIsScanNfcModalVisible(true)} />
+            headerRight: () => <HeaderButton icon={faPlus} onPress={onAddButtonPress} />
         })
     }, [navigation])
 
@@ -49,7 +58,6 @@ const TokenList = ({ navigation }: TokenListProps) => {
             const listTokensResponse = await listTokens()
 
             setTokens(listTokensResponse.data.listTokens as TokenModel[])
-            setIsBusy(false)
         }
 
         asyncListTokens()

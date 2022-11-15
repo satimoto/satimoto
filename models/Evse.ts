@@ -5,6 +5,7 @@ import TextDescriptionModel from "models/TextDescription"
 
 interface EvseModel {
     uid: string
+    evseId?: string
     identifier?: string
     status: string
     location?: LocationModel

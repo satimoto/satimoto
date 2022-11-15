@@ -4,7 +4,6 @@ import { makePersistable } from "mobx-persist-store"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
-import { lnrpc } from "proto/proto"
 import { Linking } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NfcManager from "react-native-nfc-manager"
@@ -190,7 +189,9 @@ export class UiStore implements UiStoreInterface {
     async parseIntent(intent: string): Promise<boolean> {
         log.debug("parseIntent: " + intent)
         intent = intent.replace(/lightning:/i, "")
+
         const lowerCaseIntent = intent.toLowerCase()
+        let errorCode = "Scanner_QrCodeError"
 
         try {
             if (lowerCaseIntent.startsWith("lnurl")) {
@@ -203,16 +204,36 @@ export class UiStore implements UiStoreInterface {
                 return true
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
-                const indentifierMatches = intent.match(EVSE_ID_REGEX)
+                let indentifierMatches = intent.match(EVSE_ID_REGEX)
 
                 if (indentifierMatches && indentifierMatches.length > 0) {
-                    log.debug("EvseID: " + indentifierMatches[0])
-                    const evse = await this.stores.locationStore.searchEvse(indentifierMatches[0])
+                    let evse = await this.stores.locationStore.searchEvse(indentifierMatches[0])
 
                     if (evse) {
                         this.setChargePoint(evse)
                         return true
                     }
+
+                    try {
+                        // Evse not found, attempt to follow URL for a possible redirect
+                        const response = await fetch(intent)
+                        const responseLocation = response.headers.get("Location")
+
+                        if (responseLocation) {
+                            indentifierMatches = responseLocation.match(EVSE_ID_REGEX)
+
+                            if (indentifierMatches && indentifierMatches.length > 0) {
+                                evse = await this.stores.locationStore.searchEvse(indentifierMatches[0])
+
+                                if (evse) {
+                                    this.setChargePoint(evse)
+                                    return true
+                                }
+                            }
+                        }
+                    } catch {}
+
+                    errorCode = "Scanner_UnrecognizedEvseIdError"
                 }
             } else {
                 // Payment Request
@@ -221,7 +242,7 @@ export class UiStore implements UiStoreInterface {
             }
         } catch {}
 
-        return false
+        throw new Error(errorCode)
     }
 
     setChargePoint(evse: EvseModel) {

@@ -20,6 +20,7 @@ export interface SettingStoreInterface extends StoreInterface {
     pushNotificationToken?: string
 
     requestPushNotificationPermission(): Promise<boolean>
+    setPushNotificationSettings(enabled: boolean, token: string): void
 }
 
 export class SettingStore implements SettingStoreInterface {
@@ -63,7 +64,7 @@ export class SettingStore implements SettingStoreInterface {
 
     async initialize(): Promise<void> {
         reaction(
-            () => [this.pushNotificationToken, this.stores.lightningStore.identityPubkey, this.stores.lightningStore.syncedToChain],
+            () => [this.stores.lightningStore.identityPubkey, this.stores.lightningStore.syncedToChain],
             () => this.reactionGetToken()
         )
 
@@ -94,7 +95,7 @@ export class SettingStore implements SettingStoreInterface {
     }
 
     async reactionGetToken() {
-        if (!this.accessToken && this.pushNotificationToken && this.stores.lightningStore.identityPubkey) {
+        if (!this.accessToken && this.stores.lightningStore.identityPubkey) {
             const token = await getAccessToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
 
             this.setAccessToken(token)
@@ -108,15 +109,18 @@ export class SettingStore implements SettingStoreInterface {
     }
 
     async requestPushNotificationPermission(): Promise<boolean> {
-        const authStatus = await messaging().requestPermission()
-        const token = await messaging().getToken()
+        let enabled = this.pushNotificationEnabled
 
-        const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL
-        this.setPushNotificationSettings(enabled, token)
+        if (!this.pushNotificationEnabled) {
+            const authStatus = await messaging().requestPermission()
 
-        messaging().onTokenRefresh((token) => {
-            this.setPushNotificationSettings(enabled, token)
-        })
+            enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL
+            
+            if (enabled) {
+                const token = await messaging().getToken()
+                this.setPushNotificationSettings(enabled, token)
+            }
+        }
 
         return enabled
     }

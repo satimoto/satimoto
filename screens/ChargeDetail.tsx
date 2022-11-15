@@ -3,6 +3,7 @@ import LocationAddress from "components/LocationAddress"
 import PaymentButton from "components/PaymentButton"
 import PaymentInfoModal from "components/PaymentInfoModal"
 import SatoshiBalance from "components/SatoshiBalance"
+import SessionInvoiceButton from "components/SessionInvoiceButton"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faStop } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
@@ -73,9 +74,9 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
             </VStack>
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
-                    {sessionStore.payments.map((payment) => (
-                        <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />
-                    ))}
+                    {sessionStore.status == ChargeSessionStatus.AWAITING_PAYMENT
+                        ? sessionStore.sessionInvoices.map((sessionInvoice) => <SessionInvoiceButton key={sessionInvoice.id} sessionInvoice={sessionInvoice} />)
+                        : sessionStore.payments.map((payment) => <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />)}
                 </VStack>
             </ScrollView>
             <ConfirmationModal

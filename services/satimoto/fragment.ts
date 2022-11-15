@@ -16,6 +16,7 @@ const CONNECTOR_FRAGMENT = gql`
 const EVSE_FRAGMENT = gql`
     fragment EvseFragment on Evse {
         uid
+        evseId
         identifier
         status
         capabilities {
@@ -156,6 +157,27 @@ const EVSE_WITH_CONNECTORS_AND_LOCATION_FRAGMENT = gql`
     }
 `
 
+const SESSION_INVOICE_FRAGMENT = gql`
+    fragment SessionInvoiceFragment on SessionInvoice {
+        id
+        currency
+        currencyRate
+        currencyRateMsat
+        priceFiat
+        priceMsat
+        commissionFiat
+        commissionMsat
+        taxFiat
+        taxMsat
+        totalFiat
+        totalMsat
+        paymentRequest
+        signature
+        isSettled
+        isExpired
+        lastUpdated
+    }
+`
 
 export {
     CONNECTOR_FRAGMENT,
@@ -167,5 +189,6 @@ export {
     LOCATION_FRAGMENT,
     LOCATION_WITH_EVSES_FRAGMENT,
     SESSION_FRAGMENT,
+    SESSION_INVOICE_FRAGMENT,
     TARIFF_FRAGMENT
 }
