@@ -72,7 +72,7 @@ const LOCATION_WITH_EVSES_FRAGMENT = gql`
 `
 
 const SESSION_FRAGMENT = gql`
-    fragment SessionFragment on Evse {
+    fragment SessionFragment on Session {
         uid
         authorizationId
         startDatetime

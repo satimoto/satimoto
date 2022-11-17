@@ -14,7 +14,6 @@ export const IS_IOS = Platform.OS === "ios"
 export const INVOICE_REQUEST_UPDATE_INTERVAL = 3600
 export const SESSION_INVOICE_UPDATE_INTERVAL = 600
 export const LOCATION_UPDATE_INTERVAL = 60
-export const START_SESSION_TIMEOUT_SECONDS = 90
 
 export const LN_BECH32_PREFIX = NETWORK === "mainnet" ? "lnbc" : NETWORK === "testnet" ? "lntb" : "lnbcrt"
 export const LNURL_CANONICAL_PHRASE =
@@ -26,7 +25,7 @@ export const MINIMUM_RFID_CHARGE_BALANCE = 50000
 export const ONBOARDING_VERSION = "0.3.0"
 
 export const INVOICE_EXPIRY = 3600
-export const PAYMENT_TIMEOUT_SECONDS = 60
+export const PAYMENT_TIMEOUT_SECONDS = 120
 export const PAYMENT_FEE_LIMIT_SAT = 50000
 export const PAYMENT_CLTV_LIMIT = 0
 

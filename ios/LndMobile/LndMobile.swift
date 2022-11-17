@@ -95,6 +95,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     // Peers RPC
     "PeersUpdateNodeAnnouncement": { (msg: Data?, cb: LndCallback) in LndmobilePeersUpdateNodeAnnouncement(msg, cb) },
     // Router RPC
+    "RouterMarkEdgeLive": { (msg: Data?, cb: LndCallback) in LndmobileRouterMarkEdgeLive(msg, cb) },
     "RouterBuildRoute": { (msg: Data?, cb: LndCallback) in LndmobileRouterBuildRoute(msg, cb) },
     "RouterEstimateRouteFee": { (msg: Data?, cb: LndCallback) in LndmobileRouterEstimateRouteFee(msg, cb) },
     "RouterGetMissionControlConfig": { (msg: Data?, cb: LndCallback) in LndmobileRouterGetMissionControlConfig(msg, cb) },
@@ -206,11 +207,13 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
   
   @objc(start:rejecter:)
   func start(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    let lndUtils = LndUtils()
+    lndUtils.deleteLog()
+    
     let args = "--lnddir=\"\(LndUtils.lndDirectory.path)\" --configfile=\"\(LndUtils.confFile.path)\""
 
     if !FileManager.default.fileExists(atPath: LndUtils.confFile.path) {
       do {
-        let lndUtils = LndUtils()
         try lndUtils.writeDefaultConf()
       } catch let err {
         RCTLogError("error writing conf: \(err.localizedDescription)")

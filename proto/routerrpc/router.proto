@@ -91,6 +91,11 @@ service Router {
         returns (QueryProbabilityResponse);
 
     /*
+    MarkEdgeLive clears an edge from our zombie index, deeming it as live.
+    */
+    rpc MarkEdgeLive (MarkEdgeLiveRequest) returns (MarkEdgeLiveResponse);
+
+    /*
     BuildRoute builds a fully specified route based on a list of hop public
     keys. It retrieves the relevant channel policies from the graph in order to
     calculate the correct fees and time locks.
@@ -503,6 +508,14 @@ message QueryProbabilityResponse {
 
     // The historical data for the requested pair.
     PairData history = 2;
+}
+
+message MarkEdgeLiveRequest {
+    // A list of short channel ids to mark live
+    repeated uint64 channel_ids = 1 [jstype = JS_STRING];
+}
+
+message MarkEdgeLiveResponse {
 }
 
 message BuildRouteRequest {

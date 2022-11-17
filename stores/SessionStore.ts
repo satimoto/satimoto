@@ -28,7 +28,7 @@ import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNo
 import { SessionStatus } from "types/session"
 import { TokenType } from "types/token"
 import { DEBUG } from "utils/build"
-import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL, START_SESSION_TIMEOUT_SECONDS } from "utils/constants"
+import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
 
@@ -262,29 +262,6 @@ export class SessionStore implements SessionStoreInterface {
         } catch {}
     }
 
-    async onStartSessionTimeout() {
-        log.debug(`onStartSessionTimeout`)
-        if (this.status === ChargeSessionStatus.STARTING) {
-            if (this.authorizationId) {
-                // Cancel the start session command
-                if (this.tokenType === TokenType.OTHER) {
-                    try {
-                        await this.stopSession()
-                    } catch {}
-                }
-
-                // Unauthorize the token authorization
-                if (!this.session) {
-                    try {
-                        await updateTokenAuthorization({ authorizationId: this.authorizationId, authorize: false })
-                    } catch {}
-                }
-            }
-
-            this.setIdle()
-        }
-    }
-
     async payExpiredSessionInvoice(sessionInvoice: SessionInvoiceModel): Promise<void> {
         if (sessionInvoice.isExpired && !sessionInvoice.isSettled) {
             const response = await updateSessionInvoice(sessionInvoice.id)
@@ -335,8 +312,6 @@ export class SessionStore implements SessionStoreInterface {
             this.evse = evse
             this.connector = connector
         })
-
-        setTimeout(this.onStartSessionTimeout.bind(this), START_SESSION_TIMEOUT_SECONDS * 1000)
     }
 
     async stopSession(): Promise<void> {
@@ -414,9 +389,13 @@ export class SessionStore implements SessionStoreInterface {
         this.sessionInvoicesUpdateTimer = null
     }
 
-    whenHydrated() {
-        if (this.status === ChargeSessionStatus.STARTING) {
-            setTimeout(this.onStartSessionTimeout.bind(this), START_SESSION_TIMEOUT_SECONDS * 1000)
+    async whenHydrated() {
+        if (this.status === ChargeSessionStatus.STARTING && this.session) {
+            const response = await getSession({ uid: this.session.uid })
+
+            this.updateSession(response.data.getSession as SessionModel)
+        } else if (this.status === ChargeSessionStatus.IDLE) {
+            this.setIdle()
         }
     }
 

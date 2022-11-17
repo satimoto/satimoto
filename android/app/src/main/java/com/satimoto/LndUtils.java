@@ -206,6 +206,15 @@ public class LndUtils extends ReactContextBaseJavaModule {
         promise.resolve("Saved LND conf to: " + confPath);
     }
 
+    void deleteLog() {
+        try {
+            File file = new File(logPath);
+            file.delete();
+        } catch (Exception e) {
+            Log.e(TAG, "Error deleting log: " + logPath, e);
+        }
+    }
+
     @ReactMethod
     void startLogEvents(Promise promise) {
         if (logObserver == null) {

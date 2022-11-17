@@ -1,3 +1,4 @@
+import Long from "long"
 import { lnrpc, routerrpc } from "proto/proto"
 import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
 import { PAYMENT_CLTV_LIMIT, PAYMENT_TIMEOUT_SECONDS, PAYMENT_FEE_LIMIT_SAT } from "utils/constants"
@@ -20,6 +21,17 @@ export interface SendPaymentV2Props {
     cltvLimit?: number
     maxParts?: number
     amp?: boolean
+}
+
+export const markEdgeLive = (channelIds: string[]): Promise<routerrpc.MarkEdgeLiveResponse> => {
+    return sendCommand<routerrpc.IMarkEdgeLiveRequest, routerrpc.MarkEdgeLiveRequest, routerrpc.MarkEdgeLiveResponse>({
+        request: routerrpc.MarkEdgeLiveRequest,
+        response: routerrpc.MarkEdgeLiveResponse,
+        method: service + "MarkEdgeLive",
+        options: {
+            channelIds: channelIds.map((channelId) => toLong(channelId))
+        }
+    })
 }
 
 export const resetMissionControl = (): Promise<routerrpc.ResetMissionControlResponse> => {

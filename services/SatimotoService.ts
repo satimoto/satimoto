@@ -12,6 +12,7 @@ import * as Evse from "./satimoto/evse"
 import * as InvoiceRequest from "./satimoto/invoiceRequest"
 import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
+import * as Node from "./satimoto/node"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
 import * as SessionInvoice from "./satimoto/sessionInvoice"
@@ -92,6 +93,9 @@ const updateInvoiceRequest = InvoiceRequest.updateInvoiceRequest(client)
 // Location
 const getLocation = Location.getLocation(client)
 const listLocations = Location.listLocations(client)
+
+// Node
+const listChannels = Node.listChannels(client)
 
 // Rate
 const getRate = Rate.getRate(client)
@@ -187,6 +191,8 @@ export {
     // Location
     getLocation,
     listLocations,
+    // Node
+    listChannels,
     // Rate
     getRate,
     // Session
