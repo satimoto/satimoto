@@ -1,26 +1,15 @@
 import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
+import { INVOICE_REQUEST_FRAGMENT } from "./fragment"
 
 /**
  * List Invoice Requests
  */
 
  const LIST_INVOICE_REQUESTS = gql`
+    ${INVOICE_REQUEST_FRAGMENT}
     query ListInvoiceRequests {
         listInvoiceRequests {
-            id
-            currency
-            memo
-            priceFiat
-            priceMsat
-            commissionFiat
-            commissionMsat
-            taxFiat
-            taxMsat
-            totalFiat
-            totalMsat
-            promotion {
-                code
-            }
+            ...InvoiceRequestFragment
         }
     }
 `

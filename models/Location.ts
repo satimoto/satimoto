@@ -7,7 +7,7 @@ interface LocationModel {
     address?: string
     city?: string
     postalCode?: string
-    country?: string
+    country: string
     geom: PointModel
     evses?: EvseModel[]
     availableEvses: number

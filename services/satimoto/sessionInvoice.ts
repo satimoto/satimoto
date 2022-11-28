@@ -7,7 +7,7 @@ import { SESSION_INVOICE_FRAGMENT } from "./fragment"
 
 const GET_SESSION_INVOICE = gql`
     ${SESSION_INVOICE_FRAGMENT}
-    query GetSessionInvoice($id: number!) {
+    query GetSessionInvoice($id: ID!) {
         getSessionInvoice(id: $id) {
             ...SessionInvoiceFragment
         }
@@ -64,7 +64,7 @@ export { listSessionInvoices }
 
  const UPDATE_SESSION_INVOICE = gql`
     ${SESSION_INVOICE_FRAGMENT}
-    mutation UpdateSessionInvoice($id: number!) {
+    mutation UpdateSessionInvoice($id: ID!) {
         updateSessionInvoice(id: $id) {
             ...SessionInvoiceFragment
         }

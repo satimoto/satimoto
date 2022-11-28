@@ -26,7 +26,7 @@ import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
 import { PaymentStatus } from "types/payment"
 import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNotification } from "types/notification"
 import { SessionStatus } from "types/session"
-import { TokenType } from "types/token"
+import { TokenType, toTokenType } from "types/token"
 import { DEBUG } from "utils/build"
 import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
@@ -101,9 +101,9 @@ export class SessionStore implements SessionStoreInterface {
             feeMsat: computed,
             feeSat: computed,
 
+            addPayment: action,
             setIdle: action,
             setReady: action,
-            updatePayments: action,
             updateSession: action,
             updateSessionInvoice: action
         })
@@ -132,13 +132,12 @@ export class SessionStore implements SessionStoreInterface {
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
 
+    addPayment(payment: PaymentModel) {
+        this.payments.unshift(payment)
+    }
+
     async initialize(): Promise<void> {
         try {
-            reaction(
-                () => this.stores.paymentStore.payments,
-                () => this.updatePayments()
-            )
-
             when(
                 () => this.hydrated,
                 () => this.whenHydrated()
@@ -160,7 +159,6 @@ export class SessionStore implements SessionStoreInterface {
     get valueMsat(): string {
         return this.session
             ? this.payments
-                  .filter((payment) => payment.description === this.session!.uid)
                   .reduce((valueMsat, payment) => {
                       return valueMsat.add(payment.valueMsat)
                   }, new Long(0))
@@ -181,7 +179,6 @@ export class SessionStore implements SessionStoreInterface {
     get feeMsat(): string {
         return this.session
             ? this.payments
-                  .filter((payment) => payment.description === this.session!.uid)
                   .reduce((feeMsat, payment) => {
                       return feeMsat.add(payment.feeMsat)
                   }, new Long(0))
@@ -208,29 +205,43 @@ export class SessionStore implements SessionStoreInterface {
             const response = await getSessionInvoice(notification.sessionInvoiceId)
             const sessionInvoice = response.data.getSessionInvoice as SessionInvoiceModel
 
-            if (
-                sessionInvoice &&
-                this.verificationKey &&
-                notification.paymentRequest === sessionInvoice.paymentRequest &&
-                notification.signature === sessionInvoice.signature
-            ) {
+            if (sessionInvoice) {
+                if (!this.verificationKey) {
+                    log.debug(`No verfication key to verify invoice signature`)
+                    return
+                }
+
+                if (notification.paymentRequest !== sessionInvoice.paymentRequest) {
+                    log.debug(`Payment request inconsistent with notification`)
+                    return
+                }
+
+                if (notification.signature !== sessionInvoice.signature) {
+                    log.debug(`Signature inconsistent with notification`)
+                    return
+                }
+
                 const hash = new Hash().update(toBytes(sessionInvoice.paymentRequest)).digest()
                 const signature = signatureImport(hexToBytes(sessionInvoice.signature))
 
-                if (ecdsaVerify(signature, hash, this.verificationKey)) {
-                    when(
-                        () => this.stores.lightningStore.syncedToChain,
-                        async () => {
-                            const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
-
-                            if (payment.status === PaymentStatus.SUCCEEDED) {
-                                sessionInvoice.isSettled = true
-                            }
-
-                            this.updateSessionInvoice(sessionInvoice)
-                        }
-                    )
+                if (!ecdsaVerify(signature, hash, this.verificationKey)) {
+                    log.debug(`Signature could not be verified with verification key`)
+                    return
                 }
+
+                when(
+                    () => this.stores.lightningStore.syncedToChain,
+                    async () => {
+                        const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
+
+                        if (payment.status === PaymentStatus.SUCCEEDED) {
+                            sessionInvoice.isSettled = true
+                            this.addPayment(payment)
+                        }
+
+                        this.updateSessionInvoice(sessionInvoice)
+                    }
+                )
             }
         }
     }
@@ -243,16 +254,14 @@ export class SessionStore implements SessionStoreInterface {
 
     async onTokenAuthorizeNotification(notification: TokenAuthorizeNotification): Promise<void> {
         try {
-            const authorize = this.stores.channelStore.localBalance >= MINIMUM_RFID_CHARGE_BALANCE
-            const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorize })
+            const authorized = this.stores.channelStore.localBalance >= MINIMUM_RFID_CHARGE_BALANCE
+            const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorized })
             const tokenAuthorization = response.data.updateTokenAuthorization as TokenAuthorizationModel
 
-            if (tokenAuthorization.authorized && tokenAuthorization.verificationKey) {
+            if (authorized && tokenAuthorization.verificationKey) {
                 runInAction(() => {
                     this.authorizationId = tokenAuthorization.authorizationId
                     this.verificationKey = hexToBytes(tokenAuthorization.verificationKey!)
-                    this.tokenType = TokenType.RFID
-                    this.status = ChargeSessionStatus.STARTING
 
                     if (tokenAuthorization.location) {
                         this.location = tokenAuthorization.location
@@ -306,8 +315,8 @@ export class SessionStore implements SessionStoreInterface {
         runInAction(() => {
             this.authorizationId = startCommand.authorizationId
             this.verificationKey = hexToBytes(startCommand.verificationKey)
-            this.tokenType = TokenType.OTHER
             this.status = ChargeSessionStatus.STARTING
+            this.tokenType = TokenType.OTHER
             this.location = location
             this.evse = evse
             this.connector = connector
@@ -315,18 +324,21 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async stopSession(): Promise<void> {
-        if (this.session) {
-            await stopSession({ sessionUid: this.session.uid })
+        if (this.authorizationId) {
+            await stopSession({ authorizationId: this.authorizationId })
 
             runInAction(() => {
-                this.status = ChargeSessionStatus.STOPPING
+                if (this.status === ChargeSessionStatus.STARTING) {
+                    this.status = ChargeSessionStatus.IDLE
+                    this.tokenType = undefined
+                    this.session = undefined
+                    this.location = undefined
+                    this.evse = undefined
+                    this.connector = undefined
+                } else {
+                    this.status = ChargeSessionStatus.STOPPING
+                }
             })
-        }
-    }
-
-    updatePayments() {
-        if (this.session && this.status != ChargeSessionStatus.IDLE) {
-            this.payments.replace(this.stores.paymentStore.payments.filter((payment) => payment.description === this.session!.uid))
         }
     }
 
@@ -334,7 +346,7 @@ export class SessionStore implements SessionStoreInterface {
         // When the session status is INVOICED, dispose of the verification key
         this.session = session
         this.status = toChargeSessionStatus(this.session.status)
-
+        this.tokenType = toTokenType(session.authMethod)
         this.location = this.location || this.session.location
         this.evse = this.evse || this.session.evse
         this.connector = this.connector || this.session.connector

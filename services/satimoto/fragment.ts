@@ -13,79 +13,6 @@ const CONNECTOR_FRAGMENT = gql`
     }
 `
 
-const EVSE_FRAGMENT = gql`
-    fragment EvseFragment on Evse {
-        uid
-        evseId
-        identifier
-        status
-        capabilities {
-            text
-            description
-        }
-    }
-`
-
-const LOCATION_FRAGMENT = gql`
-    fragment LocationFragment on Location {
-        uid
-        name
-        address
-        city
-        postalCode
-        country
-        geom
-    }
-`
-
-const EVSE_WITH_CONNECTORS_FRAGMENT = gql`
-    ${EVSE_FRAGMENT}
-    ${CONNECTOR_FRAGMENT}
-    fragment EvseWithConnectorsFragment on Evse {
-        ...EvseFragment
-        connectors {
-            ...ConnectorFragment
-        }
-    }
-`
-
-const EVSE_WITH_LOCATION_FRAGMENT = gql`
-    ${EVSE_FRAGMENT}
-    ${LOCATION_FRAGMENT}
-    fragment EvseWithLocationFragment on Evse {
-        ...EvseFragment
-        location {
-            ...LocationFragment
-        }
-    }
-`
-
-const LOCATION_WITH_EVSES_FRAGMENT = gql`
-    ${LOCATION_FRAGMENT}
-    ${EVSE_WITH_CONNECTORS_FRAGMENT}
-    fragment LocationWithEvsesFragment on Location {
-        ...LocationFragment
-        evses {
-            ...EvseWithConnectorsFragment
-        }
-    }
-`
-
-const SESSION_FRAGMENT = gql`
-    fragment SessionFragment on Session {
-        uid
-        authorizationId
-        startDatetime
-        endDatetime
-        kwh
-        authMethod
-        meterId
-        invoiceRequest
-        status
-        lastUpdated
-    }
-`
-
 const TARIFF_FRAGMENT = gql`
     fragment TariffFragment on Tariff {
         uid
@@ -142,17 +69,79 @@ const CONNECTOR_WITH_TARIFF_FRAGMENT = gql`
     }
 `
 
-const EVSE_WITH_CONNECTORS_AND_LOCATION_FRAGMENT = gql`
+const EVSE_FRAGMENT = gql`
+    fragment EvseFragment on Evse {
+        uid
+        evseId
+        identifier
+        status
+        capabilities {
+            text
+            description
+        }
+    }
+`
+
+const LOCATION_FRAGMENT = gql`
+    fragment LocationFragment on Location {
+        uid
+        name
+        address
+        city
+        postalCode
+        country
+        geom
+    }
+`
+
+const EVSE_WITH_CONNECTORS_FRAGMENT = gql`
     ${EVSE_FRAGMENT}
     ${CONNECTOR_WITH_TARIFF_FRAGMENT}
-    ${LOCATION_FRAGMENT}
-    fragment EvseWithConnectorsAndLocationFragment on Evse {
+    fragment EvseWithConnectorsFragment on Evse {
         ...EvseFragment
         connectors {
             ...ConnectorWithTariffFragment
         }
+    }
+`
+
+const EVSE_WITH_LOCATION_FRAGMENT = gql`
+    ${EVSE_FRAGMENT}
+    ${LOCATION_FRAGMENT}
+    fragment EvseWithLocationFragment on Evse {
+        ...EvseFragment
         location {
             ...LocationFragment
+        }
+    }
+`
+
+const LOCATION_WITH_EVSES_FRAGMENT = gql`
+    ${LOCATION_FRAGMENT}
+    ${EVSE_WITH_CONNECTORS_FRAGMENT}
+    fragment LocationWithEvsesFragment on Location {
+        ...LocationFragment
+        evses {
+            ...EvseWithConnectorsFragment
+        }
+    }
+`
+
+const INVOICE_REQUEST_FRAGMENT = gql`
+    fragment InvoiceRequestFragment on InvoiceRequest {
+        id
+        currency
+        memo
+        priceFiat
+        priceMsat
+        commissionFiat
+        commissionMsat
+        taxFiat
+        taxMsat
+        totalFiat
+        totalMsat
+        promotion {
+            code
         }
     }
 `
@@ -179,6 +168,40 @@ const SESSION_INVOICE_FRAGMENT = gql`
     }
 `
 
+const SESSION_FRAGMENT = gql`
+    ${INVOICE_REQUEST_FRAGMENT}
+    fragment SessionFragment on Session {
+        uid
+        authorizationId
+        startDatetime
+        endDatetime
+        kwh
+        authMethod
+        meterId
+        invoiceRequest {
+            ...InvoiceRequestFragment
+        }
+        status
+        lastUpdated
+    }
+`
+
+
+const EVSE_WITH_CONNECTORS_AND_LOCATION_FRAGMENT = gql`
+    ${EVSE_FRAGMENT}
+    ${CONNECTOR_WITH_TARIFF_FRAGMENT}
+    ${LOCATION_FRAGMENT}
+    fragment EvseWithConnectorsAndLocationFragment on Evse {
+        ...EvseFragment
+        connectors {
+            ...ConnectorWithTariffFragment
+        }
+        location {
+            ...LocationFragment
+        }
+    }
+`
+
 export {
     CONNECTOR_FRAGMENT,
     CONNECTOR_WITH_TARIFF_FRAGMENT,
@@ -186,6 +209,7 @@ export {
     EVSE_WITH_CONNECTORS_FRAGMENT,
     EVSE_WITH_CONNECTORS_AND_LOCATION_FRAGMENT,
     EVSE_WITH_LOCATION_FRAGMENT,
+    INVOICE_REQUEST_FRAGMENT,
     LOCATION_FRAGMENT,
     LOCATION_WITH_EVSES_FRAGMENT,
     SESSION_FRAGMENT,

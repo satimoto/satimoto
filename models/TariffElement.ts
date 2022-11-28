@@ -44,17 +44,17 @@ const isActiveTariffElement = (
     const restrictions = element.restrictions
 
     return (
-        !restrictions ||
-        ((!restrictions.startDate || now.isAfter(restrictions.startDate)) &&
-            (!restrictions.endDate || now.isBefore(restrictions.endDate)) &&
-            (!restrictions.startTime || now.isAfter(moment(`${nowDate}T${restrictions.startDate}`))) &&
-            (!restrictions.endTime || now.isBefore(moment(`${nowDate}T${restrictions.endTime}`))) &&
-            (!restrictions.minKwh || energy >= restrictions.minKwh) &&
-            (!restrictions.maxKwh || (energy > 0 && energy < restrictions.maxKwh)) &&
-            (!restrictions.minPower || minPower >= restrictions.minPower) &&
-            (!restrictions.maxPower || (maxPower > 0 && maxPower < restrictions.maxPower)) &&
-            (!restrictions.minDuration || duration >= restrictions.minDuration) &&
-            (!restrictions.maxDuration || duration < restrictions.maxDuration) &&
+        restrictions == null ||
+        ((restrictions.startDate == null || now.isAfter(restrictions.startDate)) &&
+            (restrictions.endDate == null || now.isBefore(restrictions.endDate)) &&
+            (restrictions.startTime == null || now.isAfter(moment(`${nowDate}T${restrictions.startTime}`))) &&
+            (restrictions.endTime == null || now.isBefore(moment(`${nowDate}T${restrictions.endTime}`))) &&
+            (restrictions.minKwh == null || energy >= restrictions.minKwh) &&
+            (restrictions.maxKwh == null || (energy > 0 && energy < restrictions.maxKwh)) &&
+            (restrictions.minPower == null || minPower >= restrictions.minPower) &&
+            (restrictions.maxPower == null || (maxPower > 0 && maxPower < restrictions.maxPower)) &&
+            (restrictions.minDuration == null || duration >= restrictions.minDuration) &&
+            (restrictions.maxDuration == null || (duration > 0 && duration < restrictions.maxDuration)) &&
             (restrictions.dayOfWeek.length === 0 || restrictions.dayOfWeek.includes(nowDayOfWeek)))
     )
 }

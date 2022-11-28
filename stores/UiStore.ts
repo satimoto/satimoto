@@ -1,4 +1,4 @@
-import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
+import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLResponse, LNURLWithdrawParams } from "js-lnurl"
 import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel from "models/Connector"
@@ -16,9 +16,11 @@ import { ONBOARDING_VERSION } from "utils/constants"
 import { Log } from "utils/logging"
 import { PayReq, toPayReq } from "types/payment"
 import { Tooltip } from "types/tooltip"
+import { errorToString } from "utils/conversion"
 
 const log = new Log("UiStore")
-const EVSE_ID_REGEX = /[A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+/
+const EVSE_ID_REGEX = /[\/=]([A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+)/
+const ID_REGEX = /\/([A-Za-z0-9]+)$/
 
 export interface UiStoreInterface extends StoreInterface {
     hydrated: boolean
@@ -188,26 +190,33 @@ export class UiStore implements UiStoreInterface {
      */
     async parseIntent(intent: string): Promise<boolean> {
         log.debug("parseIntent: " + intent)
-        intent = intent.replace(/lightning:/i, "")
+        intent = intent.replace(/lightning:/i, "").trim()
 
         const lowerCaseIntent = intent.toLowerCase()
-        let errorCode = "Scanner_QrCodeError"
+        let errorCode = "Scanner_DataError"
 
         try {
             if (lowerCaseIntent.startsWith("lnurl")) {
                 // LNURL
-                await this.setLnUrl(intent)
-                return true
+                try {
+                     await this.setLnUrl(intent)
+                    return true
+                } catch (error) {
+                    errorCode = errorToString(error)
+                }
             } else if (intent.includes("@")) {
                 // Lightning Address
                 await this.setLightningAddress(intent)
                 return true
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
-                let indentifierMatches = intent.match(EVSE_ID_REGEX)
+                let evseIdMatches = intent.match(EVSE_ID_REGEX)
+                let idMatches = intent.match(ID_REGEX)
+                let identifier =
+                    evseIdMatches && evseIdMatches.length > 1 ? evseIdMatches[1] : idMatches && idMatches.length > 1 ? idMatches[1] : null
 
-                if (indentifierMatches && indentifierMatches.length > 0) {
-                    let evse = await this.stores.locationStore.searchEvse(indentifierMatches[0])
+                if (identifier) {
+                    let evse = await this.stores.locationStore.searchEvse(identifier)
 
                     if (evse) {
                         this.setChargePoint(evse)
@@ -220,10 +229,13 @@ export class UiStore implements UiStoreInterface {
                         const responseLocation = response.headers.get("Location")
 
                         if (responseLocation) {
-                            indentifierMatches = responseLocation.match(EVSE_ID_REGEX)
+                            let evseIdMatches = intent.match(EVSE_ID_REGEX)
+                            let idMatches = intent.match(ID_REGEX)
+                            let identifier =
+                                evseIdMatches && evseIdMatches.length > 1 ? evseIdMatches[1] : idMatches && idMatches.length > 1 ? idMatches[1] : null
 
-                            if (indentifierMatches && indentifierMatches.length > 0) {
-                                evse = await this.stores.locationStore.searchEvse(indentifierMatches[0])
+                            if (identifier) {
+                                evse = await this.stores.locationStore.searchEvse(identifier)
 
                                 if (evse) {
                                     this.setChargePoint(evse)
@@ -240,7 +252,9 @@ export class UiStore implements UiStoreInterface {
                 await this.setPaymentRequest(intent)
                 return true
             }
-        } catch {}
+        } catch (error) {
+            log.debug(JSON.stringify(error))
+        }
 
         throw new Error(errorCode)
     }
@@ -271,7 +285,14 @@ export class UiStore implements UiStoreInterface {
         this.clearLnUrl()
 
         const params = await getParams(lnUrl)
+        const lnUrlResponse = params as LNURLResponse
+
+        if (lnUrlResponse && lnUrlResponse.status === "ERROR") {
+            throw new Error(lnUrlResponse.reason)
+        }
+
         const tag = getTag(params)
+        log.debug(`Set intent: ${JSON.stringify(params)} tag: ${tag}`)
 
         runInAction(() => {
             this.lnUrl = lnUrl

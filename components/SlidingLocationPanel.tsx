@@ -1,14 +1,14 @@
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import BusySpinner from "components/BusySpinner"
-import ConnectorButton from "components/ConnectorButton"
+import ConnectorGroupButton from "components/ConnectorGroupButton"
 import LocationHeader from "components/LocationHeader"
 import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
-import ConnectorModel from "models/Connector"
+import { observer } from "mobx-react"
+import { ConnectorGroup } from "models/Connector"
 import EvseModel from "models/Evse"
 import { useTheme, VStack } from "native-base"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useState } from "react"
 import { Dimensions, StyleSheet, View } from "react-native"
 import SlidingUpPanel from "rn-sliding-up-panel"
 import { AppStackParamList } from "screens/AppStack"
@@ -49,13 +49,20 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
         ref = React.createRef()
     }
 
-    const onConnectorPress = (connector: ConnectorModel, evses: EvseModel[]) => {
+    const onConnectorPress = useCallback((connectorGroup: ConnectorGroup, evses: EvseModel[]) => {
         if (evses.length > 1) {
-            navigation.navigate("EvseList", { location: locationStore.selectedLocation!, evses, connector })
+            navigation.navigate("EvseList", { location: locationStore.selectedLocation!, evses, connectorGroup })
         } else {
-            navigation.navigate("ConnectorDetail", { location: locationStore.selectedLocation!, evse: evses[0], connector })
+            const evse = evses[0]
+            const connector = evse.connectors.find(
+                (connector) => connectorGroup.standard === connector.standard && connectorGroup.wattage === connector.wattage
+            )
+
+            if (connector) {
+                navigation.navigate("ConnectorDetail", { location: locationStore.selectedLocation!, evse, connector })
+            }
         }
-    }
+    }, [navigation, locationStore.selectedLocation])
 
     const onConnectorPressIn = () => setAllowDragging(false)
     const onConnectorPressOut = () => setAllowDragging(true)
@@ -74,11 +81,11 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
                 <View style={[styles.slidingUpPanel, { backgroundColor }]}>
                     <VStack space={3}>
                         <LocationHeader location={locationStore.selectedLocation} />
-                        {locationStore.selectedConnectors.map((connector) => (
-                            <ConnectorButton
-                                key={`${connector.standard}:${connector.wattage}`}
-                                connector={connector}
-                                evses={connector.evses}
+                        {locationStore.selectedConnectors.map((connectorGroup) => (
+                            <ConnectorGroupButton
+                                key={`${connectorGroup.standard}:${connectorGroup.wattage}`}
+                                connectorGroup={connectorGroup}
+                                evses={connectorGroup.evses}
                                 onPress={onConnectorPress}
                                 onPressIn={onConnectorPressIn}
                                 onPressOut={onConnectorPressOut}
@@ -95,5 +102,5 @@ const createSlidingUpPanelRef = () => {
     return React.createRef<SlidingUpPanel>()
 }
 
-export default SlidingLocationPanel
+export default observer(SlidingLocationPanel)
 export { createSlidingUpPanelRef }

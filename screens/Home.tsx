@@ -15,9 +15,8 @@ import useLayout from "hooks/useLayout"
 import { useStore } from "hooks/useStore"
 import { autorun } from "mobx"
 import { observer } from "mobx-react"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Dimensions, View } from "react-native"
-import { TagEvent } from "react-native-nfc-manager"
 import MapboxGL, { CameraSettings, OnPressEvent, SymbolLayerStyle } from "@react-native-mapbox-gl/maps"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
@@ -28,6 +27,7 @@ import { MAPBOX_API_KEY } from "utils/build"
 import { EMAIL_REGEX, IS_ANDROID } from "utils/constants"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
+import { TagEvent } from "react-native-nfc-manager"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -35,8 +35,8 @@ const full = require("assets/full.png")
 
 const log = new Log("Home")
 
-const RECEIVE_NFC_SCHEMES = [new RegExp("/^lnurlw:/")]
-const SEND_NFC_SCHEMES = [new RegExp("/^(lnurlp:|lightning:)/"), EMAIL_REGEX]
+const RECEIVE_NFC_SCHEMES = [/^lnurlw:/]
+const SEND_NFC_SCHEMES = [/^(lnurlp:|lightning:)/, EMAIL_REGEX]
 
 MapboxGL.setAccessToken(MAPBOX_API_KEY)
 
@@ -112,7 +112,7 @@ const Home = ({ navigation }: HomeProps) => {
 
     const onLocationPress = ({ features }: OnPressEvent) => {
         if (features.length) {
-            store.locationStore.selectLocation(features[0].properties?.uid)
+            store.locationStore.selectLocation(features[0].properties?.uid, features[0].properties?.country)
         }
     }
 
@@ -120,35 +120,47 @@ const Home = ({ navigation }: HomeProps) => {
         setFollowUserLocation(false)
     }
 
-    const onNfcTag = (tag: TagEvent) => {}
+    const onNfcTag = (tag: TagEvent, payload?: string) => {
+        try {
+            if (payload) {
+                log.debug(payload)
+                uiStore.parseIntent(payload)
+            }
+        } catch (error) {
+            log.debug(JSON.stringify(error))
+        }
+    }
 
-    const onRecenterButtonPress = () => {
+    const onRecenterButtonPress = useCallback(() => {
         setFollowUserLocation(true)
 
         if (userCoordinate) {
             setCenterCoordinate(userCoordinate)
         }
-    }
+    }, [centerCoordinate])
 
-    const onRegionDidChange = async () => {
+    const onRegionDidChange = useCallback(async () => {
         if (mapViewRef.current) {
             const bounds = await mapViewRef.current.getVisibleBounds()
 
             locationStore.setBounds(bounds)
         }
-    }
+    }, [mapViewRef])
 
     const onSlidingLocationPanelHide = () => {
         locationStore.removeSelectedLocation()
     }
 
-    const onUserLocationUpdate = ({ coords }: MapboxGL.Location) => {
-        userCoordinate = [coords.longitude, coords.latitude]
+    const onUserLocationUpdate = useCallback(
+        ({ coords }: MapboxGL.Location) => {
+            userCoordinate = [coords.longitude, coords.latitude]
 
-        if (followUserLocation) {
-            setCenterCoordinate(userCoordinate)
-        }
-    }
+            if (followUserLocation) {
+                setCenterCoordinate(userCoordinate)
+            }
+        },
+        [followUserLocation]
+    )
 
     useEffect(() => {
         const requestPermissions = async () => {

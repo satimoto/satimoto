@@ -114,7 +114,7 @@ export class LocationStore implements LocationStoreInterface {
 
     async refreshSelectedLocation() {
         if (this.selectedLocation) {
-            return await this.selectLocation(this.selectedLocation.uid)
+            return await this.selectLocation(this.selectedLocation.uid, this.selectedLocation.country)
         }
 
         throw Error("No location set")
@@ -124,8 +124,8 @@ export class LocationStore implements LocationStoreInterface {
         this.selectedLocation = undefined
     }
 
-    async selectLocation(uid: string) {
-        const locationResponse = await getLocation({ uid })
+    async selectLocation(uid: string, country?: string) {
+        const locationResponse = await getLocation({ uid, country })
         const location = locationResponse.data.getLocation as LocationModel
 
         if (location) {
@@ -133,7 +133,7 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
-    async setSelectedLocation(location: LocationModel) {
+    setSelectedLocation(location: LocationModel) {
         this.selectedLocation = location
     }
 
