@@ -17,6 +17,7 @@ const GET_LOCATION = gql`
 interface GetLocationInput {
     id?: number
     uid?: string
+    country?: string
 }
 
 const getLocation = (client: ApolloClient<NormalizedCacheObject>) => {
@@ -41,6 +42,7 @@ const LIST_LOCATIONS = gql`
         listLocations(input: $input) {
             uid
             name
+            country
             geom
             availableEvses
             totalEvses

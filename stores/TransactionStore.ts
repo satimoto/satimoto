@@ -19,6 +19,7 @@ export interface TransactionStoreInterface extends StoreInterface {
 
     addTransaction(transaction: TransactionModel): void
     clearTransactions(): void
+    clearFailedTransactions(): void
 }
 
 export class TransactionStore implements TransactionStoreInterface {
@@ -41,6 +42,7 @@ export class TransactionStore implements TransactionStoreInterface {
             setReady: action,
             addTransaction: action,
             clearTransactions: action,
+            clearFailedTransactions: action,
             checkExpiredTransations: action
         })
 
@@ -83,10 +85,11 @@ export class TransactionStore implements TransactionStoreInterface {
         const openInvoiceStatuses = [InvoiceStatus.ACCEPTED, InvoiceStatus.OPEN]
         const openPaymentStatuses = [PaymentStatus.IN_PROGRESS, PaymentStatus.UNKNOWN]
 
-        for (const {invoice, payment} of this.transactions) {
+        for (const { invoice, payment } of this.transactions) {
             if (invoice && openInvoiceStatuses.includes(invoice.status) && moment(invoice.expiresAt).isBefore(now)) {
                 invoice.status = InvoiceStatus.EXPIRED
-            }if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
+            }
+            if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
                 payment.status = PaymentStatus.EXPIRED
             }
         }
@@ -94,6 +97,17 @@ export class TransactionStore implements TransactionStoreInterface {
 
     clearTransactions() {
         this.transactions.clear()
+    }
+
+    clearFailedTransactions() {
+        this.transactions.replace(
+            this.transactions.filter(({ invoice, payment }) => {
+                return (
+                    (invoice && invoice.status !== InvoiceStatus.CANCELLED && invoice.status !== InvoiceStatus.EXPIRED) ||
+                    (payment && payment.status !== PaymentStatus.EXPIRED && payment.status !== PaymentStatus.FAILED)
+                )
+            })
+        )
     }
 
     setReady() {

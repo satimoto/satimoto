@@ -1,3 +1,4 @@
+import ClearTransactionsModal from "components/ClearTransactionsModal"
 import HeaderButton from "components/HeaderButton"
 import TransactionButton from "components/TransactionButton"
 import TransactionInfoModal from "components/TransactionInfoModal"
@@ -24,12 +25,13 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
     const [shownTransaction, setShownTransaction] = useState<TransactionModel>()
+    const [clearTransactionsModalShown, setClearTransactionsModalShown] = useState(false)
     const { transactionStore } = useStore()
 
     useLayoutEffect(() => {
         navigation.setOptions({
             title: I18n.t("TransactionList_HeaderTitle"),
-            headerRight: () => <HeaderButton icon={faTimes} onPress={() => transactionStore.clearTransactions()} />
+            headerRight: () => <HeaderButton icon={faTimes} onPress={() => setClearTransactionsModalShown(true)} />
         })
     }, [navigation])
 
@@ -46,6 +48,7 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
                     ))}
                 </VStack>
             </ScrollView>
+            <ClearTransactionsModal isVisible={clearTransactionsModalShown} onClose={() => setClearTransactionsModalShown(false)} />
             <TransactionInfoModal transaction={shownTransaction} onClose={() => setShownTransaction(undefined)} />
         </View>
     )

@@ -7,7 +7,7 @@ export const assertEmail = (address: string) => {
 }
 
 export const assertNetwork = (bech32Address: string) => {
-    if (!bech32Address.startsWith(LN_BECH32_PREFIX)) {
+    if (bech32Address && !bech32Address.toLowerCase().startsWith(LN_BECH32_PREFIX)) {
         throw Error("Invalid lightning invoice")
     }
 }

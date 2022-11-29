@@ -64,11 +64,9 @@ static void InitializeFlipper(UIApplication *application) {
   
   NSString *firebaseConfig;
   #if RELEASE
-  #if NETWORK == "testnet"
-  firebaseConfig = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info-Testnet" ofType:@"plist"];
-  #elif NETWORK == "mainnet"
   firebaseConfig = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
-  #endif
+  #else
+  firebaseConfig = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info-Debug" ofType:@"plist"];
   #endif
 
   if (firebaseConfig != nil) {

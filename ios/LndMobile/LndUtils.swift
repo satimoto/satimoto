@@ -187,6 +187,17 @@ autopilot.heuristic=preferential:0.05
       reject("error", err.localizedDescription, err)
     }
   }
+
+  func deleteLog() {
+    do {
+      let fileManager = FileManager.default
+      if fileManager.fileExists(atPath: LndUtils.logFile.path) {
+        try fileManager.removeItem(atPath: LndUtils.logFile.path)
+      }
+    } catch let err {
+      RCTLogError("Error deleting log: \(err.localizedDescription)")
+    }
+  }
   
   @objc(startLogEvents:rejecter:)
   func startLogEvents(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {

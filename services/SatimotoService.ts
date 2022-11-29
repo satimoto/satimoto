@@ -8,11 +8,14 @@ import * as ChannelRequest from "./satimoto/channelRequest"
 import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
 import * as Command from "./satimoto/command"
 import * as Connector from "./satimoto/connector"
+import * as Evse from "./satimoto/evse"
 import * as InvoiceRequest from "./satimoto/invoiceRequest"
 import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
+import * as Node from "./satimoto/node"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
+import * as SessionInvoice from "./satimoto/sessionInvoice"
 import * as Tariff from "./satimoto/tariff"
 import * as Token from "./satimoto/token"
 import * as TokenAuthorization from "./satimoto/tokenAuthorization"
@@ -80,6 +83,9 @@ const stopSession = Command.stopSession(client)
 // Connector
 const getConnector = Connector.getConnector(client)
 
+// Evse
+const getEvse = Evse.getEvse(client)
+
 // Invoice Request
 const listInvoiceRequests = InvoiceRequest.listInvoiceRequests(client)
 const updateInvoiceRequest = InvoiceRequest.updateInvoiceRequest(client)
@@ -88,12 +94,19 @@ const updateInvoiceRequest = InvoiceRequest.updateInvoiceRequest(client)
 const getLocation = Location.getLocation(client)
 const listLocations = Location.listLocations(client)
 
+// Node
+const listChannels = Node.listChannels(client)
+
 // Rate
 const getRate = Rate.getRate(client)
 
 // Session
 const getSession = Session.getSession(client)
-const getSessionInvoice = Session.getSessionInvoice(client)
+
+// Session Invoice
+const getSessionInvoice = SessionInvoice.getSessionInvoice(client)
+const listSessionInvoices = SessionInvoice.listSessionInvoices(client)
+const updateSessionInvoice = SessionInvoice.updateSessionInvoice(client)
 
 // Tariff
 const getTariff = Tariff.getTariff(client)
@@ -111,7 +124,7 @@ const getUser = User.getUser(client)
 const updateUser = User.updateUser(client)
 
 // Token
-const getAccessToken = async (pubkey: string, deviceToken: string) => {
+const getAccessToken = async (pubkey: string, deviceToken?: string) => {
     return doWhileBackoff(
         "getAccessToken",
         async () => {
@@ -170,17 +183,24 @@ export {
     stopSession,
     // Connector
     getConnector,
+    // Evse
+    getEvse,
     // Invoice Request
     listInvoiceRequests,
     updateInvoiceRequest,
     // Location
     getLocation,
     listLocations,
+    // Node
+    listChannels,
     // Rate
     getRate,
     // Session
     getSession,
+    // SEssion Invoice
     getSessionInvoice,
+    listSessionInvoices,
+    updateSessionInvoice,
     // Tariff
     getTariff,
     // Token

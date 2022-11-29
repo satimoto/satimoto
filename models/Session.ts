@@ -3,6 +3,7 @@ import EvseModel from "models/Evse"
 import InvoiceRequestModel from "models/InvoiceRequest"
 import LocationModel from "models/Location"
 import SessionInvoiceModel from "models/SessionInvoice"
+import { AuthMethod } from "types/authMethod"
 import { SessionStatus } from "types/session"
 
 interface SessionModel {
@@ -11,7 +12,7 @@ interface SessionModel {
     startDatetime: string
     endDatetime?: string
     kwh: number
-    authMethod: string
+    authMethod: AuthMethod
     location?: LocationModel
     evse?: EvseModel
     connector?: ConnectorModel

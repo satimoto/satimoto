@@ -18,7 +18,7 @@ const CREATE_USER = gql`
 interface CreateUserInput {
     code: string
     pubkey: string
-    deviceToken: string
+    deviceToken?: string
 }
 
 const createUser = (client: ApolloClient<NormalizedCacheObject>) => {

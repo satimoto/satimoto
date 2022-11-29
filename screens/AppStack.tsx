@@ -3,7 +3,7 @@ import { useStore } from "hooks/useStore"
 import I18n from "i18n-js"
 import { LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
 import { observer } from "mobx-react"
-import ConnectorModel from "models/Connector"
+import ConnectorModel, { ConnectorGroup } from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
 import InvoiceModel from "models/Invoice"
@@ -38,7 +38,7 @@ export type AppStackParamList = {
     ChargeDetail: undefined
     ConnectorDetail: { location: LocationModel; evse: EvseModel; connector: ConnectorModel }
     Developer: undefined
-    EvseList: { location: LocationModel; evses: EvseModel[]; connector: ConnectorModel }
+    EvseList: { location: LocationModel; evses: EvseModel[]; connectorGroup: ConnectorGroup }
     LnUrlPay: { payParams: LNURLPayParams }
     LnUrlWithdraw: { withdrawParams: LNURLWithdrawParams }
     PaymentRequest: { payReq: string; decodedPayReq: PayReq }

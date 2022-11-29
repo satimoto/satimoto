@@ -48,7 +48,7 @@ export { startSession }
 `
 
 interface StopSessionInput {
-    sessionUid: string
+    authorizationId: string
 }
 
 const stopSession = (client: ApolloClient<NormalizedCacheObject>) => {

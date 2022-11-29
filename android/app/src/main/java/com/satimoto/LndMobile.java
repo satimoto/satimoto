@@ -77,6 +77,8 @@ public class LndMobile extends ReactContextBaseJavaModule {
     @ReactMethod
     public void start(final Promise promise) {
         LndUtils lndUtils = new LndUtils(getReactApplicationContext());
+        lndUtils.deleteLog();
+
         File confPath = new File(lndUtils.confPath);
 
         if (!confPath.exists()) {

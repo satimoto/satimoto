@@ -49,6 +49,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const [invoice, setInvoice] = useState<InvoiceModel>()
 
     const onClose = () => {
+        setIsBusy(false)
         uiStore.clearLnUrl()
         navigation.navigate("Home")
     }
@@ -70,6 +71,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                 if (response.status === "OK") {
                     const hash = bytesToHex(lnInvoice.rHash)
                     const invoice = await invoiceStore.waitForInvoice(hash)
+
                     setInvoice(invoice)
                 } else {
                     setLastError(response.reason)
@@ -77,10 +79,9 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
             } catch (error) {
                 setLastError(errorToString(error))
                 log.debug(`Error getting withdraw request: ${error}`)
+                setIsBusy(false)
             }
         }
-
-        setIsBusy(false)
     }
 
     useLayoutEffect(() => {

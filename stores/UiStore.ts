@@ -1,10 +1,9 @@
-import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
+import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLResponse, LNURLWithdrawParams } from "js-lnurl"
 import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
-import { lnrpc } from "proto/proto"
 import { Linking } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NfcManager from "react-native-nfc-manager"
@@ -17,9 +16,11 @@ import { ONBOARDING_VERSION } from "utils/constants"
 import { Log } from "utils/logging"
 import { PayReq, toPayReq } from "types/payment"
 import { Tooltip } from "types/tooltip"
+import { errorToString } from "utils/conversion"
 
 const log = new Log("UiStore")
-const EVSE_ID_REGEX = /[A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+/
+const EVSE_ID_REGEX = /[\/=]([A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+)/
+const ID_REGEX = /\/([A-Za-z0-9]+)$/
 
 export interface UiStoreInterface extends StoreInterface {
     hydrated: boolean
@@ -42,7 +43,7 @@ export interface UiStoreInterface extends StoreInterface {
     clearLnUrl(): void
     clearPaymentRequest(): void
     parseIntent(intent: string): Promise<boolean>
-    setChargePoint(connector: ConnectorModel): void
+    setChargePoint(evse: EvseModel): void
     setLightningAddress(address: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
@@ -189,45 +190,90 @@ export class UiStore implements UiStoreInterface {
      */
     async parseIntent(intent: string): Promise<boolean> {
         log.debug("parseIntent: " + intent)
-        intent = intent.replace(/lightning:/i, "")
+        intent = intent.replace(/lightning:/i, "").trim()
+
         const lowerCaseIntent = intent.toLowerCase()
+        let errorCode = "Scanner_DataError"
 
         try {
             if (lowerCaseIntent.startsWith("lnurl")) {
                 // LNURL
-                await this.setLnUrl(intent)
-                return true
+                try {
+                     await this.setLnUrl(intent)
+                    return true
+                } catch (error) {
+                    errorCode = errorToString(error)
+                }
             } else if (intent.includes("@")) {
                 // Lightning Address
                 await this.setLightningAddress(intent)
                 return true
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
-                const indentifierMatches = lowerCaseIntent.match(EVSE_ID_REGEX)
+                let evseIdMatches = intent.match(EVSE_ID_REGEX)
+                let idMatches = intent.match(ID_REGEX)
+                let identifier =
+                    evseIdMatches && evseIdMatches.length > 1 ? evseIdMatches[1] : idMatches && idMatches.length > 1 ? idMatches[1] : null
 
-                if (indentifierMatches && indentifierMatches.length > 0) {
-                    const connector = await this.stores.locationStore.searchConnector(indentifierMatches[0])
+                if (identifier) {
+                    let evse = await this.stores.locationStore.searchEvse(identifier)
 
-                    if (connector) {
-                        this.setChargePoint(connector)
+                    if (evse) {
+                        this.setChargePoint(evse)
+                        return true
                     }
-                }
 
-                return false
+                    try {
+                        // Evse not found, attempt to follow URL for a possible redirect
+                        const response = await fetch(intent)
+                        const responseLocation = response.headers.get("Location")
+
+                        if (responseLocation) {
+                            let evseIdMatches = intent.match(EVSE_ID_REGEX)
+                            let idMatches = intent.match(ID_REGEX)
+                            let identifier =
+                                evseIdMatches && evseIdMatches.length > 1 ? evseIdMatches[1] : idMatches && idMatches.length > 1 ? idMatches[1] : null
+
+                            if (identifier) {
+                                evse = await this.stores.locationStore.searchEvse(identifier)
+
+                                if (evse) {
+                                    this.setChargePoint(evse)
+                                    return true
+                                }
+                            }
+                        }
+                    } catch {}
+
+                    errorCode = "Scanner_UnrecognizedEvseIdError"
+                }
             } else {
                 // Payment Request
                 await this.setPaymentRequest(intent)
                 return true
             }
-        } catch {}
+        } catch (error) {
+            log.debug(JSON.stringify(error))
+        }
 
-        return false
+        throw new Error(errorCode)
     }
 
-    setChargePoint(connector: ConnectorModel) {
-        this.connector = connector
-        this.evse = this.connector.evse
-        this.location = this.evse?.location
+    setChargePoint(evse: EvseModel) {
+        if (evse.location) {
+            if (evse.connectors.length == 1) {
+                this.evse = evse
+                this.connector = this.evse.connectors[0]
+                this.location = this.evse.location
+            } else {
+                const location = evse.location
+                delete evse.location
+
+                location.evses = [evse]
+
+                this.stores.locationStore.setSelectedLocation(location)
+            }
+        }
     }
 
     async setLightningAddress(address: string) {
@@ -239,7 +285,14 @@ export class UiStore implements UiStoreInterface {
         this.clearLnUrl()
 
         const params = await getParams(lnUrl)
+        const lnUrlResponse = params as LNURLResponse
+
+        if (lnUrlResponse && lnUrlResponse.status === "ERROR") {
+            throw new Error(lnUrlResponse.reason)
+        }
+
         const tag = getTag(params)
+        log.debug(`Set intent: ${JSON.stringify(params)} tag: ${tag}`)
 
         runInAction(() => {
             this.lnUrl = lnUrl
@@ -281,7 +334,7 @@ export class UiStore implements UiStoreInterface {
         this.onboardingVersion = version
     }
 
-    setTooltipShown({syncing}: Tooltip) {
+    setTooltipShown({ syncing }: Tooltip) {
         if (syncing) {
             this.tooltipShownSyncing = true
         }

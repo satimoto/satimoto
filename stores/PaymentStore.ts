@@ -1,16 +1,18 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import { ChannelModel } from "models/Node"
 import PaymentModel from "models/Payment"
 import moment from "moment"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { decodePayReq, listPayments, resetMissionControl, sendPaymentV2 } from "services/LightningService"
-import { DEBUG } from "utils/build"
-import { Log } from "utils/logging"
-import { nanosecondsToDate, toNumber } from "utils/conversion"
+import { decodePayReq, getNodeInfo, listPayments, markEdgeLive, resetMissionControl, sendPaymentV2 } from "services/LightningService"
 import { SendPaymentV2Props } from "services/LightningService"
+import { listChannels } from "services/SatimotoService"
 import { PaymentStatus, toPaymentStatus } from "types/payment"
+import { DEBUG } from "utils/build"
+import { nanosecondsToDate, toNumber } from "utils/conversion"
+import { Log } from "utils/logging"
 
 const log = new Log("PaymentStore")
 
@@ -66,7 +68,7 @@ export class PaymentStore implements PaymentStoreInterface {
         }
     }
 
-    sendPayment(request: SendPaymentV2Props, withReset: boolean = true): Promise<PaymentModel> {
+    sendPayment(request: SendPaymentV2Props, withReset: boolean = true, withEdgeUpdate: boolean = true): Promise<PaymentModel> {
         return new Promise<PaymentModel>(async (resolve, reject) => {
             try {
                 await sendPaymentV2(async (response: lnrpc.Payment) => {
@@ -77,10 +79,30 @@ export class PaymentStore implements PaymentStoreInterface {
                             response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE ||
                             response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
 
-                        if (tryReset && withReset) {
-                            log.debug(`Payment failure, resetting mission control`)
-                            await resetMissionControl()
-                            payment = await this.sendPayment(request, false)
+                        if (tryReset) {
+                            if (withReset) {
+                                log.debug(`Payment failure, resetting mission control`)
+                                await resetMissionControl()
+                                payment = await this.sendPayment(request, false)
+                            } else if (withEdgeUpdate) {
+                                try {
+                                    log.debug(`Payment failure, force edges update`)
+                                    const listChannelsResponse = await listChannels()
+                                    const channels = listChannelsResponse.data.listChannels as ChannelModel[]
+                                    const channelIds = channels.map((channel) => channel.channelId)
+                                    log.debug(`Edges received: ${channelIds.length}`)
+
+                                    if (channelIds.length > 0) {
+                                        await markEdgeLive(channelIds)
+
+                                        payment = await this.sendPayment(request, false, false)
+                                    }
+                                } catch (error) {
+                                    log.error(`Error updating edges: ${error}`)
+                                }
+                            } else if (DEBUG) {
+                                await getNodeInfo('029e6289970aa5e57fe92bb8ae0cefa7ff388bb21a0f8277bc3a45fc5c10e98c4b', true)
+                            }
                         }
 
                         resolve(payment)

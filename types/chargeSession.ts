@@ -4,7 +4,8 @@ export enum ChargeSessionStatus {
     IDLE = "IDLE",
     STARTING = "STARTING",
     ACTIVE = "ACTIVE",
-    STOPPING = "STOPPING"
+    STOPPING = "STOPPING",
+    AWAITING_PAYMENT = "AWAITING_PAYMENT"
 }
 
 const toChargeSessionStatus = (state: SessionStatus): ChargeSessionStatus => {

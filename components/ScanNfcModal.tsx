@@ -1,3 +1,4 @@
+import { Buffer } from "buffer"
 import Modal from "components/Modal"
 import NfcReceiver from "components/NfcReceiver"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
@@ -8,13 +9,14 @@ import React, { useEffect, useState } from "react"
 import { TagEvent } from "react-native-nfc-manager"
 import I18n from "utils/i18n"
 import { IS_ANDROID } from "utils/constants"
-import { toString } from "utils/conversion"
-import { isAction } from "mobx"
+import { Log } from "utils/logging"
+
+const log = new Log("ScanNfcModal")
 
 interface ScanNfcModalProps {
     isVisible: boolean
     schemes?: RegExp[]
-    onNfcTag: (nfcTagEvent: TagEvent) => void
+    onNfcTag: (tag: TagEvent, payload?: string) => void
     onClose: () => void
 }
 
@@ -33,14 +35,14 @@ const ScanNfcModal = ({ isVisible, schemes = [], onNfcTag, onClose }: ScanNfcMod
             return
         }
 
-        if (tag.ndefMessage && tag.ndefMessage.length && tag.ndefMessage[0].payload) {
+        if (tag.ndefMessage && tag.ndefMessage.length && tag.ndefMessage[0].payload) {    
             const tagBytes = new Uint8Array(tag.ndefMessage[0].payload)
-            const tagStr = toString(tagBytes)
+            const tagStr = Buffer.from(tagBytes).toString("utf8", 1)
 
             for (const scheme of schemes) {
                 if (scheme.test(tagStr)) {
-                    onNfcTag(tag)
-                    break
+                    onNfcTag(tag, tagStr)
+                    return
                 }
             }
         }

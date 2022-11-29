@@ -12,6 +12,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		6C0F4B50088C9AC6A0B71CA1 /* libPods-Satimoto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */; };
+		7356CF9B292674DA00B5C7E8 /* GoogleService-Info-Debug.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7356CF9A292674DA00B5C7E8 /* GoogleService-Info-Debug.plist */; };
 		7362935126E63CDD006F70C2 /* LndMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362934E26E63CDD006F70C2 /* LndMobile.m */; };
 		7362938F26E8DEA5006F70C2 /* LndMobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362938E26E8DEA4006F70C2 /* LndMobile.swift */; };
 		7362939126E8EE2F006F70C2 /* LndResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362939026E8EE2F006F70C2 /* LndResponse.swift */; };
@@ -53,6 +54,7 @@
 		2BB5170F72D89F5045F38689 /* Pods-Satimoto.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releaseregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releaseregtest.xcconfig"; sourceTree = "<group>"; };
 		33FE4B1D897DF402295AF46C /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; sourceTree = "<group>"; };
 		468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Satimoto.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7356CF9A292674DA00B5C7E8 /* GoogleService-Info-Debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Debug.plist"; path = "Satimoto/GoogleService-Info-Debug.plist"; sourceTree = "<group>"; };
 		7357DAC628F60CBF008E1EC8 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		7362934E26E63CDD006F70C2 /* LndMobile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LndMobile.m; sourceTree = "<group>"; };
 		7362938D26E8DEA3006F70C2 /* Satimoto-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Satimoto-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 		13B07FAE1A68108700A75B9A /* Satimoto */ = {
 			isa = PBXGroup;
 			children = (
+				7356CF9A292674DA00B5C7E8 /* GoogleService-Info-Debug.plist */,
 				73D35AAD2895DCA300519935 /* Satimoto.entitlements */,
 				73C06CDB27C50F090095AA81 /* GoogleService-Info.plist */,
 				73C06CD927C50CC20095AA81 /* GoogleService-Info-Testnet.plist */,
@@ -324,6 +327,7 @@
 				73C06CDC27C50F090095AA81 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				73C06CDA27C50CC20095AA81 /* GoogleService-Info-Testnet.plist in Resources */,
+				7356CF9B292674DA00B5C7E8 /* GoogleService-Info-Debug.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -589,8 +593,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG = true;
+				DEVELOPMENT_TEAM = F922YVP6UQ;
 				DISPLAY_NAME = "Satimoto Debug";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -605,7 +610,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.4;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -614,6 +619,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug;
 				PRODUCT_NAME = "Satimoto Debug";
+				PROVISIONING_PROFILE_SPECIFIER = "Satimoto Debug";
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -631,7 +637,7 @@
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG = false;
 				DEVELOPMENT_TEAM = F922YVP6UQ;
 				DISPLAY_NAME = Satimoto;
@@ -647,7 +653,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.4;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -737,7 +743,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG = true;
 				DISPLAY_NAME = "Satimoto Debug Testnet";
 				ENABLE_BITCODE = NO;
@@ -753,7 +759,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.4;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -871,7 +877,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG = true;
 				DISPLAY_NAME = "Satimoto Debug Regtest";
 				ENABLE_BITCODE = NO;
@@ -887,7 +893,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.4;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -998,7 +1004,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG = false;
 				DISPLAY_NAME = "Satimoto Testnet";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1013,7 +1019,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.4;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1120,7 +1126,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG = false;
 				DISPLAY_NAME = "Satimoto Regtest";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1135,7 +1141,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.4;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",

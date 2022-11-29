@@ -5,7 +5,7 @@ import PeerModel, { PeerModelLike } from "models/Peer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { connectPeer, disconnectPeer, listPeers, sendCustomMessage, subscribeCustomMessages, subscribePeerEvents } from "services/LightningService"
+import { connectPeer, disconnectPeer, getNodeInfo, listPeers, sendCustomMessage, subscribeCustomMessages, subscribePeerEvents } from "services/LightningService"
 import { DEBUG } from "utils/build"
 import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID } from "utils/constants"
 import { bytesToHex, errorToString, toString } from "utils/conversion"
@@ -109,14 +109,12 @@ export class PeerStore implements PeerStoreInterface {
             } catch (error) {
                 const errorString = errorToString(error)
 
-                if (errorString.includes("already connected to peer")) {
-                    peer.online = true
-                    this.peers.push(peer)
-
-                    return peer
+                if (!errorString.includes("already connected to peer")) {
+                    throw error
                 }
 
-                throw error
+                peer.online = true
+                this.peers.push(peer)
             }
         }
 

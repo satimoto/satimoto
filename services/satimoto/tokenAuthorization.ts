@@ -13,6 +13,7 @@ const UPDATE_TOKEN_AUTHORIZATION = gql`
                 ...LocationFragment
             }
             authorizationId
+            authorized
             verificationKey
         }
     }
@@ -20,7 +21,7 @@ const UPDATE_TOKEN_AUTHORIZATION = gql`
 
 interface UpdateTokenAuthorizationInput {
     authorizationId: string
-    authorize: boolean
+    authorized: boolean
 }
 
 const updateTokenAuthorization = (client: ApolloClient<NormalizedCacheObject>) => {

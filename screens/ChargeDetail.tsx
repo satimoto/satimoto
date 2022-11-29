@@ -3,6 +3,7 @@ import LocationAddress from "components/LocationAddress"
 import PaymentButton from "components/PaymentButton"
 import PaymentInfoModal from "components/PaymentInfoModal"
 import SatoshiBalance from "components/SatoshiBalance"
+import SessionInvoiceButton from "components/SessionInvoiceButton"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faStop } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
@@ -60,22 +61,22 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                       )
                     : undefined
         })
-    }, [navigation])
+    }, [navigation, sessionStore.tokenType])
 
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             {sessionStore.location && <LocationAddress location={sessionStore.location} alignItems="center" />}
             <VStack space={2} alignContent="flex-start" marginTop={5} marginBottom={2}>
                 <View style={{ backgroundColor, alignItems: "center" }}>
-                    <SatoshiBalance size={36} color={textColor} satoshis={parseInt(sessionStore.valueMsat)} />
+                    <SatoshiBalance size={36} color={textColor} satoshis={parseInt(sessionStore.valueSat)} />
                     <SatoshiBalance size={16} color={textColor} satoshis={parseInt(sessionStore.feeSat)} prependText="FEE" />
                 </View>
             </VStack>
-            <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12 }]}>
+            <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
-                    {sessionStore.payments.map((payment) => (
-                        <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />
-                    ))}
+                    {sessionStore.status == ChargeSessionStatus.AWAITING_PAYMENT
+                        ? sessionStore.sessionInvoices.map((sessionInvoice) => <SessionInvoiceButton key={sessionInvoice.id} sessionInvoice={sessionInvoice} />)
+                        : sessionStore.payments.map((payment) => <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />)}
                 </VStack>
             </ScrollView>
             <ConfirmationModal
