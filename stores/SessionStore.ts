@@ -402,7 +402,7 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async whenHydrated() {
-        if (this.status === ChargeSessionStatus.STARTING && this.session) {
+        if ((this.status === ChargeSessionStatus.STARTING || this.status === ChargeSessionStatus.STOPPING) && this.session) {
             const response = await getSession({ uid: this.session.uid })
 
             this.updateSession(response.data.getSession as SessionModel)

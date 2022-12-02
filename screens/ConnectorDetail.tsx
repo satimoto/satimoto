@@ -23,6 +23,7 @@ import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
+import PriceComponentTray from "components/PriceComponentTray"
 
 const log = new Log("ConnectorDetail")
 const popAction = StackActions.pop()
@@ -229,6 +230,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
             <View style={[styles.focusViewPanel, { backgroundColor, paddingHorizontal: 10 }]}>
                 <LocationHeader location={route.params.location} />
+                <PriceComponentTray marginTop={2} connector={connector} />
                 <VStack space={5} marginTop={10}>
                     {energySources.length > 0 && <StackedBar items={energySources} />}
                     {renderStartInfo()}
