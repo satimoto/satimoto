@@ -1,5 +1,7 @@
 import BalanceCard from "components/BalanceCard"
 import ChargeButton from "components/ChargeButton"
+import FilterButton from "components/FilterButton"
+import FilterModal from "components/FilterModal"
 import HomeFooterContainer, { HomeFooterContainerEvent } from "components/HomeFooterContainer"
 import HomeSideContainer from "components/HomeSideContainer"
 import LnUrlAuthModal from "components/LnUrlAuthModal"
@@ -69,6 +71,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
+    const [isFilterModalVisible, setIsFilterModalVisible] = useState(false)
     const [isReceiveActionsheetOpen, setIsReceiveActionsheetOpen] = useState(false)
     const [isReceiveLightningModalVisible, setIsReceiveLightningModalVisible] = useState(false)
     const [isReceiveNfcModalVisible, setIsReceiveNfcModalVisible] = useState(false)
@@ -236,12 +239,14 @@ const Home = ({ navigation }: HomeProps) => {
             <BalanceCard onLayout={onBalanceCardLayout} />
             <HomeSideContainer top={balanceCardRectangle.y + balanceCardRectangle.height}>
                 {sessionStore.status !== ChargeSessionStatus.IDLE && <ChargeButton onPress={onChargeButtonPress} />}
+                <FilterButton onPress={() => setIsFilterModalVisible(true)} />
                 {!followUserLocation && <RecenterButton onPress={onRecenterButtonPress} />}
             </HomeSideContainer>
             <HomeFooterContainer onPress={onHomeButtonPress} />
             <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
             <ReceiveActionsheet isOpen={isReceiveActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsReceiveActionsheetOpen(false)} />
             <SendActionsheet isOpen={isSendActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsSendActionsheetOpen(false)} />
+            <FilterModal isVisible={isFilterModalVisible} onClose={() => setIsFilterModalVisible(false)} />
             <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />
             <SendToAddressModal isVisible={isSendToAddressModalVisible} onClose={() => setIsSendToAddressModalVisible(false)} />
             <SendLightningModal isVisible={isSendLightningModalVisible} onClose={() => setIsSendLightningModalVisible(false)} />

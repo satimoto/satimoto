@@ -1,18 +1,18 @@
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons"
+import { faFilter } from "@fortawesome/free-solid-svg-icons"
 import { IconButton, useTheme } from "native-base"
 import React from "react"
 import { GestureResponderEvent, StyleProp, ViewStyle } from "react-native"
 import useColor from "hooks/useColor"
 
 
-interface RecenterButtonProps {
+interface FilterButtonProps {
     onPress: (event: GestureResponderEvent) => void
     color?: string
     size?: number
 }
 
-const RecenterButton = ({ onPress, color, size = 20 }: RecenterButtonProps) => {
+const FilterButton = ({ onPress, color, size = 20 }: FilterButtonProps) => {
     const { colors } = useTheme()
     let textColor = useColor(colors.darkText, colors.lightText)
 
@@ -28,10 +28,10 @@ const RecenterButton = ({ onPress, color, size = 20 }: RecenterButtonProps) => {
             backgroundColor={colors.white}
             variant="solid"
             onPress={onPress}
-            icon={<FontAwesomeIcon icon={faLocationCrosshairs} />}
+            icon={<FontAwesomeIcon icon={faFilter} />}
             _icon={{ color: textColor, size }}
         />
     )
 }
 
-export default RecenterButton
+export default FilterButton

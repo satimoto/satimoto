@@ -1,6 +1,6 @@
 {
   "name": "satimoto",
-  "version": "0.3.3",
+  "version": "0.3.6",
   "private": true,
   "scripts": {
     "start": "react-native start",

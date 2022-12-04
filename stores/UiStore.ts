@@ -12,7 +12,7 @@ import { decodePayReq } from "services/LightningService"
 import { getParams, getTag, identifier } from "services/LnUrlService"
 import { assertNetwork } from "utils/assert"
 import { DEBUG } from "utils/build"
-import { ONBOARDING_VERSION } from "utils/constants"
+import { IS_ANDROID, ONBOARDING_VERSION } from "utils/constants"
 import { Log } from "utils/logging"
 import { PayReq, toPayReq } from "types/payment"
 import { Tooltip } from "types/tooltip"
@@ -27,6 +27,8 @@ export interface UiStoreInterface extends StoreInterface {
     stores: Store
 
     connector?: ConnectorModel
+    filterRemoteCapable: boolean
+    filterRfidCapable: boolean
     lnUrl?: string
     lnUrlAuthParams?: LNURLAuthParams
     lnUrlChannelParams?: LNURLChannelParams
@@ -44,6 +46,8 @@ export interface UiStoreInterface extends StoreInterface {
     clearPaymentRequest(): void
     parseIntent(intent: string): Promise<boolean>
     setChargePoint(evse: EvseModel): void
+    setFilterRemoteCapable(filter: boolean): void
+    setFilterRfidCapable(filter: boolean): void
     setLightningAddress(address: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
@@ -58,6 +62,8 @@ export class UiStore implements UiStoreInterface {
     connector?: ConnectorModel = undefined
     evse?: EvseModel = undefined
     location?: LocationModel = undefined
+    filterRemoteCapable: boolean = true
+    filterRfidCapable: boolean = IS_ANDROID
     lnUrl?: string = undefined
     lnUrlAuthParams?: LNURLAuthParams = undefined
     lnUrlChannelParams?: LNURLChannelParams = undefined
@@ -80,6 +86,8 @@ export class UiStore implements UiStoreInterface {
             connector: observable,
             evse: observable,
             location: observable,
+            filterRemoteCapable: observable,
+            filterRfidCapable: observable,
             lnUrl: observable,
             lnUrlAuthParams: observable,
             lnUrlChannelParams: observable,
@@ -98,6 +106,8 @@ export class UiStore implements UiStoreInterface {
             clearLnUrl: action,
             clearPaymentRequest: action,
             setChargePoint: action,
+            setFilterRemoteCapable: action,
+            setFilterRfidCapable: action,
             setLnUrl: action,
             setLnUrlPayParams: action,
             setPaymentRequest: action,
@@ -113,6 +123,8 @@ export class UiStore implements UiStoreInterface {
                     "connector",
                     "evse",
                     "location",
+                    "filterRemoteCapable",
+                    "filterRfidCapable",
                     "lnUrl",
                     "lnUrlAuthParams",
                     "lnUrlChannelParams",
@@ -274,6 +286,14 @@ export class UiStore implements UiStoreInterface {
                 this.stores.locationStore.setSelectedLocation(location)
             }
         }
+    }
+
+    setFilterRemoteCapable(filter: boolean): void {
+        this.filterRemoteCapable = filter
+    }
+
+    setFilterRfidCapable(filter: boolean): void {
+        this.filterRfidCapable = filter
     }
 
     async setLightningAddress(address: string) {

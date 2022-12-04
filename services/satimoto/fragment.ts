@@ -164,6 +164,10 @@ const SESSION_INVOICE_FRAGMENT = gql`
         signature
         isSettled
         isExpired
+        estimatedEnergy
+        estimatedTime
+        meteredEnergy
+        meteredTime
         lastUpdated
     }
 `
