@@ -15,6 +15,8 @@ export default {
     ClearTransactionsModal_ClearAllText: "All",
     ConfirmationModal_StartConfirmationText: "If the cable is locked, press Start first then connect the cable",    
     ConfirmationModal_StopConfirmationText: "Are you sure you want to end this charging session?",    
+    FilterModal_RemoteCapableText: "Application Start/Stop",
+    FilterModal_RfidCapableText: "Card Start/Stop",
     LnUrlAuthModal_Title: "Do you want to login to",
     ReceiveLightningModal_Title: "Amount to receive",
     ReceiveLightningModal_InputAmountWarning: "We'll create a new payment channel to you",

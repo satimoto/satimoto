@@ -1,3 +1,4 @@
+import ChargeInfo from "components/ChargeInfo"
 import ConfirmationModal from "components/ConfirmationModal"
 import LocationAddress from "components/LocationAddress"
 import PaymentButton from "components/PaymentButton"
@@ -72,10 +73,22 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                     <SatoshiBalance size={16} color={textColor} satoshis={parseInt(sessionStore.feeSat)} prependText="FEE" />
                 </View>
             </VStack>
+            <View>
+                <ChargeInfo
+                    colorScheme="orange"
+                    marginTop={2}
+                    metered={sessionStore.meteredEnergy}
+                    unit="kWh"
+                    estimated={sessionStore.estimatedEnergy}
+                />
+                <ChargeInfo colorScheme="blue" marginTop={2} metered={sessionStore.meteredTime} unit="mins" estimated={sessionStore.estimatedTime} />
+            </View>
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
                     {sessionStore.status == ChargeSessionStatus.AWAITING_PAYMENT
-                        ? sessionStore.sessionInvoices.map((sessionInvoice) => <SessionInvoiceButton key={sessionInvoice.id} sessionInvoice={sessionInvoice} />)
+                        ? sessionStore.sessionInvoices.map((sessionInvoice) => (
+                              <SessionInvoiceButton key={sessionInvoice.id} sessionInvoice={sessionInvoice} />
+                          ))
                         : sessionStore.payments.map((payment) => <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />)}
                 </VStack>
             </ScrollView>

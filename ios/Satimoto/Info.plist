@@ -81,11 +81,11 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) needs access to your Camera.</string>
+	<string>$(PRODUCT_NAME) uses the camera to scan QR codes.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>Save location data with transactions</string>
+	<string>$(PRODUCT_NAME) uses your location to find charge points nearby.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Save location data with transactions</string>
+	<string>$(PRODUCT_NAME) uses your location to find charge points nearby.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

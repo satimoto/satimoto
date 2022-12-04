@@ -16,6 +16,10 @@ interface SessionInvoiceModel {
     signature: string
     isSettled: boolean
     isExpired: boolean
+    estimatedEnergy: number
+    estimatedTime: number
+    meteredEnergy: number
+    meteredTime: number
     lastUpdated: string
 }
 

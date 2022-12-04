@@ -48,6 +48,10 @@ export interface SessionStoreInterface extends StoreInterface {
     sessionInvoices: SessionInvoiceModel[]
     sessions: SessionModel[]
     payments: PaymentModel[]
+    estimatedEnergy: number
+    estimatedTime: number
+    meteredEnergy: number
+    meteredTime: number
 
     onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void>
     onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void>
@@ -74,6 +78,10 @@ export class SessionStore implements SessionStoreInterface {
     sessionInvoicesUpdateTimer: any = undefined
     sessions
     payments
+    estimatedEnergy: number = 0
+    estimatedTime: number = 0
+    meteredEnergy: number = 0
+    meteredTime: number = 0
 
     constructor(stores: Store) {
         this.stores = stores
@@ -95,6 +103,10 @@ export class SessionStore implements SessionStoreInterface {
             sessionInvoices: observable,
             sessions: observable,
             payments: observable,
+            estimatedEnergy: observable,
+            estimatedTime: observable,
+            meteredEnergy: observable,
+            meteredTime: observable,
 
             valueMsat: computed,
             valueSat: computed,
@@ -302,6 +314,10 @@ export class SessionStore implements SessionStoreInterface {
         this.location = undefined
         this.evse = undefined
         this.connector = undefined
+        this.estimatedEnergy = 0
+        this.estimatedTime = 0
+        this.meteredEnergy = 0
+        this.meteredTime = 0
     }
 
     setReady() {
@@ -370,6 +386,10 @@ export class SessionStore implements SessionStoreInterface {
             this.location = undefined
             this.evse = undefined
             this.connector = undefined
+            this.estimatedEnergy = 0
+            this.estimatedTime = 0
+            this.meteredEnergy = 0
+            this.meteredTime = 0
         }
     }
 
@@ -383,6 +403,11 @@ export class SessionStore implements SessionStoreInterface {
         } else {
             this.sessionInvoices.push(sessionInvoice)
         }
+
+        this.estimatedEnergy = sessionInvoice.estimatedEnergy || this.estimatedEnergy
+        this.estimatedTime = sessionInvoice.estimatedTime ? Math.floor(sessionInvoice.estimatedTime * 60) : this.estimatedTime
+        this.meteredEnergy = sessionInvoice.meteredEnergy || this.meteredEnergy
+        this.meteredTime = sessionInvoice.meteredTime ? Math.floor(sessionInvoice.meteredTime * 60) : this.meteredTime
 
         return sessionInvoice
     }

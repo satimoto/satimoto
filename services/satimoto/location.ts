@@ -53,11 +53,13 @@ const LIST_LOCATIONS = gql`
 `
 
 interface ListLocationsInput {
+    interval?: number
+    isRemoteCapable?: boolean
+    isRfidCapable?: boolean
     xMin: number
     yMin: number
     xMax: number
     yMax: number
-    interval?: number
 }
 
 const listLocations = (client: ApolloClient<NormalizedCacheObject>) => {
@@ -66,7 +68,8 @@ const listLocations = (client: ApolloClient<NormalizedCacheObject>) => {
             query: LIST_LOCATIONS,
             variables: {
                 input
-            }
+            },
+            fetchPolicy: 'no-cache'
         })
     }
 }
