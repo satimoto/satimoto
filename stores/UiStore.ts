@@ -27,6 +27,7 @@ export interface UiStoreInterface extends StoreInterface {
     stores: Store
 
     connector?: ConnectorModel
+    filterExperimental: boolean
     filterRemoteCapable: boolean
     filterRfidCapable: boolean
     lnUrl?: string
@@ -46,9 +47,11 @@ export interface UiStoreInterface extends StoreInterface {
     clearPaymentRequest(): void
     parseIntent(intent: string): Promise<boolean>
     setChargePoint(evse: EvseModel): void
+    setFilterExperimental(filter: boolean): void
     setFilterRemoteCapable(filter: boolean): void
     setFilterRfidCapable(filter: boolean): void
     setLightningAddress(address: string): void
+    setLinkToken(token?: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
     setTooltipShown(tooltips: Tooltip): void
@@ -62,8 +65,10 @@ export class UiStore implements UiStoreInterface {
     connector?: ConnectorModel = undefined
     evse?: EvseModel = undefined
     location?: LocationModel = undefined
+    filterExperimental: boolean = false
     filterRemoteCapable: boolean = true
     filterRfidCapable: boolean = IS_ANDROID
+    linkToken?: string = undefined
     lnUrl?: string = undefined
     lnUrlAuthParams?: LNURLAuthParams = undefined
     lnUrlChannelParams?: LNURLChannelParams = undefined
@@ -88,6 +93,7 @@ export class UiStore implements UiStoreInterface {
             location: observable,
             filterRemoteCapable: observable,
             filterRfidCapable: observable,
+            linkToken: observable,
             lnUrl: observable,
             lnUrlAuthParams: observable,
             lnUrlChannelParams: observable,
@@ -106,8 +112,10 @@ export class UiStore implements UiStoreInterface {
             clearLnUrl: action,
             clearPaymentRequest: action,
             setChargePoint: action,
+            setFilterExperimental: action,
             setFilterRemoteCapable: action,
             setFilterRfidCapable: action,
+            setLinkToken: action,
             setLnUrl: action,
             setLnUrlPayParams: action,
             setPaymentRequest: action,
@@ -220,6 +228,14 @@ export class UiStore implements UiStoreInterface {
                 // Lightning Address
                 await this.setLightningAddress(intent)
                 return true
+            } else if (intent.startsWith("https://satimoto.com/link-token")) {
+                // A satimoto URL
+                let idMatches = intent.match(ID_REGEX)
+                let identifier = idMatches && idMatches.length > 1 ? idMatches[1] : null
+
+                if (identifier) {
+                    this.setLinkToken(identifier)
+                }
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
                 let evseIdMatches = intent.match(EVSE_ID_REGEX)
@@ -288,6 +304,10 @@ export class UiStore implements UiStoreInterface {
         }
     }
 
+    setFilterExperimental(filter: boolean): void {
+        this.filterExperimental = filter
+    }
+    
     setFilterRemoteCapable(filter: boolean): void {
         this.filterRemoteCapable = filter
     }
@@ -299,6 +319,10 @@ export class UiStore implements UiStoreInterface {
     async setLightningAddress(address: string) {
         const payParams = await identifier(address)
         this.setLnUrlPayParams(payParams)
+    }
+
+    setLinkToken(token?: string) {
+        this.linkToken = token
     }
 
     async setLnUrl(lnUrl: string) {

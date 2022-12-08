@@ -93,7 +93,7 @@ export class LocationStore implements LocationStoreInterface {
             )
 
             reaction(
-                () => this.stores.uiStore.filterRemoteCapable && this.stores.uiStore.filterRfidCapable,
+                () => this.stores.uiStore.filterExperimental && this.stores.uiStore.filterRemoteCapable && this.stores.uiStore.filterRfidCapable,
                 () => this.resetFilterCapabilities()
             )
         } catch (error) {
@@ -104,17 +104,9 @@ export class LocationStore implements LocationStoreInterface {
     async fetchLocations() {
         if (this.stores.settingStore.accessToken) {
             if (this.bounds && this.bounds.length == 2) {
-                log.debug(JSON.stringify({
-                    interval: this.lastLocationChanged ? 0 : LOCATION_UPDATE_INTERVAL,
-                    isRemoteCapable: this.stores.uiStore.filterRemoteCapable,
-                    isRfidCapable: this.stores.uiStore.filterRfidCapable,
-                    xMin: this.bounds[1][0],
-                    yMin: this.bounds[0][1],
-                    xMax: this.bounds[0][0],
-                    yMax: this.bounds[1][1]
-                }))
                 const locations = await listLocations({
                     interval: this.lastLocationChanged ? 0 : LOCATION_UPDATE_INTERVAL,
+                    isExperimental: this.stores.uiStore.filterExperimental,
                     isRemoteCapable: this.stores.uiStore.filterRemoteCapable,
                     isRfidCapable: this.stores.uiStore.filterRfidCapable,
                     xMin: this.bounds[1][0],

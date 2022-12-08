@@ -1,8 +1,10 @@
+import ConfirmationModal from "components/ConfirmationModal"
 import HeaderButton from "components/HeaderButton"
 import ScanNfcModal from "components/ScanNfcModal"
 import TokenButton from "components/TokenButton"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
+import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import TokenModel from "models/Token"
 import { Text, useColorModeValue, useTheme, VStack } from "native-base"
@@ -13,9 +15,9 @@ import { TagEvent } from "react-native-nfc-manager"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { createToken, listTokens } from "services/SatimotoService"
+import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
-import { useStore } from "hooks/useStore"
 
 type TokenListProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "TokenList">
@@ -26,9 +28,12 @@ const TokenList = ({ navigation }: TokenListProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColorModeValue("lightText", "darkText")
     const safeAreaInsets = useSafeAreaInsets()
+    const [confirmationModalText, setConfirmationModalText] = useState("")
+    const [confirmationButtonText, setConfirmationButtonText] = useState("")
     const [tokens, setTokens] = useState<TokenModel[]>([])
+    const [isLinkTokenModalVisible, setIsLinkTokenModalVisible] = useState(false)
     const [isScanNfcModalVisible, setIsScanNfcModalVisible] = useState(false)
-    const { settingStore } = useStore()
+    const { settingStore, uiStore } = useStore()
 
     const onAddButtonPress = async () => {
         const notificationsEnabled = await settingStore.requestPushNotificationPermission()
@@ -38,6 +43,17 @@ const TokenList = ({ navigation }: TokenListProps) => {
         }
     }
 
+    const onLinkTokenPress = async (): Promise<void> => {
+        if (uiStore.linkToken) {
+            const tokenResponse = await createToken({ uid: uiStore.linkToken })
+
+            setTokens(tokens.concat([tokenResponse.data.createToken as TokenModel]))
+            uiStore.setLinkToken(undefined)
+        }
+    }
+
+    const onTokenPress = (token: TokenModel) => {}
+
     const onNfcTag = async (nfcTag: TagEvent) => {
         if (nfcTag.id) {
             const tokenResponse = await createToken({ uid: nfcTag.id })
@@ -46,12 +62,26 @@ const TokenList = ({ navigation }: TokenListProps) => {
         }
     }
 
+    const renderHeaderRight = () => {
+        return IS_ANDROID && uiStore.nfcAvailable ? <HeaderButton icon={faPlus} onPress={onAddButtonPress} /> : undefined
+    }
+
     useLayoutEffect(() => {
         navigation.setOptions({
             title: I18n.t("TokenList_HeaderTitle"),
-            headerRight: () => <HeaderButton icon={faPlus} onPress={onAddButtonPress} />
+            headerRight: renderHeaderRight
         })
     }, [navigation])
+
+    useEffect(() => {
+        if (uiStore.linkToken) {
+            setConfirmationModalText(I18n.t("ConfirmationModal_LinkTokenText", { token: uiStore.linkToken }))
+            setConfirmationButtonText(I18n.t("Button_Ok"))
+            setIsLinkTokenModalVisible(true)
+        } else {
+            setIsLinkTokenModalVisible(false)
+        }
+    }, [uiStore.linkToken])
 
     useEffect(() => {
         const asyncListTokens = async () => {
@@ -63,26 +93,31 @@ const TokenList = ({ navigation }: TokenListProps) => {
         asyncListTokens()
     }, [])
 
-    const onPress = (token: TokenModel) => {}
-
     return (
         <View style={styles.matchParent}>
             {tokens.length > 0 ? (
                 <ScrollView style={[styles.matchParent, { padding: 10, backgroundColor }]}>
                     <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
                         {tokens.map((token) => (
-                            <TokenButton key={token.uid} token={token} onPress={onPress} />
+                            <TokenButton key={token.uid} token={token} onPress={onTokenPress} />
                         ))}
                     </VStack>
                 </ScrollView>
             ) : (
-                <View style={[{ height: "100%", backgroundColor }, styles.center]}>
+                <View style={[{ height: "100%", backgroundColor, padding: 5 }, styles.center]}>
                     <Text color={textColor} bold fontSize={16} textAlign="center">
-                        {I18n.t("TokenList_EmptyInfoTitle")}
+                        {I18n.t(IS_ANDROID ? "TokenList_EmptyInfoTitle" : "TokenList_EmptyInfoIOSTitle")}
                     </Text>
-                    <Text color={textColor}>({I18n.t("TokenList_EmptyInfoSubtitle")})</Text>
+                    {IS_ANDROID && <Text color={textColor}>({I18n.t("TokenList_EmptyInfoSubtitle")})</Text>}
                 </View>
             )}
+            <ConfirmationModal
+                isVisible={isLinkTokenModalVisible}
+                text={confirmationModalText}
+                buttonText={confirmationButtonText}
+                onPress={onLinkTokenPress}
+                onClose={() => uiStore.setLinkToken(undefined)}
+            />
             <ScanNfcModal isVisible={isScanNfcModalVisible} onNfcTag={onNfcTag} onClose={() => setIsScanNfcModalVisible(false)} />
         </View>
     )
