@@ -54,6 +54,7 @@ const LIST_LOCATIONS = gql`
 
 interface ListLocationsInput {
     interval?: number
+    isExperimental?: boolean
     isRemoteCapable?: boolean
     isRfidCapable?: boolean
     xMin: number

@@ -12,6 +12,7 @@ interface LocationModel {
     evses?: EvseModel[]
     availableEvses: number
     totalEvses: number
+    isExperimental: boolean
     isRemoteCapable: boolean
     isRfidCapable: boolean
 }

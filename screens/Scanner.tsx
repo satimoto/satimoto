@@ -13,8 +13,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 import { errorToString } from "utils/conversion"
+import { StackActions } from "@react-navigation/native"
 
 const log = new Log("Scanner")
+const replaceAction = StackActions.replace("TokenList")
+const popAction = StackActions.pop()
 
 const styleSheet = StyleSheet.create({
     headerButtonView: { 
@@ -45,8 +48,14 @@ const Scanner = ({ navigation }: ScannerProps) => {
     const [lastError, setLastError] = useState("")
 
     useEffect(() => {
+        if (uiStore.linkToken) {
+            navigation.dispatch(replaceAction)
+        }
+    }, [uiStore.linkToken])
+
+    useEffect(() => {
         if (uiStore.lnUrlAuthParams) {
-            navigation.navigate("Home")
+            navigation.dispatch(popAction)
         }
     }, [uiStore.lnUrlAuthParams])
 
@@ -67,7 +76,6 @@ const Scanner = ({ navigation }: ScannerProps) => {
                 setIsActive(true)
             }, 2000)
         }
-
     }
 
     return (

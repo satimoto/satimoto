@@ -15,13 +15,19 @@ interface FilterModalProps {
 const FilterModal = ({ isVisible, onClose }: FilterModalProps) => {
     const textColor = useColorModeValue("lightText", "darkText")
     const { uiStore } = useStore()
+    const [filterExperimental, setFilterExperimental] = useState(false)
     const [filterRemoteCapable, setFilterRemoteCapable] = useState(false)
     const [filterRfidCapable, setFilterRfidCapable] = useState(false)
 
     useEffect(() => {
+        setFilterExperimental(uiStore.filterExperimental)
         setFilterRemoteCapable(uiStore.filterRemoteCapable)
         setFilterRfidCapable(uiStore.filterRfidCapable)
     }, [])
+
+    useEffect(() => {
+        uiStore.setFilterExperimental(filterExperimental)
+    }, [filterExperimental])
 
     useEffect(() => {
         uiStore.setFilterRemoteCapable(filterRemoteCapable)
@@ -30,6 +36,10 @@ const FilterModal = ({ isVisible, onClose }: FilterModalProps) => {
     useEffect(() => {
         uiStore.setFilterRfidCapable(filterRfidCapable)
     }, [filterRfidCapable])
+
+    const onExperimentalChange = useCallback(() => {
+        setFilterExperimental(!filterExperimental)
+    }, [filterExperimental])
 
     const onRemoteCapableChange = useCallback(() => {
         setFilterRemoteCapable(!filterRemoteCapable)
@@ -53,6 +63,12 @@ const FilterModal = ({ isVisible, onClose }: FilterModalProps) => {
                         {I18n.t("FilterModal_RfidCapableText")}
                     </Text>
                     <Switch isChecked={filterRfidCapable} onToggle={onRfidCapableChange} size="md" />
+                </HStack>
+                <HStack justifyContent="space-between" width="100%">
+                    <Text color={textColor} fontSize="xl">
+                        {I18n.t("FilterModal_ExperimentalText")}
+                    </Text>
+                    <Switch isChecked={filterExperimental} onToggle={onExperimentalChange} size="md" />
                 </HStack>
             </VStack>
         </Modal>

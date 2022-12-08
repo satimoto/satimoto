@@ -19,7 +19,6 @@ const TARIFF_FRAGMENT = gql`
         currency
         currencyRate
         currencyRateMsat
-        isIntermediateCdrCapable
         elements {
             priceComponents {
                 type
@@ -91,6 +90,7 @@ const LOCATION_FRAGMENT = gql`
         postalCode
         country
         geom
+        isExperimental
     }
 `
 

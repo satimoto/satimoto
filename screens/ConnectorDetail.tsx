@@ -9,7 +9,7 @@ import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { hasEvseCapability } from "models/Evse"
-import { Text, useColorModeValue, useTheme, VStack } from "native-base"
+import { Box, HStack, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
 import { BackHandler, StyleSheet, View } from "react-native"
 import { RouteProp, StackActions, useFocusEffect } from "@react-navigation/native"
@@ -21,11 +21,11 @@ import { TokenType } from "types/token"
 import { MINIMUM_REMOTE_CHARGE_BALANCE, MINIMUM_RFID_CHARGE_BALANCE } from "utils/constants"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
-import { Log } from "utils/logging"
 import styles from "utils/styles"
 import PriceComponentTray from "components/PriceComponentTray"
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
+import { faFlask } from "@fortawesome/free-solid-svg-icons"
 
-const log = new Log("ConnectorDetail")
 const popAction = StackActions.pop()
 
 const styleSheet = StyleSheet.create({
@@ -117,7 +117,6 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
             return sessionStore.tokenType === TokenType.OTHER ? (
                 <BusyButton
                     isBusy={isBusy}
-                    marginTop={5}
                     onPress={onShowStopConfirmation}
                     isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
                     style={styles.focusViewButton}
@@ -149,7 +148,6 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
             return isRemoteCapable ? (
                 <BusyButton
                     isBusy={isBusy}
-                    marginTop={5}
                     onPress={onShowStartConfirmation}
                     isDisabled={
                         channelStore.localBalance < MINIMUM_REMOTE_CHARGE_BALANCE ||
@@ -228,10 +226,19 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
 
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
+            {location.isExperimental && (
+                <Box bgColor="error.500" padding={2}>
+                    <HStack width="100%">
+                        <Text color="#ffffff" fontSize={14} fontWeight={600}>
+                            {I18n.t("ConnectorDetail_ExperimentalText")}
+                        </Text>
+                    </HStack>
+                </Box>
+            )}
             <View style={[styles.focusViewPanel, { backgroundColor, paddingHorizontal: 10 }]}>
                 <LocationHeader location={route.params.location} />
                 <PriceComponentTray marginTop={2} connector={connector} />
-                <VStack space={5} marginTop={10}>
+                <VStack space={3} marginTop={5}>
                     {energySources.length > 0 && <StackedBar items={energySources} />}
                     {renderStartInfo()}
                     {renderStart()}
