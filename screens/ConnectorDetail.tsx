@@ -93,12 +93,11 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
             } else {
                 await sessionStore.stopSession()
             }
-
-            setIsConfirmationModalVisible(false)
         } catch (error) {
             setLastError(errorToString(error))
         }
 
+        setIsConfirmationModalVisible(false)
         setIsBusy(false)
     }, [confirmationStatus])
 

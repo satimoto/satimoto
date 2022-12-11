@@ -2,7 +2,7 @@ import { Hash } from "fast-sha256"
 import Long from "long"
 import { action, computed, makeObservable, observable, reaction, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import StartCommandModel from "models/Command"
+import StartCommandModel, { StopCommandModel } from "models/Command"
 import ConnectorModel, { ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel from "models/Location"
@@ -341,7 +341,8 @@ export class SessionStore implements SessionStoreInterface {
 
     async stopSession(): Promise<void> {
         if (this.authorizationId) {
-            await stopSession({ authorizationId: this.authorizationId })
+            const response = await stopSession({ authorizationId: this.authorizationId })
+            const stopCommand = response.data.stopSession as StopCommandModel
 
             runInAction(() => {
                 if (this.status === ChargeSessionStatus.STARTING) {
@@ -427,10 +428,14 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async whenHydrated() {
-        if ((this.status === ChargeSessionStatus.STARTING || this.status === ChargeSessionStatus.STOPPING) && this.session) {
-            const response = await getSession({ uid: this.session.uid })
+        if (this.session || this.authorizationId) {
+            try {
+                const response = await getSession(this.session ? { uid: this.session.uid } : { authorizationId: this.authorizationId })
 
-            this.updateSession(response.data.getSession as SessionModel)
+                this.updateSession(response.data.getSession as SessionModel)
+            } catch {
+                this.setIdle()
+            }
         } else if (this.status === ChargeSessionStatus.IDLE) {
             this.setIdle()
         }
