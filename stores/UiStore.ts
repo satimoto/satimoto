@@ -30,6 +30,7 @@ export interface UiStoreInterface extends StoreInterface {
     filterExperimental: boolean
     filterRemoteCapable: boolean
     filterRfidCapable: boolean
+    linkToken?: string
     lnUrl?: string
     lnUrlAuthParams?: LNURLAuthParams
     lnUrlChannelParams?: LNURLChannelParams

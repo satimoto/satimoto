@@ -48,6 +48,7 @@ const TokenList = ({ navigation }: TokenListProps) => {
             const tokenResponse = await createToken({ uid: uiStore.linkToken })
 
             setTokens(tokens.concat([tokenResponse.data.createToken as TokenModel]))
+            setIsLinkTokenModalVisible(false)
             uiStore.setLinkToken(undefined)
         }
     }
