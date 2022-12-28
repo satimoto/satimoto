@@ -79,8 +79,24 @@ static void InitializeFlipper(UIApplication *application) {
   if ([FIRApp defaultApp] == nil) {
     [FIRApp configure];
   }
-
+  
   return YES;
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application{
+  NSLog(@"BackgroundTaskIdentifier begin");
+  __block UIBackgroundTaskIdentifier taskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+    NSLog(@"BackgroundTaskIdentifier expire");
+    [[UIApplication sharedApplication] endBackgroundTask:taskId];
+  }];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application{
+  NSLog(@"BackgroundTaskIdentifier begin");
+  __block UIBackgroundTaskIdentifier taskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+    NSLog(@"BackgroundTaskIdentifier expire");
+    [[UIApplication sharedApplication] endBackgroundTask:taskId];
+  }];
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

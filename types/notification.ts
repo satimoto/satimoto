@@ -12,7 +12,9 @@ export interface Notification {
     type: NotificationType
 }
 
-export interface DataPingNotification extends Notification {}
+export interface DataPingNotification extends Notification {
+    ping: string
+}
 
 export interface InvoiceRequestNotification extends Notification {}
 

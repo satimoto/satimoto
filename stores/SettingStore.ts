@@ -3,8 +3,9 @@ import { makePersistable } from "mobx-persist-store"
 import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import messaging from "@react-native-firebase/messaging"
-import { updateUser, getAccessToken, getUser } from "services/SatimotoService"
+import { updateUser, getAccessToken, getUser, pongUser } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
+import { DataPingNotification } from "types/notification"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 
@@ -19,6 +20,7 @@ export interface SettingStoreInterface extends StoreInterface {
     pushNotificationEnabled: boolean
     pushNotificationToken?: string
 
+    onDataPingNotification(notification: DataPingNotification): Promise<void>
     requestPushNotificationPermission(): Promise<boolean>
     setPushNotificationSettings(enabled: boolean, token: string): void
 }
@@ -79,6 +81,12 @@ export class SettingStore implements SettingStoreInterface {
         )
 
         this.setReady()
+    }
+
+    async onDataPingNotification(notification: DataPingNotification): Promise<void> {
+        await when(() => this.stores.lightningStore.syncedToChain)
+
+        await pongUser({pong: notification.ping})
     }
 
     async reactionGetUser() {

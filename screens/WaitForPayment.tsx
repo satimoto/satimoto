@@ -78,7 +78,7 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
             startConfetti().then(onClose)
         }
     }, [invoice.status])
-
+    
     return (
         <View
             style={[

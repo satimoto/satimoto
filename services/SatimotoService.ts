@@ -121,6 +121,7 @@ const updateTokenAuthorization = TokenAuthorization.updateTokenAuthorization(cli
 // User
 const createUser = User.createUser(client)
 const getUser = User.getUser(client)
+const pongUser = User.pongUser(client)
 const updateUser = User.updateUser(client)
 
 // Token
@@ -211,6 +212,7 @@ export {
     // User
     createUser,
     getUser,
+    pongUser,
     updateUser
 }
 

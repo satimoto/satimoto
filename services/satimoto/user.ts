@@ -63,6 +63,35 @@ const getUser = (client: ApolloClient<NormalizedCacheObject>) => {
 export { getUser }
 
 /**
+ * Pong User
+ */
+
+const PONG_USER = gql`
+    mutation PongUser($input: PongUserInput!) {
+        pongUser(input: $input) {
+            ok
+        }
+    }
+`
+
+interface PongUserInput {
+    pong: string
+}
+
+const pongUser = (client: ApolloClient<NormalizedCacheObject>) => {
+    return async (input: PongUserInput) => {
+        return await client.mutate({
+            mutation: PONG_USER,
+            variables: {
+                input
+            }
+        })
+    }
+}
+
+export { pongUser }
+
+/**
  * Update User
  */
 

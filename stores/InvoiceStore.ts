@@ -137,20 +137,18 @@ export class InvoiceStore implements InvoiceStoreInterface {
             const response = await listInvoiceRequests()
             const invoiceRequests = response.data.listInvoiceRequests as InvoiceRequestModel[]
 
-            when(
-                () => this.stores.lightningStore.syncedToChain,
-                async () => {
-                    for (const invoiceRequest of invoiceRequests) {
-                        try {
-                            const invoice = await this.addInvoice({ valueMsat: invoiceRequest.totalMsat, memo: invoiceRequest.memo })
+            // Wait for synced to chain
+            await when(() => this.stores.lightningStore.syncedToChain)
 
-                            await updateInvoiceRequest({ id: invoiceRequest.id, paymentRequest: invoice.paymentRequest })
-                        } catch (error) {
-                            log.error(`Error adding invoice: ${error}`)
-                        }
-                    }
+            for (const invoiceRequest of invoiceRequests) {
+                try {
+                    const invoice = await this.addInvoice({ valueMsat: invoiceRequest.totalMsat, memo: invoiceRequest.memo })
+
+                    await updateInvoiceRequest({ id: invoiceRequest.id, paymentRequest: invoice.paymentRequest })
+                } catch (error) {
+                    log.error(`Error adding invoice: ${error}`)
                 }
-            )
+            }
         }
     }
 
