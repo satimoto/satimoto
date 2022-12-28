@@ -12,11 +12,11 @@ import { View } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
+import { PaymentStatus } from "types/payment"
 import { errorToString, toNumber } from "utils/conversion"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
-import { PaymentStatus } from "types/payment"
 
 const log = new Log("PaymentRequest")
 
@@ -70,7 +70,7 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
             title: I18n.t("PaymentRequest_HeaderTitle")
         })
     }, [navigation])
-
+    
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
             <View style={[styles.focusViewPanel, { backgroundColor }]}>

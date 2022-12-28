@@ -10,6 +10,7 @@ import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineI
 import { useConfetti } from "providers/ConfettiProvider"
 import React, { useEffect, useLayoutEffect, useState } from "react"
 import { View } from "react-native"
+import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { withdrawRequest } from "services/LnUrlService"
@@ -19,7 +20,6 @@ import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
-import { RouteProp } from "@react-navigation/native"
 
 const log = new Log("LnUrlWithdraw")
 

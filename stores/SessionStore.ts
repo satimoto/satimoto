@@ -241,19 +241,16 @@ export class SessionStore implements SessionStoreInterface {
                     return
                 }
 
-                when(
-                    () => this.stores.lightningStore.syncedToChain,
-                    async () => {
-                        const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
+                await when(() => this.stores.lightningStore.syncedToChain)
+                
+                const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
 
-                        if (payment.status === PaymentStatus.SUCCEEDED) {
-                            sessionInvoice.isSettled = true
-                            this.addPayment(payment)
-                        }
+                if (payment.status === PaymentStatus.SUCCEEDED) {
+                    sessionInvoice.isSettled = true
+                    this.addPayment(payment)
+                }
 
-                        this.updateSessionInvoice(sessionInvoice)
-                    }
-                )
+                this.updateSessionInvoice(sessionInvoice)
             }
         }
     }
