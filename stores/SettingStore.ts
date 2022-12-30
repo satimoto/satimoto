@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, reaction, when } from "mobx"
+import { action, makeObservable, observable, reaction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -84,8 +84,6 @@ export class SettingStore implements SettingStoreInterface {
     }
 
     async onDataPingNotification(notification: DataPingNotification): Promise<void> {
-        await when(() => this.stores.lightningStore.syncedToChain)
-
         await pongUser({pong: notification.ping})
     }
 
