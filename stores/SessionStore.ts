@@ -1,6 +1,6 @@
 import { Hash } from "fast-sha256"
 import Long from "long"
-import { action, computed, makeObservable, observable, reaction, runInAction, when } from "mobx"
+import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import StartCommandModel, { StopCommandModel } from "models/Command"
 import ConnectorModel, { ConnectorModelLike } from "models/Connector"
@@ -199,7 +199,7 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async fetchExpiredSessionInvoices(): Promise<void> {
-        if (this.stores.settingStore.accessToken && this.status === ChargeSessionStatus.IDLE) {
+        if (this.stores.settingStore.accessToken) {
             const response = await listSessionInvoices({ isExpired: true, isSettled: false })
             const sessionInvoices = response.data.listSessionInvoices as SessionInvoiceModel[]
 
@@ -209,6 +209,12 @@ export class SessionStore implements SessionStoreInterface {
                     this.sessionInvoices.replace(sessionInvoices)
                 })
             }
+        }
+    }
+
+    async updateExpiredSessionInvoices(): Promise<void> {
+        if (this.status === ChargeSessionStatus.IDLE) {
+            await this.fetchExpiredSessionInvoices()
         }
     }
 
@@ -413,8 +419,8 @@ export class SessionStore implements SessionStoreInterface {
     startSessionInvoiceUpdates() {
         log.debug(`startInvoiceRequestUpdates`)
         if (!this.sessionInvoicesUpdateTimer) {
-            this.fetchExpiredSessionInvoices()
-            this.sessionInvoicesUpdateTimer = setInterval(this.fetchExpiredSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
+            this.updateExpiredSessionInvoices()
+            this.sessionInvoicesUpdateTimer = setInterval(this.updateExpiredSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
         }
     }
 
@@ -425,7 +431,9 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async whenHydrated() {
-        if (this.session || this.authorizationId) {
+        if (this.status === ChargeSessionStatus.AWAITING_PAYMENT) {
+            await this.fetchExpiredSessionInvoices()
+        } else if (this.session || this.authorizationId) {
             try {
                 const response = await getSession(this.session ? { uid: this.session.uid } : { authorizationId: this.authorizationId })
 
