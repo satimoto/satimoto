@@ -203,12 +203,10 @@ export class SessionStore implements SessionStoreInterface {
             const response = await listSessionInvoices({ isExpired: true, isSettled: false })
             const sessionInvoices = response.data.listSessionInvoices as SessionInvoiceModel[]
 
-            if (sessionInvoices.length > 0) {
-                runInAction(() => {
-                    this.status = ChargeSessionStatus.AWAITING_PAYMENT
-                    this.sessionInvoices.replace(sessionInvoices)
-                })
-            }
+            runInAction(() => {
+                this.status = sessionInvoices.length > 0 ? ChargeSessionStatus.AWAITING_PAYMENT : ChargeSessionStatus.IDLE
+                this.sessionInvoices.replace(sessionInvoices)
+            })
         }
     }
 
@@ -248,7 +246,7 @@ export class SessionStore implements SessionStoreInterface {
                 }
 
                 await when(() => this.stores.lightningStore.syncedToChain)
-                
+
                 const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
 
                 if (payment.status === PaymentStatus.SUCCEEDED) {
