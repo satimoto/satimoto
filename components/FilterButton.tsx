@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faFilter } from "@fortawesome/free-solid-svg-icons"
 import { IconButton, useTheme } from "native-base"
 import React from "react"
-import { GestureResponderEvent, StyleProp, ViewStyle } from "react-native"
+import { GestureResponderEvent } from "react-native"
 import useColor from "hooks/useColor"
 
 

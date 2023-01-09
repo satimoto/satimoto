@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faWifi, faQrcode } from "@fortawesome/free-solid-svg-icons"
 import I18n from "i18n-js"
-import { Actionsheet, useColorModeValue } from "native-base"
+import { Actionsheet } from "native-base"
 import React from "react"
 import { StyleSheet } from "react-native"
 import { observer } from "mobx-react"

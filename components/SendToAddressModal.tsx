@@ -70,7 +70,7 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
                 </Text>
                 <Input
                     autoCapitalize="none"
-                    autoCompleteType="off"
+                    autoComplete="off"
                     autoCorrect={false}
                     value={address}
                     isFullWidth={true}

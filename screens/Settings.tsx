@@ -11,7 +11,6 @@ import useColor from "hooks/useColor"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import I18n from "utils/i18n"
-import { useStore } from "hooks/useStore"
 
 type SettingsProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "Settings">

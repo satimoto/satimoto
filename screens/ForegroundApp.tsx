@@ -26,7 +26,7 @@ log.debug(`Starting: Api Uri: ${API_URI}`)
 log.debug(`Starting: Network: ${NETWORK}`)
 log.debug(`Starting: Mapbox API key: ${MAPBOX_API_KEY}`)
 
-const App = () => {
+const ForegroundApp = () => {
     useEffect(() => {
         if (store.settingStore.pushNotificationEnabled) {
             log.debug(`Initialize push notification handling`)
@@ -78,4 +78,4 @@ const App = () => {
     )
 }
 
-export default observer(App)
+export default observer(ForegroundApp)

@@ -27,7 +27,7 @@
         android:theme="@style/BootTheme">
         <activity
             android:name=".MainActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:label="${appName}${network}${buildType}"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"

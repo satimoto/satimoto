@@ -10,7 +10,6 @@ import React from "react"
 import Moment from "react-moment"
 import { Text } from "react-native"
 import { toNumber } from "utils/conversion"
-import I18n from "utils/i18n"
 
 interface PaymentInfoModalProps {
     payment?: PaymentModel

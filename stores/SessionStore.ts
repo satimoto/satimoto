@@ -287,22 +287,31 @@ export class SessionStore implements SessionStoreInterface {
     async payExpiredSessionInvoice(sessionInvoice: SessionInvoiceModel): Promise<void> {
         if (sessionInvoice.isExpired && !sessionInvoice.isSettled) {
             const response = await updateSessionInvoice(sessionInvoice.id)
+            const sessionInvoiceResponse = response.data.updateSessionInvoice as SessionInvoiceModel
 
-            sessionInvoice = this.updateSessionInvoice(response.data.updateSessionInvoice as SessionInvoiceModel)
+            if (sessionInvoiceResponse) {
+                sessionInvoice = this.updateSessionInvoice(sessionInvoiceResponse, false)
 
-            const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: sessionInvoice.paymentRequest })
-
-            runInAction(() => {
-                if (payment.status === PaymentStatus.SUCCEEDED) {
-                    this.sessionInvoices.remove(sessionInvoice)
-
-                    if (this.sessionInvoices.length === 0) {
-                        this.status = ChargeSessionStatus.IDLE
-                    }
+                if (sessionInvoice.isSettled) {
+                    runInAction(() => {
+                        this.sessionInvoices.remove(sessionInvoice)
+                    })
                 } else {
-                    sessionInvoice.isExpired = true
+                    const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: sessionInvoice.paymentRequest })
+
+                    runInAction(() => {
+                        if (payment.status === PaymentStatus.SUCCEEDED) {
+                            this.sessionInvoices.remove(sessionInvoice)
+        
+                            if (this.sessionInvoices.length === 0) {
+                                this.status = ChargeSessionStatus.IDLE
+                            }
+                        } else {
+                            sessionInvoice.isExpired = true
+                        }
+                    })
                 }
-            })
+            }
         }
     }
 
@@ -395,7 +404,7 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
-    updateSessionInvoice(sessionInvoice: SessionInvoiceModel): SessionInvoiceModel {
+    updateSessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): SessionInvoiceModel {
         let existingSessionInvoice = this.sessionInvoices.find(({ id }) => id === sessionInvoice.id)
 
         if (existingSessionInvoice) {
@@ -406,10 +415,12 @@ export class SessionStore implements SessionStoreInterface {
             this.sessionInvoices.push(sessionInvoice)
         }
 
-        this.estimatedEnergy = sessionInvoice.estimatedEnergy || this.estimatedEnergy
-        this.estimatedTime = sessionInvoice.estimatedTime ? Math.floor(sessionInvoice.estimatedTime * 60) : this.estimatedTime
-        this.meteredEnergy = sessionInvoice.meteredEnergy || this.meteredEnergy
-        this.meteredTime = sessionInvoice.meteredTime ? Math.floor(sessionInvoice.meteredTime * 60) : this.meteredTime
+        if (updateMetrics) {
+            this.estimatedEnergy = sessionInvoice.estimatedEnergy || this.estimatedEnergy
+            this.estimatedTime = sessionInvoice.estimatedTime ? Math.floor(sessionInvoice.estimatedTime * 60) : this.estimatedTime
+            this.meteredEnergy = sessionInvoice.meteredEnergy || this.meteredEnergy
+            this.meteredTime = sessionInvoice.meteredTime ? Math.floor(sessionInvoice.meteredTime * 60) : this.meteredTime
+        }
 
         return sessionInvoice
     }

@@ -23,8 +23,6 @@ import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
 import PriceComponentTray from "components/PriceComponentTray"
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faFlask } from "@fortawesome/free-solid-svg-icons"
 
 const popAction = StackActions.pop()
 
@@ -33,6 +31,7 @@ const styleSheet = StyleSheet.create({
         paddingVertical: 20
     }
 })
+
 
 type ConnectorDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ConnectorDetail">

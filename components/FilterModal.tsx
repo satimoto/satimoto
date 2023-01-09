@@ -1,8 +1,6 @@
-import BusyButton from "components/BusyButton"
 import Modal from "components/Modal"
 import { useStore } from "hooks/useStore"
 import I18n from "i18n-js"
-import { autorun } from "mobx"
 import { observer } from "mobx-react"
 import { HStack, Switch, Text, useColorModeValue, VStack } from "native-base"
 import React, { useCallback, useEffect, useState } from "react"

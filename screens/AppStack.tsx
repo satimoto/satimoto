@@ -69,7 +69,7 @@ export type AppStackScreenParams = {
 
 type AppStackParams = AppStackParamList | AppStackScreenParams
 
-const AppStackNav = createNativeStackNavigator<AppStackParams>()
+const AppStackNav = createNativeStackNavigator<AppStackParamList>()
 
 const screenOptions: NativeStackNavigationOptions = {
     headerShown: false
@@ -92,12 +92,12 @@ const AppStack = () => {
     }
 
     useEffect(() => {
-        AppState.addEventListener("change", onAppStateChange)
-        Linking.addEventListener("url", onLinkingUrl)
+        const appStateListener = AppState.addEventListener("change", onAppStateChange)
+        const linkingListener = Linking.addEventListener("url", onLinkingUrl)
 
         return () => {
-            AppState.removeEventListener("change", onAppStateChange)
-            Linking.removeEventListener("url", onLinkingUrl)
+            appStateListener.remove()
+            linkingListener.remove()
         }
     }, [])
 

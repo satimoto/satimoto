@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import useColor from "hooks/useColor"
 import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
 import React from "react"
-import { GestureResponderEvent, StyleSheet } from "react-native"
+import { GestureResponderEvent } from "react-native"
 import styles from "utils/styles"
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 
