@@ -6,6 +6,7 @@ import InvoiceRequestModel from "models/InvoiceRequest"
 import moment from "moment"
 import { lnrpc } from "proto/proto"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import NetInfo from "@react-native-community/netinfo"
 import { generateSecureRandom } from "react-native-securerandom"
 import { StoreInterface, Store } from "stores/Store"
 import { addInvoice, subscribeInvoices } from "services/LightningService"
@@ -47,6 +48,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
     // Store state
     hydrated = false
     ready = false
+    queue: any = undefined
     stores
 
     addIndex = "0"
@@ -68,10 +70,10 @@ export class InvoiceStore implements InvoiceStoreInterface {
             invoices: observable,
             subscribedInvoices: observable,
 
-            setReady: action,
-            settleInvoice: action,
-            subscribeInvoices: action,
-            onInvoice: action
+            actionInvoiceReceived: action,
+            actionSetReady: action,
+            actionSubscribeInvoices: action,
+            actionSettleInvoice: action
         })
 
         makePersistable(
@@ -82,6 +84,8 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     async initialize(): Promise<void> {
+        this.queue = this.stores.queue
+
         try {
             // When the synced to chain, subscribe to transactions
             when(
@@ -152,7 +156,60 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
     }
 
-    onInvoice(data: lnrpc.Invoice) {
+    async onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void> {
+        if (this.stores.uiStore.appState === "background") {
+            const netState = await NetInfo.fetch()
+
+            this.queue.createJob(
+                "invoice-request-notification",
+                notification,
+                {
+                    attempts: 3,
+                    timeout: 20000
+                },
+                netState.isConnected && netState.isInternetReachable
+            )
+        } else {
+            await this.workerInvoiceRequestNotification(notification)
+        }
+    }
+
+    settleInvoice(hash: string) {
+        this.actionSettleInvoice(hash)
+    }
+
+    startInvoiceRequestUpdates() {
+        log.debug(`startInvoiceRequestUpdates`)
+
+        if (!this.invoiceRequestUpdateTimer) {
+            this.fetchInvoiceRequests()
+            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), INVOICE_REQUEST_UPDATE_INTERVAL * 1000)
+        }
+    }
+
+    stopInvoiceRequestUpdates() {
+        log.debug(`stopInvoiceRequestUpdates`)
+        clearInterval(this.invoiceRequestUpdateTimer)
+        this.invoiceRequestUpdateTimer = null
+    }
+
+    waitForInvoice(hash: string): Promise<InvoiceModel> {
+        return doWhileUntil("GetInvoice", () => this.findInvoice(hash), 500, 10)
+    }
+
+    /*
+     * Queue workers
+     */
+
+    async workerInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void> {
+        await this.fetchInvoiceRequests()
+    }
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionInvoiceReceived(data: lnrpc.Invoice) {
         const hash = bytesToHex(data.rHash)
         log.debug(`Update invoice: ${hash}`)
 
@@ -188,15 +245,18 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
     }
 
-    async onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void> {
-        await this.fetchInvoiceRequests()
-    }
-
-    setReady() {
+    actionSetReady() {
         this.ready = true
     }
 
-    settleInvoice(hash: string) {
+    actionSubscribeInvoices() {
+        if (!this.subscribedInvoices) {
+            subscribeInvoices((data: lnrpc.Invoice) => this.actionInvoiceReceived(data), this.addIndex, this.settleIndex)
+            this.subscribedInvoices = true
+        }
+    }
+
+    actionSettleInvoice(hash: string) {
         log.debug(`Settle invoice: ${hash}`)
         const invoice = this.findInvoice(hash)
 
@@ -207,34 +267,8 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
     }
 
-    startInvoiceRequestUpdates() {
-        log.debug(`startInvoiceRequestUpdates`)
-
-        if (!this.invoiceRequestUpdateTimer) {
-            this.fetchInvoiceRequests()
-            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), INVOICE_REQUEST_UPDATE_INTERVAL * 1000)
-        }
-    }
-
-    stopInvoiceRequestUpdates() {
-        log.debug(`stopInvoiceRequestUpdates`)
-        clearInterval(this.invoiceRequestUpdateTimer)
-        this.invoiceRequestUpdateTimer = null
-    }
-
-    subscribeInvoices() {
-        if (!this.subscribedInvoices) {
-            subscribeInvoices((data: lnrpc.Invoice) => this.onInvoice(data), this.addIndex, this.settleIndex)
-            this.subscribedInvoices = true
-        }
-    }
-
-    waitForInvoice(hash: string): Promise<InvoiceModel> {
-        return doWhileUntil("GetInvoice", () => this.findInvoice(hash), 500, 10)
-    }
-
     async whenSyncedToChain(): Promise<void> {
-        this.subscribeInvoices()
+        this.actionSubscribeInvoices()
         this.startInvoiceRequestUpdates()
     }
 }

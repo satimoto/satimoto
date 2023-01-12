@@ -20,7 +20,8 @@ import {
     subscribeCustomMessages,
     subscribeInvoices,
     subscribePeerEvents,
-    subscribeTransactions
+    subscribeTransactions,
+    verifyMessage
 } from "./lightning/lightning"
 import { registerBlockEpochNtfn } from "./lightning/chainNotifier"
 import { channelAcceptor, channelBalance, openChannel, subscribeChannelEvents } from "./lightning/channel"
@@ -58,6 +59,7 @@ export {
     subscribeInvoices,
     subscribePeerEvents,
     subscribeTransactions,
+    verifyMessage,
     // ChainNotifier
     registerBlockEpochNtfn,
     // Channel

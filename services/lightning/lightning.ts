@@ -239,3 +239,15 @@ export const subscribeTransactions = async (onData: TransactionStreamResponse): 
     })
     return sendStreamResponse<lnrpc.Transaction>({ stream, method, onData })
 }
+
+export const verifyMessage = (msg: BytesLikeType, signature: string): Promise<lnrpc.VerifyMessageResponse> => {
+    return sendCommand<lnrpc.IVerifyMessageRequest, lnrpc.VerifyMessageRequest, lnrpc.VerifyMessageResponse>({
+        request: lnrpc.VerifyMessageRequest,
+        response: lnrpc.VerifyMessageResponse,
+        method: service + "VerifyMessage",
+        options: {
+            msg: hexToBytes(msg),
+            signature
+        }
+    })
+}

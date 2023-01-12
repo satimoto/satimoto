@@ -1,8 +1,7 @@
-import { Hash } from "fast-sha256"
 import Long from "long"
 import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import StartCommandModel, { StopCommandModel } from "models/Command"
+import StartCommandModel from "models/Command"
 import ConnectorModel, { ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel from "models/Location"
@@ -11,7 +10,8 @@ import SessionModel, { SessionModelLike } from "models/Session"
 import SessionInvoiceModel from "models/SessionInvoice"
 import TokenAuthorizationModel from "models/TokenAuthorization"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { ecdsaVerify, signatureImport } from "secp256k1"
+import NetInfo from "@react-native-community/netinfo"
+import { verifyMessage } from "services/LightningService"
 import {
     getSession,
     getSessionInvoice,
@@ -30,7 +30,8 @@ import { TokenType, toTokenType } from "types/token"
 import { DEBUG } from "utils/build"
 import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
-import { hexToBytes, toBytes, toSatoshi } from "utils/conversion"
+import { toBytes, toSatoshi } from "utils/conversion"
+import { CommandStatus } from "types/command"
 
 const log = new Log("SessionStore")
 
@@ -64,12 +65,12 @@ export interface SessionStoreInterface extends StoreInterface {
 export class SessionStore implements SessionStoreInterface {
     hydrated = false
     ready = false
+    queue: any = undefined
     stores
 
     status = ChargeSessionStatus.IDLE
     authorizationId?: string = undefined
     tokenType?: TokenType = undefined
-    verificationKey?: Uint8Array = undefined
     location?: LocationModel = undefined
     evse?: EvseModel = undefined
     connector?: ConnectorModel = undefined
@@ -113,11 +114,14 @@ export class SessionStore implements SessionStoreInterface {
             feeMsat: computed,
             feeSat: computed,
 
-            addPayment: action,
-            setIdle: action,
-            setReady: action,
-            updateSession: action,
-            updateSessionInvoice: action
+            actionAddPayment: action,
+            actionSetIdle: action,
+            actionSetReady: action,
+            actionStartSession: action,
+            actionStopSession: action,
+            actionTokenAuthorization: action,
+            actionUpdateSession: action,
+            actionUpdateSessionInvoice: action
         })
 
         makePersistable(
@@ -128,7 +132,6 @@ export class SessionStore implements SessionStoreInterface {
                     "status",
                     "authorizationId",
                     "tokenType",
-                    "verificationKey",
                     "location",
                     "evse",
                     "connector",
@@ -144,11 +147,9 @@ export class SessionStore implements SessionStoreInterface {
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
 
-    addPayment(payment: PaymentModel) {
-        this.payments.unshift(payment)
-    }
-
     async initialize(): Promise<void> {
+        this.queue = this.stores.queue
+
         try {
             when(
                 () => this.hydrated,
@@ -198,6 +199,17 @@ export class SessionStore implements SessionStoreInterface {
             : "0"
     }
 
+    async fetchSessionInvoices(): Promise<void> {
+        if (this.stores.settingStore.accessToken && this.status !== ChargeSessionStatus.IDLE) {
+            const response = await listSessionInvoices({ isExpired: false, isSettled: false })
+            const sessionInvoices = response.data.listSessionInvoices as SessionInvoiceModel[]
+
+            for (const sessionInvoice of sessionInvoices) {
+                this.paySessionInvoice(sessionInvoice)
+            }
+        }
+    }
+
     async fetchExpiredSessionInvoices(): Promise<void> {
         if (this.stores.settingStore.accessToken) {
             const response = await listSessionInvoices({ isExpired: true, isSettled: false })
@@ -217,52 +229,39 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void> {
-        if (this.session) {
-            const response = await getSessionInvoice(notification.sessionInvoiceId)
-            const sessionInvoice = response.data.getSessionInvoice as SessionInvoiceModel
+        if (this.stores.uiStore.appState === "background") {
+            const netState = await NetInfo.fetch()
 
-            if (sessionInvoice) {
-                if (!this.verificationKey) {
-                    log.debug(`No verfication key to verify invoice signature`)
-                    return
-                }
-
-                if (notification.paymentRequest !== sessionInvoice.paymentRequest) {
-                    log.debug(`Payment request inconsistent with notification`)
-                    return
-                }
-
-                if (notification.signature !== sessionInvoice.signature) {
-                    log.debug(`Signature inconsistent with notification`)
-                    return
-                }
-
-                const hash = new Hash().update(toBytes(sessionInvoice.paymentRequest)).digest()
-                const signature = signatureImport(hexToBytes(sessionInvoice.signature))
-
-                if (!ecdsaVerify(signature, hash, this.verificationKey)) {
-                    log.debug(`Signature could not be verified with verification key`)
-                    return
-                }
-
-                await when(() => this.stores.lightningStore.syncedToChain)
-
-                const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: notification.paymentRequest })
-
-                if (payment.status === PaymentStatus.SUCCEEDED) {
-                    sessionInvoice.isSettled = true
-                    this.addPayment(payment)
-                }
-
-                this.updateSessionInvoice(sessionInvoice)
-            }
+            this.queue.createJob(
+                "session-invoice-notification",
+                notification,
+                {
+                    attempts: 3,
+                    timeout: 27500
+                },
+                netState.isConnected && netState.isInternetReachable
+            )
+        } else {
+            await this.workerSessionInvoiceNotification(notification)
         }
     }
 
     async onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void> {
-        const response = await getSession({ uid: notification.sessionUid }, !this.session)
+        if (this.stores.uiStore.appState === "background") {
+            const netState = await NetInfo.fetch()
 
-        this.updateSession(response.data.getSession as SessionModel)
+            this.queue.createJob(
+                "session-update-notification",
+                notification,
+                {
+                    attempts: 3,
+                    timeout: 1000
+                },
+                netState.isConnected && netState.isInternetReachable
+            )
+        } else {
+            await this.workerSessionUpdateNotification(notification)
+        }
     }
 
     async onTokenAuthorizeNotification(notification: TokenAuthorizeNotification): Promise<void> {
@@ -271,26 +270,41 @@ export class SessionStore implements SessionStoreInterface {
             const response = await updateTokenAuthorization({ authorizationId: notification.authorizationId, authorized })
             const tokenAuthorization = response.data.updateTokenAuthorization as TokenAuthorizationModel
 
-            if (authorized && tokenAuthorization.verificationKey) {
-                runInAction(() => {
-                    this.authorizationId = tokenAuthorization.authorizationId
-                    this.verificationKey = hexToBytes(tokenAuthorization.verificationKey!)
-
-                    if (tokenAuthorization.location) {
-                        this.location = tokenAuthorization.location
-                    }
-                })
+            if (authorized) {
+                this.actionTokenAuthorization(tokenAuthorization)
             }
         } catch {}
     }
 
+    async paySessionInvoice(sessionInvoice: SessionInvoiceModel): Promise<void> {
+        if (sessionInvoice && !sessionInvoice.isExpired && !sessionInvoice.isSettled) {
+            const verifyMessageResponse = await verifyMessage(toBytes(sessionInvoice.paymentRequest), sessionInvoice.signature)
+
+            if (!verifyMessageResponse.valid) {
+                log.debug(`Signature could not be verified`)
+                return
+            }
+
+            await when(() => this.stores.lightningStore.syncedToChain)
+
+            const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: sessionInvoice.paymentRequest })
+
+            if (payment.status === PaymentStatus.SUCCEEDED) {
+                sessionInvoice.isSettled = true
+                this.actionAddPayment(payment)
+            }
+
+            this.actionUpdateSessionInvoice(sessionInvoice)
+        }
+    }
+    
     async payExpiredSessionInvoice(sessionInvoice: SessionInvoiceModel): Promise<void> {
         if (sessionInvoice.isExpired && !sessionInvoice.isSettled) {
             const response = await updateSessionInvoice(sessionInvoice.id)
             const sessionInvoiceResponse = response.data.updateSessionInvoice as SessionInvoiceModel
 
             if (sessionInvoiceResponse) {
-                sessionInvoice = this.updateSessionInvoice(sessionInvoiceResponse, false)
+                sessionInvoice = this.actionUpdateSessionInvoice(sessionInvoiceResponse, false)
 
                 if (sessionInvoice.isSettled) {
                     runInAction(() => {
@@ -315,10 +329,66 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
-    setIdle() {
+    async startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void> {
+        const response = await startSession({ locationUid: location.uid, evseUid: evse.uid })
+        const startCommand = response.data.startSession as StartCommandModel
+
+        if (startCommand.status === CommandStatus.ACCEPTED) {
+            this.actionStartSession(startCommand.authorizationId, location, evse, connector)
+        }
+    }
+
+    async stopSession(): Promise<void> {
+        if (this.authorizationId) {
+            await stopSession({ authorizationId: this.authorizationId })
+
+            this.actionStopSession()
+        }
+    }
+
+    startSessionInvoiceUpdates() {
+        log.debug(`startInvoiceRequestUpdates`)
+        if (!this.sessionInvoicesUpdateTimer) {
+            this.fetchExpiredSessionInvoices()
+            this.sessionInvoicesUpdateTimer = setInterval(this.fetchExpiredSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
+        }
+    }
+
+    stopSessionInvoiceUpdates() {
+        log.debug(`stopSessionInvoiceUpdates`)
+        clearInterval(this.sessionInvoicesUpdateTimer)
+        this.sessionInvoicesUpdateTimer = null
+    }
+
+    /*
+     * Queue workers
+     */
+
+    async workerSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void> {
+        const response = await getSessionInvoice(notification.sessionInvoiceId)
+        const sessionInvoice = response.data.getSessionInvoice as SessionInvoiceModel
+
+        await this.paySessionInvoice(sessionInvoice)
+    }
+
+    async workerSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void> {
+        const response = await getSession({ uid: notification.sessionUid }, !this.session)
+        const session = response.data.getSession as SessionModel
+
+        this.actionUpdateSession(session)
+    }
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionAddPayment(payment: PaymentModel) {
+        this.payments.unshift(payment)
+    }
+
+    actionSetIdle() {
         this.status = ChargeSessionStatus.IDLE
         this.authorizationId = undefined
-        this.verificationKey = undefined
         this.tokenType = undefined
         this.session = undefined
         this.location = undefined
@@ -330,47 +400,41 @@ export class SessionStore implements SessionStoreInterface {
         this.meteredTime = 0
     }
 
-    setReady() {
+    actionSetReady() {
         this.ready = true
     }
 
-    async startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void> {
-        const response = await startSession({ locationUid: location.uid, evseUid: evse.uid })
-        const startCommand = response.data.startSession as StartCommandModel
-
-        runInAction(() => {
-            this.authorizationId = startCommand.authorizationId
-            this.verificationKey = hexToBytes(startCommand.verificationKey)
-            this.status = ChargeSessionStatus.STARTING
-            this.tokenType = TokenType.OTHER
-            this.location = location
-            this.evse = evse
-            this.connector = connector
-        })
+    actionStartSession(authorizationId: string, location: LocationModel, evse: EvseModel, connector: ConnectorModel) {
+        this.authorizationId = authorizationId
+        this.status = ChargeSessionStatus.STARTING
+        this.tokenType = TokenType.OTHER
+        this.location = location
+        this.evse = evse
+        this.connector = connector
     }
 
-    async stopSession(): Promise<void> {
-        if (this.authorizationId) {
-            const response = await stopSession({ authorizationId: this.authorizationId })
-            const stopCommand = response.data.stopSession as StopCommandModel
-
-            runInAction(() => {
-                if (this.status === ChargeSessionStatus.STARTING) {
-                    this.status = ChargeSessionStatus.IDLE
-                    this.tokenType = undefined
-                    this.session = undefined
-                    this.location = undefined
-                    this.evse = undefined
-                    this.connector = undefined
-                } else {
-                    this.status = ChargeSessionStatus.STOPPING
-                }
-            })
+    actionStopSession() {
+        if (this.status === ChargeSessionStatus.STARTING) {
+            this.status = ChargeSessionStatus.IDLE
+            this.tokenType = undefined
+            this.session = undefined
+            this.location = undefined
+            this.evse = undefined
+            this.connector = undefined
+        } else {
+            this.status = ChargeSessionStatus.STOPPING
         }
     }
 
-    updateSession(session: SessionModel) {
-        // When the session status is INVOICED, dispose of the verification key
+    actionTokenAuthorization(tokenAuthorization: TokenAuthorizationModel) {
+        this.authorizationId = tokenAuthorization.authorizationId
+
+        if (tokenAuthorization.location) {
+            this.location = tokenAuthorization.location
+        }
+    }
+
+    actionUpdateSession(session: SessionModel) {
         this.session = session
         this.status = toChargeSessionStatus(this.session.status)
         this.tokenType = toTokenType(session.authMethod)
@@ -391,7 +455,6 @@ export class SessionStore implements SessionStoreInterface {
             }
 
             this.authorizationId = undefined
-            this.verificationKey = undefined
             this.tokenType = undefined
             this.session = undefined
             this.location = undefined
@@ -404,7 +467,7 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
-    updateSessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): SessionInvoiceModel {
+    actionUpdateSessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): SessionInvoiceModel {
         let existingSessionInvoice = this.sessionInvoices.find(({ id }) => id === sessionInvoice.id)
 
         if (existingSessionInvoice) {
@@ -425,20 +488,6 @@ export class SessionStore implements SessionStoreInterface {
         return sessionInvoice
     }
 
-    startSessionInvoiceUpdates() {
-        log.debug(`startInvoiceRequestUpdates`)
-        if (!this.sessionInvoicesUpdateTimer) {
-            this.updateExpiredSessionInvoices()
-            this.sessionInvoicesUpdateTimer = setInterval(this.updateExpiredSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
-        }
-    }
-
-    stopSessionInvoiceUpdates() {
-        log.debug(`stopSessionInvoiceUpdates`)
-        clearInterval(this.sessionInvoicesUpdateTimer)
-        this.sessionInvoicesUpdateTimer = null
-    }
-
     async whenHydrated() {
         if (this.status === ChargeSessionStatus.AWAITING_PAYMENT) {
             await this.fetchExpiredSessionInvoices()
@@ -446,12 +495,12 @@ export class SessionStore implements SessionStoreInterface {
             try {
                 const response = await getSession(this.session ? { uid: this.session.uid } : { authorizationId: this.authorizationId })
 
-                this.updateSession(response.data.getSession as SessionModel)
+                this.actionUpdateSession(response.data.getSession as SessionModel)
             } catch {
-                this.setIdle()
+                this.actionSetIdle()
             }
         } else if (this.status === ChargeSessionStatus.IDLE) {
-            this.setIdle()
+            this.actionSetIdle()
         }
     }
 

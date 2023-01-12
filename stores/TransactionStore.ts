@@ -39,11 +39,11 @@ export class TransactionStore implements TransactionStoreInterface {
 
             transactions: observable,
 
-            setReady: action,
-            addTransaction: action,
-            clearTransactions: action,
-            clearFailedTransactions: action,
-            checkExpiredTransations: action
+            actionSetReady: action,
+            actionAddTransaction: action,
+            actionClearTransactions: action,
+            actionClearFailedTransactions: action,
+            actionCheckExpiredTransactions: action
         })
 
         makePersistable(
@@ -60,13 +60,30 @@ export class TransactionStore implements TransactionStoreInterface {
 
     async initialize(): Promise<void> {
         try {
-            this.checkExpiredTransations()
+            this.actionCheckExpiredTransactions()
         } catch (error) {
             log.error(`Error Initializing: ${error}`)
         }
     }
 
     addTransaction(transaction: TransactionModel) {
+        this.actionAddTransaction(transaction)
+    }
+
+
+    clearTransactions() {
+        this.actionClearTransactions()
+    }
+
+    clearFailedTransactions() {
+        this.clearFailedTransactions()
+    }
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionAddTransaction(transaction: TransactionModel) {
         let existingTransaction = this.transactions.find(
             ({ invoice, payment }) =>
                 (transaction.invoice && invoice && transaction.invoice.hash === invoice.hash) ||
@@ -80,7 +97,7 @@ export class TransactionStore implements TransactionStoreInterface {
         }
     }
 
-    checkExpiredTransations() {
+    actionCheckExpiredTransactions() {
         const now = moment()
         const openInvoiceStatuses = [InvoiceStatus.ACCEPTED, InvoiceStatus.OPEN]
         const openPaymentStatuses = [PaymentStatus.IN_PROGRESS, PaymentStatus.UNKNOWN]
@@ -94,12 +111,12 @@ export class TransactionStore implements TransactionStoreInterface {
             }
         }
     }
-
-    clearTransactions() {
+    
+    actionClearTransactions() {
         this.transactions.clear()
     }
 
-    clearFailedTransactions() {
+    actionClearFailedTransactions() {
         this.transactions.replace(
             this.transactions.filter(({ invoice, payment }) => {
                 return (
@@ -110,7 +127,7 @@ export class TransactionStore implements TransactionStoreInterface {
         )
     }
 
-    setReady() {
+    actionSetReady() {
         this.ready = true
     }
 }

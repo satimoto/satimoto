@@ -4,6 +4,7 @@ import * as protobuf from "protobufjs"
 import { StoreProvider } from "providers/StoreProvider"
 import React, { useEffect } from "react"
 import messaging from "@react-native-firebase/messaging"
+import BackgroundTask from "react-native-background-task"
 import RNBootSplash from "react-native-bootsplash"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { NavigationContainer } from "@react-navigation/native"
@@ -16,11 +17,13 @@ import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
 import ConfettiProvider from "providers/ConfettiProvider"
 import { observer } from "mobx-react"
+import BackgroundFetch from "react-native-background-fetch"
+import { backgroundEvent, backgroundTimeout, BACKGROUND_FETCH_CONFIG } from "utils/background"
 
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
 
-const log = new Log("App")
+const log = new Log("ForegroundApp")
 
 log.debug(`Starting: Api Uri: ${API_URI}`)
 log.debug(`Starting: Network: ${NETWORK}`)
@@ -55,6 +58,10 @@ const ForegroundApp = () => {
             }
         }
     }, [store.settingStore.pushNotificationEnabled])
+
+    useEffect(() => {
+        BackgroundFetch.configure(BACKGROUND_FETCH_CONFIG, backgroundEvent, backgroundTimeout)
+    }, [])
 
     return (
         <ApolloProvider client={client}>

@@ -30,7 +30,7 @@ export class WalletStore implements WalletStoreInterface {
             hydrated: observable,
             ready: observable,
 
-            setReady: action
+            actionSetReady: action
         })
 
         makePersistable(this, { name: "WalletStore", properties: [], storage: AsyncStorage, debugMode: DEBUG }, { delay: 1000 }).then(
@@ -82,12 +82,16 @@ export class WalletStore implements WalletStoreInterface {
         await initWallet(seedMnemonic, password, recoveryWindow)
     }
 
-    setReady() {
-        this.ready = true
-    }
-
     async unlockWallet(): Promise<void> {
         const password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
         await unlockWallet(password)
+    }
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionSetReady() {
+        this.ready = true
     }
 }

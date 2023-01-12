@@ -44,9 +44,9 @@ export class PaymentStore implements PaymentStoreInterface {
             indexOffset: observable,
             payments: observable,
 
-            setReady: action,
-            updatePaymentWithPayReq: action,
-            updateIndexOffset: action
+            actionSetReady: action,
+            actionUpdatePaymentWithPayReq: action,
+            actionUpdateIndexOffset: action
         })
 
         makePersistable(
@@ -118,21 +118,37 @@ export class PaymentStore implements PaymentStoreInterface {
         })
     }
 
-    setReady() {
-        this.ready = true
-    }
+    async updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
+        for (const iPayment of payments) {
+            const payment = lnrpc.Payment.fromObject(iPayment)
+            const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
 
-    updateIndexOffset(payment: lnrpc.Payment) {
-        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
+            this.actionUpdatePaymentWithPayReq(payment, decodedPaymentRequest)
+            this.actionUpdateIndexOffset(payment)
+        }
+
+        this.actionSetReady()
     }
 
     async updatePayment(payment: lnrpc.Payment): Promise<PaymentModel> {
         const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
 
-        return this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
+        return this.actionUpdatePaymentWithPayReq(payment, decodedPaymentRequest)
     }
 
-    updatePaymentWithPayReq(
+    /*
+     * Mobx actions and reactions
+     */
+    
+    actionSetReady() {
+        this.ready = true
+    }
+
+    actionUpdateIndexOffset(payment: lnrpc.Payment) {
+        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
+    }
+
+    actionUpdatePaymentWithPayReq(
         { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment,
         payReq: lnrpc.PayReq
     ): PaymentModel {
@@ -169,18 +185,6 @@ export class PaymentStore implements PaymentStoreInterface {
         this.stores.transactionStore.addTransaction({ hash: paymentHash, payment })
 
         return payment
-    }
-
-    async updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
-        for (const iPayment of payments) {
-            const payment = lnrpc.Payment.fromObject(iPayment)
-            const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
-
-            this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
-            this.updateIndexOffset(payment)
-        }
-
-        this.setReady()
     }
 
     async whenSyncedToChain() {

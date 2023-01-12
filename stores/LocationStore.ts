@@ -64,12 +64,11 @@ export class LocationStore implements LocationStoreInterface {
             selectedLocation: observable,
             selectedConnectors: observable,
 
-            setBounds: action,
-            updateLocations: action,
-
-            setSelectedLocation: action,
-            removeSelectedLocation: action,
-            updateActiveConnectors: action
+            actionSetBounds: action,
+            actionUpdateLocations: action,
+            actionSetSelectedLocation: action,
+            actionRemoveSelectedLocation: action,
+            actionUpdateActiveConnectors: action
         })
 
         makePersistable(
@@ -89,7 +88,7 @@ export class LocationStore implements LocationStoreInterface {
             // When location is changed, update connectors
             reaction(
                 () => this.selectedLocation,
-                () => this.updateActiveConnectors()
+                () => this.actionUpdateActiveConnectors()
             )
 
             reaction(
@@ -115,7 +114,7 @@ export class LocationStore implements LocationStoreInterface {
                     yMax: this.bounds[1][1]
                 })
 
-                this.updateLocations(locations.data.listLocations)
+                this.actionUpdateLocations(locations.data.listLocations)
             }
         }
     }
@@ -135,7 +134,7 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     removeSelectedLocation(): void {
-        this.selectedLocation = undefined
+        this.actionRemoveSelectedLocation()
     }
 
     async selectLocation(uid: string, country?: string) {
@@ -143,12 +142,8 @@ export class LocationStore implements LocationStoreInterface {
         const location = locationResponse.data.getLocation as LocationModel
 
         if (location) {
-            this.setSelectedLocation(location)
+            this.actionSetSelectedLocation(location)
         }
-    }
-
-    setSelectedLocation(location: LocationModel) {
-        this.selectedLocation = location
     }
 
     async searchConnector(identifier: string): Promise<ConnectorModelLike> {
@@ -174,22 +169,7 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     async setBounds(bounds: GeoJSON.Position[]) {
-        if (
-            this.bounds.length != bounds.length ||
-            delta(this.bounds[0][0], bounds[0][0]) > 0.0005 ||
-            delta(this.bounds[0][1], bounds[0][1]) > 0.0005 ||
-            delta(this.bounds[1][0], bounds[1][0]) > 0.0005 ||
-            delta(this.bounds[1][1], bounds[1][1]) > 0.0005
-        ) {
-            this.bounds.replace(bounds)
-            this.lastLocationChanged = true
-
-            this.fetchLocations()
-        }
-    }
-
-    setReady() {
-        this.ready = true
+        await this.actionSetBounds(bounds)
     }
 
     startLocationUpdates() {
@@ -207,7 +187,38 @@ export class LocationStore implements LocationStoreInterface {
         this.locationUpdateTimer = null
     }
 
-    updateActiveConnectors() {
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionRemoveSelectedLocation(): void {
+        this.selectedLocation = undefined
+    }
+
+    async actionSetBounds(bounds: GeoJSON.Position[]) {
+        if (
+            this.bounds.length != bounds.length ||
+            delta(this.bounds[0][0], bounds[0][0]) > 0.0005 ||
+            delta(this.bounds[0][1], bounds[0][1]) > 0.0005 ||
+            delta(this.bounds[1][0], bounds[1][0]) > 0.0005 ||
+            delta(this.bounds[1][1], bounds[1][1]) > 0.0005
+        ) {
+            this.bounds.replace(bounds)
+            this.lastLocationChanged = true
+
+            this.fetchLocations()
+        }
+    }
+
+    actionSetSelectedLocation(location: LocationModel) {
+        this.selectedLocation = location
+    }
+
+    actionSetReady() {
+        this.ready = true
+    }
+
+    actionUpdateActiveConnectors() {
         if (this.selectedLocation) {
             const evses: EvseModel[] = this.selectedLocation.evses || []
             const connectors = evses.reduce((connectorGroupMap: ConnectorGroupMap, evse: EvseModel) => {
@@ -241,8 +252,8 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
-    updateLocations(locations: LocationModel[]) {
-        log.debug(`updateLocations ${this.locations.length} ${locations.length}`)
+    actionUpdateLocations(locations: LocationModel[]) {
+        log.debug(`actionUpdateLocations ${this.locations.length} ${locations.length}`)
 
         if (this.lastLocationChanged) {
             this.locations.replace(locations)

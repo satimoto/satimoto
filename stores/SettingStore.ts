@@ -2,6 +2,7 @@ import { action, makeObservable, observable, reaction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import NetInfo from "@react-native-community/netinfo"
 import messaging from "@react-native-firebase/messaging"
 import { updateUser, getAccessToken, getUser, pongUser } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
@@ -28,6 +29,7 @@ export interface SettingStoreInterface extends StoreInterface {
 export class SettingStore implements SettingStoreInterface {
     hydrated = false
     ready = false
+    queue: any = undefined
     stores
 
     accessToken?: string = undefined
@@ -47,9 +49,9 @@ export class SettingStore implements SettingStoreInterface {
             pushNotificationToken: observable,
             referralCode: observable,
 
-            setAccessToken: action,
-            setUser: action,
-            setPushNotificationSettings: action
+            actionSetAccessToken: action,
+            actionSetUser: action,
+            actionSetPushNotificationSettings: action
         })
 
         makePersistable(
@@ -65,6 +67,8 @@ export class SettingStore implements SettingStoreInterface {
     }
 
     async initialize(): Promise<void> {
+        this.queue = this.stores.queue
+
         reaction(
             () => [this.stores.lightningStore.identityPubkey, this.stores.lightningStore.syncedToChain],
             () => this.reactionGetToken()
@@ -80,37 +84,24 @@ export class SettingStore implements SettingStoreInterface {
             () => this.reactionGetUser()
         )
 
-        this.setReady()
+        this.actionSetReady()
     }
 
-    async onDataPingNotification(notification: DataPingNotification): Promise<void> {
-        await pongUser({pong: notification.ping})
-    }
+    async onDataPingNotification(notification: DataPingNotification): Promise<void> {        
+        if (this.stores.uiStore.appState === "background") {
+            const netState = await NetInfo.fetch()
 
-    async reactionGetUser() {
-        if (this.accessToken) {
-            const getUserResult = await getUser()
-            const user = getUserResult.data.getUser as UserModel
-
-            this.setUser(user)
-
-            if (user.node) {
-                await this.stores.peerStore.connectPeer(user.node.pubkey, user.node.addr)
-            }
-        }
-    }
-
-    async reactionGetToken() {
-        if (!this.accessToken && this.stores.lightningStore.identityPubkey) {
-            const token = await getAccessToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
-
-            this.setAccessToken(token)
-        }
-    }
-
-    async reactionUpdateUser() {
-        if (this.accessToken && this.pushNotificationToken) {
-            updateUser({ deviceToken: this.pushNotificationToken })
+            this.queue.createJob(
+                "data-ping-notification",
+                notification,
+                {
+                    attempts: 3,
+                    timeout: 1000
+                },
+                netState.isConnected && netState.isInternetReachable
+            )
+        } else {
+            await this.workerDataPingNotification(notification)
         }
     }
 
@@ -124,29 +115,72 @@ export class SettingStore implements SettingStoreInterface {
             
             if (enabled) {
                 const token = await messaging().getToken()
-                this.setPushNotificationSettings(enabled, token)
+                this.actionSetPushNotificationSettings(enabled, token)
             }
         }
 
         return enabled
     }
 
-    setAccessToken(accessToken?: string) {
+    setPushNotificationSettings(enabled: boolean, token: string) {
+        this.setPushNotificationSettings(enabled, token)
+    }
+
+    /*
+     * Queue workers
+     */
+
+    async workerDataPingNotification(notification: DataPingNotification): Promise<void> {
+        await pongUser({pong: notification.ping})
+    }
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionSetAccessToken(accessToken?: string) {
         this.accessToken = accessToken
     }
 
-    setPushNotificationSettings(enabled: boolean, token: string) {
+    actionSetPushNotificationSettings(enabled: boolean, token: string) {
         this.pushNotificationEnabled = enabled
         this.pushNotificationToken = token
 
         log.debug(`Notification settings changed: ${enabled} token: ${token}`)
     }
 
-    setReady() {
+    actionSetReady() {
         this.ready = true
     }
 
-    setUser(user?: UserModel) {
+    actionSetUser(user?: UserModel) {
         this.referralCode = user?.referralCode
+    }
+
+    async reactionGetUser() {
+        if (this.accessToken) {
+            const getUserResult = await getUser()
+            const user = getUserResult.data.getUser as UserModel
+
+            this.actionSetUser(user)
+
+            if (user.node) {
+                await this.stores.peerStore.connectPeer(user.node.pubkey, user.node.addr)
+            }
+        }
+    }
+
+    async reactionGetToken() {
+        if (!this.accessToken && this.stores.lightningStore.identityPubkey) {
+            const token = await getAccessToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
+
+            this.actionSetAccessToken(token)
+        }
+    }
+
+    async reactionUpdateUser() {
+        if (this.accessToken && this.pushNotificationToken) {
+            updateUser({ deviceToken: this.pushNotificationToken })
+        }
     }
 }

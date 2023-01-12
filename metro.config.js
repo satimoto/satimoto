@@ -9,7 +9,7 @@
  
  module.exports = {
      resolver: {
-         ...defaultResolver,
+         //...defaultResolver,
          extraNodeModules: {
              ...defaultResolver.extraNodeModules,
              stream: require.resolve("readable-stream")

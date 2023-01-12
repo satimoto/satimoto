@@ -15,4 +15,5 @@
 -keep class com.google.firebase.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
 -keep class com.swmansion.reanimated.** { *; }
--keep class com.transistorsoft.rnbackgroundfetch.HeadlessTask { *; }
+-keep class com.transistorsoft.rnbackgroundfetch.** { *; }
+-keep class io.realm.react.** { *; }

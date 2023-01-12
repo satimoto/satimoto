@@ -6,7 +6,6 @@ interface TokenAuthorizationModel {
     countryCode?: string
     partyId?: string
     location?: LocationModel
-    verificationKey?: string
 }
 
 type TokenAuthorizationModelLike = TokenAuthorizationModel | undefined

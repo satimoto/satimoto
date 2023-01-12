@@ -31,7 +31,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
         super(reactContext);
 
         lndPath = getReactApplicationContext().getFilesDir().toString();
-        confPath = lndPath + "/lnd_v4.conf";
+        confPath = lndPath + "/lnd_v5.conf";
         logPath = lndPath + "/logs/bitcoin/" + BuildConfig.NETWORK + "/lnd.log";
 
         prepareFileDirectory(logPath);
@@ -85,12 +85,16 @@ public class LndUtils extends ReactContextBaseJavaModule {
                     "[Application Options]\n" +
                             "debuglevel=warn\n" +
                             "maxbackoff=2s\n" +
+                            "nobootstrap=1\n" + 
                             "nolisten=1\n" +
                             "norest=1\n" +
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
                             "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
                             "tlsdisableautofill=1\n" +
+                            "gc-canceled-invoices-on-startup=1\n" +
+                            "gc-canceled-invoices-on-the-fly=1\n" +
+                            "ignore-historical-gossip-filters=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -104,6 +108,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "neutrino.addpeer=mainnet3-btcd.zaphq.io\n" +
                             "neutrino.addpeer=mainnet4-btcd.zaphq.io\n" +
                             "neutrino.addpeer=bb2.breez.technology\n" +
+                            "neutrino.validatechannels=false\n" +
                             "\n" +
                             "[protocol]\n" +
                             "protocol.option-scid-alias=true\n" +
@@ -123,12 +128,16 @@ public class LndUtils extends ReactContextBaseJavaModule {
                     "[Application Options]\n" +
                             "debuglevel=info\n" +
                             "maxbackoff=2s\n" +
+                            "nobootstrap=1\n" + 
                             "nolisten=1\n" +
                             "norest=1\n" +
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
                             "feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json\n" +
                             "tlsdisableautofill=1\n" +
+                            "gc-canceled-invoices-on-startup=1\n" +
+                            "gc-canceled-invoices-on-the-fly=1\n" +
+                            "ignore-historical-gossip-filters=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +
@@ -137,6 +146,7 @@ public class LndUtils extends ReactContextBaseJavaModule {
                             "\n" +
                             "[Neutrino]\n" +
                             "neutrino.connect=faucet.lightning.community\n" +
+                            "neutrino.validatechannels=false\n" + 
                             "\n" +
                             "[protocol]\n" +
                             "protocol.option-scid-alias=true\n" +
@@ -156,11 +166,15 @@ public class LndUtils extends ReactContextBaseJavaModule {
                     "[Application Options]\n" +
                             "debuglevel=info\n" +
                             "maxbackoff=2s\n" +
+                            "nobootstrap=1\n" + 
                             "nolisten=1\n" +
                             "norest=1\n" +
                             "sync-freelist=1\n" +
                             "accept-keysend=1\n" +
                             "tlsdisableautofill=1\n" +
+                            "gc-canceled-invoices-on-startup=1\n" +
+                            "gc-canceled-invoices-on-the-fly=1\n" +
+                            "ignore-historical-gossip-filters=1\n" +
                             "\n" +
                             "[Bitcoin]\n" +
                             "bitcoin.active=1\n" +

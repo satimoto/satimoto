@@ -19,6 +19,7 @@ export interface ChannelStoreInterface extends StoreInterface {
 
     channelRequestStatus: ChannelRequestStatus
     channelRequests: ChannelRequestModel[]
+    lastActiveTimestamp: string
     subscribedChannelEvents: boolean
     localBalance: number
     remoteBalance: number
@@ -34,6 +35,7 @@ export class ChannelStore implements ChannelStoreInterface {
     channelRequestStatus = ChannelRequestStatus.IDLE
     channelAcceptor: ChannelAcceptor | null = null
     channelRequests
+    lastActiveTimestamp: string = ""
     subscribedChannelEvents = false
     localBalance = 0
     remoteBalance = 0
@@ -48,16 +50,17 @@ export class ChannelStore implements ChannelStoreInterface {
 
             channelRequestStatus: observable,
             channelRequests: observable,
+            lastActiveTimestamp: observable,
             subscribedChannelEvents: observable,
             localBalance: observable,
             remoteBalance: observable,
 
-            setReady: action,
-            addChannelRequest: action,
-            removeChannelRequest: action,
-            updateChannelRequestStatus: action,
-            updateChannelBalance: action,
-            onChannelEventUpdate: action
+            actionSetReady: action,
+            actionAddChannelRequest: action,
+            actionChannelEventReceived: action,
+            actionRemoveChannelRequest: action,
+            actionUpdateChannelRequestStatus: action,
+            actionUpdateChannelBalance: action
         })
 
         makePersistable(
@@ -88,15 +91,7 @@ export class ChannelStore implements ChannelStoreInterface {
 
     async getChannelBalance() {
         const channelBalanceResponse: lnrpc.ChannelBalanceResponse = await channelBalance()
-        this.updateChannelBalance(channelBalanceResponse)
-    }
-
-    addChannelRequest(channelRequest: ChannelRequestModel) {
-        log.debug(
-            `Add channel request: ${channelRequest.pubkey}, hash: ${channelRequest.paymentHash}, pendingChanId ${channelRequest.pendingChanId}, scid ${channelRequest.scid}`
-        )
-        this.channelRequestStatus = ChannelRequestStatus.IDLE
-        this.channelRequests.push(channelRequest)
+        this.actionUpdateChannelBalance(channelBalanceResponse)
     }
 
     async createChannelRequest(input: CreateChannelRequestInput): Promise<lnrpc.IHopHint> {
@@ -111,7 +106,7 @@ export class ChannelStore implements ChannelStoreInterface {
             cltvExpiryDelta
         }
 
-        this.addChannelRequest({ pubkey: node.pubkey, paymentHash: bytesToHex(input.paymentHash), pendingChanId, scid })
+        this.actionAddChannelRequest({ pubkey: node.pubkey, paymentHash: bytesToHex(input.paymentHash), pendingChanId, scid })
         this.subscribeChannelAcceptor()
 
         return hopHint
@@ -134,7 +129,7 @@ export class ChannelStore implements ChannelStoreInterface {
             const channelRequest = this.findChannelRequest(pubkey)
 
             if (channelRequest) {
-                this.updateChannelRequestStatus(ChannelRequestStatus.NEGOTIATING)
+                this.actionUpdateChannelRequestStatus(ChannelRequestStatus.NEGOTIATING)
             }
 
             this.channelAcceptor.send({
@@ -143,35 +138,6 @@ export class ChannelStore implements ChannelStoreInterface {
                 zeroConf: wantsZeroConf
             })
         }
-    }
-
-    onChannelEventUpdate({ type, openChannel }: lnrpc.ChannelEventUpdate) {
-        log.debug(`Channel Event: ${type}`)
-        this.getChannelBalance()
-
-        if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
-            const remotePubkey = openChannel.remotePubkey
-            log.debug(`Remote pubkey: ${remotePubkey}`)
-            log.debug(`ChanID: ${openChannel.chanId}`)
-
-            if (remotePubkey) {
-                const channelRequest = this.findChannelRequest(remotePubkey)
-
-                if (channelRequest) {
-                    this.updateChannelRequestStatus(ChannelRequestStatus.OPENED)
-                    this.removeChannelRequest(channelRequest)
-                    this.cancelChannelAcceptor()
-                }
-            }
-        }
-    }
-
-    removeChannelRequest(channelRequest: ChannelRequestModel) {
-        this.channelRequests.remove(channelRequest)
-    }
-
-    setReady() {
-        this.ready = true
     }
 
     subscribeChannelAcceptor() {
@@ -187,16 +153,59 @@ export class ChannelStore implements ChannelStoreInterface {
 
     subscribeChannelEvents() {
         if (!this.subscribedChannelEvents) {
-            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.onChannelEventUpdate(data))
+            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.actionChannelEventReceived(data))
             this.subscribedChannelEvents = true
         }
     }
 
-    updateChannelRequestStatus(status: ChannelRequestStatus) {
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionAddChannelRequest(channelRequest: ChannelRequestModel) {
+        log.debug(
+            `Add channel request: ${channelRequest.pubkey}, hash: ${channelRequest.paymentHash}, pendingChanId ${channelRequest.pendingChanId}, scid ${channelRequest.scid}`
+        )
+        this.channelRequestStatus = ChannelRequestStatus.IDLE
+        this.channelRequests.push(channelRequest)
+    }
+    
+    actionChannelEventReceived({ type, openChannel }: lnrpc.ChannelEventUpdate) {
+        log.debug(`Channel Event: ${type}`)
+
+        if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
+            const remotePubkey = openChannel.remotePubkey
+            log.debug(`Remote pubkey: ${remotePubkey}`)
+            log.debug(`ChanID: ${openChannel.chanId}`)
+
+            if (remotePubkey) {
+                const channelRequest = this.findChannelRequest(remotePubkey)
+
+                if (channelRequest) {
+                    this.actionUpdateChannelRequestStatus(ChannelRequestStatus.OPENED)
+                    this.actionRemoveChannelRequest(channelRequest)
+                    this.cancelChannelAcceptor()
+                }
+            }
+        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.ACTIVE_CHANNEL) {
+            this.getChannelBalance()
+            this.lastActiveTimestamp = new Date().toISOString()
+        }
+    }
+
+    actionRemoveChannelRequest(channelRequest: ChannelRequestModel) {
+        this.channelRequests.remove(channelRequest)
+    }
+
+    actionSetReady() {
+        this.ready = true
+    }
+
+    actionUpdateChannelRequestStatus(status: ChannelRequestStatus) {
         this.channelRequestStatus = status
     }
 
-    updateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {
+    actionUpdateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {
         const localBalanceSat = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
         const remoteBalanceSat = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
         const unsettledLocalBalanceSat = unsettledLocalBalance && unsettledLocalBalance.sat ? toNumber(unsettledLocalBalance.sat) : 0

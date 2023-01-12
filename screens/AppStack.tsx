@@ -67,8 +67,6 @@ export type AppStackScreenParams = {
     Welcome: undefined
 }
 
-type AppStackParams = AppStackParamList | AppStackScreenParams
-
 const AppStackNav = createNativeStackNavigator<AppStackParamList>()
 
 const screenOptions: NativeStackNavigationOptions = {
@@ -82,21 +80,15 @@ const AppStack = () => {
     const { channelStore, uiStore } = useStore()
     const toast = useToast()
 
-    const onAppStateChange = (state: AppStateStatus) => {
-        log.debug(`onAppStateChange: ${state}`)
-    }
-
     const onLinkingUrl = ({ url }: LinkingEvent) => {
         log.debug(`onLinkingUrl: ${url}`)
         uiStore.parseIntent(url)
     }
 
     useEffect(() => {
-        const appStateListener = AppState.addEventListener("change", onAppStateChange)
         const linkingListener = Linking.addEventListener("url", onLinkingUrl)
 
         return () => {
-            appStateListener.remove()
             linkingListener.remove()
         }
     }, [])

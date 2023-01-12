@@ -41,7 +41,7 @@ const SendActionsheet = ({ isOpen, onPress, onClose }: SendActionsheetProps) => 
                 <Actionsheet.Item
                     onPress={() => onActionsheetPress("send_lightning")}
                     startIcon={<FontAwesomeIcon icon={faBolt} />}
-                    style={uiStore.nfcAvailable ? styleSheet.item: {}}
+                    style={uiStore.nfcAvailable ? styleSheet.item : {}}
                 >
                     {I18n.t("SendActionsheet_SendLightning")}
                 </Actionsheet.Item>

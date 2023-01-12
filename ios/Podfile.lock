@@ -388,6 +388,8 @@ PODS:
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
     - React-Core
+  - react-native-netinfo (9.3.7):
+    - React-Core
   - react-native-nfc-manager (3.14.2):
     - React-Core
   - react-native-safe-area-context (3.4.1):
@@ -458,7 +460,7 @@ PODS:
     - React-jsi (= 0.70.6)
     - React-logger (= 0.70.6)
     - React-perflogger (= 0.70.6)
-  - RealmJS (11.2.0):
+  - RealmJS (11.3.1):
     - React
   - RNBackgroundFetch (4.1.7):
     - React-Core
@@ -571,6 +573,7 @@ DEPENDENCIES:
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-hce (from `../node_modules/react-native-hce`)
   - "react-native-mapbox-gl (from `../node_modules/@rnmapbox/maps`)"
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -684,6 +687,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-hce"
   react-native-mapbox-gl:
     :path: "../node_modules/@rnmapbox/maps"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-nfc-manager:
     :path: "../node_modules/react-native-nfc-manager"
   react-native-safe-area-context:
@@ -792,6 +797,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-hce: 0975747752d28526fecf80e1d91f60da09a1cc4c
   react-native-mapbox-gl: b92795f61ff130323e6d25693bd68b081e105455
+  react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
   react-native-nfc-manager: c0e6048b119fa3ae7b02ae927d4a801b8e76f287
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   React-perflogger: 8c79399b0500a30ee8152d0f9f11beae7fc36595
@@ -806,7 +812,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: c75ceef7aa60a33b2d5731ebe5800ddde40cefc4
   React-runtimeexecutor: 15437b576139df27635400de0599d9844f1ab817
   ReactCommon: 349be31adeecffc7986a0de875d7fb0dcf4e251c
-  RealmJS: d0e94d35363a3a9ebd27981d9ac0aa4b63f66c85
+  RealmJS: 43fc7bfb83229c8a2755cb34f71f769c97b7b581
   RNBackgroundFetch: 13fbe7b23d4a082eac8caa7b08c5bcbeabd92f79
   RNBootSplash: 8ecffd190fae05291b671ea2280c5238f15499a9
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60

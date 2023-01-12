@@ -72,7 +72,7 @@
 	<key>NETWORK</key>
 	<string>$(NETWORK)</string>
 	<key>NFCReaderUsageDescription</key>
-	<string>$(PRODUCT_NAME) needs access to NFC.</string>
+	<string>$(PRODUCT_NAME) uses NFC to read RFID cards.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -87,9 +87,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) uses the camera to scan QR codes.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>$(PRODUCT_NAME) uses your location to find charge points nearby.</string>
+	<string>$(PRODUCT_NAME) uses location to find charge points nearby.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>$(PRODUCT_NAME) uses your location to find charge points nearby.</string>
+	<string>$(PRODUCT_NAME) uses location to find charge points nearby.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

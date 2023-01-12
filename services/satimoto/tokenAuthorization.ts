@@ -14,7 +14,6 @@ const UPDATE_TOKEN_AUTHORIZATION = gql`
             }
             authorizationId
             authorized
-            verificationKey
         }
     }
 `

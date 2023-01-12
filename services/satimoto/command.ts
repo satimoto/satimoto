@@ -9,7 +9,6 @@ import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
         startSession(input: $input) {
             status
             authorizationId
-            verificationKey
             locationUid
             evseUid
         }

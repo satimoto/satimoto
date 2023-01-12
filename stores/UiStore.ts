@@ -1,10 +1,11 @@
 import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLResponse, LNURLWithdrawParams } from "js-lnurl"
-import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
+import { action, computed, makeObservable, observable, reaction, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
-import { Linking } from "react-native"
+import { lnrpc } from "proto/proto"
+import { AppState, AppStateStatus, Linking } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NfcManager from "react-native-nfc-manager"
 import { StoreInterface, Store } from "stores/Store"
@@ -26,6 +27,7 @@ export interface UiStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
+    appState: AppStateStatus
     connector?: ConnectorModel
     filterExperimental: boolean
     filterRemoteCapable: boolean
@@ -61,8 +63,10 @@ export interface UiStoreInterface extends StoreInterface {
 export class UiStore implements UiStoreInterface {
     hydrated = false
     ready = false
+    queue: any = undefined
     stores
 
+    appState: AppStateStatus = "unknown"
     connector?: ConnectorModel = undefined
     evse?: EvseModel = undefined
     location?: LocationModel = undefined
@@ -89,6 +93,7 @@ export class UiStore implements UiStoreInterface {
             hydrated: observable,
             ready: observable,
 
+            appState: observable,
             connector: observable,
             evse: observable,
             location: observable,
@@ -109,19 +114,21 @@ export class UiStore implements UiStoreInterface {
 
             hasOnboardingUpdates: computed,
 
-            clearChargePoint: action,
-            clearLnUrl: action,
-            clearPaymentRequest: action,
-            setChargePoint: action,
-            setFilterExperimental: action,
-            setFilterRemoteCapable: action,
-            setFilterRfidCapable: action,
-            setLinkToken: action,
-            setLnUrl: action,
-            setLnUrlPayParams: action,
-            setPaymentRequest: action,
-            setOnboarding: action,
-            setTooltipShown: action
+            actionSetAppState: action,
+            actionSetReady: action,
+            actionClearChargePoint: action,
+            actionClearLnUrl: action,
+            actionClearPaymentRequest: action,
+            actionSetChargePoint: action,
+            actionSetFilterExperimental: action,
+            actionSetFilterRemoteCapable: action,
+            actionSetFilterRfidCapable: action,
+            actionSetLinkToken: action,
+            actionSetLnUrl: action,
+            actionSetLnUrlPayParams: action,
+            actionSetPaymentRequest: action,
+            actionSetOnboarding: action,
+            actionSetTooltipShown: action
         })
 
         makePersistable(
@@ -153,12 +160,17 @@ export class UiStore implements UiStoreInterface {
     }
 
     async initialize(): Promise<void> {
+        this.queue = this.stores.queue
+
         when(
             () => this.hydrated,
             () => this.onHydrated()
         )
 
-        this.setReady()
+        AppState.addEventListener("change", this.actionSetAppState.bind(this))
+
+        this.actionSetReady()
+        this.actionSetAppState(AppState.currentState)
     }
 
     async onHydrated() {
@@ -178,22 +190,15 @@ export class UiStore implements UiStoreInterface {
     }
 
     clearChargePoint() {
-        this.connector = undefined
-        this.evse = undefined
-        this.location = undefined
+        this.actionClearChargePoint()
     }
 
     clearLnUrl() {
-        this.lnUrl = undefined
-        this.lnUrlAuthParams = undefined
-        this.lnUrlChannelParams = undefined
-        this.lnUrlPayParams = undefined
-        this.lnUrlWithdrawParams = undefined
+        this.actionClearLnUrl()
     }
 
     clearPaymentRequest() {
-        this.paymentRequest = undefined
-        this.decodedPaymentRequest = undefined
+        this.actionClearPaymentRequest()
     }
 
     get hasOnboardingUpdates(): boolean {
@@ -220,7 +225,7 @@ export class UiStore implements UiStoreInterface {
             if (lowerCaseIntent.startsWith("lnurl")) {
                 // LNURL
                 try {
-                     await this.setLnUrl(intent)
+                    await this.actionSetLnUrl(intent)
                     return true
                 } catch (error) {
                     errorCode = errorToString(error)
@@ -235,7 +240,7 @@ export class UiStore implements UiStoreInterface {
                 let identifier = idMatches && idMatches.length > 1 ? idMatches[1] : null
 
                 if (identifier) {
-                    this.setLinkToken(identifier)
+                    this.actionSetLinkToken(identifier)
                 }
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
@@ -248,7 +253,7 @@ export class UiStore implements UiStoreInterface {
                     let evse = await this.stores.locationStore.searchEvse(identifier)
 
                     if (evse) {
-                        this.setChargePoint(evse)
+                        this.actionSetChargePoint(evse)
                         return true
                     }
 
@@ -267,7 +272,7 @@ export class UiStore implements UiStoreInterface {
                                 evse = await this.stores.locationStore.searchEvse(identifier)
 
                                 if (evse) {
-                                    this.setChargePoint(evse)
+                                    this.actionSetChargePoint(evse)
                                     return true
                                 }
                             }
@@ -289,6 +294,75 @@ export class UiStore implements UiStoreInterface {
     }
 
     setChargePoint(evse: EvseModel) {
+        this.actionSetChargePoint(evse)
+    }
+
+    setFilterExperimental(filter: boolean): void {
+        this.actionSetFilterExperimental(filter)
+    }
+
+    setFilterRemoteCapable(filter: boolean): void {
+        this.actionSetFilterRemoteCapable(filter)
+    }
+
+    setFilterRfidCapable(filter: boolean): void {
+        this.actionSetFilterRfidCapable(filter)
+    }
+
+    async setLightningAddress(address: string) {
+        const payParams = await identifier(address)
+        
+        this.actionSetLnUrlPayParams(payParams)
+    }
+
+    setLinkToken(token?: string) {
+        this.actionSetLinkToken(token)
+    }
+
+    setLnUrlPayParams(payParams: LNURLPayParams) {
+        this.actionSetLnUrlPayParams(payParams)
+    }
+
+    async setPaymentRequest(paymentRequest: string) {
+        assertNetwork(paymentRequest)
+        const decodedPaymentRequest = await decodePayReq(paymentRequest)
+
+        this.actionSetPaymentRequest(paymentRequest, decodedPaymentRequest)
+    }
+
+    setTooltipShown(tooltip: Tooltip) {
+        this.actionSetTooltipShown(tooltip)
+    }
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionClearChargePoint() {
+        this.connector = undefined
+        this.evse = undefined
+        this.location = undefined
+    }
+
+    actionClearLnUrl() {
+        this.lnUrl = undefined
+        this.lnUrlAuthParams = undefined
+        this.lnUrlChannelParams = undefined
+        this.lnUrlPayParams = undefined
+        this.lnUrlWithdrawParams = undefined
+    }
+
+    actionClearPaymentRequest() {
+        this.paymentRequest = undefined
+        this.decodedPaymentRequest = undefined
+    }
+
+    actionSetAppState(state: AppStateStatus) {
+        log.debug(`App state changed: ${state}`)
+        this.appState = state
+    }
+
+    actionSetChargePoint(evse: EvseModel) {
         if (evse.location) {
             if (evse.connectors.length == 1) {
                 this.evse = evse
@@ -300,34 +374,29 @@ export class UiStore implements UiStoreInterface {
 
                 location.evses = [evse]
 
-                this.stores.locationStore.setSelectedLocation(location)
+                this.stores.locationStore.actionSetSelectedLocation(location)
             }
         }
     }
 
-    setFilterExperimental(filter: boolean): void {
+    actionSetFilterExperimental(filter: boolean): void {
         this.filterExperimental = filter
     }
-    
-    setFilterRemoteCapable(filter: boolean): void {
+
+    actionSetFilterRemoteCapable(filter: boolean): void {
         this.filterRemoteCapable = filter
     }
 
-    setFilterRfidCapable(filter: boolean): void {
+    actionSetFilterRfidCapable(filter: boolean): void {
         this.filterRfidCapable = filter
     }
 
-    async setLightningAddress(address: string) {
-        const payParams = await identifier(address)
-        this.setLnUrlPayParams(payParams)
-    }
-
-    setLinkToken(token?: string) {
+    actionSetLinkToken(token?: string) {
         this.linkToken = token
     }
 
-    async setLnUrl(lnUrl: string) {
-        this.clearLnUrl()
+    async actionSetLnUrl(lnUrl: string) {
+        this.actionClearLnUrl()
 
         const params = await getParams(lnUrl)
         const lnUrlResponse = params as LNURLResponse
@@ -354,32 +423,27 @@ export class UiStore implements UiStoreInterface {
         })
     }
 
-    setLnUrlPayParams(payParams: LNURLPayParams) {
-        this.clearLnUrl()
+    actionSetLnUrlPayParams(payParams: LNURLPayParams) {
+        this.actionClearLnUrl()
         this.lnUrlPayParams = payParams
     }
 
-    async setPaymentRequest(paymentRequest: string) {
-        assertNetwork(paymentRequest)
-        const decodedPaymentRequest = await decodePayReq(paymentRequest)
-
-        runInAction(() => {
-            this.decodedPaymentRequest = toPayReq(decodedPaymentRequest)
-            this.paymentRequest = paymentRequest
-            log.debug(JSON.stringify(this.decodedPaymentRequest))
-        })
+    async actionSetPaymentRequest(paymentRequest: string, payReq: lnrpc.PayReq) {
+        this.decodedPaymentRequest = toPayReq(payReq)
+        this.paymentRequest = paymentRequest
+        log.debug(JSON.stringify(this.decodedPaymentRequest))
     }
 
-    setReady() {
-        this.ready = true
-    }
-
-    setOnboarding(welcomed: boolean, version: string) {
+    actionSetOnboarding(welcomed: boolean, version: string) {
         this.onboardingWelcomed = welcomed
         this.onboardingVersion = version
     }
 
-    setTooltipShown({ syncing }: Tooltip) {
+    actionSetReady() {
+        this.ready = true
+    }
+
+    actionSetTooltipShown({ syncing }: Tooltip) {
         if (syncing) {
             this.tooltipShownSyncing = true
         }
