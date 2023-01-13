@@ -39,6 +39,35 @@ export const channelBalance = (): Promise<lnrpc.ChannelBalanceResponse> => {
     })
 }
 
+interface ListChannelsProps {
+    activeOnly?: boolean
+    inactiveOnly?: boolean
+    publicOnly?: boolean
+    privateOnly?: boolean
+    peer?: BytesLikeType
+}
+
+export const listChannels = ({
+    activeOnly = false,
+    inactiveOnly = false,
+    publicOnly = false,
+    privateOnly = false,
+    peer
+}: ListChannelsProps): Promise<lnrpc.ListChannelsResponse> => {
+    return sendCommand<lnrpc.IListChannelsRequest, lnrpc.ListChannelsRequest, lnrpc.ListChannelsResponse>({
+        request: lnrpc.ListChannelsRequest,
+        response: lnrpc.ListChannelsResponse,
+        method: service + "ListChannels",
+        options: {
+            activeOnly,
+            inactiveOnly,
+            publicOnly,
+            privateOnly,
+            peer: peer ? hexToBytes(peer) : null
+        }
+    })
+}
+
 export const openChannel = (
     onData: OpenStatusUpdateStreamResponse,
     pubkey: BytesLikeType,

@@ -1,6 +1,8 @@
 import { Platform } from "react-native"
 import BuildConfig from "react-native-build-config"
 
+export const APPLICATION_ID: string = BuildConfig.APPLICATION_ID || "com.satimoto"
+
 export const DEBUG: boolean = Platform.select({
     android: BuildConfig.DEBUG,
     ios: BuildConfig.DEBUG === "true"

@@ -12,7 +12,7 @@ import AppStack from "screens/AppStack"
 import notificationMessageHandler from "services/NotificationService"
 import client from "services/SatimotoService"
 import store from "stores/Store"
-import { API_URI, MAPBOX_API_KEY, NETWORK } from "utils/build"
+import { API_URI, APPLICATION_ID, MAPBOX_API_KEY, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
 import ConfettiProvider from "providers/ConfettiProvider"
@@ -25,6 +25,7 @@ protobuf.util.toJSONOptions = { defaults: true }
 
 const log = new Log("ForegroundApp")
 
+log.debug(`Starting: Bundle ID: ${APPLICATION_ID}`)
 log.debug(`Starting: Api Uri: ${API_URI}`)
 log.debug(`Starting: Network: ${NETWORK}`)
 log.debug(`Starting: Mapbox API key: ${MAPBOX_API_KEY}`)

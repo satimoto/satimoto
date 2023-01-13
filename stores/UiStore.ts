@@ -98,6 +98,7 @@ export class UiStore implements UiStoreInterface {
             connector: observable,
             evse: observable,
             location: observable,
+            filterExperimental: observable,
             filterRemoteCapable: observable,
             filterRfidCapable: observable,
             linkToken: observable,

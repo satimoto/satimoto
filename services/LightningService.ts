@@ -24,7 +24,7 @@ import {
     verifyMessage
 } from "./lightning/lightning"
 import { registerBlockEpochNtfn } from "./lightning/chainNotifier"
-import { channelAcceptor, channelBalance, openChannel, subscribeChannelEvents } from "./lightning/channel"
+import { channelAcceptor, channelBalance, listChannels, openChannel, subscribeChannelEvents } from "./lightning/channel"
 import { markEdgeLive, resetMissionControl, sendPaymentV2 } from "./lightning/router"
 import { getState, subscribeState } from "./lightning/state"
 import { genSeed, initWallet, unlockWallet } from "./lightning/walletUnlocker"
@@ -65,6 +65,7 @@ export {
     // Channel
     channelAcceptor,
     channelBalance,
+    listChannels,
     openChannel,
     subscribeChannelEvents,
     // Router

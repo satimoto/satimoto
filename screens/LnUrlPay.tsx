@@ -106,8 +106,8 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         let maxSats = toSatoshi(payParams.maxSendable).toNumber()
         let minSats = toSatoshi(payParams.minSendable).toNumber()
 
-        if (maxSats > channelStore.localBalance) {
-            maxSats = channelStore.localBalance
+        if (maxSats > channelStore.availableBalance) {
+            maxSats = channelStore.availableBalance
         }
 
         setDescription(getMetadataElement(payParams.decodedMetadata, "text/plain") || "")

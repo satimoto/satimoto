@@ -1,10 +1,10 @@
-import { action, makeObservable, observable, when } from "mobx"
+import { action, computed, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ChannelRequestModel, { ChannelRequestModelLike } from "models/ChannelRequest"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { ChannelAcceptor, channelAcceptor, channelBalance, subscribeChannelEvents } from "services/LightningService"
+import { ChannelAcceptor, channelAcceptor, channelBalance, listChannels, subscribeChannelEvents } from "services/LightningService"
 import { bytesToHex, toLong, toNumber } from "utils/conversion"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
@@ -19,10 +19,11 @@ export interface ChannelStoreInterface extends StoreInterface {
 
     channelRequestStatus: ChannelRequestStatus
     channelRequests: ChannelRequestModel[]
-    lastActiveTimestamp: string
+    lastActiveTimestamp: number
     subscribedChannelEvents: boolean
     localBalance: number
     remoteBalance: number
+    reservedBalance: number
 
     createChannelRequest(channelRequest: CreateChannelRequestInput): Promise<lnrpc.IHopHint>
 }
@@ -35,10 +36,11 @@ export class ChannelStore implements ChannelStoreInterface {
     channelRequestStatus = ChannelRequestStatus.IDLE
     channelAcceptor: ChannelAcceptor | null = null
     channelRequests
-    lastActiveTimestamp: string = ""
+    lastActiveTimestamp = 0
     subscribedChannelEvents = false
     localBalance = 0
     remoteBalance = 0
+    reservedBalance = 0
 
     constructor(stores: Store) {
         this.stores = stores
@@ -54,18 +56,23 @@ export class ChannelStore implements ChannelStoreInterface {
             subscribedChannelEvents: observable,
             localBalance: observable,
             remoteBalance: observable,
+            reservedBalance: observable,
+
+            availableBalance: computed,
+            balance: computed,
 
             actionSetReady: action,
             actionAddChannelRequest: action,
             actionChannelEventReceived: action,
             actionRemoveChannelRequest: action,
             actionUpdateChannelRequestStatus: action,
-            actionUpdateChannelBalance: action
+            actionUpdateChannelBalance: action,
+            actionUpdateChannels: action
         })
 
         makePersistable(
             this,
-            { name: "ChannelStore", properties: ["localBalance", "remoteBalance"], storage: AsyncStorage, debugMode: DEBUG },
+            { name: "ChannelStore", properties: ["localBalance", "remoteBalance", "reservedBalance"], storage: AsyncStorage, debugMode: DEBUG },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
@@ -82,6 +89,14 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
+    get availableBalance(): number {
+        return this.localBalance - this.reservedBalance
+    }
+
+    get balance(): number {
+        return this.stores.settingStore.includeChannelReserve ? this.localBalance : this.availableBalance
+    }
+
     cancelChannelAcceptor() {
         if (this.channelAcceptor) {
             this.channelAcceptor.cancel()
@@ -92,6 +107,11 @@ export class ChannelStore implements ChannelStoreInterface {
     async getChannelBalance() {
         const channelBalanceResponse: lnrpc.ChannelBalanceResponse = await channelBalance()
         this.actionUpdateChannelBalance(channelBalanceResponse)
+    }
+
+    async getChannels() {
+        const listChannelsResponse: lnrpc.ListChannelsResponse = await listChannels({})
+        this.actionUpdateChannels(listChannelsResponse)
     }
 
     async createChannelRequest(input: CreateChannelRequestInput): Promise<lnrpc.IHopHint> {
@@ -169,7 +189,7 @@ export class ChannelStore implements ChannelStoreInterface {
         this.channelRequestStatus = ChannelRequestStatus.IDLE
         this.channelRequests.push(channelRequest)
     }
-    
+
     actionChannelEventReceived({ type, openChannel }: lnrpc.ChannelEventUpdate) {
         log.debug(`Channel Event: ${type}`)
 
@@ -188,8 +208,14 @@ export class ChannelStore implements ChannelStoreInterface {
                 }
             }
         } else if (type == lnrpc.ChannelEventUpdate.UpdateType.ACTIVE_CHANNEL) {
-            this.getChannelBalance()
-            this.lastActiveTimestamp = new Date().toISOString()
+            const timestamp = new Date().getTime()
+
+            if (this.lastActiveTimestamp < timestamp - 10000) {
+                this.getChannelBalance()
+                this.getChannels()
+            }
+
+            this.lastActiveTimestamp = timestamp
         }
     }
 
@@ -215,8 +241,20 @@ export class ChannelStore implements ChannelStoreInterface {
         log.debug(`Channel Balance: ${this.localBalance}`)
     }
 
+    actionUpdateChannels({ channels }: lnrpc.ListChannelsResponse) {
+        let reserved = 0
+
+        for (const iChannel of channels) {
+            reserved += toNumber(iChannel.localConstraints?.chanReserveSat || 0)
+        }
+
+        this.reservedBalance = reserved
+        log.debug(`Channel Reserve: ${this.reservedBalance}`)
+    }
+
     async whenSyncedToChain() {
         this.subscribeChannelEvents()
         this.getChannelBalance()
+        this.getChannels()
     }
 }

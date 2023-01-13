@@ -20,9 +20,11 @@ export interface SettingStoreInterface extends StoreInterface {
     referralCode?: string
     pushNotificationEnabled: boolean
     pushNotificationToken?: string
+    includeChannelReserve: boolean
 
     onDataPingNotification(notification: DataPingNotification): Promise<void>
     requestPushNotificationPermission(): Promise<boolean>
+    setIncludeChannelReserve(include: boolean): void
     setPushNotificationSettings(enabled: boolean, token: string): void
 }
 
@@ -33,6 +35,7 @@ export class SettingStore implements SettingStoreInterface {
     stores
 
     accessToken?: string = undefined
+    includeChannelReserve = false
     pushNotificationEnabled = false
     pushNotificationToken?: string = undefined
     referralCode?: string = undefined
@@ -45,12 +48,14 @@ export class SettingStore implements SettingStoreInterface {
             ready: observable,
 
             accessToken: observable,
+            includeChannelReserve: observable,
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
             referralCode: observable,
 
             actionSetAccessToken: action,
             actionSetUser: action,
+            actionSetIncludeChannelReserve: action,
             actionSetPushNotificationSettings: action
         })
 
@@ -58,7 +63,7 @@ export class SettingStore implements SettingStoreInterface {
             this,
             {
                 name: "SettingStore",
-                properties: ["accessToken", "pushNotificationEnabled", "pushNotificationToken", "referralCode"],
+                properties: ["accessToken", "includeChannelReserve", "pushNotificationEnabled", "pushNotificationToken", "referralCode"],
                 storage: AsyncStorage,
                 debugMode: DEBUG
             },
@@ -87,7 +92,7 @@ export class SettingStore implements SettingStoreInterface {
         this.actionSetReady()
     }
 
-    async onDataPingNotification(notification: DataPingNotification): Promise<void> {        
+    async onDataPingNotification(notification: DataPingNotification): Promise<void> {
         if (this.stores.uiStore.appState === "background") {
             const netState = await NetInfo.fetch()
 
@@ -112,7 +117,7 @@ export class SettingStore implements SettingStoreInterface {
             const authStatus = await messaging().requestPermission()
 
             enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL
-            
+
             if (enabled) {
                 const token = await messaging().getToken()
                 this.actionSetPushNotificationSettings(enabled, token)
@@ -120,6 +125,10 @@ export class SettingStore implements SettingStoreInterface {
         }
 
         return enabled
+    }
+
+    setIncludeChannelReserve(include: boolean) {
+        this.actionSetIncludeChannelReserve(include)
     }
 
     setPushNotificationSettings(enabled: boolean, token: string) {
@@ -131,7 +140,7 @@ export class SettingStore implements SettingStoreInterface {
      */
 
     async workerDataPingNotification(notification: DataPingNotification): Promise<void> {
-        await pongUser({pong: notification.ping})
+        await pongUser({ pong: notification.ping })
     }
 
     /*
@@ -140,6 +149,10 @@ export class SettingStore implements SettingStoreInterface {
 
     actionSetAccessToken(accessToken?: string) {
         this.accessToken = accessToken
+    }
+
+    actionSetIncludeChannelReserve(include: boolean) {
+        this.includeChannelReserve = include
     }
 
     actionSetPushNotificationSettings(enabled: boolean, token: string) {

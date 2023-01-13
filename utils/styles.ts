@@ -18,6 +18,9 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 12
     },
+    listSwitch: {
+        paddingHorizontal: 10
+    },
     matchParent: {
         flex: 1
     },

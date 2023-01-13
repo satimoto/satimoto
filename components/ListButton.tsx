@@ -9,12 +9,12 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core"
 
 interface ListButtonProps {
     title: string
-    description?: string
+    hint?: string
     iconRight?: IconProp
     onPress?: (event: GestureResponderEvent) => void
 }
 
-const ListButton = ({ title, description, iconRight, onPress = () => {} }: ListButtonProps) => {
+const ListButton = ({ title, hint, iconRight, onPress = () => {} }: ListButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
     const textColor = useColor(colors.lightText, colors.darkText)
@@ -26,9 +26,9 @@ const ListButton = ({ title, description, iconRight, onPress = () => {} }: ListB
                     <Text color="white" fontSize="lg" fontWeight="bold">
                         {title}
                     </Text>
-                    {description && (
-                        <Text color="gray.300" fontSize="lg">
-                            {description}
+                    {hint && (
+                        <Text color="gray.300" fontSize="sm">
+                            {hint}
                         </Text>
                     )}
                 </VStack>

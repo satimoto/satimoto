@@ -9,9 +9,10 @@ import LocationModel from "models/Location"
 import InvoiceModel from "models/Invoice"
 import { useToast } from "native-base"
 import React, { useEffect } from "react"
-import { AppState, AppStateStatus, Linking } from "react-native"
+import { Linking } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackNavigationOptions } from "@react-navigation/native-stack"
+import Advanced from "screens/Advanced"
 import ChargeDetail from "screens/ChargeDetail"
 import ConnectorDetail from "screens/ConnectorDetail"
 import Developer from "screens/Developer"
@@ -34,11 +35,12 @@ import { Log } from "utils/logging"
 const log = new Log("AppStack")
 
 export type AppStackParamList = {
-    Home: undefined
+    Advanced: undefined
     ChargeDetail: undefined
     ConnectorDetail: { location: LocationModel; evse: EvseModel; connector: ConnectorModel }
     Developer: undefined
     EvseList: { location: LocationModel; evses: EvseModel[]; connectorGroup: ConnectorGroup }
+    Home: undefined
     LnUrlPay: { payParams: LNURLPayParams }
     LnUrlWithdraw: { withdrawParams: LNURLWithdrawParams }
     PaymentRequest: { payReq: string; decodedPayReq: PayReq }
@@ -51,11 +53,12 @@ export type AppStackParamList = {
 }
 
 export type AppStackScreenParams = {
-    Home: undefined
+    Advanced: undefined
     ChargeDetail: undefined
     ConnectorDetail: undefined
     Developer: undefined
     EvseList: undefined
+    Home: undefined
     LnUrlPay: undefined
     LnUrlWithdraw: undefined
     PaymentRequest: undefined
@@ -133,6 +136,7 @@ const AppStack = () => {
 
     return uiStore.hydrated ? (
         <AppStackNav.Navigator initialRouteName={uiStore.hasOnboardingUpdates ? "Welcome" : "Home"} screenOptions={screenOptions}>
+            <AppStackNav.Screen name="Advanced" component={Advanced} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ChargeDetail" component={ChargeDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ConnectorDetail" component={ConnectorDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Home" component={Home} options={navigationWithoutHeaderOptions} />

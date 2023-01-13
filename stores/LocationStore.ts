@@ -92,7 +92,7 @@ export class LocationStore implements LocationStoreInterface {
             )
 
             reaction(
-                () => this.stores.uiStore.filterExperimental && this.stores.uiStore.filterRemoteCapable && this.stores.uiStore.filterRfidCapable,
+                () => [this.stores.uiStore.filterExperimental, this.stores.uiStore.filterRemoteCapable, this.stores.uiStore.filterRfidCapable],
                 () => this.resetFilterCapabilities()
             )
         } catch (error) {
