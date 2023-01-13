@@ -57,6 +57,7 @@ export interface UiStoreInterface extends StoreInterface {
     setLinkToken(token?: string): void
     setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
+    setOnboarding(welcomed: boolean, version: string): void
     setTooltipShown(tooltips: Tooltip): void
 }
 
@@ -328,6 +329,10 @@ export class UiStore implements UiStoreInterface {
         const decodedPaymentRequest = await decodePayReq(paymentRequest)
 
         this.actionSetPaymentRequest(paymentRequest, decodedPaymentRequest)
+    }
+
+    setOnboarding(welcomed: boolean, version: string) {
+        this.actionSetOnboarding(welcomed, version)
     }
 
     setTooltipShown(tooltip: Tooltip) {

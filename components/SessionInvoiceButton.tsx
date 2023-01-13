@@ -25,14 +25,8 @@ const SessionInvoiceButtonItem = ({ sessionInvoice }: SessionInvoiceButtonItemPr
     const [isBusy, setIsBusy] = useState(false)
     const { sessionStore } = useStore()
 
-    const onButtonPress = async (event: GestureResponderEvent) => {
-        setIsBusy(true)
-        await sessionStore.payExpiredSessionInvoice(sessionInvoice)
-        setIsBusy(false)
-    }
-
     return (
-        <TouchableOpacityOptional disabled={isBusy} onPress={onButtonPress} style={[styles.transactionButton, { backgroundColor }]}>
+        <TouchableOpacityOptional disabled={isBusy} style={[styles.transactionButton, { backgroundColor }]}>
             <HStack alignItems="center" space={1}>
                 <ButtonIcon source={transactionIcons["MINUS"]} style={[styles.buttonIcon, {paddingHorizontal: 6}]}>
                      <SessionInvoiceBadge sessionInvoice={sessionInvoice} />

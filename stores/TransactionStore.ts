@@ -105,9 +105,11 @@ export class TransactionStore implements TransactionStoreInterface {
         for (const { invoice, payment } of this.transactions) {
             if (invoice && openInvoiceStatuses.includes(invoice.status) && moment(invoice.expiresAt).isBefore(now)) {
                 invoice.status = InvoiceStatus.EXPIRED
+                invoice.failureReasonKey = "InvoiceFailure_Expired"
             }
             if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
                 payment.status = PaymentStatus.EXPIRED
+                payment.failureReasonKey = "PaymentFailure_Expired"
             }
         }
     }

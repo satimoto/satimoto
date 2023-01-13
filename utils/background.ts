@@ -1,5 +1,4 @@
 import BackgroundFetch from "react-native-background-fetch"
-import { HeadlessEvent } from "react-native-background-fetch"
 import NetInfo from "@react-native-community/netinfo"
 import queueFactory from "react-native-queue"
 import store, { Store } from "stores/Store"

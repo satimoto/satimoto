@@ -9,7 +9,7 @@ import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq, getNodeInfo, listPayments, markEdgeLive, resetMissionControl, sendPaymentV2 } from "services/LightningService"
 import { SendPaymentV2Props } from "services/LightningService"
 import { listChannels } from "services/SatimotoService"
-import { PaymentStatus, toPaymentStatus } from "types/payment"
+import { paymentFailureToLocaleKey, PaymentStatus, toPaymentStatus } from "types/payment"
 import { DEBUG } from "utils/build"
 import { nanosecondsToDate, toNumber } from "utils/conversion"
 import { Log } from "utils/logging"
@@ -149,7 +149,7 @@ export class PaymentStore implements PaymentStoreInterface {
     }
 
     actionUpdatePaymentWithPayReq(
-        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment,
+        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, failureReason, valueMsat, valueSat }: lnrpc.Payment,
         payReq: lnrpc.PayReq
     ): PaymentModel {
         let payment = this.payments.find(({ hash }) => hash === paymentHash)
@@ -161,6 +161,7 @@ export class PaymentStore implements PaymentStoreInterface {
                 feeSat: feeSat.toString(),
                 preimage: paymentPreimage,
                 status: toPaymentStatus(status),
+                failureReasonKey: paymentFailureToLocaleKey(failureReason),
                 valueMsat: valueMsat.toString(),
                 valueSat: valueSat.toString()
             })
@@ -175,6 +176,7 @@ export class PaymentStore implements PaymentStoreInterface {
                 hash: paymentHash,
                 preimage: paymentPreimage,
                 status: toPaymentStatus(status),
+                failureReasonKey: paymentFailureToLocaleKey(failureReason),
                 valueMsat: valueMsat.toString(),
                 valueSat: valueSat.toString()
             }

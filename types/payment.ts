@@ -54,4 +54,19 @@ const toPaymentStatus = (state: lnrpc.Payment.PaymentStatus): PaymentStatus => {
     return PaymentStatus.UNKNOWN
 }
 
-export { toPayReq, toPaymentStatus }
+const paymentFailureToLocaleKey = (reason: lnrpc.PaymentFailureReason): string | undefined => {
+    switch (reason) {
+        case lnrpc.PaymentFailureReason.FAILURE_REASON_ERROR:
+            return "PaymentFailure_Error"
+        case lnrpc.PaymentFailureReason.FAILURE_REASON_INCORRECT_PAYMENT_DETAILS:
+            return "PaymentFailure_IncorrectPaymentDetails"
+        case lnrpc.PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE:
+            return "PaymentFailure_InsufficientBalance"
+        case lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE:
+            return "PaymentFailure_NoRoute"
+        case lnrpc.PaymentFailureReason.FAILURE_REASON_TIMEOUT:
+            return "PaymentFailure_Timeout"
+    }
+}
+
+export { paymentFailureToLocaleKey, toPayReq, toPaymentStatus }

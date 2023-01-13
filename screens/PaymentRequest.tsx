@@ -55,6 +55,8 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
             if (payment.status === PaymentStatus.SUCCEEDED) {
                 await startConfetti()
                 onClose()
+            } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
+                setLastError(I18n.t(payment.failureReasonKey))
             }
         } catch (error) {
             setLastError(errorToString(error))

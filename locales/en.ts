@@ -102,6 +102,14 @@ export default {
     Welcome_OnboardingSlide3Title: "Pay As You Charge",
     Welcome_OnboardingSlide3Subtitle: "No need to give credit card details, simply fund your application with bitcoin, then stream micro-payments instantly as you charge your vehicle.",
     Welcome_StartButton: "Lets go!",
+    // Errors
+    InvoiceFailure_Expired: "Expired",
+    PaymentFailure_Error: "Payment Error",
+    PaymentFailure_IncorrectPaymentDetails: "Incorrect payment details",
+    PaymentFailure_InsufficientBalance: "Insufficient balance",
+    PaymentFailure_NoRoute: "No route",
+    PaymentFailure_Timeout: "Timeout",
+    PaymentFailure_Expired: "Expired",
     // Evse status
     AVAILABLE: "Available",
     BLOCKED: "Not accessible",

@@ -10,6 +10,7 @@ import React from "react"
 import Moment from "react-moment"
 import { Text } from "react-native"
 import { toNumber } from "utils/conversion"
+import I18n from "utils/i18n"
 
 interface PaymentInfoModalProps {
     payment?: PaymentModel
@@ -23,7 +24,7 @@ const PaymentInfoModal = ({ payment, onClose }: PaymentInfoModalProps) => {
     return payment ? (
         <Modal isVisible={true} onClose={onClose}>
             <VStack space={5} width="100%">
-                <InfoListItem title="Sent">
+                <InfoListItem title="Amount">
                     <SatoshiBalance size={18} color={textColor} satoshis={toNumber(payment.valueSat)} />
                 </InfoListItem>
                 <InfoListItem title="Fee">
@@ -37,6 +38,13 @@ const PaymentInfoModal = ({ payment, onClose }: PaymentInfoModalProps) => {
                 {payment.description ? (
                     <ExpandableListItem title="Description">
                         <Text style={{ color: textColor, fontSize: 16 }}>{payment.description}</Text>
+                    </ExpandableListItem>
+                ) : (
+                    <></>
+                )}
+                {payment.failureReasonKey ? (
+                    <ExpandableListItem title="Failure Reason">
+                        <Text style={{ color: textColor, fontSize: 16 }}>{I18n.t(payment.failureReasonKey)}</Text>
                     </ExpandableListItem>
                 ) : (
                     <></>

@@ -8,6 +8,7 @@ interface InvoiceModel {
     preimage: string
     paymentRequest: string
     status: InvoiceStatus
+    failureReasonKey?: string
     valueMsat: string
     valueSat: string
 }

@@ -7,6 +7,7 @@ interface PaymentModel {
     hash: string
     preimage?: string
     status: PaymentStatus
+    failureReasonKey?: string
     valueMsat: string
     valueSat: string
     feeMsat: string

@@ -4,7 +4,7 @@ import { faRoute } from "@fortawesome/free-solid-svg-icons"
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons"
 import { IconButton, HStack, Spacer } from "native-base"
 import React from "react"
-import LocationModel from "models/location"
+import LocationModel from "models/Location"
 import LocationAddress from "components/LocationAddress"
 import { launchRouteIntent } from "utils/routeIntent"
 
