@@ -43,6 +43,7 @@ export interface UiStoreInterface extends StoreInterface {
     nfcAvailable: boolean
     onboardingWelcomed: boolean
     onboardingVersion: string
+    tooltipShownCards: boolean
     tooltipShownSyncing: boolean
 
     clearChargePoint(): void
@@ -85,6 +86,7 @@ export class UiStore implements UiStoreInterface {
     nfcAvailable: boolean = false
     onboardingWelcomed: boolean = false
     onboardingVersion: string = ""
+    tooltipShownCards: boolean = false
     tooltipShownSyncing: boolean = false
 
     constructor(stores: Store) {
@@ -112,6 +114,7 @@ export class UiStore implements UiStoreInterface {
             nfcAvailable: observable,
             onboardingWelcomed: observable,
             onboardingVersion: observable,
+            tooltipShownCards: observable,
             tooltipShownSyncing: observable,
 
             hasOnboardingUpdates: computed,
@@ -152,6 +155,7 @@ export class UiStore implements UiStoreInterface {
                     "decodedPaymentRequest",
                     "onboardingWelcomed",
                     "onboardingVersion",
+                    "tooltipShownCards",
                     "tooltipShownSyncing"
                 ],
                 storage: AsyncStorage,
@@ -449,7 +453,11 @@ export class UiStore implements UiStoreInterface {
         this.ready = true
     }
 
-    actionSetTooltipShown({ syncing }: Tooltip) {
+    actionSetTooltipShown({ cards, syncing }: Tooltip) {
+        if (cards) {
+            this.tooltipShownCards = true
+        }
+
         if (syncing) {
             this.tooltipShownSyncing = true
         }

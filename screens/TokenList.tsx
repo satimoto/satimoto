@@ -2,6 +2,7 @@ import ConfirmationModal from "components/ConfirmationModal"
 import HeaderButton from "components/HeaderButton"
 import ScanNfcModal from "components/ScanNfcModal"
 import TokenButton from "components/TokenButton"
+import TokensInfoModal from "components/TokensInfoModal"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
@@ -31,6 +32,7 @@ const TokenList = ({ navigation }: TokenListProps) => {
     const [confirmationModalText, setConfirmationModalText] = useState("")
     const [confirmationButtonText, setConfirmationButtonText] = useState("")
     const [tokens, setTokens] = useState<TokenModel[]>([])
+    const [isAboutModalVisible, setIsAboutModalVisible] = useState(false)
     const [isLinkTokenModalVisible, setIsLinkTokenModalVisible] = useState(false)
     const [isScanNfcModalVisible, setIsScanNfcModalVisible] = useState(false)
     const { settingStore, uiStore } = useStore()
@@ -41,6 +43,11 @@ const TokenList = ({ navigation }: TokenListProps) => {
         if (notificationsEnabled) {
             setIsScanNfcModalVisible(true)
         }
+    }
+
+    const onAboutModalPress = async (): Promise<void> => {
+        uiStore.setTooltipShown({ cards: true })
+        setIsAboutModalVisible(false)
     }
 
     const onLinkTokenPress = async (): Promise<void> => {
@@ -85,6 +92,10 @@ const TokenList = ({ navigation }: TokenListProps) => {
     }, [uiStore.linkToken])
 
     useEffect(() => {
+        if (!uiStore.tooltipShownCards) {
+            setIsAboutModalVisible(true)
+        }
+
         const asyncListTokens = async () => {
             const listTokensResponse = await listTokens()
 
@@ -106,12 +117,13 @@ const TokenList = ({ navigation }: TokenListProps) => {
                 </ScrollView>
             ) : (
                 <View style={[{ height: "100%", backgroundColor, padding: 5 }, styles.center]}>
-                    <Text color={textColor} bold fontSize={16} textAlign="center">
+                    <Text color={textColor} bold fontSize={16} textAlign="center" paddingTop={5}>
                         {I18n.t(IS_ANDROID ? "TokenList_EmptyInfoTitle" : "TokenList_EmptyInfoIOSTitle")}
                     </Text>
                     {IS_ANDROID && <Text color={textColor}>({I18n.t("TokenList_EmptyInfoSubtitle")})</Text>}
                 </View>
             )}
+            <TokensInfoModal isVisible={isAboutModalVisible} onPress={onAboutModalPress} onClose={() => setIsAboutModalVisible(false)} />
             <ConfirmationModal
                 isVisible={isLinkTokenModalVisible}
                 text={confirmationModalText}

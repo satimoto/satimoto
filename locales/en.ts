@@ -26,6 +26,9 @@ export default {
     ScanNfcModal_SchemeError: "Check the NFC card type",
     SendLightningModal_Title: "Paste a lightning invoice",
     SendToAddressModal_Title: "Send to a lightning address",
+    TokensInfoModal_Text: "To use RFID cards with Satimoto you must ensure the application:",
+    TokensInfoModal_SyncedText: "Has been opened and synced within the last 5 days.",
+    TokensInfoModal_FundedText: "Is funded with a minimum of {{satoshis}} sats.",
     // Components
     CameraScanner_PermissionTitle: "Camera Permission",
     CameraScanner_PermissionMessage: "Satimoto needs access to your Camera",
@@ -97,6 +100,7 @@ export default {
     Settings_ButtonTransactions: "Transactions",
     Settings_ButtonAdvanced: "Advanced",
     TokenList_HeaderTitle: "Cards",
+    TokenList_AboutModelText: "To use RFID cards with Satimoto you must ensure the application has been opened and synced within the last 5 days and is funded with a minimum of 50,000 satoshis.",
     TokenList_EmptyInfoTitle: "Use any NFC card to manage your charge sessions",
     TokenList_EmptyInfoIOSTitle: "Use the QR code scanner to scan in your received NFC card",
     TokenList_EmptyInfoSubtitle: "avoid other charge cards",
