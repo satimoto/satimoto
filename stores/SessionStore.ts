@@ -1,5 +1,5 @@
 import Long from "long"
-import { action, computed, makeObservable, observable, runInAction, when } from "mobx"
+import { action, computed, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import StartCommandModel from "models/Command"
 import ConnectorModel, { ConnectorModelLike } from "models/Connector"
@@ -12,15 +12,7 @@ import TokenAuthorizationModel from "models/TokenAuthorization"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NetInfo from "@react-native-community/netinfo"
 import { verifyMessage } from "services/LightningService"
-import {
-    getSession,
-    getSessionInvoice,
-    listSessionInvoices,
-    startSession,
-    stopSession,
-    updateSessionInvoice,
-    updateTokenAuthorization
-} from "services/SatimotoService"
+import { getSession, getSessionInvoice, listSessionInvoices, startSession, stopSession, updateTokenAuthorization } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
 import { PaymentStatus } from "types/payment"
@@ -28,7 +20,7 @@ import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNo
 import { SessionStatus } from "types/session"
 import { TokenType, toTokenType } from "types/token"
 import { DEBUG } from "utils/build"
-import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL } from "utils/constants"
+import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL, SESSION_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { toBytes, toSatoshi } from "utils/conversion"
 import { CommandStatus } from "types/command"
@@ -74,6 +66,7 @@ export class SessionStore implements SessionStoreInterface {
     evse?: EvseModel = undefined
     connector?: ConnectorModel = undefined
     session?: SessionModel = undefined
+    sessionUpdateTimer: any = undefined
     sessionInvoices
     sessionInvoicesUpdateTimer: any = undefined
     sessions
@@ -198,13 +191,25 @@ export class SessionStore implements SessionStoreInterface {
             : "0"
     }
 
+    async fetchSession(): Promise<void> {
+        if (this.stores.settingStore.accessToken && (this.session || this.authorizationId)) {
+            const response = await getSession(this.session ? { uid: this.session.uid } : { authorizationId: this.authorizationId })
+            const session = response.data.getSession as SessionModel
+
+            this.actionUpdateSession(session)
+        }
+    }
+
     async fetchSessionInvoices(): Promise<void> {
-        if (this.stores.settingStore.accessToken && this.status !== ChargeSessionStatus.IDLE) {
+        if (this.stores.settingStore.accessToken) {
             const response = await listSessionInvoices({ isExpired: false, isSettled: false })
             const sessionInvoices = response.data.listSessionInvoices as SessionInvoiceModel[]
 
+            log.debug(`fetchSessionInvoices count=${sessionInvoices.length}`)
+
+
             for (const sessionInvoice of sessionInvoices) {
-                this.paySessionInvoice(sessionInvoice)
+                this.paySessionInvoice(sessionInvoice, false)
             }
         }
     }
@@ -257,12 +262,15 @@ export class SessionStore implements SessionStoreInterface {
         } catch {}
     }
 
-    async paySessionInvoice(sessionInvoice: SessionInvoiceModel): Promise<void> {
+    async paySessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): Promise<void> {
         if (sessionInvoice && !sessionInvoice.isExpired && !sessionInvoice.isSettled) {
+            log.debug(`paySessionInvoice: id=${sessionInvoice.id} status=${this.status}`)
+            log.debug(`paySessionInvoice: pr=${sessionInvoice.paymentRequest} sig=${sessionInvoice.signature}`)
+
             const verifyMessageResponse = await verifyMessage(toBytes(sessionInvoice.paymentRequest), sessionInvoice.signature)
 
             if (!verifyMessageResponse.valid) {
-                log.debug(`Signature could not be verified`)
+                log.debug(`paySessionInvoice: Signature could not be verified`)
                 return
             }
 
@@ -275,7 +283,7 @@ export class SessionStore implements SessionStoreInterface {
                 this.actionAddPayment(payment)
             }
 
-            this.actionUpdateSessionInvoice(sessionInvoice)
+            this.actionUpdateSessionInvoice(sessionInvoice, updateMetrics)
         }
     }
 
@@ -296,18 +304,28 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
-    startSessionInvoiceUpdates() {
-        log.debug(`startInvoiceRequestUpdates`)
-        if (!this.sessionInvoicesUpdateTimer) {
-            this.fetchSessionInvoices()
-            this.sessionInvoicesUpdateTimer = setInterval(this.fetchSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
+    updateSessionTimer(start: boolean) {
+        if (start && !this.sessionUpdateTimer) {
+            log.debug(`updateSessionTimer start`)
+            this.fetchSession()
+            this.sessionUpdateTimer = setInterval(this.fetchSession.bind(this), SESSION_UPDATE_INTERVAL * 1000)
+        } else if (!start) {
+            log.debug(`updateSessionTimer stop`)
+            clearInterval(this.sessionUpdateTimer)
+            this.sessionUpdateTimer = null
         }
     }
 
-    stopSessionInvoiceUpdates() {
-        log.debug(`stopSessionInvoiceUpdates`)
-        clearInterval(this.sessionInvoicesUpdateTimer)
-        this.sessionInvoicesUpdateTimer = null
+    updateSessionInvoiceTimer(start: boolean) {
+        if (start && !this.sessionInvoicesUpdateTimer) {
+            log.debug(`updateSessionInvoiceTimer start`)
+            this.fetchSessionInvoices()
+            this.sessionInvoicesUpdateTimer = setInterval(this.fetchSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
+        } else if (!start) {
+            log.debug(`updateSessionInvoiceTimer stop`)
+            clearInterval(this.sessionInvoicesUpdateTimer)
+            this.sessionInvoicesUpdateTimer = null
+        }
     }
 
     /*
@@ -363,6 +381,8 @@ export class SessionStore implements SessionStoreInterface {
         this.location = location
         this.evse = evse
         this.connector = connector
+
+        this.updateSessionTimer(true)
     }
 
     actionStopSession() {
@@ -373,6 +393,8 @@ export class SessionStore implements SessionStoreInterface {
             this.location = undefined
             this.evse = undefined
             this.connector = undefined
+
+            this.updateSessionTimer(false)
         } else {
             this.status = ChargeSessionStatus.STOPPING
         }
@@ -384,6 +406,8 @@ export class SessionStore implements SessionStoreInterface {
         if (tokenAuthorization.location) {
             this.location = tokenAuthorization.location
         }
+
+        this.updateSessionTimer(true)
     }
 
     actionUpdateSession(session: SessionModel) {
@@ -393,6 +417,12 @@ export class SessionStore implements SessionStoreInterface {
         this.location = this.location || this.session.location
         this.evse = this.evse || this.session.evse
         this.connector = this.connector || this.session.connector
+
+        log.debug(`actionUpdateSession uid=${this.session.uid} status=${this.session.status}/${this.status}`)
+
+        if (this.status === ChargeSessionStatus.ACTIVE || this.status === ChargeSessionStatus.IDLE) {
+            this.updateSessionTimer(false)
+        }
 
         if (this.session.status === SessionStatus.INVALID || this.session.status === SessionStatus.INVOICED) {
             if (this.session.status === SessionStatus.INVOICED) {
@@ -455,6 +485,6 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async whenSyncedToChain(): Promise<void> {
-        this.startSessionInvoiceUpdates()
+        this.updateSessionInvoiceTimer(true)
     }
 }

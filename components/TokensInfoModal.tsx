@@ -6,15 +6,8 @@ import { faCircle } from "@fortawesome/free-solid-svg-icons"
 import { observer } from "mobx-react"
 import { HStack, Text, useColorModeValue, VStack } from "native-base"
 import React from "react"
-import { StyleSheet } from "react-native"
 import { MINIMUM_RFID_CHARGE_BALANCE } from "utils/constants"
-
-const styleSheet = StyleSheet.create({
-    bulletPadding: {
-        marginTop: 10,
-        marginRight: 16
-    }
-})
+import styles from "utils/styles"
 
 interface TokensInfoModalProps {
     isVisible: boolean
@@ -33,13 +26,13 @@ const TokensInfoModal = ({ isVisible, onPress, onClose }: TokensInfoModalProps) 
                     {I18n.t("TokensInfoModal_Text")}
                 </Text>
                 <HStack>
-                    <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styleSheet.bulletPadding} />
+                    <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styles.bulletPadding} />
                     <Text color={secondaryTextcolor} fontSize="lg" marginRight={16}>
                         {I18n.t("TokensInfoModal_SyncedText")}
                     </Text>
                 </HStack>
                 <HStack>
-                    <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styleSheet.bulletPadding} />
+                    <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styles.bulletPadding} />
                     <Text color={secondaryTextcolor} fontSize="lg" marginRight={16}>
                         {I18n.t("TokensInfoModal_FundedText", { satoshis: MINIMUM_RFID_CHARGE_BALANCE })}
                     </Text>

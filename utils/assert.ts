@@ -1,4 +1,13 @@
+import { validate } from "bitcoin-address-validation"
+import { toNetwork } from "types/network"
+import { NETWORK } from "utils/build"
 import { EMAIL_REGEX, LN_BECH32_PREFIX } from "utils/constants"
+
+export const assertAddress = (address: string) => {
+    if (!address || address.length === 0 || !validate(address, toNetwork(NETWORK))) {
+        throw Error("Invalid Bitcoin address")
+    }
+}
 
 export const assertEmail = (address: string) => {
     if (!EMAIL_REGEX.test(address)) {

@@ -1,15 +1,27 @@
 import { action, computed, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import ChannelModel, { ChannelModelLike } from "models/Channel"
 import ChannelRequestModel, { ChannelRequestModelLike } from "models/ChannelRequest"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { ChannelAcceptor, channelAcceptor, channelBalance, listChannels, subscribeChannelEvents } from "services/LightningService"
-import { bytesToHex, toLong, toNumber } from "utils/conversion"
+import {
+    CloseChannelProps,
+    ChannelAcceptor,
+    channelAcceptor,
+    channelBalance,
+    closeChannel,
+    listChannels,
+    subscribeChannelEvents,
+    closedChannels
+} from "services/LightningService"
+import { bytesToHex, reverseByteOrder, toLong, toNumber } from "utils/conversion"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { createChannelRequest, CreateChannelRequestInput } from "services/SatimotoService"
 import { ChannelRequestStatus } from "types/channelRequest"
+import { ChannelModelUpdate, toChannel } from "types/channel"
+import { isValue } from "utils/null"
 
 const log = new Log("ChannelStore")
 
@@ -17,6 +29,7 @@ export interface ChannelStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
+    channels: ChannelModel[]
     channelRequestStatus: ChannelRequestStatus
     channelRequests: ChannelRequestModel[]
     lastActiveTimestamp: number
@@ -25,6 +38,7 @@ export interface ChannelStoreInterface extends StoreInterface {
     remoteBalance: number
     reservedBalance: number
 
+    closeChannel(request: CloseChannelProps): Promise<ChannelModel>
     createChannelRequest(channelRequest: CreateChannelRequestInput): Promise<lnrpc.IHopHint>
 }
 
@@ -35,6 +49,7 @@ export class ChannelStore implements ChannelStoreInterface {
 
     channelRequestStatus = ChannelRequestStatus.IDLE
     channelAcceptor: ChannelAcceptor | null = null
+    channels
     channelRequests
     lastActiveTimestamp = 0
     subscribedChannelEvents = false
@@ -44,12 +59,14 @@ export class ChannelStore implements ChannelStoreInterface {
 
     constructor(stores: Store) {
         this.stores = stores
+        this.channels = observable<ChannelModel>([])
         this.channelRequests = observable<ChannelRequestModel>([])
 
         makeObservable(this, {
             hydrated: observable,
             ready: observable,
 
+            channels: observable,
             channelRequestStatus: observable,
             channelRequests: observable,
             lastActiveTimestamp: observable,
@@ -65,14 +82,22 @@ export class ChannelStore implements ChannelStoreInterface {
             actionAddChannelRequest: action,
             actionChannelEventReceived: action,
             actionRemoveChannelRequest: action,
+            actionUpdateChannel: action,
+            actionUpdateChannelByChannelPoint: action,
             actionUpdateChannelRequestStatus: action,
             actionUpdateChannelBalance: action,
-            actionUpdateChannels: action
+            actionUpdateChannels: action,
+            actionUpdateClosedChannels: action
         })
 
         makePersistable(
             this,
-            { name: "ChannelStore", properties: ["localBalance", "remoteBalance", "reservedBalance"], storage: AsyncStorage, debugMode: DEBUG },
+            {
+                name: "ChannelStore",
+                properties: ["channels", "localBalance", "remoteBalance", "reservedBalance"],
+                storage: AsyncStorage,
+                debugMode: DEBUG
+            },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
@@ -90,7 +115,7 @@ export class ChannelStore implements ChannelStoreInterface {
     }
 
     get availableBalance(): number {
-        return this.localBalance - this.reservedBalance
+        return Math.max(0, this.localBalance - this.reservedBalance)
     }
 
     get balance(): number {
@@ -104,6 +129,31 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
+    closeChannel(request: CloseChannelProps): Promise<ChannelModel> {
+        return new Promise<ChannelModel>(async (resolve, reject) => {
+            try {
+                await closeChannel(async ({ closePending }: lnrpc.CloseStatusUpdate) => {
+                    if (closePending && closePending.txid) {
+                        const channel = this.actionUpdateChannelByChannelPoint({
+                            fundingTxid: request.channelPoint.fundingTxidStr!,
+                            outputIndex: request.channelPoint.outputIndex!,
+                            isActive: false,
+                            closingTxid: bytesToHex(reverseByteOrder(closePending.txid))
+                        })
+
+                        if (channel) {
+                            return resolve(channel)
+                        }
+
+                        reject()
+                    }
+                }, request)
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
     async getChannelBalance() {
         const channelBalanceResponse: lnrpc.ChannelBalanceResponse = await channelBalance()
         this.actionUpdateChannelBalance(channelBalanceResponse)
@@ -112,6 +162,15 @@ export class ChannelStore implements ChannelStoreInterface {
     async getChannels() {
         const listChannelsResponse: lnrpc.ListChannelsResponse = await listChannels({})
         this.actionUpdateChannels(listChannelsResponse)
+    }
+
+    async getClosedChannels() {
+        const closedChannelsResponse: lnrpc.ClosedChannelsResponse = await closedChannels({})
+        this.actionUpdateClosedChannels(closedChannelsResponse)
+    }
+
+    getChannel(channelPoint: string): ChannelModelLike {
+        return this.channels.find((channel) => channel.channelPoint === channelPoint)
     }
 
     async createChannelRequest(input: CreateChannelRequestInput): Promise<lnrpc.IHopHint> {
@@ -178,6 +237,12 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
+    async updateChannels() {
+        await this.getChannelBalance()
+        await this.getChannels()
+        await this.getClosedChannels()
+    }
+
     /*
      * Mobx actions and reactions
      */
@@ -190,7 +255,14 @@ export class ChannelStore implements ChannelStoreInterface {
         this.channelRequests.push(channelRequest)
     }
 
-    actionChannelEventReceived({ type, openChannel }: lnrpc.ChannelEventUpdate) {
+    async actionChannelEventReceived({
+        type,
+        activeChannel,
+        inactiveChannel,
+        openChannel,
+        closedChannel,
+        fullyResolvedChannel
+    }: lnrpc.ChannelEventUpdate) {
         log.debug(`Channel Event: ${type}`)
 
         if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
@@ -207,15 +279,47 @@ export class ChannelStore implements ChannelStoreInterface {
                     this.cancelChannelAcceptor()
                 }
             }
-        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.ACTIVE_CHANNEL) {
+        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.ACTIVE_CHANNEL && activeChannel) {
             const timestamp = new Date().getTime()
 
             if (this.lastActiveTimestamp < timestamp - 10000) {
-                this.getChannelBalance()
-                this.getChannels()
+                this.updateChannels()
+            } else if (isValue(activeChannel.fundingTxidStr) && isValue(activeChannel.outputIndex)) {
+                this.actionUpdateChannelByChannelPoint({
+                    fundingTxid: activeChannel.fundingTxidStr!,
+                    outputIndex: activeChannel.outputIndex!,
+                    isActive: true
+                })
             }
 
             this.lastActiveTimestamp = timestamp
+        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.INACTIVE_CHANNEL && inactiveChannel) {
+            if (isValue(inactiveChannel.fundingTxidStr) && isValue(inactiveChannel.outputIndex)) {
+                this.actionUpdateChannelByChannelPoint({
+                    fundingTxid: inactiveChannel.fundingTxidStr!,
+                    outputIndex: inactiveChannel.outputIndex!,
+                    isActive: false
+                })
+            }
+        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.CLOSED_CHANNEL && closedChannel) {
+            if (isValue(closedChannel.channelPoint)) {
+                this.actionUpdateChannelByChannelPoint({
+                    channelPoint: closedChannel.channelPoint!,
+                    isClosed: true
+                })
+            }
+
+            this.updateChannels()
+        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.FULLY_RESOLVED_CHANNEL && fullyResolvedChannel) {
+            if (isValue(fullyResolvedChannel.fundingTxidStr) && isValue(fullyResolvedChannel.outputIndex)) {
+                this.actionUpdateChannelByChannelPoint({
+                    fundingTxid: fullyResolvedChannel.fundingTxidStr!,
+                    outputIndex: fullyResolvedChannel.outputIndex!,
+                    isClosed: true
+                })
+            }
+
+            this.updateChannels()
         }
     }
 
@@ -241,20 +345,61 @@ export class ChannelStore implements ChannelStoreInterface {
         log.debug(`Channel Balance: ${this.localBalance}`)
     }
 
-    actionUpdateChannels({ channels }: lnrpc.ListChannelsResponse) {
+    actionUpdateChannel(channel: ChannelModel): ChannelModel {
+        let existingChannel = this.channels.find(({ channelPoint }) => channelPoint === channel.channelPoint)
+
+        if (existingChannel) {
+            Object.assign(existingChannel, channel)
+
+            return existingChannel
+        } else {
+            this.channels.push(channel)
+        }
+
+        return channel
+    }
+
+    actionUpdateChannelByChannelPoint({ channelPoint, fundingTxid, outputIndex, isActive, isClosed, closingTxid }: ChannelModelUpdate): ChannelModelLike {
+        channelPoint = channelPoint || `${fundingTxid}:${outputIndex}`
+        let channel = this.getChannel(channelPoint)
+
+        if (channel) {
+            channel.isActive = isValue(isActive) ? isActive! : channel.isActive
+            channel.isClosed = isValue(isClosed) ? isClosed! : channel.isClosed
+            channel.closingTxid = isValue(closingTxid) ? closingTxid! : channel.closingTxid
+        }
+
+        return channel
+    }
+
+    actionUpdateChannels(listChannels: lnrpc.ListChannelsResponse) {
         let reserved = 0
 
-        for (const iChannel of channels) {
+        for (const iChannel of listChannels.channels) {
             reserved += toNumber(iChannel.localConstraints?.chanReserveSat || 0)
+
+            this.actionUpdateChannel(toChannel(iChannel))
         }
 
         this.reservedBalance = reserved
         log.debug(`Channel Reserve: ${this.reservedBalance}`)
     }
 
+    actionUpdateClosedChannels(closedChannels: lnrpc.ClosedChannelsResponse) {
+        for (const channelCloseSummary of closedChannels.channels) {
+            if (channelCloseSummary.channelPoint) {
+                let channel = this.getChannel(channelCloseSummary.channelPoint)
+
+                if (channel) {
+                    channel.closingTxid = channelCloseSummary.closingTxHash ? channelCloseSummary.closingTxHash : channel.closingTxid
+                    channel.isClosed = true
+                }
+            }
+        }
+    }
+
     async whenSyncedToChain() {
         this.subscribeChannelEvents()
-        this.getChannelBalance()
-        this.getChannels()
+        this.updateChannels()
     }
 }

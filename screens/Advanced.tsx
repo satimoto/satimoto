@@ -56,12 +56,18 @@ const Advanced = ({ navigation }: AdvancedProps) => {
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
-                    <ListButton
+                <ListButton
                         key="battery"
                         title={I18n.t("Advanced_BatteryOptimizationText")}
                         hint={I18n.t("Advanced_BatteryOptimizationHint")}
                         iconRight={faChevronRight}
                         onPress={onBatteryOptimization}
+                    />
+                    <ListButton
+                        key="channels"
+                        title={I18n.t("Advanced_ChannelListText")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("ChannelList")}
                     />
                     <ListSwitch
                         key="channelreserve"

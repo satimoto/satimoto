@@ -39,6 +39,45 @@ export const channelBalance = (): Promise<lnrpc.ChannelBalanceResponse> => {
     })
 }
 
+export type CloseStatusUpdateStreamResponse = (data: lnrpc.CloseStatusUpdate) => void
+
+export interface CloseChannelProps {
+    channelPoint: lnrpc.IChannelPoint
+    force?: boolean
+    targetConf?: number
+    deliveryAddress?: string
+    satPerVByte?: number
+    maxFeePerVbyte?: number
+}
+
+export const closeChannel = (
+    onData: CloseStatusUpdateStreamResponse,
+    {
+        channelPoint,
+        force = false,
+        targetConf,
+        deliveryAddress,
+        satPerVByte,
+        maxFeePerVbyte
+    }: CloseChannelProps
+): Promise<lnrpc.CloseStatusUpdate> => {
+    const method = service + "CloseChannel"
+    const stream = sendStreamCommand<lnrpc.ICloseChannelRequest, lnrpc.CloseChannelRequest, lnrpc.CloseStatusUpdate>({
+        request: lnrpc.CloseChannelRequest,
+        response: lnrpc.CloseStatusUpdate,
+        method,
+        options: {
+            channelPoint,
+            force,
+            targetConf,
+            deliveryAddress,
+            satPerVbyte: satPerVByte ? toLong(satPerVByte) : null,
+            maxFeePerVbyte: maxFeePerVbyte ? toLong(maxFeePerVbyte) : null
+        }
+    })
+    return sendStreamResponse<lnrpc.CloseStatusUpdate>({ stream, method, onData })
+}
+
 interface ListChannelsProps {
     activeOnly?: boolean
     inactiveOnly?: boolean
@@ -64,6 +103,38 @@ export const listChannels = ({
             publicOnly,
             privateOnly,
             peer: peer ? hexToBytes(peer) : null
+        }
+    })
+}
+
+interface ClosedChannelsProps {
+    cooperative?: boolean
+    localForce?: boolean
+    remoteForce?: boolean
+    breach?: boolean
+    fundingCanceled?: boolean
+    abandoned?: boolean
+}
+
+export const closedChannels = ({
+    cooperative,
+    localForce,
+    remoteForce,
+    breach,
+    fundingCanceled,
+    abandoned
+}: ClosedChannelsProps): Promise<lnrpc.ClosedChannelsResponse> => {
+    return sendCommand<lnrpc.IClosedChannelsRequest, lnrpc.ClosedChannelsRequest, lnrpc.ClosedChannelsResponse>({
+        request: lnrpc.ClosedChannelsRequest,
+        response: lnrpc.ClosedChannelsResponse,
+        method: service + "ClosedChannels",
+        options: {
+            cooperative,
+            localForce,
+            remoteForce,
+            breach,
+            fundingCanceled,
+            abandoned
         }
     })
 }

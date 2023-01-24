@@ -1,14 +1,16 @@
 import ExpandableListItem from "components/ExpandableListItem"
+import IconButton from "components/IconButton"
 import InfoListItem from "components/InfoListItem"
 import Modal from "components/Modal"
 import SatoshiBalance from "components/SatoshiBalance"
+import { faCopy } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
 import { observer } from "mobx-react"
 import InvoiceModel from "models/Invoice"
-import { useTheme, VStack } from "native-base"
+import { HStack, Text, useTheme, VStack } from "native-base"
 import React from "react"
 import Moment from "react-moment"
-import { Text } from "react-native"
+import Clipboard from "@react-native-clipboard/clipboard"
 import { toNumber } from "utils/conversion"
 import I18n from "utils/i18n"
 
@@ -48,14 +50,24 @@ const InvoiceInfoModal = ({ invoice, onClose }: InvoiceInfoModalProps) => {
                 )}
                 {invoice.preimage ? (
                     <ExpandableListItem title="Preimage">
-                        <Text style={{ color: textColor, fontSize: 16 }}>{invoice.preimage}</Text>
+                        <HStack alignItems="center">
+                            <Text style={{ color: textColor, fontSize: 16 }} marginRight={5}>
+                                {invoice.preimage}
+                            </Text>
+                            <IconButton icon={faCopy} size="sm" onPress={() => Clipboard.setString(invoice.preimage)} />
+                        </HStack>
                     </ExpandableListItem>
                 ) : (
                     <></>
                 )}
                 {invoice.hash ? (
                     <ExpandableListItem title="Hash">
-                        <Text style={{ color: textColor, fontSize: 16 }}>{invoice.hash}</Text>
+                        <HStack alignItems="center">
+                            <Text style={{ color: textColor, fontSize: 16 }} marginRight={5}>
+                                {invoice.hash}
+                            </Text>
+                            <IconButton icon={faCopy} size="sm" onPress={() => Clipboard.setString(invoice.hash)} />
+                        </HStack>
                     </ExpandableListItem>
                 ) : (
                     <></>

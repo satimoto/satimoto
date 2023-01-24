@@ -356,7 +356,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+			shellScript = ". ~/.profile\nset -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		26DAF61614C885775082958B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -607,7 +607,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG = true;
 				DEVELOPMENT_TEAM = F922YVP6UQ;
 				DISPLAY_NAME = "Satimoto Debug";
@@ -625,7 +625,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.9;
+				MARKETING_VERSION = 0.4.0;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -635,9 +635,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug;
 				PRODUCT_NAME = "Satimoto Debug";
 				PROVISIONING_PROFILE_SPECIFIER = "Satimoto Debug";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -652,7 +656,7 @@
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG = false;
 				DEVELOPMENT_TEAM = F922YVP6UQ;
 				DISPLAY_NAME = Satimoto;
@@ -669,7 +673,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.9;
+				MARKETING_VERSION = 0.4.0;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -679,8 +683,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto;
 				PRODUCT_NAME = Satimoto;
 				PROVISIONING_PROFILE_SPECIFIER = Satimoto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -760,7 +768,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG = true;
 				DISPLAY_NAME = "Satimoto Debug Testnet";
 				ENABLE_BITCODE = NO;
@@ -777,7 +785,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.9;
+				MARKETING_VERSION = 0.4.0;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -786,9 +794,13 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug.testnet;
 				PRODUCT_NAME = "Satimoto Testnet Debug";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = DebugTestnet;
@@ -898,7 +910,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG = true;
 				DISPLAY_NAME = "Satimoto Debug Regtest";
 				ENABLE_BITCODE = NO;
@@ -915,7 +927,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.9;
+				MARKETING_VERSION = 0.4.0;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -924,9 +936,13 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug.regtest;
 				PRODUCT_NAME = "Satimoto Regnet Debug";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = DebugRegtest;
@@ -1029,7 +1045,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG = false;
 				DISPLAY_NAME = "Satimoto Testnet";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1045,7 +1061,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.9;
+				MARKETING_VERSION = 0.4.0;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1054,8 +1070,12 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.testnet;
 				PRODUCT_NAME = "Satimoto Testnet";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = ReleaseTestnet;
@@ -1155,7 +1175,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG = false;
 				DISPLAY_NAME = "Satimoto Regtest";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1171,7 +1191,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.3.9;
+				MARKETING_VERSION = 0.4.0;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1180,8 +1200,12 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.regtest;
 				PRODUCT_NAME = "Satimoto Regnet";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "LndMobile/Satimoto-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = ReleaseRegtest;

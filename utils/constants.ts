@@ -13,6 +13,7 @@ export const IS_IOS = Platform.OS === "ios"
 
 export const INVOICE_REQUEST_UPDATE_INTERVAL = 3600
 export const SESSION_INVOICE_UPDATE_INTERVAL = 600
+export const SESSION_UPDATE_INTERVAL = 10
 export const LOCATION_UPDATE_INTERVAL = 60
 
 export const LN_BECH32_PREFIX = NETWORK === "mainnet" ? "lnbc" : NETWORK === "testnet" ? "lntb" : "lnbcrt"

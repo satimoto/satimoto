@@ -35,7 +35,7 @@ export class SettingStore implements SettingStoreInterface {
     stores
 
     accessToken?: string = undefined
-    includeChannelReserve = false
+    includeChannelReserve = true
     pushNotificationEnabled = false
     pushNotificationToken?: string = undefined
     referralCode?: string = undefined

@@ -20,8 +20,8 @@ const ListButton = ({ title, hint, iconRight, onPress = () => {} }: ListButtonPr
     const textColor = useColor(colors.lightText, colors.darkText)
 
     return (
-        <TouchableOpacityOptional onPress={onPress} style={[styles.listButton, { backgroundColor, minHeight: 50 }]}>
-            <HStack alignItems="center" space={1}>
+        <TouchableOpacityOptional onPress={onPress} style={[styles.listButton, styles.buttonMinHeight, { backgroundColor }]}>
+            <HStack alignItems="center">
                 <VStack>
                     <Text color="white" fontSize="lg" fontWeight="bold">
                         {title}
@@ -32,7 +32,6 @@ const ListButton = ({ title, hint, iconRight, onPress = () => {} }: ListButtonPr
                         </Text>
                     )}
                 </VStack>
-
                 <Spacer />
                 <VStack alignItems="flex-end">{iconRight && <FontAwesomeIcon color={textColor} icon={iconRight} />}</VStack>
             </HStack>

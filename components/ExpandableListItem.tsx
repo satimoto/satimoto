@@ -4,6 +4,8 @@ import { faSortDown, faSortUp } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
 import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
 import React, { PropsWithChildren, useState } from "react"
+import styles from "utils/styles"
+import { View } from "react-native"
 
 interface ExpandableListItemProps extends PropsWithChildren<any> {
     title: string
@@ -31,7 +33,7 @@ const ExpandableListItem = ({ title, children }: ExpandableListItemProps) => {
                     <FontAwesomeIcon color={textColor} icon={isExpanded ? faSortUp : faSortDown} />
                 </VStack>
             </HStack>
-            {isExpanded && children}
+            {isExpanded && (<View style={styles.expandableItem}>{children}</View>)}
         </TouchableOpacityOptional>
     )
 }
