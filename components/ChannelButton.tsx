@@ -28,7 +28,7 @@ const ChannelButton = ({ channel, onPress = () => {} }: ChannelButtonProps) => {
             <HStack alignItems="center" space={1}>
                 <VStack>
                     <Text color={primaryTextcolor} fontSize="lg" fontWeight="bold">
-                        {channel.chanId}
+                        {channel.channelPoint.substring(0, 16)}
                     </Text>
                     <Text color={secondaryTextcolor} fontSize="lg">
                         {channel.isClosed ? I18n.t("Label_Closed") : channel.closingTxid ? I18n.t("Label_Closing") : I18n.t("Label_Open")}

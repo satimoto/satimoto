@@ -68,6 +68,14 @@ const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
                     <InfoListItem title="Channel ID">
                         <Text style={{ color: textColor, fontSize: 18 }}>{channel.chanId}</Text>
                     </InfoListItem>
+                    <ExpandableListItem title="Channel Point" width="100%">
+                        <HStack alignItems="center">
+                            <Text style={{ color: textColor, fontSize: 16 }} marginRight={5}>
+                                {channel.channelPoint}
+                            </Text>
+                            <IconButton icon={faCopy} size="sm" onPress={() => Clipboard.setString(channel.channelPoint)} />
+                        </HStack>
+                    </ExpandableListItem>
                     <ExpandableListItem title="Peer" width="100%">
                         <HStack alignItems="center">
                             <Text style={{ color: textColor, fontSize: 16 }} marginRight={5}>
