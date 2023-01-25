@@ -126,11 +126,11 @@ const Home = ({ navigation }: HomeProps) => {
     const onNfcTag = (tag: TagEvent, payload?: string) => {
         try {
             if (payload) {
-                log.debug(payload)
+                log.debug(`SAT006 onNfcTag: ${payload}`, true)
                 uiStore.parseIntent(payload)
             }
         } catch (error) {
-            log.debug(JSON.stringify(error))
+            log.debug(`SAT007 onNfcTag: ${JSON.stringify(error)}`, true)
         }
     }
 

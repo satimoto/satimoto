@@ -221,7 +221,7 @@ export class UiStore implements UiStoreInterface {
      * @returns Promise<boolean>: The intent is valid and parsed
      */
     async parseIntent(intent: string): Promise<boolean> {
-        log.debug("parseIntent: " + intent)
+        log.debug("SAT084: parseIntent: " + intent, true)
         intent = intent.replace(/lightning:/i, "").trim()
 
         const lowerCaseIntent = intent.toLowerCase()
@@ -293,7 +293,8 @@ export class UiStore implements UiStoreInterface {
                 return true
             }
         } catch (error) {
-            log.debug(JSON.stringify(error))
+            log.debug(`SAT085: Error parsing intent`, true)
+            log.debug(JSON.stringify(error), true)
         }
 
         throw new Error(errorCode)
@@ -368,7 +369,7 @@ export class UiStore implements UiStoreInterface {
     }
 
     actionSetAppState(state: AppStateStatus) {
-        log.debug(`App state changed: ${state}`)
+        log.debug(`SAT086: App state changed: ${state}`, true)
         this.appState = state
     }
 
@@ -416,7 +417,7 @@ export class UiStore implements UiStoreInterface {
         }
 
         const tag = getTag(params)
-        log.debug(`Set intent: ${JSON.stringify(params)} tag: ${tag}`)
+        log.debug(`SAT086: Set intent: ${JSON.stringify(params)} tag: ${tag}`)
 
         runInAction(() => {
             this.lnUrl = lnUrl

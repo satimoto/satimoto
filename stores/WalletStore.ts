@@ -52,7 +52,7 @@ export class WalletStore implements WalletStoreInterface {
                 () => this.unlockWallet()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT087: Error Initializing: ${error}`, true)
         }
     }
 
@@ -75,8 +75,8 @@ export class WalletStore implements WalletStoreInterface {
             await setSecureItem(SECURE_KEY_WALLET_PASSWORD, password)
         }
 
-        log.debug(`Seed: ${seedMnemonic.join(" ")}`)
-        log.debug(`Password: ${password}`)
+        log.debug(`SAT088: Seed: ${seedMnemonic.join(" ")}`)
+        log.debug(`SAT088: Password: ${password}`)
 
         // Init wallet
         await initWallet(seedMnemonic, password, recoveryWindow)

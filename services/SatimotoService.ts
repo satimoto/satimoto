@@ -21,7 +21,7 @@ import * as Token from "./satimoto/token"
 import * as TokenAuthorization from "./satimoto/tokenAuthorization"
 import * as User from "./satimoto/user"
 import store from "stores/Store"
-import { API_URI } from "utils/build"
+import { API_URI, DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { authenticate, getParams, LNURLAuthParams } from "services/LnUrlService"
 import { doWhileBackoff } from "utils/tools"
@@ -40,7 +40,10 @@ const invalidationPolicyCache = new InvalidationPolicyCache({
 
 const authLink = setContext((_, { headers }) => {
     const accessToken = store.settingStore.accessToken
-    log.debug(`Access token: ${accessToken}`)
+
+    if (DEBUG) {
+        log.debug(`SAT021: Access token: ${accessToken}`)
+    }
 
     return {
         headers:
@@ -55,11 +58,11 @@ const authLink = setContext((_, { headers }) => {
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
-        graphQLErrors.map(({ message, locations, path }) => log.debug(message))
+        graphQLErrors.map(({ message, locations, path }) => log.debug(`SAT022 onError: ${message}`, true))
     }
 
     if (networkError) {
-        log.debug(networkError.message)
+        log.debug(`SAT023 onError: ${networkError.message}`, true)
     }
 })
 
@@ -134,12 +137,12 @@ const getAccessToken = async (pubkey: string, deviceToken?: string) => {
                 const lnUrlParams = await getParams(createAuthenticationResult.data.createAuthentication.lnUrl)
                 const lnUrlAuthParams = lnUrlParams as LNURLAuthParams
 
-                log.debug("CreateAuthentication: " + JSON.stringify(createAuthenticationResult.data.createAuthentication))
+                log.debug("SAT024: CreateAuthentication: " + JSON.stringify(createAuthenticationResult.data.createAuthentication))
 
                 if (lnUrlAuthParams) {
                     const authenticateOk = await authenticate(lnUrlAuthParams)
-                    
-                    log.debug("Authentication: " + JSON.stringify(authenticateOk))
+
+                    log.debug("SAT025: Authentication: " + JSON.stringify(authenticateOk))
 
                     if (authenticateOk) {
                         try {
@@ -149,18 +152,18 @@ const getAccessToken = async (pubkey: string, deviceToken?: string) => {
                                 deviceToken
                             })
                         } catch (error) {
-                            log.debug(`Error creating user: ${error}`)
+                            log.debug(`SAT026: Error creating user: ${error}`, true)
                         }
 
                         const exchangeAuthenticationResult = await exchangeAuthentication(createAuthenticationResult.data.createAuthentication.code)
 
-                        log.debug("ExchangeAuthentication: " + JSON.stringify(exchangeAuthenticationResult.data.exchangeAuthentication))
+                        log.debug("SAT027: ExchangeAuthentication: " + JSON.stringify(exchangeAuthenticationResult.data.exchangeAuthentication))
 
                         return exchangeAuthenticationResult.data.exchangeAuthentication.token
                     }
                 }
             } catch (error) {
-                log.error(`Error getting token: ${error}`)
+                log.error(`SAT028: Error getting token: ${error}`, true)
             }
         },
         5000

@@ -104,6 +104,7 @@ export class Store implements StoreInterface {
 
             this.actionSetReady()
         } catch (error) {
+            log.error(`SAT078: Error Initializing`, true)
             log.error(JSON.stringify(error, undefined, 2))
         }
     }
@@ -118,20 +119,20 @@ export class Store implements StoreInterface {
 
     async reactionAppState() {
         if (this.uiStore.appState === "active") {
-            const startTime = log.debugTime(`Foreground queue started`)
+            const startTime = log.debugTime(`SAT079: Foreground queue started`, undefined, true)
             addWorkers(this.queue, this)
 
             await this.queue.start()
-            log.debugTime(`Foreground queue finished`, startTime)
+            log.debugTime(`SAT080: Foreground queue finished`, startTime, true)
         }
     }
 
     async reactionLastActiveTimestamp() {
-        const startTime = log.debugTime(`ActiveChannel queue started`)
+        const startTime = log.debugTime(`SAT081: ActiveChannel queue started`, undefined, true)
         addWorkers(this.queue, this)
 
         await this.queue.start()
-        log.debugTime(`ActiveChannel queue finished`, startTime)
+        log.debugTime(`SAT082: ActiveChannel queue finished`, startTime, true)
     }
 }
 

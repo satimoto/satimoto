@@ -3,6 +3,7 @@ import { NativeModules, NativeEventEmitter } from "react-native"
 import { Duplex } from "stream"
 import cancelable, { Cancelable } from "utils/cancelable"
 import sendable, { Sendable } from "utils/sendable"
+import { DEBUG } from "utils/build"
 import { base64ToBytes, bytesToBase64 } from "utils/conversion"
 import { Log } from "utils/logging"
 
@@ -60,7 +61,10 @@ export const serializeRequest = <IRequest, Request>(request: ISendRequest<IReque
 }
 
 export const deserializeResponse = <Response>(response: ISendResponse<Response>, base64Data: any): Response => {
-    log.debug(`Data: ${JSON.stringify(base64Data)}`)
+    if (DEBUG) {
+        log.debug(`SAT012 deserializeResponse: ${JSON.stringify(base64Data)}`)
+    }
+
     return response.decode(base64ToBytes(base64Data.data || ""))
 }
 
@@ -70,16 +74,22 @@ export const sendCommand = async <IRequest, Request, Response>({
     method,
     options
 }: ISyncCommand<IRequest, Request, Response>): Promise<Response> => {
-    const requestTime = log.debugTime(`${method} Request`)
+    const requestTime = log.debugTime(`SAT013: ${method} Request`)
     try {
         const base64Command = serializeRequest(request, options)
         const base64Response = await LndMobile.sendCommand(method, base64Command)
         const data = deserializeResponse(response, base64Response)
-        log.debugTime(`${method} Response`, requestTime)
-        log.debug(JSON.stringify(data, null, 2))
+
+        log.debugTime(`SAT013: ${method} Response`, requestTime)
+
+        if (DEBUG) {
+            log.debug(JSON.stringify(data, null, 2))
+        }
+
         return data
     } catch (err) {
-        log.debugTime(`${method} Response Error`, requestTime)
+        log.debugTime(`SAT014: ${method} Response Error`, requestTime, true)
+
         if (typeof err === "string") {
             throw new Error(err)
         } else {
@@ -99,10 +109,10 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     options
 }: IStreamCommand<IRequest, Request, Response>): Duplex => {
     const streamId = getStreamId()
-    const requestTime = log.debugTime(`${method} Request <${streamId}>`)
+    const requestTime = log.debugTime(`SAT015: ${method} Request <${streamId}>`)
     const stream = new Duplex({
         destroy() {
-            log.debug(`${method} Destroy <${streamId}>`)
+            log.debug(`SAT015: ${method} Destroy <${streamId}>`)
             LndMobile.closeStream(streamId)
             listener.remove()
         },
@@ -114,13 +124,13 @@ export const sendStreamCommand = <IRequest, Request, Response>({
     })
     const listener = LndMobileEventEmitter.addListener("streamEvent", (event) => {
         if (event.streamId === streamId) {
-            log.debugTime(`${method} Response <${streamId}: ${event.type}>`, requestTime)
+            log.debugTime(`SAT015: ${method} Response <${streamId}: ${event.type}>`, requestTime)
             let data = event.error || event.data
 
             if (event.type === "data") {
                 data = deserializeResponse(response, event)
             } else if (event.type === "error" || event.type === "end") {
-                log.debug(`${method} Error <${streamId}: ${event.type}>`)
+                log.debug(`SAT016: ${method} Error <${streamId}: ${event.type}>`)
                 listener.remove()
             }
 
@@ -138,14 +148,14 @@ export const sendStreamResponse = <Response>({ stream, method, onData }: IStream
         new Promise<Response>((resolve, reject) => {
             stream.on("data", onData)
             stream.on("end", (response: Response) => {
-                log.debug(`Stream End ${method}`)
+                log.debug(`SAT017: Stream End ${method}`)
                 resolve(response)
             })
             stream.on("error", (err) => {
-                log.debug(`Stream Error ${method}: ${err}`)
+                log.debug(`SAT017: Stream Error ${method}: ${err}`)
                 reject(err)
             })
-            stream.on("status", (status) => log.info(`${method}: ${status}`))
+            stream.on("status", (status) => log.info(`SAT017: ${method}: ${status}`))
         }),
         (canceled) => {
             stream.destroy()

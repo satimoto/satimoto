@@ -153,7 +153,7 @@ export class SessionStore implements SessionStoreInterface {
                 () => this.whenSyncedToChain()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT067: Error Initializing: ${error}`, true)
         }
     }
 
@@ -205,8 +205,7 @@ export class SessionStore implements SessionStoreInterface {
             const response = await listSessionInvoices({ isExpired: false, isSettled: false })
             const sessionInvoices = response.data.listSessionInvoices as SessionInvoiceModel[]
 
-            log.debug(`fetchSessionInvoices count=${sessionInvoices.length}`)
-
+            log.debug(`SAT068: fetchSessionInvoices: count=${sessionInvoices.length}`)
 
             for (const sessionInvoice of sessionInvoices) {
                 this.paySessionInvoice(sessionInvoice, false)
@@ -264,13 +263,13 @@ export class SessionStore implements SessionStoreInterface {
 
     async paySessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): Promise<void> {
         if (sessionInvoice && !sessionInvoice.isExpired && !sessionInvoice.isSettled) {
-            log.debug(`paySessionInvoice: id=${sessionInvoice.id} status=${this.status}`)
-            log.debug(`paySessionInvoice: pr=${sessionInvoice.paymentRequest} sig=${sessionInvoice.signature}`)
+            log.debug(`SAT069 paySessionInvoice: id=${sessionInvoice.id} status=${this.status}`, true)
+            log.debug(`SAT070 paySessionInvoice: pr=${sessionInvoice.paymentRequest} sig=${sessionInvoice.signature}`, true)
 
             const verifyMessageResponse = await verifyMessage(toBytes(sessionInvoice.paymentRequest), sessionInvoice.signature)
 
             if (!verifyMessageResponse.valid) {
-                log.debug(`paySessionInvoice: Signature could not be verified`)
+                log.debug(`SAT071 paySessionInvoice: Signature could not be verified`, true)
                 return
             }
 
@@ -306,11 +305,11 @@ export class SessionStore implements SessionStoreInterface {
 
     updateSessionTimer(start: boolean) {
         if (start && !this.sessionUpdateTimer) {
-            log.debug(`updateSessionTimer start`)
+            log.debug(`SAT072 updateSessionTimer: start`, true)
             this.fetchSession()
             this.sessionUpdateTimer = setInterval(this.fetchSession.bind(this), SESSION_UPDATE_INTERVAL * 1000)
         } else if (!start) {
-            log.debug(`updateSessionTimer stop`)
+            log.debug(`SAT073 updateSessionTimer: stop`, true)
             clearInterval(this.sessionUpdateTimer)
             this.sessionUpdateTimer = null
         }
@@ -318,11 +317,11 @@ export class SessionStore implements SessionStoreInterface {
 
     updateSessionInvoiceTimer(start: boolean) {
         if (start && !this.sessionInvoicesUpdateTimer) {
-            log.debug(`updateSessionInvoiceTimer start`)
+            log.debug(`SAT074 updateSessionInvoiceTimer: start`, true)
             this.fetchSessionInvoices()
             this.sessionInvoicesUpdateTimer = setInterval(this.fetchSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
         } else if (!start) {
-            log.debug(`updateSessionInvoiceTimer stop`)
+            log.debug(`SAT075 updateSessionInvoiceTimer: stop`, true)
             clearInterval(this.sessionInvoicesUpdateTimer)
             this.sessionInvoicesUpdateTimer = null
         }
@@ -418,7 +417,7 @@ export class SessionStore implements SessionStoreInterface {
         this.evse = this.evse || this.session.evse
         this.connector = this.connector || this.session.connector
 
-        log.debug(`actionUpdateSession uid=${this.session.uid} status=${this.session.status}/${this.status}`)
+        log.debug(`SAT076 actionUpdateSession: uid=${this.session.uid} status=${this.session.status}/${this.status}`, true)
 
         if (this.status === ChargeSessionStatus.ACTIVE || this.status === ChargeSessionStatus.IDLE) {
             this.updateSessionTimer(false)

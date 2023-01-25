@@ -32,7 +32,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
+    const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
@@ -78,7 +78,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                 }
             } catch (error) {
                 setLastError(errorToString(error))
-                log.debug(`Error getting withdraw request: ${error}`)
+                log.debug(`SAT010 onConfirmPress: Error getting withdraw request: ${error}`, true)
                 setIsBusy(false)
             }
         }

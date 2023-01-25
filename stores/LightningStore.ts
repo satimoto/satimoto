@@ -83,8 +83,7 @@ export class LightningStore implements LightningStoreInterface {
     async initialize(): Promise<void> {
         try {
             // Start LND
-            const startReponse = await start()
-            log.debug(startReponse)
+            await start()
 
             this.startLogEvents()
 
@@ -101,7 +100,7 @@ export class LightningStore implements LightningStoreInterface {
 
             this.subscribeState()
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT048: Error Initializing: ${error}`, true)
         }
     }
 
@@ -157,7 +156,7 @@ export class LightningStore implements LightningStoreInterface {
     actionBlockEpochReceived({ hash }: chainrpc.BlockEpoch) {
         const reversedHash = reverseByteOrder(hash)
         const hex = bytesToHex(reversedHash)
-        log.debug(`Hex: ${hex}`)
+        log.debug(`SAT049: Hex: ${hex}`)
         this.getInfo()
     }
 
@@ -177,11 +176,11 @@ export class LightningStore implements LightningStoreInterface {
             this.percentSynced = (100.0 / total) * progress
         }
 
-        log.debug(`Percent Synced: ${this.percentSynced}`)
+        log.debug(`SAT050: Percent Synced: ${this.percentSynced}`, true)
     }
 
     actionStateReceived({ state }: lnrpc.SubscribeStateResponse) {
-        log.debug(`State: ${state}`)
+        log.debug(`SAT051: State: ${state}`, true)
         this.state = state
     }
 

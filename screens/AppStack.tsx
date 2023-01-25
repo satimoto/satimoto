@@ -25,6 +25,7 @@ import LnUrlPay from "screens/LnUrlPay"
 import LnUrlWithdraw from "screens/LnUrlWithdraw"
 import PaymentRequest from "screens/PaymentRequest"
 import Scanner from "screens/Scanner"
+import SendReport from "screens/SendReport"
 import Settings from "screens/Settings"
 import TokenList from "screens/TokenList"
 import TransactionList from "screens/TransactionList"
@@ -50,6 +51,7 @@ export type AppStackParamList = {
     LnUrlWithdraw: { withdrawParams: LNURLWithdrawParams }
     PaymentRequest: { payReq: string; decodedPayReq: PayReq }
     Scanner: undefined
+    SendReport: undefined
     Settings: undefined
     TokenList: undefined
     TransactionList: undefined
@@ -70,6 +72,7 @@ export type AppStackScreenParams = {
     LnUrlWithdraw: undefined
     PaymentRequest: undefined
     Scanner: undefined
+    SendReport: undefined
     Settings: undefined
     TokenList: undefined
     TransactionList: undefined
@@ -91,7 +94,7 @@ const AppStack = () => {
     const toast = useToast()
 
     const onLinkingUrl = ({ url }: LinkingEvent) => {
-        log.debug(`onLinkingUrl: ${url}`)
+        log.debug(`SAT005 onLinkingUrl: ${url}`, true)
         uiStore.parseIntent(url)
     }
 
@@ -155,6 +158,7 @@ const AppStack = () => {
             <AppStackNav.Screen name="LnUrlWithdraw" component={LnUrlWithdraw} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="PaymentRequest" component={PaymentRequest} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Scanner" component={Scanner} options={navigationWithoutHeaderOptions} />
+            <AppStackNav.Screen name="SendReport" component={SendReport} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Settings" component={Settings} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="TokenList" component={TokenList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="TransactionList" component={TransactionList} options={navigationWithHeaderOptions} />

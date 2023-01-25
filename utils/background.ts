@@ -16,35 +16,35 @@ export const BACKGROUND_FETCH_CONFIG = {
 
 export const addWorkers = (queue: any, store: Store) => {
     queue.addWorker("data-ping-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`Started work on data-ping id: ${id}`)
+        const startTime = log.debugTime(`SAT089: Started work on data-ping id: ${id}`, undefined, true)
         await store.settingStore.workerDataPingNotification(payload as DataPingNotification)
-        log.debugTime(`Finished work on data-ping id: ${id}`, startTime)
+        log.debugTime(`SAT090: Finished work on data-ping id: ${id}`, startTime, true)
     })
 
     queue.addWorker("invoice-request-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`Started work on invoice-request id: ${id}`)
+        const startTime = log.debugTime(`SAT091: Started work on invoice-request id: ${id}`, undefined, true)
         await store.invoiceStore.workerInvoiceRequestNotification(payload as InvoiceRequestNotification)
-        log.debugTime(`Finished work on invoice-request id: ${id}`, startTime)
+        log.debugTime(`SAT092: Finished work on invoice-request id: ${id}`, startTime), true
     })
 
     queue.addWorker("session-invoice-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`Started work on session-invoice id: ${id}`)
+        const startTime = log.debugTime(`SAT093: Started work on session-invoice id: ${id}`, undefined, true)
         await store.sessionStore.workerSessionInvoiceNotification(payload as SessionInvoiceNotification)
-        log.debugTime(`Finished work on session-invoice id: ${id}`, startTime)
+        log.debugTime(`SAT094: Finished work on session-invoice id: ${id}`, startTime, true)
     })
 
     queue.addWorker("session-update-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`Started work on session-update id: ${id}`)
+        const startTime = log.debugTime(`SAT095: Started work on session-update id: ${id}`, undefined, true)
         await store.sessionStore.workerSessionUpdateNotification(payload as SessionUpdateNotification)
-        log.debugTime(`Finished work on session-update id: ${id}`, startTime)
+        log.debugTime(`SAT096: Finished work on session-update id: ${id}`, startTime, true)
     })
 }
 
 export const backgroundEvent = async (taskId: string) => {
-    const startTime = log.debugTime(`Background event started`)
+    const startTime = log.debugTime(`SAT097: Background event started`, undefined, true)
 
     const netState = await NetInfo.fetch()
-    log.debugTime(`Background net connected: ${netState.isConnected} reachable: ${netState.isInternetReachable}`)
+    log.debug(`SAT097: Background net connected: ${netState.isConnected} reachable: ${netState.isInternetReachable}`, true)
 
     if (netState.isConnected) {
         const queue = await queueFactory()
@@ -55,11 +55,11 @@ export const backgroundEvent = async (taskId: string) => {
     }
 
     BackgroundFetch.finish(taskId)
-    log.debugTime(`Background event finished`, startTime)
+    log.debugTime(`SAT098: Background event finished`, startTime, true)
 }
 
 export const backgroundTimeout = async (taskId: string) => {
-    log.debug(`Background event timeout`)
+    log.debug(`SAT099: Background event timeout`, true)
 
     BackgroundFetch.finish(taskId)
 }

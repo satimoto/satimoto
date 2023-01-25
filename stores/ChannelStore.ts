@@ -110,7 +110,7 @@ export class ChannelStore implements ChannelStoreInterface {
                 () => this.whenSyncedToChain()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT033: Error Initializing: ${error}`, true)
         }
     }
 
@@ -198,12 +198,12 @@ export class ChannelStore implements ChannelStoreInterface {
     }
 
     onChannelAcceptRequest({ nodePubkey, pendingChanId, wantsZeroConf }: lnrpc.ChannelAcceptRequest) {
-        log.debug(`Channel Acceptor`)
+        log.debug(`SAT034: Channel Acceptor`, true)
 
         if (this.channelAcceptor) {
             const pubkey = bytesToHex(nodePubkey)
-            log.debug(`Pubkey: ${pubkey}`)
-            log.debug(`PendingChanId: ${pendingChanId}`)
+            log.debug(`SAT034: Pubkey: ${pubkey}`, true)
+            log.debug(`SAT034: PendingChanId: ${pendingChanId}`, true)
 
             const channelRequest = this.findChannelRequest(pubkey)
 
@@ -225,7 +225,7 @@ export class ChannelStore implements ChannelStoreInterface {
         this.channelAcceptor = channelAcceptor((data: lnrpc.ChannelAcceptRequest) => this.onChannelAcceptRequest(data))
 
         this.channelAcceptor.finally(() => {
-            log.debug(`Channel Acceptor shutdown`)
+            log.debug(`SAT035: Channel Acceptor shutdown`, true)
             this.channelAcceptor = null
         })
     }
@@ -249,7 +249,11 @@ export class ChannelStore implements ChannelStoreInterface {
 
     actionAddChannelRequest(channelRequest: ChannelRequestModel) {
         log.debug(
-            `Add channel request: ${channelRequest.pubkey}, hash: ${channelRequest.paymentHash}, pendingChanId ${channelRequest.pendingChanId}, scid ${channelRequest.scid}`
+            `SAT036: Add channel request: ${channelRequest.pubkey}, ` +
+                `hash: ${channelRequest.paymentHash}, ` +
+                `pendingChanId ${channelRequest.pendingChanId}, ` +
+                `scid ${channelRequest.scid}`,
+            true
         )
         this.channelRequestStatus = ChannelRequestStatus.IDLE
         this.channelRequests.push(channelRequest)
@@ -263,12 +267,12 @@ export class ChannelStore implements ChannelStoreInterface {
         closedChannel,
         fullyResolvedChannel
     }: lnrpc.ChannelEventUpdate) {
-        log.debug(`Channel Event: ${type}`)
+        log.debug(`SAT037: Channel Event: ${type}`, true)
 
         if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
             const remotePubkey = openChannel.remotePubkey
-            log.debug(`Remote pubkey: ${remotePubkey}`)
-            log.debug(`ChanID: ${openChannel.chanId}`)
+            log.debug(`SAT038: Remote pubkey: ${remotePubkey}`, true)
+            log.debug(`SAT038: ChanID: ${openChannel.chanId}`, true)
 
             if (remotePubkey) {
                 const channelRequest = this.findChannelRequest(remotePubkey)
@@ -342,7 +346,7 @@ export class ChannelStore implements ChannelStoreInterface {
 
         this.localBalance = localBalanceSat + unsettledLocalBalanceSat
         this.remoteBalance = remoteBalanceSat
-        log.debug(`Channel Balance: ${this.localBalance}`)
+        log.debug(`SAT039: Channel Balance: ${this.localBalance}`, true)
     }
 
     actionUpdateChannel(channel: ChannelModel): ChannelModel {
@@ -359,7 +363,14 @@ export class ChannelStore implements ChannelStoreInterface {
         return channel
     }
 
-    actionUpdateChannelByChannelPoint({ channelPoint, fundingTxid, outputIndex, isActive, isClosed, closingTxid }: ChannelModelUpdate): ChannelModelLike {
+    actionUpdateChannelByChannelPoint({
+        channelPoint,
+        fundingTxid,
+        outputIndex,
+        isActive,
+        isClosed,
+        closingTxid
+    }: ChannelModelUpdate): ChannelModelLike {
         channelPoint = channelPoint || `${fundingTxid}:${outputIndex}`
         let channel = this.getChannel(channelPoint)
 
@@ -382,7 +393,7 @@ export class ChannelStore implements ChannelStoreInterface {
         }
 
         this.reservedBalance = reserved
-        log.debug(`Channel Reserve: ${this.reservedBalance}`)
+        log.debug(`SAT040: Channel Reserve: ${this.reservedBalance}`, true)
     }
 
     actionUpdateClosedChannels(closedChannels: lnrpc.ClosedChannelsResponse) {

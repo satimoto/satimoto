@@ -62,7 +62,7 @@ export class TransactionStore implements TransactionStoreInterface {
         try {
             this.actionCheckExpiredTransactions()
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT083: Error Initializing: ${error}`, true)
         }
     }
 

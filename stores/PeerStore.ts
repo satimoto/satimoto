@@ -85,7 +85,7 @@ export class PeerStore implements PeerStoreInterface {
                 () => this.actionListPeers()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT061: Error Initializing: ${error}`, true)
         }
     }
 
@@ -112,7 +112,7 @@ export class PeerStore implements PeerStoreInterface {
      */
 
     actionAddCustomMessageResponder(responder: CustomMessageResponder) {
-        log.debug("Add CustomMessageResponder")
+        log.debug(`SAT062: Add CustomMessageResponder`, true)
         log.debug(JSON.stringify(responder, undefined, 2))
         this.customMessageResponders.push(responder)
     }
@@ -121,7 +121,7 @@ export class PeerStore implements PeerStoreInterface {
         let peer: PeerModelLike = this.getPeer(pubkey)
 
         if (peer && peer.online) {
-            log.debug(`Peer ${peer.pubkey} is online`)
+            log.debug(`SAT063: Peer ${peer.pubkey} is online`, true)
         } else {
             peer = {
                 pubkey,
@@ -181,7 +181,7 @@ export class PeerStore implements PeerStoreInterface {
     async actionCustomMessageReceived({ peer, type, data }: lnrpc.CustomMessage) {
         const peerStr = bytesToHex(peer)
         const dataStr = toString(data)
-        log.debug(`Custom Message ${type} from ${peerStr}: ${dataStr}`)
+        log.debug(`SAT064: Custom Message ${type} from ${peerStr}: ${dataStr}`, true)
 
         const responders = this.customMessageResponders.filter(({ request }) => request.peer === peerStr && request.type === type)
 
@@ -199,7 +199,7 @@ export class PeerStore implements PeerStoreInterface {
     }
 
     actionPeerEventReceived({ pubKey, type }: lnrpc.PeerEvent) {
-        log.debug(`Peer ${pubKey} is ${type}`)
+        log.debug(`SAT065: Peer ${pubKey} is ${type}`, true)
         let areOnline = false
 
         this.peers.forEach((peer) => {
@@ -216,7 +216,7 @@ export class PeerStore implements PeerStoreInterface {
     }
 
     actionRemoveCustomMessageResponder(responder: CustomMessageResponder) {
-        log.debug("Remove CustomMessageResponder")
+        log.debug(`SAT066: Remove CustomMessageResponder`, true)
         this.customMessageResponders.remove(responder)
     }
 

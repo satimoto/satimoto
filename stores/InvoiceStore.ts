@@ -93,7 +93,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 () => this.whenSyncedToChain()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT041: Error Initializing: ${error}`, true)
         }
     }
 
@@ -150,7 +150,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
                     await updateInvoiceRequest({ id: invoiceRequest.id, paymentRequest: invoice.paymentRequest })
                 } catch (error) {
-                    log.error(`Error adding invoice: ${error}`)
+                    log.error(`SAT042: Error adding invoice: ${error}`, true)
                 }
             }
         }
@@ -179,7 +179,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     startInvoiceRequestUpdates() {
-        log.debug(`startInvoiceRequestUpdates`)
+        log.debug(`SAT043 startInvoiceRequestUpdates`, true)
 
         if (!this.invoiceRequestUpdateTimer) {
             this.fetchInvoiceRequests()
@@ -188,7 +188,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     stopInvoiceRequestUpdates() {
-        log.debug(`stopInvoiceRequestUpdates`)
+        log.debug(`SAT044 stopInvoiceRequestUpdates`, true)
         clearInterval(this.invoiceRequestUpdateTimer)
         this.invoiceRequestUpdateTimer = null
     }
@@ -211,7 +211,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
     actionInvoiceReceived(data: lnrpc.Invoice) {
         const hash = bytesToHex(data.rHash)
-        log.debug(`Update invoice: ${hash}`)
+        log.debug(`SAT045: Update invoice: ${hash}`, true)
 
         let invoice = this.invoices.find((invoice) => invoice.hash === hash)
 
@@ -257,11 +257,11 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     actionSettleInvoice(hash: string) {
-        log.debug(`Settle invoice: ${hash}`)
+        log.debug(`SAT046: Settle invoice: ${hash}`, true)
         const invoice = this.findInvoice(hash)
 
         if (invoice) {
-            log.debug(`Invoice marked settled: ${hash}`)
+            log.debug(`SAT047: Invoice marked settled: ${hash}`, true)
             invoice.status = InvoiceStatus.SETTLED
             this.stores.transactionStore.addTransaction({ hash, invoice })
         }

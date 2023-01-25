@@ -4,7 +4,6 @@ import * as protobuf from "protobufjs"
 import { StoreProvider } from "providers/StoreProvider"
 import React, { useEffect } from "react"
 import messaging from "@react-native-firebase/messaging"
-import BackgroundTask from "react-native-background-task"
 import RNBootSplash from "react-native-bootsplash"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { NavigationContainer } from "@react-navigation/native"
@@ -25,15 +24,15 @@ protobuf.util.toJSONOptions = { defaults: true }
 
 const log = new Log("ForegroundApp")
 
-log.debug(`Starting: Bundle ID: ${APPLICATION_ID}`)
-log.debug(`Starting: Api Uri: ${API_URI}`)
-log.debug(`Starting: Network: ${NETWORK}`)
-log.debug(`Starting: Mapbox API key: ${MAPBOX_API_KEY}`)
+log.debug(`SAT001: Starting: Bundle ID: ${APPLICATION_ID}`, true)
+log.debug(`SAT001: Starting: Api Uri: ${API_URI}`, true)
+log.debug(`SAT001: Starting: Network: ${NETWORK}`, true)
+log.debug(`SAT001: Starting: Mapbox API key: ${MAPBOX_API_KEY}`)
 
 const ForegroundApp = () => {
     useEffect(() => {
         if (store.settingStore.pushNotificationEnabled) {
-            log.debug(`Initialize push notification handling`)
+            log.debug(`SAT002: Initialize push notification handling`, true)
             const unsubscribeMessages = messaging().onMessage(notificationMessageHandler)
 
             const unsubscribeTokenRefresh = messaging().onTokenRefresh((token) => {
@@ -41,14 +40,14 @@ const ForegroundApp = () => {
             })
 
             const unsubscribeOpenedApp = messaging().onNotificationOpenedApp((remoteMessage) => {
-                log.debug(`onNotificationOpenedApp: ${JSON.stringify(remoteMessage)}`)
+                log.debug(`SAT003 onNotificationOpenedApp: ${JSON.stringify(remoteMessage)}`, true)
             })
 
             messaging()
                 .getInitialNotification()
                 .then((remoteMessage) => {
                     if (remoteMessage) {
-                        log.debug(`getInitialNotification: ${JSON.stringify(remoteMessage)}`)
+                        log.debug(`SAT004 getInitialNotification: ${JSON.stringify(remoteMessage)}`, true)
                     }
                 })
 

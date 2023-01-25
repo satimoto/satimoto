@@ -64,7 +64,7 @@ export class PaymentStore implements PaymentStoreInterface {
                 () => this.whenSyncedToChain()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT056: Error Initializing: ${error}`, true)
         }
     }
 
@@ -81,16 +81,16 @@ export class PaymentStore implements PaymentStoreInterface {
 
                         if (tryReset) {
                             if (withReset) {
-                                log.debug(`Payment failure, resetting mission control`)
+                                log.debug(`SAT057: Payment failure, resetting mission control`, true)
                                 await resetMissionControl()
                                 payment = await this.sendPayment(request, false)
                             } else if (withEdgeUpdate) {
                                 try {
-                                    log.debug(`Payment failure, force edges update`)
+                                    log.debug(`SAT058: Payment failure, force edges update`, true)
                                     const listChannelsResponse = await listChannels()
                                     const channels = listChannelsResponse.data.listChannels as ChannelModel[]
                                     const channelIds = channels.map((channel) => channel.channelId)
-                                    log.debug(`Edges received: ${channelIds.length}`)
+                                    log.debug(`SAT059: Edges received: ${channelIds.length}`, true)
 
                                     if (channelIds.length > 0) {
                                         await markEdgeLive(channelIds)
@@ -98,7 +98,7 @@ export class PaymentStore implements PaymentStoreInterface {
                                         payment = await this.sendPayment(request, false, false)
                                     }
                                 } catch (error) {
-                                    log.error(`Error updating edges: ${error}`)
+                                    log.error(`SAT060: Error updating edges: ${error}`, true)
                                 }
                             } else if (DEBUG) {
                                 await getNodeInfo('029e6289970aa5e57fe92bb8ae0cefa7ff388bb21a0f8277bc3a45fc5c10e98c4b', true)

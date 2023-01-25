@@ -69,6 +69,12 @@ const Advanced = ({ navigation }: AdvancedProps) => {
                         iconRight={faChevronRight}
                         onPress={() => navigation.navigate("ChannelList")}
                     />
+                    <ListButton
+                        key="send-report"
+                        title={I18n.t("Advanced_SendReportText")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("SendReport")}
+                    />
                     <ListSwitch
                         key="channelreserve"
                         title={I18n.t("Advanced_IncludeChannelReserveText")}

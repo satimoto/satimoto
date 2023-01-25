@@ -29,7 +29,7 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
+    const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColor(colors.lightText, colors.darkText)
     const navigationOptions = useNavigationOptions({ headerShown: true })
@@ -60,7 +60,7 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
             }
         } catch (error) {
             setLastError(errorToString(error))
-            log.debug(`Error sending payment: ${error}`)
+            log.debug(`SAT011 onConfirmPress: Error sending payment: ${error}`, true)
         }
 
         setIsBusy(false)

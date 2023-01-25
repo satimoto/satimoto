@@ -40,7 +40,7 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
                 <RoundedButton isDisabled={!lightningStore.syncedToChain} onPress={() => onPress("send")} style={styles.button}>
-                    {I18n.t("HomeFooterContainer_ButtonSend")}
+                    {I18n.t("Button_Send")}
                 </RoundedButton>
             </View>
             <View style={styles.iconButtonSpacer}>
@@ -57,7 +57,7 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
                     onPress={() => onPress("receive")}
                     style={styles.button}
                 >
-                    {I18n.t("HomeFooterContainer_ButtonReceive")}
+                    {I18n.t("Button_Receive")}
                 </RoundedButton>
             </View>
         </View>

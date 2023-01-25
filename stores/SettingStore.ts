@@ -159,7 +159,7 @@ export class SettingStore implements SettingStoreInterface {
         this.pushNotificationEnabled = enabled
         this.pushNotificationToken = token
 
-        log.debug(`Notification settings changed: ${enabled} token: ${token}`)
+        log.debug(`SAT077: Notification settings changed: ${enabled} token: ${token}`)
     }
 
     actionSetReady() {

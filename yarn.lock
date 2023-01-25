@@ -8946,6 +8946,11 @@ react-native-confetti-cannon@^1.5.2:
     deprecated-react-native-prop-types "^4.0.0"
     prop-types "^15.5.10"
 
+react-native-file-logger@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-file-logger/-/react-native-file-logger-0.4.0.tgz#de6532229d4a7675ece02376e2ecd907ca9bf7ad"
+  integrity sha512-MIXNu56yd+RF55mCnENVFv8wePPdUK8y2eKDFmHtnGp2vs1GwdFmX55x4pO/4pMo2vvs+2HqfQSe8tyMkGh4Tw==
+
 react-native-gesture-handler@^2.8.0:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.8.0.tgz#ef9857871c10663c95a51546225b6e00cd4740cf"

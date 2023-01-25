@@ -96,7 +96,7 @@ export class LocationStore implements LocationStoreInterface {
                 () => this.resetFilterCapabilities()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT052: Error Initializing: ${error}`, true)
         }
     }
 
@@ -173,7 +173,7 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     startLocationUpdates() {
-        log.debug(`startLocationUpdates`)
+        log.debug(`SAT053 startLocationUpdates`, true)
 
         if (!this.locationUpdateTimer) {
             this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
@@ -182,7 +182,7 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     stopLocationUpdates() {
-        log.debug(`stopLocationUpdates`)
+        log.debug(`SAT054 stopLocationUpdates`, true)
         clearInterval(this.locationUpdateTimer)
         this.locationUpdateTimer = null
     }
@@ -253,7 +253,7 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     actionUpdateLocations(locations: LocationModel[]) {
-        log.debug(`actionUpdateLocations ${this.locations.length} ${locations.length}`)
+        log.debug(`SAT055 actionUpdateLocations: ${this.locations.length} ${locations.length}`)
 
         if (this.lastLocationChanged) {
             this.locations.replace(locations)
