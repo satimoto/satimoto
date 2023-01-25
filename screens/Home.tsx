@@ -1,5 +1,6 @@
 import BalanceCard from "components/BalanceCard"
 import ChargeButton from "components/ChargeButton"
+import ConfirmationModal from "components/ConfirmationModal"
 import FilterButton from "components/FilterButton"
 import FilterModal from "components/FilterModal"
 import HomeFooterContainer, { HomeFooterContainerEvent } from "components/HomeFooterContainer"
@@ -27,6 +28,7 @@ import { Position } from "@turf/helpers"
 import { ChargeSessionStatus } from "types/chargeSession"
 import { MAPBOX_API_KEY } from "utils/build"
 import { EMAIL_REGEX, IS_ANDROID } from "utils/constants"
+import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { TagEvent } from "react-native-nfc-manager"
@@ -71,6 +73,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
+    const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [isFilterModalVisible, setIsFilterModalVisible] = useState(false)
     const [isReceiveActionsheetOpen, setIsReceiveActionsheetOpen] = useState(false)
     const [isReceiveLightningModalVisible, setIsReceiveLightningModalVisible] = useState(false)
@@ -81,7 +84,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [isSendNfcModalVisible, setIsSendNfcModalVisible] = useState(false)
     const [centerCoordinate, setCenterCoordinate] = useState<Position>([19.054483, 47.560772])
     const [followUserLocation, setFollowUserLocation] = useState(true)
-    const { uiStore, locationStore, sessionStore } = useStore()
+    const { uiStore, lightningStore, locationStore, sessionStore } = useStore()
 
     let userCoordinate: Position | null = null
 
@@ -90,12 +93,16 @@ const Home = ({ navigation }: HomeProps) => {
     }
 
     const onHomeButtonPress = (event: HomeFooterContainerEvent) => {
-        if (event === "send") {
-            setIsSendActionsheetOpen(true)
-        } else if (event === "qr") {
-            navigation.navigate("Scanner")
-        } else if (event === "receive") {
-            setIsReceiveActionsheetOpen(true)
+        if (lightningStore.syncedToChain) {
+            if (event === "send") {
+                setIsSendActionsheetOpen(true)
+            } else if (event === "qr") {
+                navigation.navigate("Scanner")
+            } else if (event === "receive") {
+                setIsReceiveActionsheetOpen(true)
+            }
+        } else {
+            setIsConfirmationModalVisible(true)
         }
     }
 
@@ -246,6 +253,13 @@ const Home = ({ navigation }: HomeProps) => {
             <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
             <ReceiveActionsheet isOpen={isReceiveActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsReceiveActionsheetOpen(false)} />
             <SendActionsheet isOpen={isSendActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsSendActionsheetOpen(false)} />
+            <ConfirmationModal
+                text={I18n.t("CircularProgressButton_TooltipText")}
+                buttonText={I18n.t("Button_Ok")}
+                isVisible={isConfirmationModalVisible}
+                onClose={async () => setIsConfirmationModalVisible(false)}
+                onPress={async () => setIsConfirmationModalVisible(false)}
+            />
             <FilterModal isVisible={isFilterModalVisible} onClose={() => setIsFilterModalVisible(false)} />
             <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />
             <SendToAddressModal isVisible={isSendToAddressModalVisible} onClose={() => setIsSendToAddressModalVisible(false)} />
