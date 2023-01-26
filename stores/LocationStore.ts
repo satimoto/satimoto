@@ -64,12 +64,11 @@ export class LocationStore implements LocationStoreInterface {
             selectedLocation: observable,
             selectedConnectors: observable,
 
-            setBounds: action,
-            updateLocations: action,
-
-            setSelectedLocation: action,
-            removeSelectedLocation: action,
-            updateActiveConnectors: action
+            actionSetBounds: action,
+            actionUpdateLocations: action,
+            actionSetSelectedLocation: action,
+            actionRemoveSelectedLocation: action,
+            actionUpdateActiveConnectors: action
         })
 
         makePersistable(
@@ -89,15 +88,15 @@ export class LocationStore implements LocationStoreInterface {
             // When location is changed, update connectors
             reaction(
                 () => this.selectedLocation,
-                () => this.updateActiveConnectors()
+                () => this.actionUpdateActiveConnectors()
             )
 
             reaction(
-                () => this.stores.uiStore.filterExperimental && this.stores.uiStore.filterRemoteCapable && this.stores.uiStore.filterRfidCapable,
+                () => [this.stores.uiStore.filterExperimental, this.stores.uiStore.filterRemoteCapable, this.stores.uiStore.filterRfidCapable],
                 () => this.resetFilterCapabilities()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT052: Error Initializing: ${error}`, true)
         }
     }
 
@@ -115,7 +114,7 @@ export class LocationStore implements LocationStoreInterface {
                     yMax: this.bounds[1][1]
                 })
 
-                this.updateLocations(locations.data.listLocations)
+                this.actionUpdateLocations(locations.data.listLocations)
             }
         }
     }
@@ -135,7 +134,7 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     removeSelectedLocation(): void {
-        this.selectedLocation = undefined
+        this.actionRemoveSelectedLocation()
     }
 
     async selectLocation(uid: string, country?: string) {
@@ -143,12 +142,8 @@ export class LocationStore implements LocationStoreInterface {
         const location = locationResponse.data.getLocation as LocationModel
 
         if (location) {
-            this.setSelectedLocation(location)
+            this.actionSetSelectedLocation(location)
         }
-    }
-
-    setSelectedLocation(location: LocationModel) {
-        this.selectedLocation = location
     }
 
     async searchConnector(identifier: string): Promise<ConnectorModelLike> {
@@ -174,6 +169,33 @@ export class LocationStore implements LocationStoreInterface {
     }
 
     async setBounds(bounds: GeoJSON.Position[]) {
+        await this.actionSetBounds(bounds)
+    }
+
+    startLocationUpdates() {
+        log.debug(`SAT053 startLocationUpdates`, true)
+
+        if (!this.locationUpdateTimer) {
+            this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
+            this.fetchLocations()
+        }
+    }
+
+    stopLocationUpdates() {
+        log.debug(`SAT054 stopLocationUpdates`, true)
+        clearInterval(this.locationUpdateTimer)
+        this.locationUpdateTimer = null
+    }
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionRemoveSelectedLocation(): void {
+        this.selectedLocation = undefined
+    }
+
+    async actionSetBounds(bounds: GeoJSON.Position[]) {
         if (
             this.bounds.length != bounds.length ||
             delta(this.bounds[0][0], bounds[0][0]) > 0.0005 ||
@@ -188,26 +210,15 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
-    setReady() {
+    actionSetSelectedLocation(location: LocationModel) {
+        this.selectedLocation = location
+    }
+
+    actionSetReady() {
         this.ready = true
     }
 
-    startLocationUpdates() {
-        log.debug(`startLocationUpdates`)
-
-        if (!this.locationUpdateTimer) {
-            this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
-            this.fetchLocations()
-        }
-    }
-
-    stopLocationUpdates() {
-        log.debug(`stopLocationUpdates`)
-        clearInterval(this.locationUpdateTimer)
-        this.locationUpdateTimer = null
-    }
-
-    updateActiveConnectors() {
+    actionUpdateActiveConnectors() {
         if (this.selectedLocation) {
             const evses: EvseModel[] = this.selectedLocation.evses || []
             const connectors = evses.reduce((connectorGroupMap: ConnectorGroupMap, evse: EvseModel) => {
@@ -241,8 +252,8 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
-    updateLocations(locations: LocationModel[]) {
-        log.debug(`updateLocations ${this.locations.length} ${locations.length}`)
+    actionUpdateLocations(locations: LocationModel[]) {
+        log.debug(`SAT055 actionUpdateLocations: ${this.locations.length} ${locations.length}`)
 
         if (this.lastLocationChanged) {
             this.locations.replace(locations)

@@ -68,7 +68,7 @@ export const doWhileBackoffUntil = (
                 }
 
                 backoffPeriod = backoff(backoffPeriod)
-                log.debug(`${name}: Backing off to ${backoffPeriod}ms`)
+                log.debug(`SAT100: ${name}: Backing off to ${backoffPeriod}ms`)
                 await timeout(backoffPeriod)
             }
         }),

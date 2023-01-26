@@ -1,7 +1,6 @@
 interface StartCommandModel {
     status: string
     authorizationId: string
-    verificationKey: string
     locationUid: string
     evseUid?: String
 }

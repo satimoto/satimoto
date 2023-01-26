@@ -45,7 +45,7 @@ const BalanceCard = ({ onLayout = () => {}}: BalanceCardProps) => {
             style={[{ top: 10 + safeAreaInsets.top, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styleSheet.linearGradient]}
             onLayout={onLayout}
         >
-            <SatoshiBalance size={38} color={"#ffffff"} satoshis={channelStore.localBalance} />
+            <SatoshiBalance size={38} color={"#ffffff"} satoshis={channelStore.balance} />
             <IconButton
                 variant="outline"
                 borderRadius="xl"

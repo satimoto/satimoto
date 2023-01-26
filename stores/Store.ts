@@ -1,5 +1,6 @@
-import { action, makeObservable, observable, when } from "mobx"
+import { action, makeObservable, observable, reaction, when } from "mobx"
 import "reflect-metadata"
+import queueFactory from "react-native-queue"
 import { ChannelStore } from "./ChannelStore"
 import { InvoiceStore } from "./InvoiceStore"
 import { LightningStore } from "./LightningStore"
@@ -11,6 +12,7 @@ import { SettingStore } from "./SettingStore"
 import { TransactionStore } from "./TransactionStore"
 import { UiStore } from "./UiStore"
 import { WalletStore } from "./WalletStore"
+import { addWorkers } from "utils/background"
 import { Log } from "utils/logging"
 
 const log = new Log("Store")
@@ -19,11 +21,13 @@ export interface StoreInterface {
     ready: boolean
 
     initialize(): Promise<void>
-    setReady(): void
+    actionSetReady(): void
 }
 
 export class Store implements StoreInterface {
     ready = false
+    queue: any = undefined
+
     channelStore: ChannelStore
     invoiceStore: InvoiceStore
     lightningStore: LightningStore
@@ -52,7 +56,7 @@ export class Store implements StoreInterface {
 
         makeObservable(this, {
             ready: observable,
-            setReady: action
+            actionSetReady: action
         })
 
         when(
@@ -74,6 +78,8 @@ export class Store implements StoreInterface {
 
     async initialize(): Promise<void> {
         try {
+            this.queue = await queueFactory()
+
             await this.channelStore.initialize()
             await this.invoiceStore.initialize()
             await this.paymentStore.initialize()
@@ -85,14 +91,48 @@ export class Store implements StoreInterface {
             await this.walletStore.initialize()
             await this.lightningStore.initialize()
             await this.locationStore.initialize()
-            this.setReady()
+
+            reaction(
+                () => [this.uiStore.appState],
+                () => this.reactionAppState()
+            )
+
+            reaction(
+                () => [this.channelStore.lastActiveTimestamp],
+                () => this.reactionLastActiveTimestamp()
+            )
+
+            this.actionSetReady()
         } catch (error) {
+            log.error(`SAT078: Error Initializing`, true)
             log.error(JSON.stringify(error, undefined, 2))
         }
     }
 
-    setReady() {
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionSetReady() {
         this.ready = true
+    }
+
+    async reactionAppState() {
+        if (this.uiStore.appState === "active") {
+            const startTime = log.debugTime(`SAT079: Foreground queue started`, undefined, true)
+            addWorkers(this.queue, this)
+
+            await this.queue.start()
+            log.debugTime(`SAT080: Foreground queue finished`, startTime, true)
+        }
+    }
+
+    async reactionLastActiveTimestamp() {
+        const startTime = log.debugTime(`SAT081: ActiveChannel queue started`, undefined, true)
+        addWorkers(this.queue, this)
+
+        await this.queue.start()
+        log.debugTime(`SAT082: ActiveChannel queue finished`, startTime, true)
     }
 }
 

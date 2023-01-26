@@ -65,12 +65,12 @@ export class LightningStore implements LightningStoreInterface {
             syncedToChain: observable,
             percentSynced: observable,
 
-            calculatePercentSynced: action,
-            setReady: action,
-            setSyncHeaderTimestamp: action,
-            onBlockEpoch: action,
-            updateInfo: action,
-            onState: action
+            actionBlockEpochReceived: action,
+            actionCalculatePercentSynced: action,
+            actionSetReady: action,
+            actionSetSyncHeaderTimestamp: action,
+            actionUpdateInfo: action,
+            actionStateReceived: action
         })
 
         makePersistable(
@@ -83,8 +83,7 @@ export class LightningStore implements LightningStoreInterface {
     async initialize(): Promise<void> {
         try {
             // Start LND
-            const startReponse = await start()
-            log.debug(startReponse)
+            await start()
 
             this.startLogEvents()
 
@@ -101,13 +100,69 @@ export class LightningStore implements LightningStoreInterface {
 
             this.subscribeState()
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT048: Error Initializing: ${error}`, true)
         }
     }
 
-    calculatePercentSynced() {
+    async getInfo() {
+        const getInfoResponse: lnrpc.GetInfoResponse = await getInfo()
+        this.actionUpdateInfo(getInfoResponse)
+    }
+
+    startLogEvents() {
+        if (DEBUG && !this.startedLogEvents) {
+            startLogEvents()
+            this.startedLogEvents = true
+        }
+    }
+
+    subscribeBlockEpoch() {
+        if (!this.subscribedBlockEpoch) {
+            registerBlockEpochNtfn((data) => this.actionBlockEpochReceived(data))
+            this.subscribedBlockEpoch = true
+        }
+    }
+
+    subscribeState() {
+        if (!this.subscribedState) {
+            subscribeState((data) => this.actionStateReceived(data))
+            this.subscribedState = true
+        }
+    }
+
+    async syncToChain() {
+        this.actionSetSyncHeaderTimestamp(this.bestHeaderTimestamp)
+
+        while (true) {
+            await this.getInfo()
+            this.actionCalculatePercentSynced()
+
+            if (this.syncedToChain) {
+                break
+            }
+
+            await timeout(6000)
+        }
+
+        this.actionSetReady()
+    }
+
+    updateChannels() {}
+
+    /*
+     * Mobx actions and reactions
+     */
+
+    actionBlockEpochReceived({ hash }: chainrpc.BlockEpoch) {
+        const reversedHash = reverseByteOrder(hash)
+        const hex = bytesToHex(reversedHash)
+        log.debug(`SAT049: Hex: ${hex}`)
+        this.getInfo()
+    }
+
+    actionCalculatePercentSynced() {
         if (this.syncHeaderTimestamp === "0") {
-            this.setSyncHeaderTimestamp(this.bestHeaderTimestamp)
+            this.actionSetSyncHeaderTimestamp(this.bestHeaderTimestamp)
         }
 
         if (this.syncedToChain) {
@@ -121,75 +176,23 @@ export class LightningStore implements LightningStoreInterface {
             this.percentSynced = (100.0 / total) * progress
         }
 
-        log.debug(`Percent Synced: ${this.percentSynced}`)
+        log.debug(`SAT050: Percent Synced: ${this.percentSynced}`, true)
     }
 
-    async getInfo() {
-        const getInfoResponse: lnrpc.GetInfoResponse = await getInfo()
-        this.updateInfo(getInfoResponse)
-    }
-
-    onBlockEpoch({ hash }: chainrpc.BlockEpoch) {
-        const reversedHash = reverseByteOrder(hash)
-        const hex = bytesToHex(reversedHash)
-        log.debug(`Hex: ${hex}`)
-        this.getInfo()
-    }
-
-    onState({ state }: lnrpc.SubscribeStateResponse) {
-        log.debug(`State: ${state}`)
+    actionStateReceived({ state }: lnrpc.SubscribeStateResponse) {
+        log.debug(`SAT051: State: ${state}`, true)
         this.state = state
     }
 
-    setReady() {
+    actionSetReady() {
         this.ready = true
     }
 
-    setSyncHeaderTimestamp(timestamp: string) {
+    actionSetSyncHeaderTimestamp(timestamp: string) {
         this.syncHeaderTimestamp = timestamp
     }
 
-    startLogEvents() {
-        if (DEBUG && !this.startedLogEvents) {
-            startLogEvents()
-            this.startedLogEvents = true
-        }
-    }
-
-    subscribeBlockEpoch() {
-        if (!this.subscribedBlockEpoch) {
-            registerBlockEpochNtfn((data) => this.onBlockEpoch(data))
-            this.subscribedBlockEpoch = true
-        }
-    }
-
-    subscribeState() {
-        if (!this.subscribedState) {
-            subscribeState((data) => this.onState(data))
-            this.subscribedState = true
-        }
-    }
-
-    async syncToChain() {
-        this.setSyncHeaderTimestamp(this.bestHeaderTimestamp)
-
-        while (true) {
-            await this.getInfo()
-            this.calculatePercentSynced()
-
-            if (this.syncedToChain) {
-                break
-            }
-
-            await timeout(6000)
-        }
-
-        this.setReady()
-    }
-
-    updateChannels() {}
-
-    updateInfo({ blockHeight, bestHeaderTimestamp, identityPubkey, syncedToChain }: lnrpc.GetInfoResponse) {
+    actionUpdateInfo({ blockHeight, bestHeaderTimestamp, identityPubkey, syncedToChain }: lnrpc.GetInfoResponse) {
         this.blockHeight = blockHeight
         this.identityPubkey = identityPubkey
         this.bestHeaderTimestamp = bestHeaderTimestamp.toString()

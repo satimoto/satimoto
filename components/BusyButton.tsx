@@ -1,5 +1,5 @@
 import RoundedButton from "components/RoundedButton"
-import { Button, IButtonProps, Spinner } from "native-base"
+import { IButtonProps, Spinner } from "native-base"
 import { ResponsiveValue } from "native-base/lib/typescript/components/types"
 import React from "react"
 

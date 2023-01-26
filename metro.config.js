@@ -9,7 +9,7 @@ const { resolver: defaultResolver } = getDefaultConfig.getDefaultValues()
 
 module.exports = {
     resolver: {
-        ...defaultResolver,
+        //...defaultResolver,
         extraNodeModules: {
             ...defaultResolver.extraNodeModules,
             stream: require.resolve("readable-stream")
@@ -17,6 +17,7 @@ module.exports = {
         sourceExts: [...defaultResolver.sourceExts, "cjs"]
     },
     transformer: {
+        minifierPath: "metro-minify-terser",
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,

@@ -21,19 +21,23 @@ export const genSeed = (aezeedPassphrase?: string, seedEntropy?: string): Promis
 }
 
 export const initWallet = async (seed: string[], password: string, recoveryWindow: number = 0): Promise<lnrpc.InitWalletResponse> => {
-    const requestTime = log.debugTime("InitWallet Request")
+    const requestTime = log.debugTime("SAT031: InitWallet Request")
     const base64Response = await LndMobile.initWallet(seed, password, recoveryWindow)
     const data = deserializeResponse(lnrpc.InitWalletResponse, base64Response)
-    log.debugTime("InitWallet Response", requestTime)
+    
+    log.debugTime("SAT031: InitWallet Response", requestTime, true)
     log.debug(JSON.stringify(data, null, 2))
+
     return data
 }
 
 export const unlockWallet = async (password: string): Promise<lnrpc.UnlockWalletResponse> => {
-    const requestTime = log.debugTime("UnlockWallet Request")
+    const requestTime = log.debugTime("SAT032: UnlockWallet Request")
     const base64Response = await LndMobile.unlockWallet(password)
     const data = deserializeResponse(lnrpc.UnlockWalletResponse, base64Response)
-    log.debugTime("UnlockWallet Response", requestTime)
+
+    log.debugTime("SAT032: UnlockWallet Response", requestTime, true)
     log.debug(JSON.stringify(data, null, 2))
+
     return data
 }

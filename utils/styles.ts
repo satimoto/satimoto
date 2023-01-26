@@ -1,15 +1,25 @@
 import { StyleSheet } from "react-native"
 
 export default StyleSheet.create({
+    bulletPadding: {
+        marginTop: 10,
+        marginRight: 16
+    },
     buttonIcon: {
         alignItems: "flex-end",
         justifyContent: "flex-start",
         paddingVertical: 3,
         paddingHorizontal: 3
     },
+    buttonMinHeight: {
+        minHeight: 60
+    },
     center: {
         justifyContent: "center",
         alignItems: "center"
+    },
+    expandableItem: {
+        paddingRight: 20
     },
     listButton: {
         justifyContent: "center",
@@ -17,6 +27,9 @@ export default StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 12
+    },
+    listSwitch: {
+        paddingHorizontal: 10
     },
     matchParent: {
         flex: 1

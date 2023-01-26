@@ -4,7 +4,7 @@ import LocationHeader from "components/LocationHeader"
 import useColor from "hooks/useColor"
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { observer } from "mobx-react"
-import { ConnectorGroup } from "models/Connector"
+import ConnectorModel, { ConnectorGroup } from "models/Connector"
 import EvseModel from "models/Evse"
 import { useTheme, VStack } from "native-base"
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
@@ -59,7 +59,7 @@ const EvseList = ({ navigation, route }: EvseListProps) => {
     }, [navigation])
 
     const onPress = useCallback(
-        (connector, evse) => {
+        (connector: ConnectorModel, evse: EvseModel) => {
             navigation.navigate("ConnectorDetail", { location: locationStore.selectedLocation!, evse, connector })
         },
         [navigation, locationStore.selectedLocation]

@@ -9,7 +9,7 @@ import { StoreInterface, Store } from "stores/Store"
 import { decodePayReq, getNodeInfo, listPayments, markEdgeLive, resetMissionControl, sendPaymentV2 } from "services/LightningService"
 import { SendPaymentV2Props } from "services/LightningService"
 import { listChannels } from "services/SatimotoService"
-import { PaymentStatus, toPaymentStatus } from "types/payment"
+import { paymentFailureToLocaleKey, PaymentStatus, toPaymentStatus } from "types/payment"
 import { DEBUG } from "utils/build"
 import { nanosecondsToDate, toNumber } from "utils/conversion"
 import { Log } from "utils/logging"
@@ -44,9 +44,9 @@ export class PaymentStore implements PaymentStoreInterface {
             indexOffset: observable,
             payments: observable,
 
-            setReady: action,
-            updatePaymentWithPayReq: action,
-            updateIndexOffset: action
+            actionSetReady: action,
+            actionUpdatePaymentWithPayReq: action,
+            actionUpdateIndexOffset: action
         })
 
         makePersistable(
@@ -64,7 +64,7 @@ export class PaymentStore implements PaymentStoreInterface {
                 () => this.whenSyncedToChain()
             )
         } catch (error) {
-            log.error(`Error Initializing: ${error}`)
+            log.error(`SAT056: Error Initializing: ${error}`, true)
         }
     }
 
@@ -81,16 +81,16 @@ export class PaymentStore implements PaymentStoreInterface {
 
                         if (tryReset) {
                             if (withReset) {
-                                log.debug(`Payment failure, resetting mission control`)
+                                log.debug(`SAT057: Payment failure, resetting mission control`, true)
                                 await resetMissionControl()
                                 payment = await this.sendPayment(request, false)
                             } else if (withEdgeUpdate) {
                                 try {
-                                    log.debug(`Payment failure, force edges update`)
+                                    log.debug(`SAT058: Payment failure, force edges update`, true)
                                     const listChannelsResponse = await listChannels()
                                     const channels = listChannelsResponse.data.listChannels as ChannelModel[]
                                     const channelIds = channels.map((channel) => channel.channelId)
-                                    log.debug(`Edges received: ${channelIds.length}`)
+                                    log.debug(`SAT059: Edges received: ${channelIds.length}`, true)
 
                                     if (channelIds.length > 0) {
                                         await markEdgeLive(channelIds)
@@ -98,7 +98,7 @@ export class PaymentStore implements PaymentStoreInterface {
                                         payment = await this.sendPayment(request, false, false)
                                     }
                                 } catch (error) {
-                                    log.error(`Error updating edges: ${error}`)
+                                    log.error(`SAT060: Error updating edges: ${error}`, true)
                                 }
                             } else if (DEBUG) {
                                 await getNodeInfo('029e6289970aa5e57fe92bb8ae0cefa7ff388bb21a0f8277bc3a45fc5c10e98c4b', true)
@@ -118,22 +118,38 @@ export class PaymentStore implements PaymentStoreInterface {
         })
     }
 
-    setReady() {
-        this.ready = true
-    }
+    async updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
+        for (const iPayment of payments) {
+            const payment = lnrpc.Payment.fromObject(iPayment)
+            const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
 
-    updateIndexOffset(payment: lnrpc.Payment) {
-        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
+            this.actionUpdatePaymentWithPayReq(payment, decodedPaymentRequest)
+            this.actionUpdateIndexOffset(payment)
+        }
+
+        this.actionSetReady()
     }
 
     async updatePayment(payment: lnrpc.Payment): Promise<PaymentModel> {
         const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
 
-        return this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
+        return this.actionUpdatePaymentWithPayReq(payment, decodedPaymentRequest)
     }
 
-    updatePaymentWithPayReq(
-        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, valueMsat, valueSat }: lnrpc.Payment,
+    /*
+     * Mobx actions and reactions
+     */
+    
+    actionSetReady() {
+        this.ready = true
+    }
+
+    actionUpdateIndexOffset(payment: lnrpc.Payment) {
+        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
+    }
+
+    actionUpdatePaymentWithPayReq(
+        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, failureReason, valueMsat, valueSat }: lnrpc.Payment,
         payReq: lnrpc.PayReq
     ): PaymentModel {
         let payment = this.payments.find(({ hash }) => hash === paymentHash)
@@ -145,6 +161,7 @@ export class PaymentStore implements PaymentStoreInterface {
                 feeSat: feeSat.toString(),
                 preimage: paymentPreimage,
                 status: toPaymentStatus(status),
+                failureReasonKey: paymentFailureToLocaleKey(failureReason),
                 valueMsat: valueMsat.toString(),
                 valueSat: valueSat.toString()
             })
@@ -159,6 +176,7 @@ export class PaymentStore implements PaymentStoreInterface {
                 hash: paymentHash,
                 preimage: paymentPreimage,
                 status: toPaymentStatus(status),
+                failureReasonKey: paymentFailureToLocaleKey(failureReason),
                 valueMsat: valueMsat.toString(),
                 valueSat: valueSat.toString()
             }
@@ -169,18 +187,6 @@ export class PaymentStore implements PaymentStoreInterface {
         this.stores.transactionStore.addTransaction({ hash: paymentHash, payment })
 
         return payment
-    }
-
-    async updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
-        for (const iPayment of payments) {
-            const payment = lnrpc.Payment.fromObject(iPayment)
-            const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
-
-            this.updatePaymentWithPayReq(payment, decodedPaymentRequest)
-            this.updateIndexOffset(payment)
-        }
-
-        this.setReady()
     }
 
     async whenSyncedToChain() {

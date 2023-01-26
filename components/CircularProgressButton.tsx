@@ -13,8 +13,8 @@ import { IS_ANDROID } from "utils/constants"
 const styleSheet = StyleSheet.create({
     progressView: {
         position: "absolute",
-        top: 0,
-        left: 0,
+        top: 2,
+        left: 2,
         bottom: 0,
         right: 0
     }
@@ -69,7 +69,6 @@ const CircularProgressButton = ({ isBusy, value, onPress = () => {}, style = {} 
             <View style={style}>
                 <IconButton
                     borderRadius="full"
-                    isDisabled={isBusy}
                     size="lg"
                     variant="solid"
                     onPress={onPress}
@@ -77,7 +76,17 @@ const CircularProgressButton = ({ isBusy, value, onPress = () => {}, style = {} 
                     _icon={{ color: "#ffffff", size: 50 }}
                 />
                 {isBusy && (
-                    <AnimatedCircularProgress lineCap="round" size={74} width={8} fill={value} tintColor="#008ae6" style={styleSheet.progressView} />
+                    <AnimatedCircularProgress
+                        lineCap="round"
+                        rotation={0}
+                        size={70}
+                        width={4}
+                        fill={value}
+                        backgroundColor="#006bb4"
+                        tintColor="#f1f1f1"
+                        style={styleSheet.progressView}
+                        onPress={onPress}
+                    />
                 )}
             </View>
         </Tooltip>

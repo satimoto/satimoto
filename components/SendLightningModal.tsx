@@ -59,7 +59,7 @@ const SendLightningModal = ({ isVisible, onClose }: SendLightningModalProps) => 
                 </Text>
                 <Input
                     autoCapitalize="none"
-                    autoCompleteType="off"
+                    autoComplete="off"
                     autoCorrect={false}
                     value={paymentRequest}
                     isFullWidth={true}

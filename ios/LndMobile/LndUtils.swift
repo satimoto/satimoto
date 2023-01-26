@@ -19,7 +19,7 @@ class LndUtils: RCTEventEmitter {
   }
   
   static var confFile: URL {
-    return lndDirectory.appendingPathComponent("lnd_v4.conf", isDirectory: false)
+    return lndDirectory.appendingPathComponent("lnd_v5.conf", isDirectory: false)
   }
   
   static private var logFile: URL {
@@ -70,11 +70,15 @@ class LndUtils: RCTEventEmitter {
 [Application Options]
 debuglevel=warn
 maxbackoff=2s
+nobootstrap=1
 nolisten=1
 norest=1
 sync-freelist=1
 accept-keysend=1
 feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json
+gc-canceled-invoices-on-startup=1
+gc-canceled-invoices-on-the-fly=1
+ignore-historical-gossip-filters=1
 
 [Bitcoin]
 bitcoin.active=1
@@ -88,6 +92,7 @@ neutrino.addpeer=mainnet2-btcd.zaphq.io
 neutrino.addpeer=mainnet3-btcd.zaphq.io
 neutrino.addpeer=mainnet4-btcd.zaphq.io
 neutrino.addpeer=bb2.breez.technology
+neutrino.validatechannels=false
 
 [protocol]
 protocol.option-scid-alias=true
@@ -108,11 +113,15 @@ autopilot.heuristic=preferential:0.05
 [Application Options]
 debuglevel=info
 maxbackoff=2s
+nobootstrap=1
 nolisten=1
 norest=1
 sync-freelist=1
 accept-keysend=1
 feeurl=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json
+gc-canceled-invoices-on-startup=1
+gc-canceled-invoices-on-the-fly=1
+ignore-historical-gossip-filters=1
 
 [Bitcoin]
 bitcoin.active=1
@@ -121,6 +130,7 @@ bitcoin.node=neutrino
 
 [Neutrino]
 neutrino.connect=faucet.lightning.community
+neutrino.validatechannels=false
 
 [protocol]
 protocol.option-scid-alias=true
@@ -141,10 +151,14 @@ autopilot.heuristic=preferential:0.05
 [Application Options]
 debuglevel=info
 maxbackoff=2s
+nobootstrap=1
 nolisten=1
 norest=1
 sync-freelist=1
 accept-keysend=1
+gc-canceled-invoices-on-startup=1
+gc-canceled-invoices-on-the-fly=1
+ignore-historical-gossip-filters=1
 
 [Bitcoin]
 bitcoin.active=1

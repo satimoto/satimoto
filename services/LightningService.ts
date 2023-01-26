@@ -1,6 +1,6 @@
 import type { InvoiceStreamResponse, TransactionStreamResponse } from "./lightning/lightning"
 import type { BlockEpochStreamResponse } from "./lightning/chainNotifier"
-import type { ChannelAcceptor } from "./lightning/channel"
+import type { CloseChannelProps, ChannelAcceptor } from "./lightning/channel"
 import type { PaymentStreamResponse, SendPaymentV2Props } from "./lightning/router"
 
 import {
@@ -20,10 +20,11 @@ import {
     subscribeCustomMessages,
     subscribeInvoices,
     subscribePeerEvents,
-    subscribeTransactions
+    subscribeTransactions,
+    verifyMessage
 } from "./lightning/lightning"
 import { registerBlockEpochNtfn } from "./lightning/chainNotifier"
-import { channelAcceptor, channelBalance, openChannel, subscribeChannelEvents } from "./lightning/channel"
+import { closeChannel, closedChannels, channelAcceptor, channelBalance, listChannels, openChannel, subscribeChannelEvents } from "./lightning/channel"
 import { markEdgeLive, resetMissionControl, sendPaymentV2 } from "./lightning/router"
 import { getState, subscribeState } from "./lightning/state"
 import { genSeed, initWallet, unlockWallet } from "./lightning/walletUnlocker"
@@ -34,6 +35,7 @@ export type {
     // ChainNotifier
     BlockEpochStreamResponse,
     // Channel
+    CloseChannelProps,
     ChannelAcceptor,
     // Router
     PaymentStreamResponse,
@@ -58,11 +60,15 @@ export {
     subscribeInvoices,
     subscribePeerEvents,
     subscribeTransactions,
+    verifyMessage,
     // ChainNotifier
     registerBlockEpochNtfn,
     // Channel
+    closeChannel,
+    closedChannels,
     channelAcceptor,
     channelBalance,
+    listChannels,
     openChannel,
     subscribeChannelEvents,
     // Router

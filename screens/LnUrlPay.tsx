@@ -33,7 +33,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
+    const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
@@ -69,24 +69,25 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                 assertNetwork(response.pr)
 
                 const decodedPayReq = await decodePayReq(response.pr)
-                log.debug(`Metadata hash: ${metadataHash}`)
-                log.debug(`Payment Request hash: ${decodedPayReq.descriptionHash}`)
+                log.debug(`SAT008 Metadata hash: ${metadataHash}`)
+                log.debug(`SAT008 Payment Request hash: ${decodedPayReq.descriptionHash}`)
 
                 if (decodedPayReq.descriptionHash === metadataHash && toNumber(decodedPayReq.numSatoshis) === amountNumber) {
                     // Pay
                     const payment = await paymentStore.sendPayment({ paymentRequest: response.pr })
 
-                    // TODO: Display payment failure error
                     if (payment.status === PaymentStatus.SUCCEEDED) {
                         await startConfetti()
                         onClose()
+                    } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
+                        setLastError(I18n.t(payment.failureReasonKey))
                     }
                 } else {
                     setLastError(I18n.t("LnUrlPay_PayReqError"))
                 }
             } catch (error) {
                 setLastError(errorToString(error))
-                log.debug(`Error getting pay request: ${error}`)
+                log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)
             }
         }
 
@@ -105,8 +106,8 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         let maxSats = toSatoshi(payParams.maxSendable).toNumber()
         let minSats = toSatoshi(payParams.minSendable).toNumber()
 
-        if (maxSats > channelStore.localBalance) {
-            maxSats = channelStore.localBalance
+        if (maxSats > channelStore.availableBalance) {
+            maxSats = channelStore.availableBalance
         }
 
         setDescription(getMetadataElement(payParams.decodedMetadata, "text/plain") || "")

@@ -19,8 +19,8 @@ const notificationMessageHandler = async (remoteMessage: FirebaseMessagingTypes.
     // Wait for store is ready
     await when(() => store.ready)
 
-    log.debug(`FCM message received: ${store.lightningStore.blockHeight}`)
-    log.debug(JSON.stringify(remoteMessage))
+    log.debug(`SAT019: FCM message received: ${store.lightningStore.blockHeight}`, true)
+    log.debug(JSON.stringify(remoteMessage), true)
 
     try {
         const notification = remoteMessageToNotification(remoteMessage.data)
@@ -43,7 +43,7 @@ const notificationMessageHandler = async (remoteMessage: FirebaseMessagingTypes.
                 break
         }
     } catch (error) {
-        log.debug(`FCM message not handled`)
+        log.debug(`SAT020: FCM message not handled`, true)
     }
 }
 

@@ -32,7 +32,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
+    const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
@@ -43,8 +43,8 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const [isBusy, setIsBusy] = useState(false)
     const [isInvalid, setIsInvalid] = useState(false)
     const [lastError, setLastError] = useState("")
-    const [maxSendable, setMaxSendable] = useState(0)
-    const [minSendable, setMinSendable] = useState(0)
+    const [maxReceivable, setMaxReceivable] = useState(0)
+    const [minReceivable, setMinReceivable] = useState(0)
     const [amountError, setAmountError] = useState("")
     const [invoice, setInvoice] = useState<InvoiceModel>()
 
@@ -78,7 +78,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                 }
             } catch (error) {
                 setLastError(errorToString(error))
-                log.debug(`Error getting withdraw request: ${error}`)
+                log.debug(`SAT010 onConfirmPress: Error getting withdraw request: ${error}`, true)
                 setIsBusy(false)
             }
         }
@@ -96,18 +96,18 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
         let maxSats = toSatoshi(withdrawParams.maxWithdrawable).toNumber()
         let minSats = toSatoshi(withdrawParams.minWithdrawable).toNumber()
 
-        if (maxSats > channelStore.localBalance) {
-            maxSats = channelStore.localBalance
+        if (maxSats > channelStore.remoteBalance) {
+            maxSats = channelStore.remoteBalance
         }
 
         setDescription(withdrawParams.defaultDescription)
-        setMaxSendable(maxSats)
-        setMinSendable(minSats)
+        setMaxReceivable(maxSats)
+        setMinReceivable(minSats)
         setAmountError(I18n.t("LnUrlWithdraw_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
     }, [route.params.withdrawParams])
 
     useEffect(() => {
-        setIsInvalid(amountNumber < minSendable || amountNumber > maxSendable)
+        setIsInvalid(amountNumber < minReceivable || amountNumber > maxReceivable)
     }, [amountNumber])
 
     useEffect(() => {

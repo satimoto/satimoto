@@ -15,7 +15,7 @@ export const writeDefaultConf = async (): Promise<any> => {
 }
 
 export const startLogEvents = (): void => {
-    log.debug("Start Log Events")
+    log.debug("SAT018: Start Log Events")
     LndUtilsEventEmitter.addListener("logEvent", (data) => {
         log.debug(data)
     })

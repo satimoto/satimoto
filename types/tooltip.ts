@@ -1,5 +1,6 @@
 interface Tooltip {
-    syncing: boolean
+    cards?: boolean
+    syncing?: boolean
 }
 
 export type { Tooltip }

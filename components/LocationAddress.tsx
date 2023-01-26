@@ -1,6 +1,6 @@
 import { VStack, Heading, Text} from "native-base"
 import React, { useEffect, useState } from "react"
-import LocationModel from "models/location"
+import LocationModel from "models/Location"
 import { FlexAlignType } from "react-native"
 
 interface LocationAddressProps {

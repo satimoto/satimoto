@@ -23,8 +23,6 @@ import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
 import PriceComponentTray from "components/PriceComponentTray"
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faFlask } from "@fortawesome/free-solid-svg-icons"
 
 const popAction = StackActions.pop()
 
@@ -34,6 +32,7 @@ const styleSheet = StyleSheet.create({
     }
 })
 
+
 type ConnectorDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ConnectorDetail">
     route: RouteProp<AppStackParamList, "ConnectorDetail">
@@ -42,7 +41,7 @@ type ConnectorDetailProps = {
 const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const focusBackgroundColor = useColor(colors.dark[300], colors.warmGray[200])
+    const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const energySourceColors = useEnergySourceColors()
@@ -149,7 +148,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     isBusy={isBusy}
                     onPress={onShowStartConfirmation}
                     isDisabled={
-                        channelStore.localBalance < MINIMUM_REMOTE_CHARGE_BALANCE ||
+                        channelStore.availableBalance < MINIMUM_REMOTE_CHARGE_BALANCE ||
                         sessionStore.status !== ChargeSessionStatus.IDLE ||
                         evse.status !== EvseStatus.AVAILABLE
                     }
@@ -163,7 +162,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                 </Text>
             )
         }
-    }, [lastError, isSessionConnector, isBusy, channelStore.localBalance, sessionStore.status, evse.status])
+    }, [lastError, isSessionConnector, isBusy, channelStore.availableBalance, sessionStore.status, evse.status])
 
     useFocusEffect(
         useCallback(() => {
@@ -213,15 +212,15 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                 lastError = I18n.t("ConnectorDetail_AwaitingPaymentError")
             } else if (sessionStore.status !== ChargeSessionStatus.IDLE) {
                 lastError = I18n.t("ConnectorDetail_ChargeStatusError")
-            } else if (isRemoteCapable && channelStore.localBalance < MINIMUM_REMOTE_CHARGE_BALANCE) {
-                lastError = I18n.t("ConnectorDetail_LocalBalanceError", { satoshis: MINIMUM_REMOTE_CHARGE_BALANCE - channelStore.localBalance })
-            } else if (!isRemoteCapable && channelStore.localBalance < MINIMUM_RFID_CHARGE_BALANCE) {
-                lastError = I18n.t("ConnectorDetail_LocalBalanceError", { satoshis: MINIMUM_RFID_CHARGE_BALANCE - channelStore.localBalance })
+            } else if (isRemoteCapable && channelStore.availableBalance < MINIMUM_REMOTE_CHARGE_BALANCE) {
+                lastError = I18n.t("ConnectorDetail_LocalBalanceError", { satoshis: MINIMUM_REMOTE_CHARGE_BALANCE - channelStore.availableBalance })
+            } else if (!isRemoteCapable && channelStore.availableBalance < MINIMUM_RFID_CHARGE_BALANCE) {
+                lastError = I18n.t("ConnectorDetail_LocalBalanceError", { satoshis: MINIMUM_RFID_CHARGE_BALANCE - channelStore.availableBalance })
             }
         }
 
         setLastError(lastError)
-    }, [channelStore.localBalance, evse.status, isRemoteCapable, isSessionConnector, sessionStore.status])
+    }, [channelStore.availableBalance, evse.status, isRemoteCapable, isSessionConnector, sessionStore.status])
 
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>

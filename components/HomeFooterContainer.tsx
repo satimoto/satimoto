@@ -2,7 +2,6 @@ import RoundedButton from "components/RoundedButton"
 import { observer } from "mobx-react"
 import React from "react"
 import { StyleSheet, View } from "react-native"
-import { Button } from "native-base"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import I18n from "utils/i18n"
 import { useStore } from "hooks/useStore"
@@ -40,8 +39,8 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
             <View style={styles.buttonSpacer}>
-                <RoundedButton isDisabled={!lightningStore.syncedToChain} onPress={() => onPress("send")} style={styles.button}>
-                    {I18n.t("HomeFooterContainer_ButtonSend")}
+                <RoundedButton onPress={() => onPress("send")} style={styles.button}>
+                    {I18n.t("Button_Send")}
                 </RoundedButton>
             </View>
             <View style={styles.iconButtonSpacer}>
@@ -53,12 +52,8 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
                 />
             </View>
             <View style={styles.buttonSpacer}>
-                <RoundedButton
-                    isDisabled={!lightningStore.syncedToChain}
-                    onPress={() => onPress("receive")}
-                    style={styles.button}
-                >
-                    {I18n.t("HomeFooterContainer_ButtonReceive")}
+                <RoundedButton onPress={() => onPress("receive")} style={styles.button}>
+                    {I18n.t("Button_Receive")}
                 </RoundedButton>
             </View>
         </View>

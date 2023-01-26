@@ -1,4 +1,3 @@
-import Long from "long"
 import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
 import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
@@ -17,22 +16,24 @@ export type PeerStreamResponse = (data: lnrpc.PeerEvent) => void
 export type TransactionStreamResponse = (data: lnrpc.Transaction) => void
 
 export const start = async (): Promise<string> => {
-    const requestTime = log.debugTime("Start Request")
+    const requestTime = log.debugTime("SAT029: Start Request")
+
     try {
         const response = await LndMobile.start()
-        log.debugTime("Start Response", requestTime)
+        log.debugTime("SAT029: Start Response", requestTime, true)
         return response
     } catch (e) {
-        log.errorTime("Start Error", requestTime)
+        log.errorTime("SAT029: Start Error", requestTime, true)
         log.error(JSON.stringify(e, undefined, 2))
         throw e
     }
 }
 
 export const stop = async (): Promise<void> => {
-    const requestTime = log.debugTime("Stop Request")
+    const requestTime = log.debugTime("SAT030: Stop Request")
     await LndMobile.stop()
-    log.debugTime("Stop Response", requestTime)
+
+    log.debugTime("SAT030: Stop Response", requestTime, true)
 }
 
 interface AddInvoiceProps {
@@ -55,7 +56,6 @@ export const addInvoice = ({
     routeHints
 }: AddInvoiceProps): Promise<lnrpc.AddInvoiceResponse> => {
     const isPrivate = !routeHints || routeHints.length === 0
-    log.debug(`Add invoice: private=${isPrivate}`)
 
     return sendCommand<lnrpc.IInvoice, lnrpc.Invoice, lnrpc.AddInvoiceResponse>({
         request: lnrpc.Invoice,
@@ -238,4 +238,16 @@ export const subscribeTransactions = async (onData: TransactionStreamResponse): 
         options: {}
     })
     return sendStreamResponse<lnrpc.Transaction>({ stream, method, onData })
+}
+
+export const verifyMessage = (msg: BytesLikeType, signature: string): Promise<lnrpc.VerifyMessageResponse> => {
+    return sendCommand<lnrpc.IVerifyMessageRequest, lnrpc.VerifyMessageRequest, lnrpc.VerifyMessageResponse>({
+        request: lnrpc.VerifyMessageRequest,
+        response: lnrpc.VerifyMessageResponse,
+        method: service + "VerifyMessage",
+        options: {
+            msg: hexToBytes(msg),
+            signature
+        }
+    })
 }
