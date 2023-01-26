@@ -61,7 +61,7 @@ const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
                 <View style={{ backgroundColor, alignItems: "center" }}>
                     <SatoshiBalance size={36} color={textColor} satoshis={channel.capacity} />
                     <Text fontSize="sm" color={textColor}>
-                        CAPACITY
+                        {I18n.t("ChannelDetail_CapacityText")}
                     </Text>
                 </View>
                 <VStack space={3} marginTop={5}>

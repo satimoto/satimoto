@@ -79,6 +79,7 @@ export default {
     Advanced_IncludeChannelReserveText: "Include Channel Reserve",
     Advanced_IncludeChannelReserveHint: "Show balance with reserved channel fees included",
     ChannelDetail_HeaderTitle: "Channel",
+    ChannelDetail_CapacityText: "CAPACITY",
     ChannelList_HeaderTitle: "Channels",
     ChargeDetail_HeaderTitle: "Charging",
     ConnectorDetail_HeaderTitle: "Connector",
