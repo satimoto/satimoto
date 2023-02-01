@@ -475,10 +475,14 @@ export class SessionStore implements SessionStoreInterface {
                 const response = await getSession(this.session ? { uid: this.session.uid } : { authorizationId: this.authorizationId })
 
                 this.actionUpdateSession(response.data.getSession as SessionModel)
+
+                if (this.status === ChargeSessionStatus.STARTING) {
+                    this.updateSessionTimer(true)
+                }
             } catch {
                 this.actionSetIdle()
             }
-        } else if (this.status === ChargeSessionStatus.IDLE) {
+        } else {
             this.actionSetIdle()
         }
     }
