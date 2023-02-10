@@ -6,12 +6,12 @@ import TransactionModel from "models/Transaction"
 import React from "react"
 import { GestureResponderEvent } from "react-native"
 
-interface TransactionButtonItemProps {
+interface TransactionButtonProps {
     transaction: TransactionModel
     onPress?: (transaction: TransactionModel, event: GestureResponderEvent) => void
 }
 
-const TransactionButtonItem = ({ transaction, onPress = () => {} }: TransactionButtonItemProps) => {
+const TransactionButton = ({ transaction, onPress = () => {} }: TransactionButtonProps) => {
     const onInvoicePress = (invoice: InvoiceModel, event: GestureResponderEvent) => {
         onPress(transaction, event)
     }
@@ -28,4 +28,4 @@ const TransactionButtonItem = ({ transaction, onPress = () => {} }: TransactionB
     )
 }
 
-export default TransactionButtonItem
+export default TransactionButton

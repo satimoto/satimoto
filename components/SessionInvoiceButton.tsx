@@ -14,11 +14,11 @@ import { toSatoshi } from "utils/conversion"
 import styles from "utils/styles"
 import { observer } from "mobx-react"
 
-interface SessionInvoiceButtonItemProps {
+interface SessionInvoiceButtonProps {
     sessionInvoice: SessionInvoiceModel
 }
 
-const SessionInvoiceButtonItem = ({ sessionInvoice }: SessionInvoiceButtonItemProps) => {
+const SessionInvoiceButton = ({ sessionInvoice }: SessionInvoiceButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
     const [totalSat] = useState(toSatoshi(sessionInvoice.totalMsat).toNumber())
@@ -48,4 +48,4 @@ const SessionInvoiceButtonItem = ({ sessionInvoice }: SessionInvoiceButtonItemPr
     )
 }
 
-export default observer(SessionInvoiceButtonItem)
+export default observer(SessionInvoiceButton)

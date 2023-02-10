@@ -11,12 +11,12 @@ import TimeAgo from "react-native-timeago"
 import { transactionIcons } from "utils/assets"
 import styles from "utils/styles"
 
-interface InvoiceButtonItemProps {
+interface InvoiceButtonProps {
     invoice: InvoiceModel
     onPress?: (invoice: InvoiceModel, event: GestureResponderEvent) => void
 }
 
-const InvoiceButtonItem = ({ invoice, onPress = () => {} }: InvoiceButtonItemProps) => {
+const InvoiceButton = ({ invoice, onPress = () => {} }: InvoiceButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
 
@@ -47,4 +47,4 @@ const InvoiceButtonItem = ({ invoice, onPress = () => {} }: InvoiceButtonItemPro
     )
 }
 
-export default InvoiceButtonItem
+export default InvoiceButton

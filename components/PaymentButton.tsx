@@ -11,12 +11,12 @@ import TimeAgo from "react-native-timeago"
 import { transactionIcons } from "utils/assets"
 import styles from "utils/styles"
 
-interface PaymentButtonItemProps {
+interface PaymentButtonProps {
     payment: PaymentModel
     onPress?: (payment: PaymentModel, event: GestureResponderEvent) => void
 }
 
-const PaymentButtonItem = ({ payment, onPress = () => {} }: PaymentButtonItemProps) => {
+const PaymentButton = ({ payment, onPress = () => {} }: PaymentButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
 
@@ -48,4 +48,4 @@ const PaymentButtonItem = ({ payment, onPress = () => {} }: PaymentButtonItemPro
     )
 }
 
-export default PaymentButtonItem
+export default PaymentButton
