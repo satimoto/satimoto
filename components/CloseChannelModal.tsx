@@ -22,8 +22,8 @@ interface CloseChannelModalProps {
 
 const CloseChannelModal = ({ isVisible, channel, onClose }: CloseChannelModalProps) => {
     const errorColor = useColorModeValue("error.300", "error.500")
-    const primaryTextcolor = useColorModeValue("lightText", "darkText")
-    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
+    const primaryTextColor = useColorModeValue("lightText", "darkText")
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
     const [isBusy, setIsBusy] = useState(false)
     const [isAddressInvalid, setIsAddressInvalid] = useState(false)
     const [address, setAddress] = useState("")
@@ -89,19 +89,19 @@ const CloseChannelModal = ({ isVisible, channel, onClose }: CloseChannelModalPro
     return (
         <Modal isVisible={isVisible} onClose={onModalClose}>
             <VStack alignItems="flex-start" space={5} width="100%">
-                <Text color={primaryTextcolor} fontSize="xl">
-                    {I18n.t("CloseChannelModal_Text")}
+                <Text color={primaryTextColor} fontSize="xl">
+                    {I18n.t("OnChain_Text")}
                 </Text>
                 <HStack>
                     <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styles.bulletPadding} />
-                    <Text color={secondaryTextcolor} fontSize="lg" marginRight={16}>
-                        {I18n.t("CloseChannelModal_ControlText")}
+                    <Text color={secondaryTextColor} fontSize="lg" marginRight={16}>
+                        {I18n.t("OnChain_ControlText")}
                     </Text>
                 </HStack>
                 <HStack>
                     <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styles.bulletPadding} />
-                    <Text color={secondaryTextcolor} fontSize="lg" marginRight={16}>
-                        {I18n.t("CloseChannelModal_ConfirmText")}
+                    <Text color={secondaryTextColor} fontSize="lg" marginRight={16}>
+                        {I18n.t("OnChain_ConfirmText")}
                     </Text>
                 </HStack>
             </VStack>

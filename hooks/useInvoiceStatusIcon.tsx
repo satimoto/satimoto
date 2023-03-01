@@ -1,5 +1,5 @@
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
-import { faArrowsSpin, faCircleCheck, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { faCheck, faTimes, faHourglassHalf } from "@fortawesome/free-solid-svg-icons"
 import { useTheme } from "native-base"
 import { InvoiceStatus } from "types/invoice"
 
@@ -11,12 +11,12 @@ const useInvoiceStatusIcon = (status: InvoiceStatus): InvoiceStatusIcon => {
     switch (status) {
         case InvoiceStatus.CANCELLED:
         case InvoiceStatus.EXPIRED:
-            return [faCircleExclamation, colors.red["300"]]
+            return [faTimes, colors.red["300"]]
         case InvoiceStatus.SETTLED:
-            return [faCircleCheck, colors.green["300"]]
+            return [faCheck, colors.green["300"]]
     }
 
-    return [faArrowsSpin, colors.yellow["300"]]
+    return [faHourglassHalf, colors.yellow["300"]]
 }
 
 export default useInvoiceStatusIcon

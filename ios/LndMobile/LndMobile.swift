@@ -234,6 +234,7 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       if password.count < 8 {
         RCTLogError("password too short: \(password.replacingOccurrences(of: ".", with: "*", options: .regularExpression))")
         reject("error", "password too short", NSError())
+        return
       }
         
       initWallet.walletPassword = password.data(using: .utf8)!

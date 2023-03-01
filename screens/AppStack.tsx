@@ -8,6 +8,7 @@ import EvseModel from "models/Evse"
 import ChannelModel from "models/Channel"
 import LocationModel from "models/Location"
 import InvoiceModel from "models/Invoice"
+import SessionModel from "models/Session"
 import { useToast } from "native-base"
 import React, { useEffect } from "react"
 import { Linking } from "react-native"
@@ -23,9 +24,13 @@ import EvseList from "screens/EvseList"
 import Home, { HomeNavigationProp } from "screens/Home"
 import LnUrlPay from "screens/LnUrlPay"
 import LnUrlWithdraw from "screens/LnUrlWithdraw"
+import OnChain from "screens/OnChain"
 import PaymentRequest from "screens/PaymentRequest"
+import PdfViewer from "screens/PdfViewer"
 import Scanner from "screens/Scanner"
 import SendReport from "screens/SendReport"
+import SessionDetail from "screens/SessionDetail"
+import SessionList from "screens/SessionList"
 import Settings from "screens/Settings"
 import TokenList from "screens/TokenList"
 import TransactionList from "screens/TransactionList"
@@ -35,6 +40,7 @@ import { ChannelRequestStatus } from "types/channelRequest"
 import { LinkingEvent } from "types/linking"
 import { PayReq } from "types/payment"
 import { Log } from "utils/logging"
+import { Source } from "react-native-pdf"
 
 const log = new Log("AppStack")
 
@@ -49,9 +55,13 @@ export type AppStackParamList = {
     Home: undefined
     LnUrlPay: { payParams: LNURLPayParams }
     LnUrlWithdraw: { withdrawParams: LNURLWithdrawParams }
+    OnChain: undefined
     PaymentRequest: { payReq: string; decodedPayReq: PayReq }
+    PdfViewer: { downloadPath?: string, source: Source, title?: string }
     Scanner: undefined
     SendReport: undefined
+    SessionDetail: { session: SessionModel }
+    SessionList: undefined
     Settings: undefined
     TokenList: undefined
     TransactionList: undefined
@@ -70,9 +80,13 @@ export type AppStackScreenParams = {
     Home: undefined
     LnUrlPay: undefined
     LnUrlWithdraw: undefined
+    OnChain: undefined
     PaymentRequest: undefined
+    PdfViewer: undefined
     Scanner: undefined
     SendReport: undefined
+    SessionDetail: undefined
+    SessionList: undefined
     Settings: undefined
     TokenList: undefined
     TransactionList: undefined
@@ -156,9 +170,13 @@ const AppStack = () => {
             <AppStackNav.Screen name="Developer" component={Developer} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="LnUrlPay" component={LnUrlPay} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="LnUrlWithdraw" component={LnUrlWithdraw} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="OnChain" component={OnChain} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="PaymentRequest" component={PaymentRequest} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="PdfViewer" component={PdfViewer} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Scanner" component={Scanner} options={navigationWithoutHeaderOptions} />
             <AppStackNav.Screen name="SendReport" component={SendReport} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SessionDetail" component={SessionDetail} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SessionList" component={SessionList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Settings" component={Settings} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="TokenList" component={TokenList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="TransactionList" component={TransactionList} options={navigationWithHeaderOptions} />

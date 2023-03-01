@@ -39,6 +39,12 @@ const Settings = ({ navigation }: SettingsProps) => {
                         onPress={() => navigation.navigate("TokenList")}
                     />
                     <ListButton
+                        key="sessions"
+                        title={I18n.t("Settings_ButtonSessions")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("SessionList")}
+                    />
+                    <ListButton
                         key="transactions"
                         title={I18n.t("Settings_ButtonTransactions")}
                         iconRight={faChevronRight}

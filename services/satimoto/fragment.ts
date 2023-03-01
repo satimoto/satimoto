@@ -140,6 +140,8 @@ const INVOICE_REQUEST_FRAGMENT = gql`
         taxMsat
         totalFiat
         totalMsat
+        isSettled
+        releaseDate
         promotion {
             code
         }
@@ -172,6 +174,15 @@ const SESSION_INVOICE_FRAGMENT = gql`
     }
 `
 
+const SESSION_UPDATE_FRAGMENT = gql`
+    fragment SessionUpdateFragment on SessionUpdate {
+        id
+        kwh
+        status
+        lastUpdated
+    }
+`
+
 const SESSION_FRAGMENT = gql`
     ${INVOICE_REQUEST_FRAGMENT}
     fragment SessionFragment on Session {
@@ -190,6 +201,66 @@ const SESSION_FRAGMENT = gql`
     }
 `
 
+const SESSION_WITH_CHARGE_POINT_FRAGMENT = gql`
+    ${SESSION_FRAGMENT}
+    ${LOCATION_FRAGMENT}
+    ${EVSE_FRAGMENT}
+    ${CONNECTOR_FRAGMENT}
+    fragment SessionWithChargePointFragment on Session {
+        ...SessionFragment
+        location {
+            ...LocationFragment
+        }
+        evse {
+            ...EvseFragment
+        }
+        connector {
+            ...ConnectorFragment
+        }
+    }
+`
+
+const SESSION_WITH_INVOICES_AND_UPDATES_FRAGMENT = gql`
+    ${SESSION_FRAGMENT}
+    ${SESSION_INVOICE_FRAGMENT}
+    ${SESSION_UPDATE_FRAGMENT}
+    fragment SessionWithInvoicesAndUpdatesFragment on Session {
+        ...SessionFragment
+        sessionInvoices {
+            ...SessionInvoiceFragment
+        }
+        sessionUpdates {
+            ...SessionUpdateFragment
+        }
+    }
+`
+
+const SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES_FRAGMENT = gql`
+    ${SESSION_FRAGMENT}
+    ${LOCATION_FRAGMENT}
+    ${EVSE_FRAGMENT}
+    ${CONNECTOR_FRAGMENT}
+    ${SESSION_INVOICE_FRAGMENT}
+    ${SESSION_UPDATE_FRAGMENT}
+    fragment SessionWithChargePointInvoicesAndUpdatesFragment on Session {
+        ...SessionFragment
+        location {
+            ...LocationFragment
+        }
+        evse {
+            ...EvseFragment
+        }
+        connector {
+            ...ConnectorFragment
+        }
+        sessionInvoices {
+            ...SessionInvoiceFragment
+        }
+        sessionUpdates {
+            ...SessionUpdateFragment
+        }
+    }
+`
 
 const EVSE_WITH_CONNECTORS_AND_LOCATION_FRAGMENT = gql`
     ${EVSE_FRAGMENT}
@@ -216,7 +287,11 @@ export {
     INVOICE_REQUEST_FRAGMENT,
     LOCATION_FRAGMENT,
     LOCATION_WITH_EVSES_FRAGMENT,
-    SESSION_FRAGMENT,
     SESSION_INVOICE_FRAGMENT,
+    SESSION_UPDATE_FRAGMENT,
+    SESSION_FRAGMENT,
+    SESSION_WITH_CHARGE_POINT_FRAGMENT,
+    SESSION_WITH_INVOICES_AND_UPDATES_FRAGMENT,
+    SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES_FRAGMENT,
     TARIFF_FRAGMENT
 }

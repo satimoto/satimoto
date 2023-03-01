@@ -12,7 +12,15 @@ import TokenAuthorizationModel from "models/TokenAuthorization"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NetInfo from "@react-native-community/netinfo"
 import { verifyMessage } from "services/LightningService"
-import { getSession, getSessionInvoice, listSessionInvoices, startSession, stopSession, updateTokenAuthorization } from "services/SatimotoService"
+import {
+    getSession,
+    getSessionInvoice,
+    listSessions,
+    listSessionInvoices,
+    startSession,
+    stopSession,
+    updateTokenAuthorization
+} from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
 import { PaymentStatus } from "types/payment"
@@ -49,6 +57,7 @@ export interface SessionStoreInterface extends StoreInterface {
     onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void>
     onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void>
 
+    refreshSessions(): Promise<void>
     startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void>
     stopSession(): Promise<void>
 }
@@ -113,6 +122,7 @@ export class SessionStore implements SessionStoreInterface {
             actionStopSession: action,
             actionTokenAuthorization: action,
             actionUpdateSession: action,
+            actionUpdateSessions: action,
             actionUpdateSessionInvoice: action
         })
 
@@ -170,8 +180,8 @@ export class SessionStore implements SessionStoreInterface {
                   .toString()
             : this.status === ChargeSessionStatus.AWAITING_PAYMENT
             ? this.sessionInvoices
-                  .reduce((valueMsat, sessionInvoice) => {
-                      return valueMsat.add(sessionInvoice.totalMsat)
+                  .reduce((totalMsat, sessionInvoice) => {
+                      return totalMsat.add(sessionInvoice.totalMsat)
                   }, new Long(0))
                   .toString()
             : "0"
@@ -286,6 +296,16 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
+    async refreshSessions(): Promise<void> {
+        if (this.stores.settingStore.accessToken) {
+            const response = await listSessions()
+            const sessions = response.data.listSessions as SessionModel[]
+
+            log.debug(`SAT101: refreshSessions: count=${sessions.length}`)
+            this.actionUpdateSessions(sessions)
+        }
+    }
+
     async startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void> {
         const response = await startSession({ locationUid: location.uid, evseUid: evse.uid })
         const startCommand = response.data.startSession as StartCommandModel
@@ -339,7 +359,7 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async workerSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void> {
-        const response = await getSession({ uid: notification.sessionUid }, !this.session)
+        const response = await getSession({ uid: notification.sessionUid }, { withChargePoint: !this.session })
         const session = response.data.getSession as SessionModel
 
         this.actionUpdateSession(session)
@@ -446,6 +466,10 @@ export class SessionStore implements SessionStoreInterface {
             this.meteredEnergy = 0
             this.meteredTime = 0
         }
+    }
+    
+    actionUpdateSessions(sessions: SessionModel[]) {
+        this.sessions.replace(sessions)
     }
 
     actionUpdateSessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): SessionInvoiceModel {

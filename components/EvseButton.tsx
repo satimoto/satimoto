@@ -24,8 +24,8 @@ interface EvseButtonProps {
 const EvseButton = ({ connectorGroup, evse, onPress = () => {} }: EvseButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
-    const primaryTextcolor = useColorModeValue("lightText", "darkText")
-    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
+    const primaryTextColor = useColorModeValue("lightText", "darkText")
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
     const [connector, setConnector] = useState<ConnectorModel>()
     const [dimension, setDimension] = useState("")
     const [price, setPrice] = useState(0)
@@ -71,10 +71,10 @@ const EvseButton = ({ connectorGroup, evse, onPress = () => {} }: EvseButtonProp
                         <EvseBadge evse={evse} />
                     </ButtonIcon>
                     <VStack flexBasis={0} flexGrow={12}>
-                        <Text color={primaryTextcolor} fontSize="lg" fontWeight="bold">
+                        <Text color={primaryTextColor} fontSize="lg" fontWeight="bold">
                             {evse.identifier || evse.uid}
                         </Text>
-                        <Text color={secondaryTextcolor} fontSize="lg">
+                        <Text color={secondaryTextColor} fontSize="lg">
                             {I18n.t(evse.status)}
                         </Text>
                     </VStack>
@@ -82,7 +82,7 @@ const EvseButton = ({ connectorGroup, evse, onPress = () => {} }: EvseButtonProp
                     {price > 0 && (
                         <VStack>
                             <SatoshiBalance size={18} color={"#ffffff"} satoshis={price} />
-                            <Text color={secondaryTextcolor} fontSize="lg" textAlign="right">
+                            <Text color={secondaryTextColor} fontSize="lg" textAlign="right">
                                 /{dimension}*
                             </Text>
                         </VStack>

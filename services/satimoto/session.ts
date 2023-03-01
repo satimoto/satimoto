@@ -1,5 +1,10 @@
 import { ApolloClient, gql, NormalizedCacheObject } from "@apollo/client"
-import { CONNECTOR_FRAGMENT, EVSE_FRAGMENT, LOCATION_FRAGMENT, SESSION_FRAGMENT } from "./fragment"
+import {
+    SESSION_FRAGMENT,
+    SESSION_WITH_CHARGE_POINT_FRAGMENT,
+    SESSION_WITH_INVOICES_AND_UPDATES_FRAGMENT,
+    SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES_FRAGMENT
+} from "./fragment"
 
 /**
  * Get Session
@@ -15,22 +20,28 @@ const GET_SESSION = gql`
 `
 
 const GET_SESSION_WITH_CHARGE_POINT = gql`
-    ${SESSION_FRAGMENT}
-    ${LOCATION_FRAGMENT}
-    ${EVSE_FRAGMENT}
-    ${CONNECTOR_FRAGMENT}
+    ${SESSION_WITH_CHARGE_POINT_FRAGMENT}
     query GetSession($input: GetSessionInput!) {
         getSession(input: $input) {
-            ...SessionFragment
-            location {
-                ...LocationFragment
-            }
-            evse {
-                ...EvseFragment
-            }
-            connector {
-                ...ConnectorFragment
-            }
+            ...SessionWithChargePointFragment
+        }
+    }
+`
+
+const GET_SESSION_WITH_INVOICES_AND_UPDATES = gql`
+    ${SESSION_WITH_INVOICES_AND_UPDATES_FRAGMENT}
+    query GetSession($input: GetSessionInput!) {
+        getSession(input: $input) {
+            ...SessionWithInvoicesAndUpdatesFragment
+        }
+    }
+`
+
+const GET_SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES = gql`
+    ${SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES_FRAGMENT}
+    query GetSession($input: GetSessionInput!) {
+        getSession(input: $input) {
+            ...SessionWithChargePointInvoicesAndUpdatesFragment
         }
     }
 `
@@ -41,10 +52,22 @@ interface GetSessionInput {
     authorizationId?: string
 }
 
+interface GetSessionOptions {
+    withChargePoint?: boolean
+    withInvoicesAndUpdates?: boolean
+}
+
 const getSession = (client: ApolloClient<NormalizedCacheObject>) => {
-    return async (input: GetSessionInput, withChargePoint: boolean = false) => {
+    return async (input: GetSessionInput, options?: GetSessionOptions) => {
         return await client.query({
-            query: withChargePoint ? GET_SESSION_WITH_CHARGE_POINT : GET_SESSION,
+            query:
+                options?.withChargePoint && options?.withInvoicesAndUpdates
+                    ? GET_SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES
+                    : options?.withChargePoint
+                    ? GET_SESSION_WITH_CHARGE_POINT
+                    : options?.withInvoicesAndUpdates
+                    ? GET_SESSION_WITH_INVOICES_AND_UPDATES
+                    : GET_SESSION,
             variables: {
                 input
             }
@@ -53,3 +76,27 @@ const getSession = (client: ApolloClient<NormalizedCacheObject>) => {
 }
 
 export { getSession }
+
+/**
+ * List Sessions
+ */
+
+const LIST_SESSIONS = gql`
+    ${SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES_FRAGMENT}
+    query ListSessions {
+        listSessions {
+            ...SessionWithChargePointInvoicesAndUpdatesFragment
+        }
+    }
+`
+
+const listSessions = (client: ApolloClient<NormalizedCacheObject>) => {
+    return async () => {
+        return await client.query({
+            query: LIST_SESSIONS,
+            variables: {}
+        })
+    }
+}
+
+export { listSessions }
