@@ -7,7 +7,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" android:required="false" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     
     <uses-feature android:glEsVersion="0x00030001" android:required="true" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
@@ -24,7 +26,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="${appName}${network}${buildType}"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/BootTheme">
+        android:theme="@style/BootTheme"
+        tools:replace="android:label">
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"

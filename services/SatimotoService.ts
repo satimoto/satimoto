@@ -38,10 +38,12 @@ const invalidationPolicyCache = new InvalidationPolicyCache({
     }
 })
 
-const authLink = setContext((_, { headers }) => {
+const authLink = setContext(({query, variables, operationName}, { headers }) => {
     const accessToken = store.settingStore.accessToken
 
     if (DEBUG) {
+        //log.debug(`SAT021: Query: ${JSON.stringify(query)}`)
+        //log.debug(`SAT021: Operation: ${operationName}, Variables: ${JSON.stringify(variables)}`)
         log.debug(`SAT021: Access token: ${accessToken}`)
     }
 
@@ -58,7 +60,7 @@ const authLink = setContext((_, { headers }) => {
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
-        graphQLErrors.map(({ message, locations, path }) => log.debug(`SAT022 onError: ${message}`, true))
+        graphQLErrors.map(({ message }) => log.debug(`SAT022 onError: ${message}`, true))
     }
 
     if (networkError) {
@@ -105,6 +107,7 @@ const getRate = Rate.getRate(client)
 
 // Session
 const getSession = Session.getSession(client)
+const listSessions = Session.listSessions(client)
 
 // Session Invoice
 const getSessionInvoice = SessionInvoice.getSessionInvoice(client)
@@ -201,6 +204,7 @@ export {
     getRate,
     // Session
     getSession,
+    listSessions,
     // SEssion Invoice
     getSessionInvoice,
     listSessionInvoices,

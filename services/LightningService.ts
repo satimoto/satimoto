@@ -2,13 +2,14 @@ import type { InvoiceStreamResponse, TransactionStreamResponse } from "./lightni
 import type { BlockEpochStreamResponse } from "./lightning/chainNotifier"
 import type { CloseChannelProps, ChannelAcceptor } from "./lightning/channel"
 import type { PaymentStreamResponse, SendPaymentV2Props } from "./lightning/router"
+import type { SendCoinsProps } from "./lightning/wallet"
 
 import {
     start,
     stop,
     addInvoice,
     connectPeer,
-    decodePayReq, 
+    decodePayReq,
     describeGraph,
     disconnectPeer,
     getInfo,
@@ -27,7 +28,7 @@ import { registerBlockEpochNtfn } from "./lightning/chainNotifier"
 import { closeChannel, closedChannels, channelAcceptor, channelBalance, listChannels, openChannel, subscribeChannelEvents } from "./lightning/channel"
 import { markEdgeLive, resetMissionControl, sendPaymentV2 } from "./lightning/router"
 import { getState, subscribeState } from "./lightning/state"
-import { genSeed, initWallet, unlockWallet } from "./lightning/walletUnlocker"
+import { genSeed, initWallet, sendCoins, unlockWallet, walletBalance } from "./lightning/wallet"
 
 export type {
     InvoiceStreamResponse,
@@ -39,7 +40,9 @@ export type {
     ChannelAcceptor,
     // Router
     PaymentStreamResponse,
-    SendPaymentV2Props
+    SendPaymentV2Props,
+    // Wallet
+    SendCoinsProps
 }
 
 export {
@@ -78,8 +81,10 @@ export {
     // State
     getState,
     subscribeState,
-    // WalletUnlocker
+    // Wallet
     genSeed,
     initWallet,
-    unlockWallet
+    sendCoins,
+    unlockWallet,
+    walletBalance
 }

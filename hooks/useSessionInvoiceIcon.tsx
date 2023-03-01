@@ -1,5 +1,5 @@
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
-import { faArrowsSpin, faCircleCheck, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { faCheck, faTimes, faHourglassHalf } from "@fortawesome/free-solid-svg-icons"
 import SessionInvoiceModel from "models/SessionInvoice"
 import { useTheme } from "native-base"
 
@@ -9,12 +9,12 @@ const useSessionInvoiceIcon = (sessionInvoice: SessionInvoiceModel): SessionInvo
     const { colors } = useTheme()
 
     if (sessionInvoice.isExpired) {
-        return [faCircleExclamation, colors.red["300"]]
+        return [faTimes, colors.red["300"]]
     } else if (sessionInvoice.isSettled) {
-        return [faCircleCheck, colors.green["300"]]
+        return [faCheck, colors.green["300"]]
     }
 
-    return [faArrowsSpin, colors.yellow["300"]]
+    return [faHourglassHalf, colors.yellow["300"]]
 }
 
 export default useSessionInvoiceIcon

@@ -16,24 +16,24 @@ interface TokensInfoModalProps {
 }
 
 const TokensInfoModal = ({ isVisible, onPress, onClose }: TokensInfoModalProps) => {
-    const primaryTextcolor = useColorModeValue("lightText", "darkText")
-    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
+    const primaryTextColor = useColorModeValue("lightText", "darkText")
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
 
     return (
         <Modal isVisible={isVisible} onClose={onClose}>
             <VStack alignItems="flex-start" space={5} width="100%">
-                <Text color={primaryTextcolor} fontSize="xl">
+                <Text color={primaryTextColor} fontSize="xl">
                     {I18n.t("TokensInfoModal_Text")}
                 </Text>
                 <HStack>
                     <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styles.bulletPadding} />
-                    <Text color={secondaryTextcolor} fontSize="lg" marginRight={16}>
+                    <Text color={secondaryTextColor} fontSize="lg" marginRight={16}>
                         {I18n.t("TokensInfoModal_SyncedText")}
                     </Text>
                 </HStack>
                 <HStack>
                     <FontAwesomeIcon icon={faCircle} color="#ffffff" size={10} style={styles.bulletPadding} />
-                    <Text color={secondaryTextcolor} fontSize="lg" marginRight={16}>
+                    <Text color={secondaryTextColor} fontSize="lg" marginRight={16}>
                         {I18n.t("TokensInfoModal_FundedText", { satoshis: MINIMUM_RFID_CHARGE_BALANCE })}
                     </Text>
                 </HStack>

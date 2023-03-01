@@ -25,8 +25,8 @@ interface ConnectorGroupButtonProps {
 const ConnectorGroupButton = ({ connectorGroup, evses, onPress = () => {}, onPressIn = () => {}, onPressOut = () => {} }: ConnectorGroupButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
-    const primaryTextcolor = useColorModeValue("lightText", "darkText")
-    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
+    const primaryTextColor = useColorModeValue("lightText", "darkText")
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
     const [dimension, setDimension] = useState("")
     const [price, setPrice] = useState(0)
     const [tariff] = useState(connectorGroup.tariff)
@@ -58,10 +58,10 @@ const ConnectorGroupButton = ({ connectorGroup, evses, onPress = () => {}, onPre
                 <HStack alignItems="center" space={1}>
                     <ButtonIcon justifyContent="flex-end" source={connectorIcons[connectorGroup.standard] || connectorIcons["UNKNOWN"]} />
                     <VStack>
-                        <Text color={primaryTextcolor} fontSize="lg" fontWeight="bold">
+                        <Text color={primaryTextColor} fontSize="lg" fontWeight="bold">
                             {I18n.t(connectorGroup.standard)}
                         </Text>
-                        <Text color={secondaryTextcolor} fontSize="lg">
+                        <Text color={secondaryTextColor} fontSize="lg">
                             {Math.floor(connectorGroup.wattage / 1000)} kW
                         </Text>
                     </VStack>
@@ -69,7 +69,7 @@ const ConnectorGroupButton = ({ connectorGroup, evses, onPress = () => {}, onPre
                     {price > 0 && (
                         <VStack>
                             <SatoshiBalance size={18} color={"#ffffff"} satoshis={price} />
-                            <Text color={secondaryTextcolor} fontSize="lg" textAlign="right">
+                            <Text color={secondaryTextColor} fontSize="lg" textAlign="right">
                                 /{dimension}*
                             </Text>
                         </VStack>

@@ -16,8 +16,8 @@ interface ChannelButtonProps {
 const ChannelButton = ({ channel, onPress = () => {} }: ChannelButtonProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.gray[500], colors.warmGray[50])
-    const primaryTextcolor = useColorModeValue("lightText", "darkText")
-    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
+    const primaryTextColor = useColorModeValue("lightText", "darkText")
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
 
     const onButtonPress = () => {
         onPress(channel)
@@ -27,10 +27,10 @@ const ChannelButton = ({ channel, onPress = () => {} }: ChannelButtonProps) => {
         <TouchableOpacityOptional onPress={onButtonPress} style={[styles.transactionButton, styles.buttonMinHeight, { backgroundColor }]}>
             <HStack alignItems="center" space={1}>
                 <VStack>
-                    <Text color={primaryTextcolor} fontSize="lg" fontWeight="bold">
+                    <Text color={primaryTextColor} fontSize="lg" fontWeight="bold">
                         {channel.channelPoint.substring(0, 16)}
                     </Text>
-                    <Text color={secondaryTextcolor} fontSize="lg">
+                    <Text color={secondaryTextColor} fontSize="lg">
                         {channel.isClosed ? I18n.t("Label_Closed") : channel.closingTxid ? I18n.t("Label_Closing") : I18n.t("Label_Open")}
                     </Text>
                 </VStack>

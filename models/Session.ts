@@ -3,6 +3,7 @@ import EvseModel from "models/Evse"
 import InvoiceRequestModel from "models/InvoiceRequest"
 import LocationModel from "models/Location"
 import SessionInvoiceModel from "models/SessionInvoice"
+import SessionUpdateModel from "models/SessionUpdate"
 import { AuthMethod } from "types/authMethod"
 import { SessionStatus } from "types/session"
 
@@ -18,6 +19,7 @@ interface SessionModel {
     connector?: ConnectorModel
     meterId?: string
     sessionInvoices?: SessionInvoiceModel[]
+    sessionUpdates?: SessionUpdateModel[]
     invoiceRequest?: InvoiceRequestModel
     status: SessionStatus
     lastUpdated: string

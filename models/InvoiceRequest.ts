@@ -13,6 +13,8 @@ interface InvoiceRequestModel {
     taxMsat?: number
     totalFiat: number
     totalMsat: number
+    isSettled: boolean
+    releaseDate?: string
 }
 
 type InvoiceRequestModelLike = InvoiceRequestModel | undefined

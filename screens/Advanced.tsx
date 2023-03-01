@@ -70,6 +70,12 @@ const Advanced = ({ navigation }: AdvancedProps) => {
                         onPress={() => navigation.navigate("ChannelList")}
                     />
                     <ListButton
+                        key="onchain"
+                        title={I18n.t("Advanced_OnChainText")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("OnChain")}
+                    />
+                    <ListButton
                         key="send-report"
                         title={I18n.t("Advanced_SendReportText")}
                         iconRight={faChevronRight}

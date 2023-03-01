@@ -16,17 +16,17 @@ interface ListSwitchProps {
 }
 
 const ListSwitch = ({ title, titleSize = "lg", titleWeight = "normal", hint, hintSize = "sm", style = {}, isChecked, onToggle }: ListSwitchProps) => {
-    const primaryTextcolor = useColorModeValue("lightText", "darkText")
-    const secondaryTextcolor = useColorModeValue("warmGray.200", "dark.200")
+    const primaryTextColor = useColorModeValue("lightText", "darkText")
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
 
     return (
         <HStack justifyContent="space-between" width="100%" style={style}>
             <VStack flexBasis={0} flexGrow={12}>
-                <Text color={primaryTextcolor} fontSize={titleSize} fontWeight={titleWeight}>
+                <Text color={primaryTextColor} fontSize={titleSize} fontWeight={titleWeight}>
                     {title}
                 </Text>
                 {hint && (
-                    <Text color={secondaryTextcolor} fontSize={hintSize}>
+                    <Text color={secondaryTextColor} fontSize={hintSize}>
                         {hint}
                     </Text>
                 )}

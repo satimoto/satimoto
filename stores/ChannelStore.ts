@@ -132,13 +132,16 @@ export class ChannelStore implements ChannelStoreInterface {
     closeChannel(request: CloseChannelProps): Promise<ChannelModel> {
         return new Promise<ChannelModel>(async (resolve, reject) => {
             try {
-                await closeChannel(async ({ closePending }: lnrpc.CloseStatusUpdate) => {
-                    if (closePending && closePending.txid) {
+                await closeChannel(async ({ closePending, chanClose }: lnrpc.CloseStatusUpdate) => {
+                    const txid = closePending ? closePending.txid : chanClose ? chanClose.closingTxid : null
+
+                    if (txid) {
                         const channel = this.actionUpdateChannelByChannelPoint({
                             fundingTxid: request.channelPoint.fundingTxidStr!,
                             outputIndex: request.channelPoint.outputIndex!,
                             isActive: false,
-                            closingTxid: bytesToHex(reverseByteOrder(closePending.txid))
+                            isClosed: !!chanClose,
+                            closingTxid: bytesToHex(reverseByteOrder(txid))
                         })
 
                         if (channel) {

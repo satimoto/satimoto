@@ -84,7 +84,7 @@ const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
                             <IconButton icon={faCopy} size="sm" onPress={() => Clipboard.setString(channel.remotePubkey)} />
                         </HStack>
                     </ExpandableListItem>
-                    {channel.closingTxid ? (
+                    {channel.closingTxid && (
                         <ExpandableListItem title="Closing Txid">
                             <HStack alignItems="center">
                                 <Text style={{ color: textColor, fontSize: 16 }} marginRight={5}>
@@ -93,7 +93,8 @@ const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
                                 <IconButton icon={faCopy} size="sm" onPress={() => Clipboard.setString(channel.closingTxid!)} />
                             </HStack>
                         </ExpandableListItem>
-                    ) : (
+                    )}
+                    {!channel.closingTxid && !channel.isClosed && (
                         <RoundedButton colorScheme="red" marginTop={10} onPress={() => setIsCloseChannelModalVisible(true)}>
                             {I18n.t("Button_Close")}
                         </RoundedButton>

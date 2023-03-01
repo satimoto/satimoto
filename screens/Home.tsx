@@ -27,7 +27,7 @@ import store from "stores/Store"
 import { Position } from "@turf/helpers"
 import { ChargeSessionStatus } from "types/chargeSession"
 import { MAPBOX_API_KEY } from "utils/build"
-import { EMAIL_REGEX, IS_ANDROID } from "utils/constants"
+import { ASSET_IMAGES, EMAIL_REGEX, IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
@@ -70,7 +70,8 @@ const Home = ({ navigation }: HomeProps) => {
     const slidingLocationPanelRef = createSlidingUpPanelRef()
     const mapViewRef = useRef<MapboxGL.MapView>(null)
     const [balanceCardRectangle, onBalanceCardLayout] = useLayout()
-    const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
+    const [centerCoordinate, setCenterCoordinate] = useState<Position>([19.054483, 47.560772])
+    const [followUserLocation, setFollowUserLocation] = useState(true)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
@@ -82,8 +83,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
     const [isSendLightningModalVisible, setIsSendLightningModalVisible] = useState(false)
     const [isSendNfcModalVisible, setIsSendNfcModalVisible] = useState(false)
-    const [centerCoordinate, setCenterCoordinate] = useState<Position>([19.054483, 47.560772])
-    const [followUserLocation, setFollowUserLocation] = useState(true)
+    const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const { uiStore, lightningStore, locationStore, sessionStore } = useStore()
 
     let userCoordinate: Position | null = null
@@ -238,6 +238,7 @@ const Home = ({ navigation }: HomeProps) => {
                         empty,
                         full
                     }}
+                    nativeAssetImages={ASSET_IMAGES}
                 />
                 <MapboxGL.ShapeSource id="locationsShapeSource" onPress={onLocationPress} shape={locationsShapeSource}>
                     <MapboxGL.SymbolLayer id="locationsSymbolLayer" style={symbolLayer} />
