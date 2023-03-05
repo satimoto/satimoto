@@ -1,10 +1,11 @@
-import { action, makeObservable, observable, reaction, runInAction } from "mobx"
+import { action, makeObservable, observable, reaction } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel, { ConnectorGroup, ConnectorGroupMap, ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel, { LocationModelLike } from "models/Location"
+import PoiModel, { PoiModelLike } from "models/Poi"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { getConnector, getLocation, listLocations } from "services/SatimotoService"
+import { getConnector, getLocation, getPoi, listLocations, listPois } from "services/SatimotoService"
 import { StoreInterface, Store } from "stores/Store"
 import { EvseStatus, EvseStatusSortMap } from "types/evse"
 import { DEBUG } from "utils/build"
@@ -21,14 +22,18 @@ export interface LocationStoreInterface extends StoreInterface {
 
     bounds: GeoJSON.Position[]
     locations: LocationModel[]
+    pois: PoiModel[]
 
-    selectedLocation: LocationModelLike
     selectedConnectors: ConnectorGroup[]
+    selectedLocation: LocationModelLike
+    selectedPoi: PoiModelLike
 
+    deselectLocation(): void
+    deselectPoi(): void
+    refreshSelectedLocation(): void
     searchConnector(identifier: string): Promise<ConnectorModelLike>
     selectLocation(uid: string): void
-    refreshSelectedLocation(): void
-    removeSelectedLocation(): void
+    selectPoi(uid: string): void
     setBounds(bounds: GeoJSON.Position[]): void
     startLocationUpdates(): void
     stopLocationUpdates(): void
@@ -41,9 +46,11 @@ export class LocationStore implements LocationStoreInterface {
 
     bounds
     locations
+    pois
 
-    selectedLocation: LocationModelLike = undefined
     selectedConnectors
+    selectedLocation: LocationModelLike = undefined
+    selectedPoi: PoiModelLike = undefined
 
     lastLocationChanged: boolean = true
     locationUpdateTimer: any = undefined
@@ -52,6 +59,7 @@ export class LocationStore implements LocationStoreInterface {
         this.stores = stores
         this.bounds = observable<GeoJSON.Position>([])
         this.locations = observable<LocationModel>([])
+        this.pois = observable<PoiModel>([])
         this.selectedConnectors = observable<ConnectorGroup>([])
 
         makeObservable(this, {
@@ -60,14 +68,19 @@ export class LocationStore implements LocationStoreInterface {
 
             bounds: observable,
             locations: observable,
+            pois: observable,
 
-            selectedLocation: observable,
             selectedConnectors: observable,
+            selectedLocation: observable,
+            selectedPoi: observable,
 
+            actionDeselectLocation: action,
+            actionDeselectPoi: action,
             actionSetBounds: action,
             actionUpdateLocations: action,
+            actionUpdatePois: action,
             actionSetSelectedLocation: action,
-            actionRemoveSelectedLocation: action,
+            actionSetSelectedPoi: action,
             actionUpdateActiveConnectors: action
         })
 
@@ -75,7 +88,7 @@ export class LocationStore implements LocationStoreInterface {
             this,
             {
                 name: "LocationStore",
-                properties: ["selectedLocation", "selectedConnectors"],
+                properties: ["selectedConnectors", "selectedLocation", "selectedPoi"],
                 storage: AsyncStorage,
                 debugMode: DEBUG
             },
@@ -100,9 +113,28 @@ export class LocationStore implements LocationStoreInterface {
         }
     }
 
+    deselectLocation(): void {
+        this.actionDeselectLocation()
+    }
+
+    deselectPoi(): void {
+        this.actionDeselectPoi()
+    }
+
     async fetchLocations() {
         if (this.stores.settingStore.accessToken) {
             if (this.bounds && this.bounds.length == 2) {
+                if (this.lastLocationChanged) {
+                    const pois = await listPois({
+                        xMin: this.bounds[1][0],
+                        yMin: this.bounds[0][1],
+                        xMax: this.bounds[0][0],
+                        yMax: this.bounds[1][1]
+                    })
+
+                    this.actionUpdatePois(pois.data.listPois)
+                }
+
                 const locations = await listLocations({
                     interval: this.lastLocationChanged ? 0 : LOCATION_UPDATE_INTERVAL,
                     isExperimental: this.stores.uiStore.filterExperimental,
@@ -133,16 +165,21 @@ export class LocationStore implements LocationStoreInterface {
         this.fetchLocations()
     }
 
-    removeSelectedLocation(): void {
-        this.actionRemoveSelectedLocation()
-    }
-
     async selectLocation(uid: string, country?: string) {
         const locationResponse = await getLocation({ uid, country })
         const location = locationResponse.data.getLocation as LocationModel
 
         if (location) {
             this.actionSetSelectedLocation(location)
+        }
+    }
+
+    async selectPoi(uid: string) {
+        const poiResponse = await getPoi({ uid })
+        const poi = poiResponse.data.getPoi as PoiModel
+
+        if (poi) {
+            this.actionSetSelectedPoi(poi)
         }
     }
 
@@ -191,8 +228,12 @@ export class LocationStore implements LocationStoreInterface {
      * Mobx actions and reactions
      */
 
-    actionRemoveSelectedLocation(): void {
+    actionDeselectLocation(): void {
         this.selectedLocation = undefined
+    }
+
+    actionDeselectPoi(): void {
+        this.selectedPoi = undefined
     }
 
     async actionSetBounds(bounds: GeoJSON.Position[]) {
@@ -212,6 +253,10 @@ export class LocationStore implements LocationStoreInterface {
 
     actionSetSelectedLocation(location: LocationModel) {
         this.selectedLocation = location
+    }
+
+    actionSetSelectedPoi(poi: PoiModel) {
+        this.selectedPoi = poi
     }
 
     actionSetReady() {
@@ -271,5 +316,11 @@ export class LocationStore implements LocationStoreInterface {
         }
 
         this.lastLocationChanged = false
+    }
+
+    actionUpdatePois(pois: PoiModel[]) {
+        log.debug(`SAT055 actionUpdatePois: ${this.pois.length} ${pois.length}`)
+
+        this.pois.replace(pois)
     }
 }

@@ -1,5 +1,5 @@
+import AddressCard from "components/AddressCard"
 import InvoiceRequestButton from "components/InvoiceRequestButton"
-import LocationAddress from "components/LocationAddress"
 import SatoshiBalance from "components/SatoshiBalance"
 import SessionInvoiceButton from "components/SessionInvoiceButton"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
@@ -103,7 +103,15 @@ const SessionDetail = ({ navigation, route }: SessionDetailProps) => {
 
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            {session.location && <LocationAddress location={session.location} alignItems="center" />}
+            {session.location && (
+                <AddressCard
+                    name={session.location.name}
+                    address={session.location.address}
+                    city={session.location.city}
+                    postalCode={session.location.postalCode}
+                    alignItems="center"
+                />
+            )}
             <VStack space={2} alignContent="flex-start" marginTop={5} marginBottom={2}>
                 <View style={{ backgroundColor, alignItems: "center" }}>
                     <SatoshiBalance size={36} color={textColor} satoshis={total} />

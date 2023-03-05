@@ -127,6 +127,31 @@ const LOCATION_WITH_EVSES_FRAGMENT = gql`
     }
 `
 
+const POI_FRAGMENT = gql`
+    fragment PoiFragment on Poi {
+        source
+        name
+        description
+        geom
+        address
+        city
+        postalCode
+        tagKey
+        tagValue
+        tags {
+            key
+            value
+        }
+        paymentOnChain
+        paymentLn
+        paymentLnTap
+        paymentUri
+        openingTimes
+        phone
+        website
+    }
+`
+
 const INVOICE_REQUEST_FRAGMENT = gql`
     fragment InvoiceRequestFragment on InvoiceRequest {
         id
@@ -287,6 +312,7 @@ export {
     INVOICE_REQUEST_FRAGMENT,
     LOCATION_FRAGMENT,
     LOCATION_WITH_EVSES_FRAGMENT,
+    POI_FRAGMENT,
     SESSION_INVOICE_FRAGMENT,
     SESSION_UPDATE_FRAGMENT,
     SESSION_FRAGMENT,
