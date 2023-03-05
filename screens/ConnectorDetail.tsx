@@ -1,7 +1,7 @@
 import BusyButton from "components/BusyButton"
 import ConfirmationModal from "components/ConfirmationModal"
 import HeaderBackButton from "components/HeaderBackButton"
-import LocationHeader from "components/LocationHeader"
+import AddressHeader from "components/AddressHeader"
 import StackedBar, { StackedBarItem, StackedBarItems } from "components/StackedBar"
 import useColor from "hooks/useColor"
 import useEnergySourceColors from "hooks/useEnergySourceColors"
@@ -31,7 +31,6 @@ const styleSheet = StyleSheet.create({
         paddingVertical: 20
     }
 })
-
 
 type ConnectorDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ConnectorDetail">
@@ -234,7 +233,13 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                 </Box>
             )}
             <View style={[styles.focusViewPanel, { backgroundColor, paddingHorizontal: 10 }]}>
-                <LocationHeader location={route.params.location} />
+                <AddressHeader
+                    name={route.params.location.name}
+                    geom={route.params.location.geom}
+                    address={route.params.location.address}
+                    city={route.params.location.city}
+                    postalCode={route.params.location.postalCode}
+                />
                 <PriceComponentTray marginTop={2} connector={connector} />
                 <VStack space={3} marginTop={5}>
                     {energySources.length > 0 && <StackedBar items={energySources} />}

@@ -1,6 +1,6 @@
 import HeaderBackButton from "components/HeaderBackButton"
 import EvseButton from "components/EvseButton"
-import LocationHeader from "components/LocationHeader"
+import AddressHeader from "components/AddressHeader"
 import useColor from "hooks/useColor"
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { observer } from "mobx-react"
@@ -73,7 +73,15 @@ const EvseList = ({ navigation, route }: EvseListProps) => {
 
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            <LocationHeader location={location} />
+            {location && (
+                <AddressHeader
+                    name={location.name}
+                    geom={location.geom}
+                    address={location.address}
+                    city={location.city}
+                    postalCode={location.postalCode}
+                />
+            )}
             <ScrollView
                 style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}

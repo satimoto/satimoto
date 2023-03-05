@@ -1,10 +1,9 @@
+import AddressCard from "components/AddressCard"
 import ChargeInfo from "components/ChargeInfo"
 import ConfirmationModal from "components/ConfirmationModal"
-import LocationAddress from "components/LocationAddress"
 import PaymentButton from "components/PaymentButton"
 import PaymentInfoModal from "components/PaymentInfoModal"
 import SatoshiBalance from "components/SatoshiBalance"
-import SessionInvoiceButton from "components/SessionInvoiceButton"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faStop } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
@@ -66,7 +65,15 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
 
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            {sessionStore.location && <LocationAddress location={sessionStore.location} alignItems="center" />}
+            {sessionStore.location && (
+                <AddressCard
+                    name={sessionStore.location.name}
+                    address={sessionStore.location.address}
+                    city={sessionStore.location.city}
+                    postalCode={sessionStore.location.postalCode}
+                    alignItems="center"
+                />
+            )}
             <VStack space={2} alignContent="flex-start" marginTop={5} marginBottom={2}>
                 <View style={{ backgroundColor, alignItems: "center" }}>
                     <SatoshiBalance size={36} color={textColor} satoshis={parseInt(sessionStore.valueSat)} />

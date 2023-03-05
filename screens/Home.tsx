@@ -13,7 +13,8 @@ import ScanNfcModal from "components/ScanNfcModal"
 import SendActionsheet from "components/SendActionsheet"
 import SendToAddressModal from "components/SendToAddressModal"
 import SendLightningModal from "components/SendLightningModal"
-import SlidingLocationPanel, { createSlidingUpPanelRef } from "components/SlidingLocationPanel"
+import SlidingLocationPanel, { createSlidingLocationPanelRef } from "components/SlidingLocationPanel"
+import SlidingPoiPanel, { createSlidingPoiPanelRef } from "components/SlidingPoiPanel"
 import useLayout from "hooks/useLayout"
 import { useStore } from "hooks/useStore"
 import { autorun } from "mobx"
@@ -44,7 +45,7 @@ const SEND_NFC_SCHEMES = [/^(lnurlp:|lightning:)/, EMAIL_REGEX]
 
 MapboxGL.setAccessToken(MAPBOX_API_KEY)
 
-const symbolLayer: SymbolLayerStyle = {
+const locationsSymbolLayer: SymbolLayerStyle = {
     iconAnchor: "bottom",
     iconAllowOverlap: true,
     iconImage: ["case", ["==", ["get", "availableEvses"], ["get", "totalEvses"]], "empty", ["==", ["get", "availableEvses"], 0], "full", "busy"],
@@ -53,6 +54,12 @@ const symbolLayer: SymbolLayerStyle = {
     textOffset: [0, -1.5],
     textColor: "#ffffff",
     textField: ["to-string", ["get", "availableEvses"]]
+}
+
+const poisSymbolLayer: SymbolLayerStyle = {
+    iconAnchor: "center",
+    iconImage: ["coalesce", ["concat", ["get", "tagKey"], "_", ["get", "tagValue"]], ["get", "tagKey"]],
+    iconSize: 0.3
 }
 
 export type HomeNavigationProp = NativeStackNavigationProp<AppStackParamList, "Home">
@@ -67,13 +74,15 @@ interface HomeProps {
 }
 
 const Home = ({ navigation }: HomeProps) => {
-    const slidingLocationPanelRef = createSlidingUpPanelRef()
+    const slidingLocationPanelRef = createSlidingLocationPanelRef()
+    const slidingPoiPanelRef = createSlidingPoiPanelRef()
     const mapViewRef = useRef<MapboxGL.MapView>(null)
     const [balanceCardRectangle, onBalanceCardLayout] = useLayout()
     const [centerCoordinate, setCenterCoordinate] = useState<Position>([19.054483, 47.560772])
     const [followUserLocation, setFollowUserLocation] = useState(true)
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
+    const [poisShapeSource, setPoisShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [isFilterModalVisible, setIsFilterModalVisible] = useState(false)
     const [isReceiveActionsheetOpen, setIsReceiveActionsheetOpen] = useState(false)
@@ -121,8 +130,16 @@ const Home = ({ navigation }: HomeProps) => {
     }
 
     const onLocationPress = ({ features }: OnPressEvent) => {
+        log.debug(`onLocationPress`, true)
         if (features.length) {
             store.locationStore.selectLocation(features[0].properties?.uid, features[0].properties?.country)
+        }
+    }
+
+    const onPoiPress = ({ features }: OnPressEvent) => {
+        log.debug(`onPoiPress`, true)
+        if (features.length) {
+            store.locationStore.selectPoi(features[0].properties?.uid)
         }
     }
 
@@ -158,7 +175,13 @@ const Home = ({ navigation }: HomeProps) => {
     }, [mapViewRef])
 
     const onSlidingLocationPanelHide = () => {
-        locationStore.removeSelectedLocation()
+        log.debug(`onSlidingLocationPanelHide`, true)
+        locationStore.deselectLocation()
+    }
+
+    const onSlidingPoiPanelHide = () => {
+        log.debug(`onSlidingPoiPanelHide`, true)
+        locationStore.deselectPoi()
     }
 
     const onUserLocationUpdate = useCallback(
@@ -193,30 +216,48 @@ const Home = ({ navigation }: HomeProps) => {
     }, [locationStore.selectedLocation])
 
     useEffect(() => {
+        if (locationStore.selectedPoi) {
+            slidingPoiPanelRef.current?.show({ toValue: 350, velocity: 0.1 })
+        } else {
+            slidingPoiPanelRef.current?.hide()
+        }
+    }, [locationStore.selectedPoi])
+
+    useEffect(() => {
         locationStore.startLocationUpdates()
 
         return () => locationStore.stopLocationUpdates()
     }, [])
 
-    useEffect(
-        () =>
-            autorun(() => {
-                log.debug("locations changed")
-
-                setLocationsShapeSource({
-                    type: "FeatureCollection",
-                    features: locationStore.locations.map((location) => {
-                        return {
-                            id: location.uid,
-                            type: "Feature",
-                            geometry: location.geom,
-                            properties: location
-                        }
-                    })
+    useEffect(() => {
+        autorun(() => {
+            setLocationsShapeSource({
+                type: "FeatureCollection",
+                features: locationStore.locations.map((location) => {
+                    return {
+                        id: location.uid,
+                        type: "Feature",
+                        geometry: location.geom,
+                        properties: location
+                    }
                 })
-            }),
-        []
-    )
+            })
+        })
+
+        autorun(() => {
+            setPoisShapeSource({
+                type: "FeatureCollection",
+                features: locationStore.pois.map((poi) => {
+                    return {
+                        id: poi.uid,
+                        type: "Feature",
+                        geometry: poi.geom,
+                        properties: poi
+                    }
+                })
+            })
+        })
+    }, [])
 
     return (
         <View style={styles.matchParent}>
@@ -240,8 +281,11 @@ const Home = ({ navigation }: HomeProps) => {
                     }}
                     nativeAssetImages={ASSET_IMAGES}
                 />
+                <MapboxGL.ShapeSource id="poisShapeSource" onPress={onPoiPress} shape={poisShapeSource}>
+                    <MapboxGL.SymbolLayer id="poisSymbolLayer" style={poisSymbolLayer} />
+                </MapboxGL.ShapeSource>
                 <MapboxGL.ShapeSource id="locationsShapeSource" onPress={onLocationPress} shape={locationsShapeSource}>
-                    <MapboxGL.SymbolLayer id="locationsSymbolLayer" style={symbolLayer} />
+                    <MapboxGL.SymbolLayer id="locationsSymbolLayer" style={locationsSymbolLayer} />
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard onLayout={onBalanceCardLayout} />
@@ -252,6 +296,7 @@ const Home = ({ navigation }: HomeProps) => {
             </HomeSideContainer>
             <HomeFooterContainer onPress={onHomeButtonPress} />
             <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
+            <SlidingPoiPanel ref={slidingPoiPanelRef} onHide={onSlidingPoiPanelHide} />
             <ReceiveActionsheet isOpen={isReceiveActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsReceiveActionsheetOpen(false)} />
             <SendActionsheet isOpen={isSendActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsSendActionsheetOpen(false)} />
             <ConfirmationModal

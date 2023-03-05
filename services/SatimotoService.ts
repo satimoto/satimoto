@@ -13,6 +13,7 @@ import * as InvoiceRequest from "./satimoto/invoiceRequest"
 import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
 import * as Location from "./satimoto/location"
 import * as Node from "./satimoto/node"
+import * as Poi from "./satimoto/poi"
 import * as Rate from "./satimoto/rate"
 import * as Session from "./satimoto/session"
 import * as SessionInvoice from "./satimoto/sessionInvoice"
@@ -101,6 +102,10 @@ const listLocations = Location.listLocations(client)
 
 // Node
 const listChannels = Node.listChannels(client)
+
+// Poi
+const getPoi = Poi.getPoi(client)
+const listPois = Poi.listPois(client)
 
 // Rate
 const getRate = Rate.getRate(client)
@@ -200,6 +205,9 @@ export {
     listLocations,
     // Node
     listChannels,
+    // Poi
+    getPoi,
+    listPois,
     // Rate
     getRate,
     // Session

@@ -140,8 +140,8 @@ android {
         applicationId "com.satimoto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 27
-        versionName "0.4.2"
+        versionCode 28
+        versionName "0.4.3"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         missingDimensionStrategy 'react-native-camera', 'general'
         manifestPlaceholders = [appName: "Satimoto"]
