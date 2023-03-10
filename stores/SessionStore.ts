@@ -276,13 +276,6 @@ export class SessionStore implements SessionStoreInterface {
             log.debug(`SAT069 paySessionInvoice: id=${sessionInvoice.id} status=${this.status}`, true)
             log.debug(`SAT070 paySessionInvoice: pr=${sessionInvoice.paymentRequest} sig=${sessionInvoice.signature}`, true)
 
-            const verifyMessageResponse = await verifyMessage(toBytes(sessionInvoice.paymentRequest), sessionInvoice.signature)
-
-            if (!verifyMessageResponse.valid) {
-                log.debug(`SAT071 paySessionInvoice: Signature could not be verified`, true)
-                return
-            }
-
             await when(() => this.stores.lightningStore.syncedToChain)
 
             const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: sessionInvoice.paymentRequest })
@@ -443,18 +436,11 @@ export class SessionStore implements SessionStoreInterface {
             this.updateSessionTimer(false)
         }
 
-        if (this.session.status === SessionStatus.INVALID || this.session.status === SessionStatus.INVOICED) {
-            if (this.session.status === SessionStatus.INVOICED) {
-                session.connector = this.connector!
-                session.evse = this.evse!
-                session.location = this.location!
-                session.sessionInvoices = this.sessionInvoices
+        if (this.session.status === SessionStatus.INVOICED) {
+            this.refreshSessions()
+        }
 
-                this.sessions.push(session)
-                this.payments.clear()
-                this.sessionInvoices.clear()
-            }
-
+        if (this.session.status !== SessionStatus.ACTIVE && this.session.status !== SessionStatus.PENDING) {
             this.authorizationId = undefined
             this.tokenType = undefined
             this.session = undefined
