@@ -25,12 +25,12 @@ import styles from "utils/styles"
 
 const popAction = StackActions.pop()
 
-type SessionDetailProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "SessionDetail">
-    route: RouteProp<AppStackParamList, "SessionDetail">
+type SettingsSessionProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsSession">
+    route: RouteProp<AppStackParamList, "SettingsSession">
 }
 
-const SessionDetail = ({ navigation, route }: SessionDetailProps) => {
+const SettingsSession = ({ navigation, route }: SettingsSessionProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColor(colors.lightText, colors.darkText)
@@ -87,7 +87,7 @@ const SessionDetail = ({ navigation, route }: SessionDetailProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => <HeaderBackButton tintColor={navigationOptions.headerTintColor} onPress={onBackPress} />,
-            title: I18n.t("SessionDetail_HeaderTitle"),
+            title: I18n.t("SettingsSession_HeaderTitle"),
             headerRight: () => (
                 <IconButton
                     colorScheme="muted"
@@ -119,7 +119,10 @@ const SessionDetail = ({ navigation, route }: SessionDetailProps) => {
             </VStack>
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
-                    {session.invoiceRequest && <InvoiceRequestButton key={session.invoiceRequest.id} invoiceRequest={session.invoiceRequest} />}
+                    {session.invoiceRequests &&
+                        session.invoiceRequests.map((invoiceRequest) => (
+                            <InvoiceRequestButton key={invoiceRequest.id} invoiceRequest={invoiceRequest} />
+                        ))}
                     {session.sessionInvoices &&
                         session.sessionInvoices.map((sessionInvoice) => (
                             <SessionInvoiceButton key={sessionInvoice.id} sessionInvoice={sessionInvoice} />
@@ -130,4 +133,4 @@ const SessionDetail = ({ navigation, route }: SessionDetailProps) => {
     )
 }
 
-export default observer(SessionDetail)
+export default observer(SettingsSession)

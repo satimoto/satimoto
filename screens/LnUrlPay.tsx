@@ -7,16 +7,15 @@ import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineIcon } from "native-base"
 import { useConfetti } from "providers/ConfettiProvider"
-import React, { useEffect, useLayoutEffect, useState } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
 import { View } from "react-native"
+import * as breezSdk from "react-native-breez-sdk"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { decodePayReq } from "services/LightningService"
-import { getMetadataElement, payRequest } from "services/LnUrlService"
+import { getMetadataElement } from "services/lnUrl"
 import { PaymentStatus } from "types/payment"
-import { assertNetwork } from "utils/assert"
-import { bytesToHex, errorToString, toHash, toMilliSatoshi, toNumber, toSatoshi } from "utils/conversion"
+import { errorToString, toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
@@ -37,7 +36,6 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
-    const { channelStore, paymentStore, uiStore } = useStore()
     const [amountString, setAmountString] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
     const [description, setDescription] = useState("")
@@ -46,8 +44,8 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const [lastError, setLastError] = useState("")
     const [maxSendable, setMaxSendable] = useState(0)
     const [minSendable, setMinSendable] = useState(0)
-    const [metadataHash, setMetadataHash] = useState<string | null>(null)
     const [amountError, setAmountError] = useState("")
+    const { channelStore, paymentStore, uiStore } = useStore()
 
     const onClose = () => {
         uiStore.clearLnUrl()
@@ -59,32 +57,15 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         setAmountNumber(+text)
     }
 
-    const onConfirmPress = async () => {
+    const onConfirmPress = useCallback(async () => {
         setIsBusy(true)
         setLastError("")
 
-        if (uiStore.lnUrlPayParams && uiStore.lnUrlPayParams.callback) {
+        if (route.params.payParams) {
             try {
-                const response = await payRequest(uiStore.lnUrlPayParams.callback, toMilliSatoshi(amountString).toString())
-                assertNetwork(response.pr)
-
-                const decodedPayReq = await decodePayReq(response.pr)
-                log.debug(`SAT008 Metadata hash: ${metadataHash}`)
-                log.debug(`SAT008 Payment Request hash: ${decodedPayReq.descriptionHash}`)
-
-                if (decodedPayReq.descriptionHash === metadataHash && toNumber(decodedPayReq.numSatoshis) === amountNumber) {
-                    // Pay
-                    const payment = await paymentStore.sendPayment({ paymentRequest: response.pr })
-
-                    if (payment.status === PaymentStatus.SUCCEEDED) {
-                        await startConfetti()
-                        onClose()
-                    } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
-                        setLastError(I18n.t(payment.failureReasonKey))
-                    }
-                } else {
-                    setLastError(I18n.t("LnUrlPay_PayReqError"))
-                }
+                await paymentStore.payLnurl(route.params.payParams, amountNumber)
+                await startConfetti()
+                onClose()
             } catch (error) {
                 setLastError(errorToString(error))
                 log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)
@@ -92,7 +73,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         }
 
         setIsBusy(false)
-    }
+    }, [route.params.payParams, amountNumber])
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -103,17 +84,17 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
 
     useEffect(() => {
         const payParams = route.params.payParams
+        const decodedMetadata = JSON.parse(payParams.metadataStr)
+        const minSats = toSatoshi(payParams.minSendable).toNumber()
         let maxSats = toSatoshi(payParams.maxSendable).toNumber()
-        let minSats = toSatoshi(payParams.minSendable).toNumber()
 
         if (maxSats > channelStore.availableBalance) {
             maxSats = channelStore.availableBalance
         }
 
-        setDescription(getMetadataElement(payParams.decodedMetadata, "text/plain") || "")
+        setDescription(getMetadataElement(decodedMetadata, "text/plain") || "")
         setMaxSendable(maxSats)
         setMinSendable(minSats)
-        setMetadataHash(bytesToHex(toHash(payParams.metadata)))
         setAmountError(I18n.t("LnUrlPay_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
     }, [route.params.payParams])
 

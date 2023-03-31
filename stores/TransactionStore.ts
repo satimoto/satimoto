@@ -43,7 +43,8 @@ export class TransactionStore implements TransactionStoreInterface {
             actionAddTransaction: action,
             actionClearTransactions: action,
             actionClearFailedTransactions: action,
-            actionCheckExpiredTransactions: action
+            actionCheckExpiredTransactions: action,
+            actionResetTransactions: action
         })
 
         makePersistable(
@@ -77,6 +78,10 @@ export class TransactionStore implements TransactionStoreInterface {
 
     clearFailedTransactions() {
         this.clearFailedTransactions()
+    }
+
+    reset() {
+        this.actionResetTransactions()
     }
 
     /*
@@ -127,6 +132,10 @@ export class TransactionStore implements TransactionStoreInterface {
                 )
             })
         )
+    }
+
+    actionResetTransactions() {
+        this.transactions.clear()
     }
 
     actionSetReady() {

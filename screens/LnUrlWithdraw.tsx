@@ -1,4 +1,5 @@
 import BusyButton from "components/BusyButton"
+import ExpandableInfoItem from "components/ExpandableInfoItem"
 import HeaderBackButton from "components/HeaderBackButton"
 import Input from "components/Input"
 import useColor from "hooks/useColor"
@@ -6,16 +7,15 @@ import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import InvoiceModel from "models/Invoice"
-import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineIcon } from "native-base"
+import { FormControl, HStack, Text, useColorModeValue, useTheme, VStack, WarningOutlineIcon } from "native-base"
 import { useConfetti } from "providers/ConfettiProvider"
 import React, { useEffect, useLayoutEffect, useState } from "react"
 import { View } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { withdrawRequest } from "services/LnUrlService"
 import { InvoiceStatus } from "types/invoice"
-import { bytesToHex, errorToString, toSatoshi } from "utils/conversion"
+import { errorToString, toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
@@ -33,20 +33,23 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
-    const { channelStore, invoiceStore, uiStore } = useStore()
-    const [amountString, setAmountString] = useState("")
+    const [amount, setAmount] = useState("")
+    const [amountError, setAmountError] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
+    const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
     const [description, setDescription] = useState("")
     const [isBusy, setIsBusy] = useState(false)
     const [isInvalid, setIsInvalid] = useState(false)
     const [lastError, setLastError] = useState("")
     const [maxReceivable, setMaxReceivable] = useState(0)
     const [minReceivable, setMinReceivable] = useState(0)
-    const [amountError, setAmountError] = useState("")
     const [invoice, setInvoice] = useState<InvoiceModel>()
+    const [openingFee, setOpeningFee] = useState(0)
+    const { channelStore, invoiceStore, uiStore } = useStore()
 
     const onClose = () => {
         setIsBusy(false)
@@ -55,7 +58,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     }
 
     const onAmountChange = (text: string) => {
-        setAmountString(text)
+        setAmount(text)
         setAmountNumber(+text)
     }
 
@@ -63,17 +66,13 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
         setIsBusy(true)
         setLastError("")
 
-        if (uiStore.lnUrlWithdrawParams && uiStore.lnUrlWithdrawParams.callback) {
+        if (uiStore.lnUrlWithdrawParams) {
             try {
-                const lnInvoice = await invoiceStore.addInvoice({ value: amountNumber, createChannel: true })
-                const response = await withdrawRequest(uiStore.lnUrlWithdrawParams.callback, uiStore.lnUrlWithdrawParams.k1, lnInvoice.paymentRequest)
+                const response = await invoiceStore.withdrawLnurl(uiStore.lnUrlWithdrawParams, amountNumber)
 
-                if (response.status === "OK") {
-                    const hash = bytesToHex(lnInvoice.rHash)
-                    const invoice = await invoiceStore.waitForInvoice(hash)
-
+                if (response.status.toLowerCase() === "ok") {
                     setInvoice(invoice)
-                } else {
+                } else if (response.reason) {
                     setLastError(response.reason)
                 }
             } catch (error) {
@@ -93,8 +92,8 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
 
     useEffect(() => {
         const withdrawParams = route.params.withdrawParams
+        const minSats = toSatoshi(withdrawParams.minWithdrawable).toNumber()
         let maxSats = toSatoshi(withdrawParams.maxWithdrawable).toNumber()
-        let minSats = toSatoshi(withdrawParams.minWithdrawable).toNumber()
 
         if (maxSats > channelStore.remoteBalance) {
             maxSats = channelStore.remoteBalance
@@ -107,11 +106,13 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     }, [route.params.withdrawParams])
 
     useEffect(() => {
+        setOpeningFee(channelStore.calculateOpeningFee(amountNumber))
+        setChannelRequestNeeded(amountNumber >= channelStore.remoteBalance)
         setIsInvalid(amountNumber < minReceivable || amountNumber > maxReceivable)
     }, [amountNumber])
 
     useEffect(() => {
-        if (invoice && invoice.status == InvoiceStatus.SETTLED) {
+        if (invoice && invoice.status === InvoiceStatus.SETTLED) {
             startConfetti().then(onClose)
         }
     }, [invoice?.status])
@@ -127,7 +128,20 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                     )}
                     <FormControl isInvalid={isInvalid} isRequired={true}>
                         <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
-                        <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
+                        <Input value={amount} keyboardType="number-pad" onChangeText={onAmountChange} />
+                        {isInvalid && channelRequestNeeded && (
+                            <ExpandableInfoItem title={I18n.t("ReceiveLightning_OpeningFeeText", { fee: openingFee })}>
+                                <HStack alignItems="center">
+                                    <Text color={secondaryTextColor} fontSize="xs">
+                                        {I18n.t("ReceiveLightning_FeeInfoText", {
+                                            name: channelStore.lspName,
+                                            minimumFee: channelStore.lspFeeMinimum,
+                                            percentFee: channelStore.lspFeePpmyraid / 100
+                                        })}
+                                    </Text>
+                                </HStack>
+                            </ExpandableInfoItem>
+                        )}
                         {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
                         <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
                             {amountError}

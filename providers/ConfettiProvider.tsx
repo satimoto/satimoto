@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react"
 import ConfettiCannon from "react-native-confetti-cannon"
-import { timeout } from "utils/tools"
+import { timeout } from "utils/backoff"
 
 interface ConfettiContextProps {
     startConfetti: (resume?: boolean) => Promise<void>

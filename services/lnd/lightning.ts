@@ -1,6 +1,6 @@
 import { NativeModules } from "react-native"
 import { lnrpc } from "proto/proto"
-import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
+import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/lnd/mobile"
 import { INVOICE_EXPIRY } from "utils/constants"
 import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"

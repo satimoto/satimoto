@@ -2,6 +2,7 @@ import BusyButton from "components/BusyButton"
 import ConfirmationModal from "components/ConfirmationModal"
 import HeaderBackButton from "components/HeaderBackButton"
 import AddressHeader from "components/AddressHeader"
+import PriceComponentTray from "components/PriceComponentTray"
 import StackedBar, { StackedBarItem, StackedBarItems } from "components/StackedBar"
 import useColor from "hooks/useColor"
 import useEnergySourceColors from "hooks/useEnergySourceColors"
@@ -11,7 +12,7 @@ import { observer } from "mobx-react"
 import { hasEvseCapability } from "models/Evse"
 import { Box, HStack, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
-import { BackHandler, StyleSheet, View } from "react-native"
+import { BackHandler, View } from "react-native"
 import { RouteProp, StackActions, useFocusEffect } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
@@ -22,15 +23,8 @@ import { MINIMUM_REMOTE_CHARGE_BALANCE, MINIMUM_RFID_CHARGE_BALANCE } from "util
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
-import PriceComponentTray from "components/PriceComponentTray"
 
 const popAction = StackActions.pop()
-
-const styleSheet = StyleSheet.create({
-    nfcInfo: {
-        paddingVertical: 20
-    }
-})
 
 type ConnectorDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ConnectorDetail">
@@ -49,6 +43,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [evse] = useState(route.params.evse)
     const [connector] = useState(route.params.connector)
     const [isBusy, setIsBusy] = useState(false)
+    const [isConfirmChargeBusy, setConfirmChargeIsBusy] = useState(false)
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [isRemoteCapable] = useState(hasEvseCapability(evse.capabilities, EvseCapability.REMOTE_START_STOP_CAPABLE))
     const [isSessionConnector, setIsSessionConnector] = useState(false)
@@ -99,40 +94,23 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         setIsBusy(false)
     }, [confirmationStatus])
 
-    const renderError = useCallback(() => {
-        return lastError.length > 0 ? (
-            <Text textAlign="center" color={errorColor} fontSize={18} bold>
-                {lastError}
-            </Text>
-        ) : (
-            <></>
-        )
-    }, [lastError])
+    const onConfirmChargePress = useCallback(async () => {
+        setConfirmChargeIsBusy(true)
 
-    const renderStop = useCallback(() => {
-        if (lastError.length == 0 && isSessionConnector) {
-            return sessionStore.tokenType === TokenType.OTHER ? (
-                <BusyButton
-                    isBusy={isBusy}
-                    onPress={onShowStopConfirmation}
-                    isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
-                    style={styles.focusViewButton}
-                >
-                    {I18n.t("Button_Stop")}
-                </BusyButton>
-            ) : (
-                <Text style={styleSheet.nfcInfo} textAlign="center" color={textColor} fontSize={18} bold>
-                    {I18n.t("ConnectorDetail_NfcStopText")}
-                </Text>
-            )
+        try {
+            await sessionStore.confirmSession()
+        } catch (error) {
+            setLastError(errorToString(error))
         }
-    }, [lastError, isSessionConnector, isBusy, sessionStore.status])
+
+        setConfirmChargeIsBusy(false)
+    }, [])
 
     const renderStartInfo = useCallback(() => {
         return isRemoteCapable &&
-            ((lastError.length == 0 && sessionStore.status === ChargeSessionStatus.IDLE) ||
-                (isSessionConnector && sessionStore.status == ChargeSessionStatus.STARTING)) ? (
-            <Text style={styleSheet.nfcInfo} textAlign="center" color={textColor} fontSize={16} bold>
+            ((lastError.length === 0 && sessionStore.status === ChargeSessionStatus.IDLE) ||
+                (isSessionConnector && sessionStore.status === ChargeSessionStatus.STARTING)) ? (
+            <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
                 {I18n.t("ConnectorDetail_StartInfoText")}
             </Text>
         ) : (
@@ -141,7 +119,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     }, [lastError, isRemoteCapable, isSessionConnector, sessionStore.status])
 
     const renderStart = useCallback(() => {
-        if (lastError.length == 0 && !isSessionConnector) {
+        if (lastError.length === 0 && !isSessionConnector) {
             return isRemoteCapable ? (
                 <BusyButton
                     isBusy={isBusy}
@@ -156,12 +134,63 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     {I18n.t("Button_Start")}
                 </BusyButton>
             ) : (
-                <Text style={styleSheet.nfcInfo} textAlign="center" color={textColor} fontSize={18} bold>
+                <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={18} bold>
                     {I18n.t("ConnectorDetail_NfcStartText")}
                 </Text>
             )
         }
     }, [lastError, isSessionConnector, isBusy, channelStore.availableBalance, sessionStore.status, evse.status])
+
+    const renderConfirmCharge = useCallback(() => {
+        if (lastError.length === 0 && isSessionConnector) {
+            return sessionStore.status === ChargeSessionStatus.STARTING ? (
+                <View>
+                    <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                        {I18n.t("ConnectorDetail_ConfirmChargeText")}
+                    </Text>
+                    <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} isDisabled={isBusy} style={styles.focusViewButton}>
+                        {I18n.t("Button_ConfirmCharge")}
+                    </BusyButton>
+                </View>
+            ) : (
+                <></>
+            )
+        }
+    }, [lastError, isSessionConnector, isBusy, sessionStore.status])
+
+    const renderStop = useCallback(() => {
+        if (lastError.length === 0 && isSessionConnector) {
+            return sessionStore.tokenType === TokenType.OTHER ? (
+                <BusyButton
+                    colorScheme="red"
+                    isBusy={isBusy}
+                    onPress={onShowStopConfirmation}
+                    isDisabled={
+                        isConfirmChargeBusy ||
+                        sessionStore.status === ChargeSessionStatus.IDLE ||
+                        sessionStore.status === ChargeSessionStatus.STOPPING
+                    }
+                    style={[styles.focusViewButton, ChargeSessionStatus.STARTING ? { marginTop: 15 } : {}]}
+                >
+                    {I18n.t("Button_Stop")}
+                </BusyButton>
+            ) : (
+                <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={18} bold>
+                    {I18n.t("ConnectorDetail_NfcStopText")}
+                </Text>
+            )
+        }
+    }, [lastError, isSessionConnector, isBusy, sessionStore.status])
+
+    const renderError = useCallback(() => {
+        return lastError.length > 0 ? (
+            <Text textAlign="center" color={errorColor} fontSize={18} bold>
+                {lastError}
+            </Text>
+        ) : (
+            <></>
+        )
+    }, [lastError])
 
     useFocusEffect(
         useCallback(() => {
@@ -245,6 +274,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     {energySources.length > 0 && <StackedBar items={energySources} />}
                     {renderStartInfo()}
                     {renderStart()}
+                    {renderConfirmCharge()}
                     {renderStop()}
                     {renderError()}
                 </VStack>

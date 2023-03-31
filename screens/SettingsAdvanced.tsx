@@ -11,24 +11,24 @@ import styles from "utils/styles"
 import useColor from "hooks/useColor"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { APPLICATION_ID } from "utils/build"
+import { LightningBackend } from "types/lightningBackend"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 
-type AdvancedProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "Advanced">
+type SettingsAdvancedProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsAdvanced">
 }
 
-const Advanced = ({ navigation }: AdvancedProps) => {
+const SettingsAdvanced = ({ navigation }: SettingsAdvancedProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
     const [includeChannelReserve, setIncludeChannelReserve] = useState(false)
-    const { settingStore } = useStore()
+    const { lightningStore, settingStore } = useStore()
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerTitle: I18n.t("Advanced_HeaderTitle")
+            headerTitle: I18n.t("SettingsAdvanced_HeaderTitle")
         })
     }, [navigation])
 
@@ -56,36 +56,44 @@ const Advanced = ({ navigation }: AdvancedProps) => {
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
-                <ListButton
+                    <ListButton
                         key="battery"
-                        title={I18n.t("Advanced_BatteryOptimizationText")}
-                        hint={I18n.t("Advanced_BatteryOptimizationHint")}
+                        title={I18n.t("SettingsAdvanced_BatteryOptimizationText")}
+                        hint={I18n.t("SettingsAdvanced_BatteryOptimizationHint")}
                         iconRight={faChevronRight}
                         onPress={onBatteryOptimization}
                     />
-                    <ListButton
-                        key="channels"
-                        title={I18n.t("Advanced_ChannelListText")}
-                        iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("ChannelList")}
-                    />
+                    {lightningStore.backend === LightningBackend.LND && (
+                        <ListButton
+                            key="channels"
+                            title={I18n.t("SettingsAdvanced_ChannelsText")}
+                            iconRight={faChevronRight}
+                            onPress={() => navigation.navigate("SettingsChannels")}
+                        />
+                    )}
                     <ListButton
                         key="onchain"
-                        title={I18n.t("Advanced_OnChainText")}
+                        title={I18n.t("SettingsAdvanced_OnChainText")}
                         iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("OnChain")}
+                        onPress={() => navigation.navigate("SettingsOnChain")}
+                    />
+                    <ListButton
+                        key="backends"
+                        title={I18n.t("SettingsAdvanced_BackendsText")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("SettingsBackends")}
                     />
                     <ListButton
                         key="send-report"
-                        title={I18n.t("Advanced_SendReportText")}
+                        title={I18n.t("SettingsAdvanced_SendReportText")}
                         iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("SendReport")}
+                        onPress={() => navigation.navigate("SettingsSendReport")}
                     />
                     <ListSwitch
                         key="channelreserve"
-                        title={I18n.t("Advanced_IncludeChannelReserveText")}
+                        title={I18n.t("SettingsAdvanced_IncludeChannelReserveText")}
                         titleWeight="bold"
-                        hint={I18n.t("Advanced_IncludeChannelReserveHint")}
+                        hint={I18n.t("SettingsAdvanced_IncludeChannelReserveHint")}
                         style={styles.listSwitch}
                         isChecked={includeChannelReserve}
                         onToggle={onIncludeChannelReserveChange}
@@ -96,4 +104,4 @@ const Advanced = ({ navigation }: AdvancedProps) => {
     )
 }
 
-export default observer(Advanced)
+export default observer(SettingsAdvanced)

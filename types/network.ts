@@ -1,4 +1,5 @@
 import { Network } from "bitcoin-address-validation"
+import { Network as BreezNetwork } from "react-native-breez-sdk"
 
 const toNetwork = (network: string): Network => {
     switch (network) {
@@ -11,4 +12,17 @@ const toNetwork = (network: string): Network => {
     return Network.mainnet
 }
 
-export { toNetwork }
+const toBreezNetwork = (network: string): BreezNetwork => {
+    switch (network) {
+        case Network.regtest:
+            return BreezNetwork.REGTEST
+        case Network.testnet:
+            return BreezNetwork.TESTNET
+        case "signet":
+            return BreezNetwork.SIGNET
+    }
+
+    return BreezNetwork.BITCOIN
+}
+
+export { toBreezNetwork, toNetwork }

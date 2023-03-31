@@ -1,4 +1,5 @@
 interface Tooltip {
+    backend?: boolean
     cards?: boolean
     syncing?: boolean
 }

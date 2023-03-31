@@ -1,8 +1,9 @@
 import PlatformSafeAreaView from "components/PlatformSafeAreaView"
+import RoundedButton from "components/RoundedButton"
 import { useStore } from "hooks/useStore"
 import I18n from "i18n-js"
 import { observer } from "mobx-react"
-import { Button, Text, useColorModeValue } from "native-base"
+import { HStack, Text, useColorModeValue } from "native-base"
 import React, { useState } from "react"
 import { Dimensions, ImageBackground, StyleSheet, View } from "react-native"
 import Swiper from "react-native-swiper"
@@ -11,6 +12,7 @@ import { AppStackParamList } from "screens/AppStack"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { ONBOARDING_VERSION } from "utils/constants"
+import { LightningBackend } from "types/lightningBackend"
 
 const log = new Log("Welcome")
 const logo = require("assets/Logo.png")
@@ -26,7 +28,7 @@ const styleSheet = StyleSheet.create({
     image: {
         position: "absolute"
     },
-    button: {
+    buttonContainer: {
         position: "absolute",
         bottom: 100
     },
@@ -66,7 +68,11 @@ const Welcome = ({ navigation }: WelcomeProps) => {
         setDotColor(dotColors[index])
     }
 
-    const onPress = () => {
+    const onImportPress = () => {
+        navigation.navigate("SettingsImportMnemonic", { backend: LightningBackend.BREEZ_SDK })
+    }
+
+    const onStartPress = () => {
         uiStore.setOnboarding(true, ONBOARDING_VERSION)
         navigation.navigate("Home")
     }
@@ -112,9 +118,12 @@ const Welcome = ({ navigation }: WelcomeProps) => {
                     <Text style={styleSheet.subtext} textAlign="center">
                         {I18n.t("Welcome_OnboardingSlide3Subtitle")}
                     </Text>
-                    <Button onPress={onPress} style={styleSheet.button}>
-                        {I18n.t("Welcome_StartButton")}
-                    </Button>
+                    <HStack style={styleSheet.buttonContainer} space={2}>
+                        <RoundedButton variant="outline" colorScheme="cyan" onPress={onImportPress}>
+                            {I18n.t("Welcome_ImportButton")}
+                        </RoundedButton>
+                        <RoundedButton onPress={onStartPress}>{I18n.t("Welcome_StartButton")}</RoundedButton>
+                    </HStack>
                 </View>
             </Swiper>
         </PlatformSafeAreaView>

@@ -2,7 +2,7 @@ import cancelable, { Cancelable } from "utils/cancelable"
 import { INTERVAL_RETRY } from "utils/constants"
 import { Log } from "utils/logging"
 
-const log = new Log("Tools")
+const log = new Log("Backoff")
 
 type ActionType = () => any
 type BackoffType = (interval: number) => number
@@ -63,7 +63,7 @@ export const doWhileBackoffUntil = (
 
                 tries++
 
-                if (until > 0 && tries == until) {
+                if (until > 0 && tries === until) {
                     return reject()
                 }
 

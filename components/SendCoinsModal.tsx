@@ -35,7 +35,7 @@ const SendCoinsModal = ({ isVisible, onClose }: SendCoinsModalProps) => {
         setIsBusy(true)
 
         try {
-            await walletStore.sendCoins({ addr: address })
+            await walletStore.sweep(address)
 
             onClose()
         } catch (error) {

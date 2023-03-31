@@ -1,4 +1,4 @@
-import { encodeRequest, ISendRequest } from "services/LndMobileService"
+import { encodeRequest, ISendRequest } from "services/lnd/mobile"
 import { Duplex } from "stream"
 import { Cancelable } from "utils/cancelable"
 

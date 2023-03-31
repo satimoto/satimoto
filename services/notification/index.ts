@@ -48,7 +48,7 @@ const notificationMessageHandler = async (remoteMessage: FirebaseMessagingTypes.
 }
 
 const remoteMessageToNotification = (data: unknown): NotificationTypes => {
-    if (typeof data == "object" && data !== null && "type" in data) {
+    if (typeof data === "object" && data !== null && "type" in data) {
         const anyData = data as any
         switch (anyData["type"]) {
             case NotificationType.DATA_PING:

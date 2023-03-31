@@ -19,6 +19,7 @@ interface CreateUserInput {
     code: string
     pubkey: string
     deviceToken?: string
+    lsp?: boolean
 }
 
 const createUser = (client: ApolloClient<NormalizedCacheObject>) => {
@@ -44,6 +45,9 @@ const GET_USER = gql`
             id
             pubkey
             referralCode
+            batteryCapacity
+            batteryPowerAc
+            batteryPowerDc
             node {
                 pubkey
                 addr
@@ -106,6 +110,9 @@ const UPDATE_USER = gql`
 `
 
 interface UpdateUserInput {
+    batteryCapacity?: number
+    batteryPowerAc?: number
+    batteryPowerDc?: number
     deviceToken: string
 }
 

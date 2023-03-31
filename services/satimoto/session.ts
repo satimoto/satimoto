@@ -100,3 +100,34 @@ const listSessions = (client: ApolloClient<NormalizedCacheObject>) => {
 }
 
 export { listSessions }
+
+/**
+ * Update Session
+ */
+
+const UPDATE_SESSION = gql`
+    ${SESSION_FRAGMENT}
+    mutation UpdateSession($input: UpdateSessionInput!) {
+        updateSession(input: $input) {
+            ...SessionFragment
+        }
+    }
+`
+
+interface UpdateSessionInput {
+    uid: string
+    isConfirmed: boolean
+}
+
+const updateSession = (client: ApolloClient<NormalizedCacheObject>) => {
+    return async (input: UpdateSessionInput) => {
+        return await client.mutate({
+            mutation: UPDATE_SESSION,
+            variables: {
+                input
+            }
+        })
+    }
+}
+
+export { updateSession }

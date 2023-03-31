@@ -10,21 +10,21 @@ import { FileLogger } from "react-native-file-logger"
 import { RouteProp, StackActions, useFocusEffect } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { getInfo } from "services/LightningService"
+import { getInfo } from "services/lnd"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { APPLICATION_VERSION } from "utils/constants"
 
 const popAction = StackActions.pop()
-const log = new Log("SendReport")
+const log = new Log("SettingsSendReport")
 
-type SendReportProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "SendReport">
-    route: RouteProp<AppStackParamList, "SendReport">
+type SettingsSendReportProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsSendReport">
+    route: RouteProp<AppStackParamList, "SettingsSendReport">
 }
 
-const SendReport = ({ navigation, route }: SendReportProps) => {
+const SettingsSendReport = ({ navigation, route }: SettingsSendReportProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
@@ -79,7 +79,7 @@ const SendReport = ({ navigation, route }: SendReportProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => <HeaderBackButton tintColor={navigationOptions.headerTintColor} onPress={onBackPress} />,
-            title: I18n.t("SendReport_HeaderTitle")
+            title: I18n.t("SettingsSendReport_HeaderTitle")
         })
     }, [navigation])
 
@@ -88,7 +88,7 @@ const SendReport = ({ navigation, route }: SendReportProps) => {
             <View style={[styles.focusViewPanel, { backgroundColor }]}>
                 <VStack space={5}>
                     <Text color={textColor} fontSize="lg">
-                        {I18n.t("SendReport_Text")}
+                        {I18n.t("SettingsSendReport_Text")}
                     </Text>
                     <TextArea color={textColor} value={reportBody} onChangeText={onReportBodyChange} numberOfLines={20} />
                     <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
@@ -100,4 +100,4 @@ const SendReport = ({ navigation, route }: SendReportProps) => {
     )
 }
 
-export default observer(SendReport)
+export default observer(SettingsSendReport)

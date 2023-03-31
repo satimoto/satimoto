@@ -5,14 +5,13 @@ import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel, { LocationModelLike } from "models/Location"
 import PoiModel, { PoiModelLike } from "models/Poi"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { getConnector, getLocation, getPoi, listLocations, listPois } from "services/SatimotoService"
+import { getConnector, getEvse, getLocation, getPoi, listLocations, listPois } from "services/satimoto"
 import { StoreInterface, Store } from "stores/Store"
 import { EvseStatus, EvseStatusSortMap } from "types/evse"
 import { DEBUG } from "utils/build"
 import { LOCATION_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { delta } from "utils/delta"
-import { getEvse } from "services/SatimotoService"
 
 const log = new Log("LocationStore")
 
@@ -123,7 +122,7 @@ export class LocationStore implements LocationStoreInterface {
 
     async fetchLocations() {
         if (this.stores.settingStore.accessToken) {
-            if (this.bounds && this.bounds.length == 2) {
+            if (this.bounds && this.bounds.length === 2) {
                 if (this.lastLocationChanged) {
                     const pois = await listPois({
                         xMin: this.bounds[1][0],

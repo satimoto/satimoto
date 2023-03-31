@@ -1,6 +1,6 @@
 import { lnrpc } from "proto/proto"
 import { NativeModules } from "react-native"
-import { sendCommand, deserializeResponse } from "services/LndMobileService"
+import { sendCommand, deserializeResponse } from "services/lnd/mobile"
 import { toBytesOrNull, toLong } from "utils/conversion"
 import { Log } from "utils/logging"
 

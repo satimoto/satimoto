@@ -21,3 +21,5 @@ export const startLogEvents = (): void => {
     })
     LndUtils.startLogEvents()
 }
+
+export { LndUtils }

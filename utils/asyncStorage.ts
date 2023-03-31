@@ -11,7 +11,7 @@ export type ComplexAsyncStorageHydrationMap = {
 
 export const ComplexAsyncStorage = (get: ComplexAsyncStorageHydrationMap, set: ComplexAsyncStorageHydrationMap = {}): StorageController => {
     const reviver = (key: string, value: any): any => {
-        if (key.length == 0) return value
+        if (key.length === 0) return value
 
         if (get[key]) {
             return get[key](value)

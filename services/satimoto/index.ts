@@ -2,30 +2,28 @@ import { ApolloClient, ApolloLink, HttpLink } from "@apollo/client"
 import { setContext } from "@apollo/client/link/context"
 import { onError } from "@apollo/client/link/error"
 import { InvalidationPolicyCache } from "apollo-invalidation-policies"
-import * as Authentication from "./satimoto/authentication"
-import { AuthenticationAction } from "./satimoto/authentication"
-import * as ChannelRequest from "./satimoto/channelRequest"
-import type { CreateChannelRequestInput } from "./satimoto/channelRequest"
-import * as Command from "./satimoto/command"
-import * as Connector from "./satimoto/connector"
-import * as Evse from "./satimoto/evse"
-import * as InvoiceRequest from "./satimoto/invoiceRequest"
-import type { UpdateInvoiceRequestInput } from "./satimoto/invoiceRequest"
-import * as Location from "./satimoto/location"
-import * as Node from "./satimoto/node"
-import * as Poi from "./satimoto/poi"
-import * as Rate from "./satimoto/rate"
-import * as Session from "./satimoto/session"
-import * as SessionInvoice from "./satimoto/sessionInvoice"
-import * as Tariff from "./satimoto/tariff"
-import * as Token from "./satimoto/token"
-import * as TokenAuthorization from "./satimoto/tokenAuthorization"
-import * as User from "./satimoto/user"
+import * as Authentication from "./authentication"
+import { AuthenticationAction } from "./authentication"
+import * as ChannelRequest from "./channelRequest"
+import type { CreateChannelRequestInput } from "./channelRequest"
+import * as Command from "./command"
+import * as Connector from "./connector"
+import * as Evse from "./evse"
+import * as InvoiceRequest from "./invoiceRequest"
+import type { UpdateInvoiceRequestInput } from "./invoiceRequest"
+import * as Location from "./location"
+import * as Node from "./node"
+import * as Poi from "./poi"
+import * as Rate from "./rate"
+import * as Session from "./session"
+import * as SessionInvoice from "./sessionInvoice"
+import * as Tariff from "./tariff"
+import * as Token from "./token"
+import * as TokenAuthorization from "./tokenAuthorization"
+import * as User from "./user"
 import store from "stores/Store"
 import { API_URI, DEBUG } from "utils/build"
 import { Log } from "utils/logging"
-import { authenticate, getParams, LNURLAuthParams } from "services/LnUrlService"
-import { doWhileBackoff } from "utils/tools"
 
 const log = new Log("SatimotoService")
 
@@ -39,7 +37,7 @@ const invalidationPolicyCache = new InvalidationPolicyCache({
     }
 })
 
-const authLink = setContext(({query, variables, operationName}, { headers }) => {
+const authLink = setContext(({ query, variables, operationName }, { headers }) => {
     const accessToken = store.settingStore.accessToken
 
     if (DEBUG) {
@@ -113,6 +111,7 @@ const getRate = Rate.getRate(client)
 // Session
 const getSession = Session.getSession(client)
 const listSessions = Session.listSessions(client)
+const updateSession = Session.updateSession(client)
 
 // Session Invoice
 const getSessionInvoice = SessionInvoice.getSessionInvoice(client)
@@ -135,54 +134,9 @@ const getUser = User.getUser(client)
 const pongUser = User.pongUser(client)
 const updateUser = User.updateUser(client)
 
-// Token
-const getAccessToken = async (pubkey: string, deviceToken?: string) => {
-    return doWhileBackoff(
-        "getAccessToken",
-        async () => {
-            try {
-                const createAuthenticationResult = await createAuthentication(AuthenticationAction.REGISTER)
-                const lnUrlParams = await getParams(createAuthenticationResult.data.createAuthentication.lnUrl)
-                const lnUrlAuthParams = lnUrlParams as LNURLAuthParams
-
-                log.debug("SAT024: CreateAuthentication: " + JSON.stringify(createAuthenticationResult.data.createAuthentication))
-
-                if (lnUrlAuthParams) {
-                    const authenticateOk = await authenticate(lnUrlAuthParams)
-
-                    log.debug("SAT025: Authentication: " + JSON.stringify(authenticateOk))
-
-                    if (authenticateOk) {
-                        try {
-                            await createUser({
-                                code: createAuthenticationResult.data.createAuthentication.code,
-                                pubkey,
-                                deviceToken
-                            })
-                        } catch (error) {
-                            log.debug(`SAT026: Error creating user: ${error}`, true)
-                        }
-
-                        const exchangeAuthenticationResult = await exchangeAuthentication(createAuthenticationResult.data.createAuthentication.code)
-
-                        log.debug("SAT027: ExchangeAuthentication: " + JSON.stringify(exchangeAuthenticationResult.data.exchangeAuthentication))
-
-                        return exchangeAuthenticationResult.data.exchangeAuthentication.token
-                    }
-                }
-            } catch (error) {
-                log.error(`SAT028: Error getting token: ${error}`, true)
-            }
-        },
-        5000
-    )
-}
-
 export type { CreateChannelRequestInput, UpdateInvoiceRequestInput }
 
 export {
-    // Access Token
-    getAccessToken,
     // Authentication
     AuthenticationAction,
     createAuthentication,
@@ -213,7 +167,8 @@ export {
     // Session
     getSession,
     listSessions,
-    // SEssion Invoice
+    updateSession,
+    // Session Invoice
     getSessionInvoice,
     listSessionInvoices,
     updateSessionInvoice,

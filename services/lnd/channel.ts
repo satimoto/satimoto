@@ -1,5 +1,5 @@
 import { lnrpc } from "proto/proto"
-import { bidirectionalStreamRequest, sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
+import { bidirectionalStreamRequest, sendCommand, sendStreamCommand, sendStreamResponse } from "services/lnd/mobile"
 import { Sendable } from "utils/sendable"
 import { hexToBytes, toLong } from "utils/conversion"
 import { Log } from "utils/logging"

@@ -30,7 +30,7 @@ const ScanNfcModal = ({ isVisible, schemes = [], onNfcTag, onClose }: ScanNfcMod
     const onTag = (tag: TagEvent) => {
         setLastError("")
 
-        if (schemes.length == 0) {
+        if (schemes.length === 0) {
             onNfcTag(tag)
             return
         }

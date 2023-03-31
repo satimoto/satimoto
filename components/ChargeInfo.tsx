@@ -16,7 +16,7 @@ const ChargeInfo = ({ metered, estimated, unit, colorScheme, marginTop = 0 }: Ch
         <HStack alignItems="center" justifyContent="center" marginTop={marginTop}>
             <Badge variant="outline" borderRadius="full" colorScheme={colorScheme} padding={2}>
                 <HStack alignItems="center" justifyContent="center" space={1}>
-                    <Text color="#ffffff" fontSize={14} fontWeight={600}>{metered == 0 ? "-" : metered}</Text>
+                    <Text color="#ffffff" fontSize={14} fontWeight={600}>{metered === 0 ? "-" : metered}</Text>
                     <FontAwesomeIcon icon={faMagnifyingGlass} color="#ffffff" size={14} />
                 </HStack>
             </Badge>
@@ -25,7 +25,7 @@ const ChargeInfo = ({ metered, estimated, unit, colorScheme, marginTop = 0 }: Ch
             </Text>
             <Badge variant="outline" borderRadius="full" colorScheme={colorScheme} padding={2}>
                 <HStack alignItems="center" justifyContent="center" space={1}>
-                    <Text color="#ffffff" fontSize={14} fontWeight={600}>{estimated == 0 ? "-" : estimated}</Text>
+                    <Text color="#ffffff" fontSize={14} fontWeight={600}>{estimated === 0 ? "-" : estimated}</Text>
                     <FontAwesomeIcon icon={faCalculator} color="#ffffff" size={14} />
                 </HStack>
             </Badge>

@@ -12,4 +12,6 @@ export const NETWORK: string = BuildConfig.NETWORK
 
 export const API_URI: string = BuildConfig.API_URI
 
+export const BREEZ_SDK_API_KEY: string = BuildConfig.BREEZ_SDK_API_KEY
+
 export const MAPBOX_API_KEY: string = BuildConfig.MAPBOX_API_KEY

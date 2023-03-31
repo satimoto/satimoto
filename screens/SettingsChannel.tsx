@@ -21,12 +21,12 @@ import styles from "utils/styles"
 
 const popAction = StackActions.pop()
 
-type ChannelDetailProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "ChannelDetail">
-    route: RouteProp<AppStackParamList, "ChannelDetail">
+type SettingsChannelProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsChannel">
+    route: RouteProp<AppStackParamList, "SettingsChannel">
 }
 
-const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
+const SettingsChannel = ({ navigation, route }: SettingsChannelProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
@@ -51,7 +51,7 @@ const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => <HeaderBackButton tintColor={navigationOptions.headerTintColor} onPress={onBackPress} />,
-            title: I18n.t("ChannelDetail_HeaderTitle")
+            title: I18n.t("SettingsChannel_HeaderTitle")
         })
     }, [navigation])
 
@@ -61,7 +61,7 @@ const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
                 <View style={{ backgroundColor, alignItems: "center" }}>
                     <SatoshiBalance size={36} color={textColor} satoshis={channel.capacity} />
                     <Text fontSize="sm" color={textColor}>
-                        {I18n.t("ChannelDetail_CapacityText")}
+                        {I18n.t("SettingsChannel_CapacityText")}
                     </Text>
                 </View>
                 <VStack space={3} marginTop={5}>
@@ -106,4 +106,4 @@ const ChannelDetail = ({ navigation, route }: ChannelDetailProps) => {
     )
 }
 
-export default observer(ChannelDetail)
+export default observer(SettingsChannel)

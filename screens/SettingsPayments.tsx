@@ -16,11 +16,11 @@ import { AppStackParamList } from "screens/AppStack"
 import styles from "utils/styles"
 import I18n from "utils/i18n"
 
-type TransactionListProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "TransactionList">
+type SettingsPaymentsProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsPayments">
 }
 
-const TransactionList = ({ navigation }: TransactionListProps) => {
+const SettingsPayments = ({ navigation }: SettingsPaymentsProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
@@ -30,7 +30,7 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: I18n.t("TransactionList_HeaderTitle"),
+            title: I18n.t("SettingsPayments_HeaderTitle"),
             headerRight: () => <HeaderButton icon={faTimes} onPress={() => setClearTransactionsModalShown(true)} />
         })
     }, [navigation])
@@ -54,4 +54,4 @@ const TransactionList = ({ navigation }: TransactionListProps) => {
     )
 }
 
-export default observer(TransactionList)
+export default observer(SettingsPayments)

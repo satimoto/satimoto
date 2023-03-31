@@ -4,11 +4,14 @@ import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NetInfo from "@react-native-community/netinfo"
 import messaging from "@react-native-firebase/messaging"
-import { updateUser, getAccessToken, getUser, pongUser } from "services/SatimotoService"
+import * as breezSdk from "react-native-breez-sdk"
+import { updateUser, getUser, pongUser, createAuthentication, AuthenticationAction, createUser, exchangeAuthentication } from "services/satimoto"
 import { StoreInterface, Store } from "stores/Store"
 import { DataPingNotification } from "types/notification"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
+import { doWhileBackoff } from "utils/backoff"
+import { LightningBackend } from "types/lightningBackend"
 
 const log = new Log("SettingStore")
 
@@ -17,6 +20,9 @@ export interface SettingStoreInterface extends StoreInterface {
     stores: Store
 
     accessToken?: string
+    batteryCapacity?: number
+    batteryPowerAc?: number
+    batteryPowerDc?: number
     referralCode?: string
     pushNotificationEnabled: boolean
     pushNotificationToken?: string
@@ -24,6 +30,7 @@ export interface SettingStoreInterface extends StoreInterface {
 
     onDataPingNotification(notification: DataPingNotification): Promise<void>
     requestPushNotificationPermission(): Promise<boolean>
+    setBatterySettings(batteryCapacity?: number, batteryPowerAc?: number, batteryPowerDc?: number): void
     setIncludeChannelReserve(include: boolean): void
     setPushNotificationSettings(enabled: boolean, token: string): void
 }
@@ -35,6 +42,9 @@ export class SettingStore implements SettingStoreInterface {
     stores
 
     accessToken?: string = undefined
+    batteryCapacity?: number = undefined
+    batteryPowerAc?: number = undefined
+    batteryPowerDc?: number = undefined
     includeChannelReserve = true
     pushNotificationEnabled = false
     pushNotificationToken?: string = undefined
@@ -48,12 +58,17 @@ export class SettingStore implements SettingStoreInterface {
             ready: observable,
 
             accessToken: observable,
+            batteryCapacity: observable,
+            batteryPowerAc: observable,
+            batteryPowerDc: observable,
             includeChannelReserve: observable,
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
             referralCode: observable,
 
+            actionResetSettings: action,
             actionSetAccessToken: action,
+            actionSetBatterySettings: action,
             actionSetUser: action,
             actionSetIncludeChannelReserve: action,
             actionSetPushNotificationSettings: action
@@ -63,7 +78,16 @@ export class SettingStore implements SettingStoreInterface {
             this,
             {
                 name: "SettingStore",
-                properties: ["accessToken", "includeChannelReserve", "pushNotificationEnabled", "pushNotificationToken", "referralCode"],
+                properties: [
+                    "accessToken",
+                    "batteryCapacity",
+                    "batteryPowerAc",
+                    "batteryPowerDc",
+                    "includeChannelReserve",
+                    "pushNotificationEnabled",
+                    "pushNotificationToken",
+                    "referralCode"
+                ],
                 storage: AsyncStorage,
                 debugMode: DEBUG
             },
@@ -80,7 +104,7 @@ export class SettingStore implements SettingStoreInterface {
         )
 
         reaction(
-            () => this.pushNotificationToken,
+            () => [this.batteryCapacity, this.batteryPowerAc, this.batteryPowerDc, this.pushNotificationToken],
             () => this.reactionUpdateUser()
         )
 
@@ -90,6 +114,57 @@ export class SettingStore implements SettingStoreInterface {
         )
 
         this.actionSetReady()
+    }
+
+    async getAccessToken() {
+        return doWhileBackoff(
+            "getAccessToken",
+            async () => {
+                try {
+                    if (this.stores.lightningStore.identityPubkey) {
+                        const createAuthenticationResult = await createAuthentication(AuthenticationAction.REGISTER)
+                        log.debug("SAT024: CreateAuthentication: " + JSON.stringify(createAuthenticationResult.data.createAuthentication))
+
+                        const inputParams = await breezSdk.parseInput(createAuthenticationResult.data.createAuthentication.lnUrl)
+                        log.debug("SAT062: parseInput: " + JSON.stringify(inputParams))
+
+                        if (inputParams.type === breezSdk.InputType.LNURL_AUTH) {
+                            const lnUrlAuthRequestData = inputParams.data as breezSdk.LnUrlAuthRequestData
+                            const authenticateOk = await this.stores.lightningStore.authLnurl(lnUrlAuthRequestData)
+
+                            log.debug("SAT025: Authentication: " + JSON.stringify(authenticateOk))
+
+                            if (authenticateOk) {
+                                try {
+                                    // TODO: select a different node
+                                    await createUser({
+                                        code: createAuthenticationResult.data.createAuthentication.code,
+                                        pubkey: this.stores.lightningStore.identityPubkey,
+                                        deviceToken: this.pushNotificationToken,
+                                        lsp: this.stores.lightningStore.backend === LightningBackend.LND
+                                    })
+                                } catch (error) {
+                                    log.debug(`SAT026: Error creating user: ${error}`, true)
+                                }
+
+                                const exchangeAuthenticationResult = await exchangeAuthentication(
+                                    createAuthenticationResult.data.createAuthentication.code
+                                )
+
+                                log.debug(
+                                    "SAT027: ExchangeAuthentication: " + JSON.stringify(exchangeAuthenticationResult.data.exchangeAuthentication)
+                                )
+
+                                return exchangeAuthenticationResult.data.exchangeAuthentication.token
+                            }
+                        }
+                    }
+                } catch (error) {
+                    log.error(`SAT028: Error getting token: ${error}`, true)
+                }
+            },
+            5000
+        )
     }
 
     async onDataPingNotification(notification: DataPingNotification): Promise<void> {
@@ -127,6 +202,14 @@ export class SettingStore implements SettingStoreInterface {
         return enabled
     }
 
+    reset() {
+        this.actionResetSettings()
+    }
+
+    setBatterySettings(batteryCapacity?: number, batteryPowerAc?: number, batteryPowerDc?: number) {
+        this.actionSetBatterySettings(batteryCapacity, batteryPowerAc, batteryPowerDc)
+    }
+
     setIncludeChannelReserve(include: boolean) {
         this.actionSetIncludeChannelReserve(include)
     }
@@ -147,8 +230,21 @@ export class SettingStore implements SettingStoreInterface {
      * Mobx actions and reactions
      */
 
+    actionResetSettings() {
+        this.accessToken = undefined
+        this.pushNotificationEnabled = false
+        this.pushNotificationToken = undefined
+        this.referralCode = undefined
+    }
+
     actionSetAccessToken(accessToken?: string) {
         this.accessToken = accessToken
+    }
+
+    actionSetBatterySettings(batteryCapacity?: number, batteryPowerAc?: number, batteryPowerDc?: number) {
+        this.batteryCapacity = batteryCapacity
+        this.batteryPowerAc = batteryPowerAc
+        this.batteryPowerDc = batteryPowerDc
     }
 
     actionSetIncludeChannelReserve(include: boolean) {
@@ -168,6 +264,9 @@ export class SettingStore implements SettingStoreInterface {
 
     actionSetUser(user?: UserModel) {
         this.referralCode = user?.referralCode
+        this.batteryCapacity = user?.batteryCapacity
+        this.batteryPowerAc = user?.batteryPowerAc
+        this.batteryPowerDc = user?.batteryPowerDc
     }
 
     async reactionGetUser() {
@@ -177,7 +276,7 @@ export class SettingStore implements SettingStoreInterface {
 
             this.actionSetUser(user)
 
-            if (user.node) {
+            if (user.node && this.stores.lightningStore.backend == LightningBackend.LND) {
                 await this.stores.peerStore.connectPeer(user.node.pubkey, user.node.addr)
             }
         }
@@ -185,7 +284,7 @@ export class SettingStore implements SettingStoreInterface {
 
     async reactionGetToken() {
         if (!this.accessToken && this.stores.lightningStore.identityPubkey) {
-            const token = await getAccessToken(this.stores.lightningStore.identityPubkey, this.pushNotificationToken)
+            const token = await this.getAccessToken()
 
             this.actionSetAccessToken(token)
         }
@@ -193,7 +292,12 @@ export class SettingStore implements SettingStoreInterface {
 
     async reactionUpdateUser() {
         if (this.accessToken && this.pushNotificationToken) {
-            updateUser({ deviceToken: this.pushNotificationToken })
+            updateUser({
+                batteryCapacity: this.batteryCapacity,
+                batteryPowerAc: this.batteryPowerAc,
+                batteryPowerDc: this.batteryPowerDc,
+                deviceToken: this.pushNotificationToken
+            })
         }
     }
 }

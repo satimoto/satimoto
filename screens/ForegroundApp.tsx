@@ -1,4 +1,5 @@
 import { ApolloProvider } from "@apollo/client"
+import { Buffer } from "buffer"
 import { NativeBaseProvider } from "native-base"
 import * as protobuf from "protobufjs"
 import { StoreProvider } from "providers/StoreProvider"
@@ -8,8 +9,8 @@ import RNBootSplash from "react-native-bootsplash"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { NavigationContainer } from "@react-navigation/native"
 import AppStack from "screens/AppStack"
-import notificationMessageHandler from "services/NotificationService"
-import client from "services/SatimotoService"
+import notificationMessageHandler from "services/notification"
+import client from "services/satimoto"
 import store from "stores/Store"
 import { API_URI, APPLICATION_ID, MAPBOX_API_KEY, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
@@ -19,6 +20,7 @@ import { observer } from "mobx-react"
 import BackgroundFetch from "react-native-background-fetch"
 import { backgroundEvent, backgroundTimeout, BACKGROUND_FETCH_CONFIG } from "utils/background"
 
+global.Buffer = Buffer
 global.process = require("../polyfills/process")
 protobuf.util.toJSONOptions = { defaults: true }
 

@@ -140,9 +140,10 @@ android {
         applicationId "com.satimoto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 28
-        versionName "0.4.3"
+        versionCode 29
+        versionName "0.4.4"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+        buildConfigField "String", "BREEZ_SDK_API_KEY", project.property('BREEZ_SDK_API_KEY')
         missingDimensionStrategy 'react-native-camera', 'general'
         manifestPlaceholders = [appName: "Satimoto"]
 
@@ -254,7 +255,7 @@ android {
             applicationIdSuffix ".regtest"
             buildConfigField "String", "API_URI", '"http://10.0.2.2:9000"'
             buildConfigField "String", "NETWORK", '"regtest"'
-            buildConfigField "String", "MAPBOX_API_KEY", project.property('satimoto.mapboxApiKey')          
+            buildConfigField "String", "MAPBOX_API_KEY", project.property('MAPBOX_API_KEY')          
             manifestPlaceholders = [network: " Regtest"]
         }
         networktestnet {
@@ -262,14 +263,14 @@ android {
             applicationIdSuffix ".testnet"
             buildConfigField "String", "API_URI", '"https://api.testnet.satimoto.com"'
             buildConfigField "String", "NETWORK", '"testnet"'
-            buildConfigField "String", "MAPBOX_API_KEY", project.property('satimoto.mapboxApiKey')          
+            buildConfigField "String", "MAPBOX_API_KEY", project.property('MAPBOX_API_KEY')          
             manifestPlaceholders = [network: " Testnet"]
         }
         networkmainnet {
             dimension "network"
             buildConfigField "String", "API_URI", '"https://api.satimoto.com"'
             buildConfigField "String", "NETWORK", '"mainnet"'
-            buildConfigField "String", "MAPBOX_API_KEY", project.property('satimoto.mapboxApiKey')          
+            buildConfigField "String", "MAPBOX_API_KEY", project.property('MAPBOX_API_KEY')          
             manifestPlaceholders = [network: ""]
         }
     }
@@ -304,6 +305,8 @@ android {
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.1.0')
     
+    implementation project(':react-native-breez-sdk')
+
     implementation project(':react-native-build-config')
 
     implementation project(':react-native-secure-storage')

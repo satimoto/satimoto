@@ -12,11 +12,11 @@ import { AppStackParamList } from "screens/AppStack"
 import styles from "utils/styles"
 import I18n from "utils/i18n"
 
-type ChannelListProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "ChannelList">
+type SettingsChannelsProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsChannels">
 }
 
-const ChannelList = ({ navigation }: ChannelListProps) => {
+const SettingsChannels = ({ navigation }: SettingsChannelsProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
@@ -24,12 +24,12 @@ const ChannelList = ({ navigation }: ChannelListProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: I18n.t("ChannelList_HeaderTitle")
+            title: I18n.t("SettingsChannels_HeaderTitle")
         })
     }, [navigation])
 
     const onChannelPress = (channel: ChannelModel) => {
-        navigation.navigate("ChannelDetail", {channel: channel})
+        navigation.navigate("SettingsChannel", {channel: channel})
     }
 
     return (
@@ -45,4 +45,4 @@ const ChannelList = ({ navigation }: ChannelListProps) => {
     )
 }
 
-export default observer(ChannelList)
+export default observer(SettingsChannels)

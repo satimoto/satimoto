@@ -1,5 +1,5 @@
 import { lnrpc } from "proto/proto"
-import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
+import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/lnd/mobile"
 import { Log } from "utils/logging"
 
 const log = new Log("State")

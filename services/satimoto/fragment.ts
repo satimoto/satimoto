@@ -209,7 +209,6 @@ const SESSION_UPDATE_FRAGMENT = gql`
 `
 
 const SESSION_FRAGMENT = gql`
-    ${INVOICE_REQUEST_FRAGMENT}
     fragment SessionFragment on Session {
         uid
         authorizationId
@@ -218,9 +217,6 @@ const SESSION_FRAGMENT = gql`
         kwh
         authMethod
         meterId
-        invoiceRequest {
-            ...InvoiceRequestFragment
-        }
         status
         lastUpdated
     }
@@ -247,10 +243,14 @@ const SESSION_WITH_CHARGE_POINT_FRAGMENT = gql`
 
 const SESSION_WITH_INVOICES_AND_UPDATES_FRAGMENT = gql`
     ${SESSION_FRAGMENT}
+    ${INVOICE_REQUEST_FRAGMENT}
     ${SESSION_INVOICE_FRAGMENT}
     ${SESSION_UPDATE_FRAGMENT}
     fragment SessionWithInvoicesAndUpdatesFragment on Session {
         ...SessionFragment
+        invoiceRequests {
+            ...InvoiceRequestFragment
+        }
         sessionInvoices {
             ...SessionInvoiceFragment
         }
@@ -261,22 +261,14 @@ const SESSION_WITH_INVOICES_AND_UPDATES_FRAGMENT = gql`
 `
 
 const SESSION_WITH_CHARGE_POINT_INVOICES_AND_UPDATES_FRAGMENT = gql`
-    ${SESSION_FRAGMENT}
-    ${LOCATION_FRAGMENT}
-    ${EVSE_FRAGMENT}
-    ${CONNECTOR_FRAGMENT}
+    ${SESSION_WITH_CHARGE_POINT_FRAGMENT}
+    ${INVOICE_REQUEST_FRAGMENT}
     ${SESSION_INVOICE_FRAGMENT}
     ${SESSION_UPDATE_FRAGMENT}
     fragment SessionWithChargePointInvoicesAndUpdatesFragment on Session {
-        ...SessionFragment
-        location {
-            ...LocationFragment
-        }
-        evse {
-            ...EvseFragment
-        }
-        connector {
-            ...ConnectorFragment
+        ...SessionWithChargePointFragment
+        invoiceRequests {
+            ...InvoiceRequestFragment
         }
         sessionInvoices {
             ...SessionInvoiceFragment

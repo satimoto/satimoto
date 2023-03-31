@@ -11,7 +11,6 @@ import SessionInvoiceModel from "models/SessionInvoice"
 import TokenAuthorizationModel from "models/TokenAuthorization"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NetInfo from "@react-native-community/netinfo"
-import { verifyMessage } from "services/LightningService"
 import {
     getSession,
     getSessionInvoice,
@@ -19,8 +18,9 @@ import {
     listSessionInvoices,
     startSession,
     stopSession,
-    updateTokenAuthorization
-} from "services/SatimotoService"
+    updateTokenAuthorization,
+    updateSession
+} from "services/satimoto"
 import { StoreInterface, Store } from "stores/Store"
 import { ChargeSessionStatus, toChargeSessionStatus } from "types/chargeSession"
 import { PaymentStatus } from "types/payment"
@@ -30,7 +30,7 @@ import { TokenType, toTokenType } from "types/token"
 import { DEBUG } from "utils/build"
 import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL, SESSION_UPDATE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
-import { toBytes, toSatoshi } from "utils/conversion"
+import { toSatoshi } from "utils/conversion"
 import { CommandStatus } from "types/command"
 
 const log = new Log("SessionStore")
@@ -57,6 +57,7 @@ export interface SessionStoreInterface extends StoreInterface {
     onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void>
     onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void>
 
+    confirmSession(): void
     refreshSessions(): Promise<void>
     startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void>
     stopSession(): Promise<void>
@@ -116,6 +117,7 @@ export class SessionStore implements SessionStoreInterface {
             feeSat: computed,
 
             actionAddPayment: action,
+            actionResetSessions: action,
             actionSetIdle: action,
             actionSetReady: action,
             actionStartSession: action,
@@ -201,6 +203,15 @@ export class SessionStore implements SessionStoreInterface {
             : "0"
     }
 
+    async confirmSession() {
+        if (this.stores.settingStore.accessToken && this.session) {
+            const response = await updateSession({uid: this.session.uid, isConfirmed: true})
+            const session = response.data.updateSession as SessionModel
+
+            this.actionUpdateSession(session)
+        }
+    }
+
     async fetchSession(): Promise<void> {
         if (this.stores.settingStore.accessToken && (this.session || this.authorizationId)) {
             const response = await getSession(this.session ? { uid: this.session.uid } : { authorizationId: this.authorizationId })
@@ -278,7 +289,7 @@ export class SessionStore implements SessionStoreInterface {
 
             await when(() => this.stores.lightningStore.syncedToChain)
 
-            const payment = await this.stores.paymentStore.sendPayment({ paymentRequest: sessionInvoice.paymentRequest })
+            const payment = await this.stores.paymentStore.sendPayment(sessionInvoice.paymentRequest)
 
             if (payment.status === PaymentStatus.SUCCEEDED) {
                 sessionInvoice.isSettled = true
@@ -297,6 +308,10 @@ export class SessionStore implements SessionStoreInterface {
             log.debug(`SAT101: refreshSessions: count=${sessions.length}`)
             this.actionUpdateSessions(sessions)
         }
+    }
+
+    reset() {
+        this.actionResetSessions()
     }
 
     async startSession(location: LocationModel, evse: EvseModel, connector: ConnectorModel): Promise<void> {
@@ -366,6 +381,11 @@ export class SessionStore implements SessionStoreInterface {
         if (this.status !== ChargeSessionStatus.IDLE) {
             this.payments.unshift(payment)
         }
+    }
+
+    actionResetSessions() {
+        this.payments.clear()
+        this.sessions.clear()
     }
 
     actionSetIdle() {
@@ -441,6 +461,7 @@ export class SessionStore implements SessionStoreInterface {
         }
 
         if (this.session.status !== SessionStatus.ACTIVE && this.session.status !== SessionStatus.PENDING) {
+            this.payments.clear()
             this.authorizationId = undefined
             this.tokenType = undefined
             this.session = undefined

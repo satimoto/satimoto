@@ -4,8 +4,12 @@ import sha256 from "fast-sha256"
 import Long from "long"
 import { BytesLikeType, LongLikeType, SomeType } from "utils/types"
 
+export const deepCopy = (data: any): any => {
+    return JSON.parse(JSON.stringify(data))
+}
+
 export const hexToBytes = (data: BytesLikeType): Uint8Array => {
-    return typeof data == "string" ? Uint8Array.from(Buffer.from(data, "hex")) : data
+    return typeof data === "string" ? Uint8Array.from(Buffer.from(data, "hex")) : data
 }
 
 export const bytesToHex = (data: BytesLikeType): string => {
@@ -13,7 +17,7 @@ export const bytesToHex = (data: BytesLikeType): string => {
 }
 
 export const base64ToBytes = (data: BytesLikeType): Uint8Array => {
-    return typeof data == "string" ? b64ToBytes(data) : data
+    return typeof data === "string" ? b64ToBytes(data) : data
 }
 
 export const bytesToBase64 = (data: BytesLikeType): string => {

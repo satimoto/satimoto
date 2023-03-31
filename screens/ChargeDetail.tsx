@@ -1,4 +1,5 @@
 import AddressCard from "components/AddressCard"
+import BusyButton from "components/BusyButton"
 import ChargeInfo from "components/ChargeInfo"
 import ConfirmationModal from "components/ConfirmationModal"
 import PaymentButton from "components/PaymentButton"
@@ -10,8 +11,8 @@ import useColor from "hooks/useColor"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import PaymentModel from "models/Payment"
-import { IconButton, useTheme, VStack } from "native-base"
-import React, { useLayoutEffect, useState } from "react"
+import { IconButton, Text, useTheme, VStack } from "native-base"
+import React, { useCallback, useLayoutEffect, useState } from "react"
 import { ScrollView, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
@@ -30,17 +31,28 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColor(colors.lightText, colors.darkText)
     const safeAreaInsets = useSafeAreaInsets()
+    const [isConfirmChargeBusy, setConfirmChargeIsBusy] = useState(false)
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [shownPayment, setShownPayment] = useState<PaymentModel>()
     const { sessionStore } = useStore()
 
-    const onStopPress = async () => {
-        await sessionStore.stopSession()
-        setIsConfirmationModalVisible(false)
-    }
+    const onConfirmChargePress = useCallback(async () => {
+        setConfirmChargeIsBusy(true)
+
+        try {
+            await sessionStore.confirmSession()
+        } catch (error) {}
+
+        setConfirmChargeIsBusy(false)
+    }, [])
 
     const onPaymentPress = (payment: PaymentModel) => {
         setShownPayment(payment)
+    }
+
+    const onStopPress = async () => {
+        await sessionStore.stopSession()
+        setIsConfirmationModalVisible(false)
     }
 
     useLayoutEffect(() => {
@@ -80,16 +92,33 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                     <SatoshiBalance size={16} color={textColor} satoshis={parseInt(sessionStore.feeSat)} prependText="FEE" />
                 </View>
             </VStack>
-            <View>
-                <ChargeInfo
-                    colorScheme="orange"
-                    marginTop={2}
-                    metered={sessionStore.meteredEnergy}
-                    unit="kWh"
-                    estimated={sessionStore.estimatedEnergy}
-                />
-                <ChargeInfo colorScheme="blue" marginTop={2} metered={sessionStore.meteredTime} unit="mins" estimated={sessionStore.estimatedTime} />
-            </View>
+            {sessionStore.status === ChargeSessionStatus.STARTING ? (
+                <View>
+                    <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                        {I18n.t("ConnectorDetail_ConfirmChargeText")}
+                    </Text>
+                    <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} style={styles.focusViewButton}>
+                        {I18n.t("Button_ConfirmCharge")}
+                    </BusyButton>
+                </View>
+            ) : (
+                <View>
+                    <ChargeInfo
+                        colorScheme="orange"
+                        marginTop={2}
+                        metered={sessionStore.meteredEnergy}
+                        unit="kWh"
+                        estimated={sessionStore.estimatedEnergy}
+                    />
+                    <ChargeInfo
+                        colorScheme="blue"
+                        marginTop={2}
+                        metered={sessionStore.meteredTime}
+                        unit="mins"
+                        estimated={sessionStore.estimatedTime}
+                    />
+                </View>
+            )}
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
                     {sessionStore.payments.map((payment) => (

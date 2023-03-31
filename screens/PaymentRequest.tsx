@@ -13,7 +13,7 @@ import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { PaymentStatus } from "types/payment"
-import { errorToString, toNumber } from "utils/conversion"
+import { errorToString, toNumber, toSatoshi } from "utils/conversion"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
@@ -36,8 +36,8 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
     const { paymentStore } = useStore()
     const [isBusy, setIsBusy] = useState(false)
     const [lastError, setLastError] = useState("")
-    const [payReq, setPayReq] = useState(route.params.payReq)
-    const [decodedPayReq, setDecodedPayReq] = useState(route.params.decodedPayReq)
+    const [payReq] = useState(route.params.payReq)
+    const [lnInvoice] = useState(route.params.lnInvoice)
     const { uiStore } = useStore()
 
     const onClose = () => {
@@ -50,7 +50,7 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
         setLastError("")
 
         try {
-            const payment = await paymentStore.sendPayment({ paymentRequest: payReq })
+            const payment = await paymentStore.sendPayment(payReq)
 
             if (payment.status === PaymentStatus.SUCCEEDED) {
                 await startConfetti()
@@ -72,17 +72,19 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
             title: I18n.t("PaymentRequest_HeaderTitle")
         })
     }, [navigation])
-    
+
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
             <View style={[styles.focusViewPanel, { backgroundColor }]}>
                 <VStack space={5}>
-                    <View style={{ backgroundColor, alignItems: "center" }}>
-                        <SatoshiBalance size={36} color={textColor} satoshis={toNumber(decodedPayReq.numSatoshis)} />
-                    </View>
-                    {decodedPayReq.description.length > 0 && (
+                    {!!lnInvoice.amountMsat && (
+                        <View style={{ backgroundColor, alignItems: "center" }}>
+                            <SatoshiBalance size={36} color={textColor} satoshis={toNumber(toSatoshi(lnInvoice.amountMsat))} />
+                        </View>
+                    )}
+                    {!!lnInvoice.description && lnInvoice.description.length > 0 && (
                         <Text color={textColor} fontSize="lg">
-                            {decodedPayReq.description}
+                            {lnInvoice.description}
                         </Text>
                     )}
                     {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}

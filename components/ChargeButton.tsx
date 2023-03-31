@@ -35,7 +35,7 @@ const ChargeButton = ({ onLayout = () => {}, onPress = () => {}, ...props }: Cha
             borderRadius="full"
             size="lg"
             padding={2}
-            colorScheme={sessionStore.status == ChargeSessionStatus.AWAITING_PAYMENT ? "red" : "orange"}
+            colorScheme={sessionStore.status === ChargeSessionStatus.AWAITING_PAYMENT ? "red" : "orange"}
             style={styleSheet.button}
             onLayout={onLayout}
             onPress={onPress}

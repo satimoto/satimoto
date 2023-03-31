@@ -1,37 +1,8 @@
+import PaymentModel from "models/Payment"
+import moment from "moment"
 import { lnrpc } from "proto/proto"
-import { bytesToHex } from "utils/conversion"
-
-interface PayReq {
-    destination: string
-    paymentHash: string
-    numSatoshis: Long
-    timestamp: Long
-    expiry: Long
-    description: string
-    descriptionHash: string
-    fallbackAddr: string
-    cltvExpiry: Long
-    paymentAddr: string
-    numMsat: Long
-}
-
-export type { PayReq }
-
-const toPayReq = (payReq: lnrpc.PayReq): PayReq => {
-    return {
-        destination: payReq.destination,
-        paymentHash: payReq.paymentHash,
-        numSatoshis: payReq.numSatoshis,
-        timestamp: payReq.timestamp,
-        expiry: payReq.expiry,
-        description: payReq.description,
-        descriptionHash: payReq.descriptionHash,
-        fallbackAddr: payReq.fallbackAddr,
-        cltvExpiry: payReq.cltvExpiry,
-        paymentAddr: bytesToHex(payReq.paymentAddr),
-        numMsat: payReq.numMsat
-    } as PayReq
-}
+import * as breezSdk from "react-native-breez-sdk"
+import { nanosecondsToDate, secondsToMilliseconds, toNumber, toSatoshi } from "utils/conversion"
 
 export enum PaymentStatus {
     UNKNOWN = "UNKNOWN",
@@ -39,6 +10,42 @@ export enum PaymentStatus {
     SUCCEEDED = "SUCCEEDED",
     FAILED = "FAILED",
     EXPIRED = "EXPIRED"
+}
+
+const fromBreezPayment = (payment: breezSdk.Payment): PaymentModel => {
+    const paymentDetails = payment.details as breezSdk.LnPaymentDetails
+    const createdAt = new Date(secondsToMilliseconds(payment.paymentTime))
+
+    return {
+        createdAt: createdAt.toISOString(),
+        expiresAt: createdAt.toISOString(),
+        description: payment.description,
+        hash: paymentDetails.paymentHash,
+        preimage: paymentDetails.paymentPreimage,
+        status: payment.pending ? PaymentStatus.IN_PROGRESS : PaymentStatus.SUCCEEDED,
+        valueMsat: payment.amountMsat.toString(),
+        valueSat: toSatoshi(payment.amountMsat).toString(),
+        feeMsat: payment.feeMsat.toString(),
+        feeSat: toSatoshi(payment.feeMsat).toString()
+    } as PaymentModel
+}
+
+const fromLndPayment = (payment: lnrpc.Payment, paymentRequest: breezSdk.LnInvoice): PaymentModel => {
+    const createdAt = nanosecondsToDate(payment.creationTimeNs)
+
+    return {
+        createdAt: createdAt.toISOString(),
+        expiresAt: moment(createdAt).add(toNumber(paymentRequest.expiry), "second").toISOString(),
+        description: paymentRequest.description,
+        hash: payment.paymentHash,
+        preimage: payment.paymentPreimage,
+        status: toPaymentStatus(payment.status),
+        failureReasonKey: paymentFailureToLocaleKey(payment.failureReason),
+        valueMsat: payment.valueMsat.toString(),
+        valueSat: payment.valueSat.toString(),
+        feeMsat: payment.feeMsat.toString(),
+        feeSat: payment.feeSat.toString()
+    } as PaymentModel
 }
 
 const toPaymentStatus = (state: lnrpc.Payment.PaymentStatus): PaymentStatus => {
@@ -69,4 +76,4 @@ const paymentFailureToLocaleKey = (reason: lnrpc.PaymentFailureReason): string |
     }
 }
 
-export { paymentFailureToLocaleKey, toPayReq, toPaymentStatus }
+export { fromBreezPayment, fromLndPayment, paymentFailureToLocaleKey, toPaymentStatus }

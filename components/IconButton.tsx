@@ -1,4 +1,4 @@
-import { IconButton as NBIconButton, View } from "native-base"
+import { IconButton as NBIconButton } from "native-base"
 import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { ResponsiveValue, VariantType } from "native-base/lib/typescript/components/types"
@@ -21,7 +21,7 @@ const IconButton = ({ icon, color = "#ffffff", variant = "outline", borderRadius
             borderRadius={borderRadius}
             onPress={onPress}
             icon={<FontAwesomeIcon icon={icon} />}
-            _icon={{ color: "#ffffff" }}
+            _icon={{ color }}
             {...props}
         />
     )

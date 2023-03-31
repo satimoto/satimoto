@@ -12,11 +12,11 @@ import { AppStackParamList } from "screens/AppStack"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
 
-type SessionListProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "SessionList">
+type SettingsSessionsProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsSessions">
 }
 
-const SessionList = ({ navigation }: SessionListProps) => {
+const SettingsSessions = ({ navigation }: SettingsSessionsProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
@@ -25,7 +25,7 @@ const SessionList = ({ navigation }: SessionListProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: I18n.t("SessionList_HeaderTitle")
+            title: I18n.t("SettingsSessions_HeaderTitle")
         })
     }, [navigation])
 
@@ -36,7 +36,7 @@ const SessionList = ({ navigation }: SessionListProps) => {
     }, [])
 
     const onSessionPress = (session: SessionModel) => {
-        navigation.navigate("SessionDetail", {session: session})
+        navigation.navigate("SettingsSession", {session: session})
     }
 
     return (
@@ -55,4 +55,4 @@ const SessionList = ({ navigation }: SessionListProps) => {
     )
 }
 
-export default observer(SessionList)
+export default observer(SettingsSessions)

@@ -2,7 +2,7 @@ import { Hash, HMAC } from "fast-sha256"
 import { LNURLAuthParams, LNURLResponse } from "js-lnurl"
 import { lnrpc } from "proto/proto"
 import { ecdsaSign, publicKeyCreate, signatureExport } from "secp256k1"
-import { signMessage } from "services/LightningService"
+import { signMessage } from "services/lnd"
 import { bytesToHex, hexToBytes, toBytes } from "utils/conversion"
 import { LNURL_CANONICAL_PHRASE } from "utils/constants"
 

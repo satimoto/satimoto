@@ -15,7 +15,7 @@ export type { ChannelModelUpdate }
 const toChannel = (channel: lnrpc.IChannel) => {
     let response: any = {}
 
-    if (typeof channel.active == "boolean") {
+    if (typeof channel.active === "boolean") {
         response["isActive"] = channel.active
     }
 
@@ -23,15 +23,15 @@ const toChannel = (channel: lnrpc.IChannel) => {
         response["chanId"] = channel.chanId!.toString()
     }
 
-    if (typeof channel.remotePubkey == "string") {
+    if (typeof channel.remotePubkey === "string") {
         response["remotePubkey"] = channel.remotePubkey
     }
 
-    if (typeof channel.channelPoint == "string") {
+    if (typeof channel.channelPoint === "string") {
         response["channelPoint"] = channel.channelPoint
     }
 
-    if (typeof channel.capacity == "number") {
+    if (typeof channel.capacity === "number") {
         response["capacity"] = channel.capacity
     }
 
@@ -41,7 +41,7 @@ const toChannel = (channel: lnrpc.IChannel) => {
 const toChannelPoint = (channelPoint: string): lnrpc.IChannelPoint | null => {
     const splitChannelPoint = channelPoint.split(":")
 
-    return splitChannelPoint.length == 2
+    return splitChannelPoint.length === 2
         ? {
               fundingTxidStr: splitChannelPoint[0],
               outputIndex: parseInt(splitChannelPoint[1])

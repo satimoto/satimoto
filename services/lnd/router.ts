@@ -1,6 +1,6 @@
 import Long from "long"
 import { lnrpc, routerrpc } from "proto/proto"
-import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
+import { sendCommand, sendStreamCommand, sendStreamResponse } from "services/lnd/mobile"
 import { PAYMENT_CLTV_LIMIT, PAYMENT_TIMEOUT_SECONDS, PAYMENT_FEE_LIMIT_SAT } from "utils/constants"
 import { hexToBytes, toHashOrNull, toLong } from "utils/conversion"
 import { Log } from "utils/logging"

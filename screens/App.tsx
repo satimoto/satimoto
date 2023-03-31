@@ -3,7 +3,7 @@ import { FileLogger } from "react-native-file-logger"
 import messaging from "@react-native-firebase/messaging"
 import BackgroundApp from "screens/BackgroundApp"
 import ForegroundApp from "screens/ForegroundApp"
-import notificationMessageHandler from "services/NotificationService"
+import notificationMessageHandler from "services/notification"
 
 FileLogger.configure({
     captureConsole: false

@@ -21,11 +21,11 @@ import { useStore } from "hooks/useStore"
 
 const popAction = StackActions.pop()
 
-type OnChainProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "OnChain">
+type SettingsOnChainProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsOnChain">
 }
 
-const OnChain = ({ navigation }: OnChainProps) => {
+const SettingsOnChain = ({ navigation }: SettingsOnChainProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const focusBackgroundColor = useColor(colors.dark[400], colors.warmGray[200])
@@ -57,7 +57,7 @@ const OnChain = ({ navigation }: OnChainProps) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => <HeaderBackButton tintColor={navigationOptions.headerTintColor} onPress={onBackPress} />,
-            title: I18n.t("OnChain_HeaderTitle")
+            title: I18n.t("SettingsOnChain_HeaderTitle")
         })
     }, [navigation])
 
@@ -71,7 +71,7 @@ const OnChain = ({ navigation }: OnChainProps) => {
                     <View style={{ backgroundColor, alignItems: "center" }}>
                         <SatoshiBalance size={36} color={textColor} satoshis={walletStore.totalBalance} />
                         <Text fontSize="sm" color={textColor}>
-                            {I18n.t("OnChain_BalanceText")}
+                            {I18n.t("SettingsOnChain_BalanceText")}
                         </Text>
                     </View>
                     <VStack space={3} marginTop={5}>
@@ -98,4 +98,4 @@ const OnChain = ({ navigation }: OnChainProps) => {
     )
 }
 
-export default observer(OnChain)
+export default observer(SettingsOnChain)

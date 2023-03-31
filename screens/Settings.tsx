@@ -34,27 +34,21 @@ const Settings = ({ navigation }: SettingsProps) => {
                 <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
                     <ListButton
                         key="tokens"
-                        title={I18n.t("Settings_ButtonTokens")}
+                        title={I18n.t("Settings_ButtonCharging")}
                         iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("TokenList")}
+                        onPress={() => navigation.navigate("SettingsCharging")}
                     />
                     <ListButton
-                        key="sessions"
-                        title={I18n.t("Settings_ButtonSessions")}
+                        key="payments"
+                        title={I18n.t("Settings_ButtonPayments")}
                         iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("SessionList")}
-                    />
-                    <ListButton
-                        key="transactions"
-                        title={I18n.t("Settings_ButtonTransactions")}
-                        iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("TransactionList")}
+                        onPress={() => navigation.navigate("SettingsPayments")}
                     />
                     <ListButton
                         key="advanced"
                         title={I18n.t("Settings_ButtonAdvanced")}
                         iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("Advanced")}
+                        onPress={() => navigation.navigate("SettingsAdvanced")}
                     />
                 </VStack>
             </ScrollView>

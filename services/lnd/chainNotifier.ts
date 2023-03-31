@@ -1,5 +1,5 @@
 import { chainrpc } from "proto/proto"
-import { sendStreamCommand, sendStreamResponse } from "services/LndMobileService"
+import { sendStreamCommand, sendStreamResponse } from "services/lnd/mobile"
 import { toBytesOrNull } from "utils/conversion"
 import { Log } from "utils/logging"
 import { BytesLikeType } from "utils/types"

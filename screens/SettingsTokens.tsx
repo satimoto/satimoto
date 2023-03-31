@@ -15,16 +15,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { TagEvent } from "react-native-nfc-manager"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { createToken, listTokens } from "services/SatimotoService"
+import { createToken, listTokens } from "services/satimoto"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
 
-type TokenListProps = {
-    navigation: NativeStackNavigationProp<AppStackParamList, "TokenList">
+type SettingsTokensProps = {
+    navigation: NativeStackNavigationProp<AppStackParamList, "SettingsTokens">
 }
 
-const TokenList = ({ navigation }: TokenListProps) => {
+const SettingsTokens = ({ navigation }: SettingsTokensProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColorModeValue("lightText", "darkText")
@@ -76,7 +76,7 @@ const TokenList = ({ navigation }: TokenListProps) => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: I18n.t("TokenList_HeaderTitle"),
+            title: I18n.t("SettingsTokens_HeaderTitle"),
             headerRight: renderHeaderRight
         })
     }, [navigation])
@@ -118,9 +118,9 @@ const TokenList = ({ navigation }: TokenListProps) => {
             ) : (
                 <View style={[{ height: "100%", backgroundColor, padding: 5 }, styles.center]}>
                     <Text color={textColor} bold fontSize={16} textAlign="center" paddingTop={5}>
-                        {I18n.t(IS_ANDROID ? "TokenList_EmptyInfoTitle" : "TokenList_EmptyInfoIOSTitle")}
+                        {I18n.t(IS_ANDROID ? "SettingsTokens_EmptyInfoTitle" : "SettingsTokens_EmptyInfoIOSTitle")}
                     </Text>
-                    {IS_ANDROID && <Text color={textColor}>({I18n.t("TokenList_EmptyInfoSubtitle")})</Text>}
+                    {IS_ANDROID && <Text color={textColor}>({I18n.t("SettingsTokens_EmptyInfoSubtitle")})</Text>}
                 </View>
             )}
             <TokensInfoModal isVisible={isAboutModalVisible} onPress={onAboutModalPress} onClose={() => setIsAboutModalVisible(false)} />
@@ -136,4 +136,4 @@ const TokenList = ({ navigation }: TokenListProps) => {
     )
 }
 
-export default observer(TokenList)
+export default observer(SettingsTokens)

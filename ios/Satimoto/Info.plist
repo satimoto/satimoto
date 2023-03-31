@@ -69,6 +69,12 @@
 	<true/>
 	<key>MAPBOX_API_KEY</key>
 	<string>$(MAPBOX_API_KEY)</string>
+	<key>BREEZ_SDK_API_KEY</key>
+	<string>$(BREEZ_SDK_API_KEY)</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>MGLMapboxMetricsEnabledSettingShownInApp</key>
 	<string>YES</string>
 	<key>NETWORK</key>
