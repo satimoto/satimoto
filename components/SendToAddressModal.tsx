@@ -6,6 +6,7 @@ import { observer } from "mobx-react"
 import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
 import { assertEmail } from "utils/assert"
+import { tick } from "utils/backoff"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 
@@ -31,13 +32,16 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
         setIsBusy(true)
         setLastError("")
 
-        try {
-            await uiStore.parseIntent(address)
-            onClose()
-        } catch (error) {
-            setIsBusy(false)
-            setLastError(errorToString(error))
-        }
+        tick(async () => {
+            try {
+                await uiStore.parseIntent(address)
+                onClose()
+            } catch (error) {
+                setLastError(errorToString(error))
+            }
+        })
+
+        setIsBusy(false)
     }
 
     const onModalClose = () => {

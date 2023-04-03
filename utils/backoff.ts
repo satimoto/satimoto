@@ -77,3 +77,7 @@ export const doWhileBackoffUntil = (
         }
     )
 }
+
+export const tick = (callback: () => void, milliseconds: number = 0) => {
+    setTimeout(callback, milliseconds)
+}

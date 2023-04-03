@@ -13,6 +13,7 @@ import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { getMetadataElement } from "services/lnUrl"
+import { tick } from "utils/backoff"
 import { errorToString, toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
@@ -59,23 +60,25 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         setIsBusy(true)
         setLastError("")
 
-        if (route.params.payParams) {
-            try {
-                const response = await paymentStore.payLnurl(route.params.payParams, amountNumber)
+        tick(async () => {
+            if (route.params.payParams) {
+                try {
+                    const response = await paymentStore.payLnurl(route.params.payParams, amountNumber)
 
-                if (response) {
-                    await startConfetti()
-                    onClose()
-                } else {
-                    setLastError(I18n.t("LnUrlPay_PayReqError"))
+                    if (response) {
+                        await startConfetti()
+                        onClose()
+                    } else {
+                        setLastError(I18n.t("LnUrlPay_PayReqError"))
+                    }
+                } catch (error) {
+                    setLastError(errorToString(error))
+                    log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)
                 }
-            } catch (error) {
-                setLastError(errorToString(error))
-                log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)
             }
-        }
 
-        setIsBusy(false)
+            setIsBusy(false)
+        })
     }, [route.params.payParams, amountNumber])
 
     useLayoutEffect(() => {

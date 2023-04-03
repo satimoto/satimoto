@@ -13,6 +13,7 @@ import { View } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
+import { tick } from "utils/backoff"
 import { errorToString, toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
@@ -63,22 +64,25 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
         setIsBusy(true)
         setLastError("")
 
-        if (uiStore.lnUrlWithdrawParams) {
-            try {
-                const response = await invoiceStore.withdrawLnurl(uiStore.lnUrlWithdrawParams, amountNumber)
+        tick(async () => {
+            if (uiStore.lnUrlWithdrawParams) {
+                try {
+                    const response = await invoiceStore.withdrawLnurl(uiStore.lnUrlWithdrawParams, amountNumber)
 
-                if (response.status.toLowerCase() === "ok") {
-                    await startConfetti()
-                    onClose()
-                } else if (response.reason) {
-                    setLastError(response.reason)
+                    if (response.status.toLowerCase() === "ok") {
+                        await startConfetti()
+                        onClose()
+                    } else if (response.reason) {
+                        setLastError(response.reason)
+                    }
+                } catch (error) {
+                    setLastError(errorToString(error))
+                    log.debug(`SAT010 onConfirmPress: Error getting withdraw request: ${error}`, true)
                 }
-            } catch (error) {
-                setLastError(errorToString(error))
-                log.debug(`SAT010 onConfirmPress: Error getting withdraw request: ${error}`, true)
-                setIsBusy(false)
             }
-        }
+
+            setIsBusy(false)
+        })
     }
 
     useLayoutEffect(() => {
