@@ -39,7 +39,8 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const [amountNumber, setAmountNumber] = useState(0)
     const [description, setDescription] = useState("")
     const [isBusy, setIsBusy] = useState(false)
-    const [isInvalid, setIsInvalid] = useState(false)
+    const [isDirty, setIsDirty] = useState(false)
+    const [isInvalid, setIsInvalid] = useState(true)
     const [lastError, setLastError] = useState("")
     const [maxSendable, setMaxSendable] = useState(0)
     const [minSendable, setMinSendable] = useState(0)
@@ -54,6 +55,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const onAmountChange = (text: string) => {
         setAmountString(text)
         setAmountNumber(+text)
+        setIsDirty(true)
     }
 
     const onConfirmPress = useCallback(async () => {
@@ -105,8 +107,8 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     }, [route.params.payParams])
 
     useEffect(() => {
-        setIsInvalid(amountNumber < minSendable || amountNumber > maxSendable)
-    }, [amountNumber])
+        setIsInvalid(isDirty && (amountNumber < minSendable || amountNumber > maxSendable))
+    }, [amountNumber, isDirty, minSendable, maxSendable])
 
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
@@ -126,7 +128,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                         </FormControl.ErrorMessage>
                     </FormControl>
                     {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
+                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid || !isDirty}>
                         {I18n.t("Button_Next")}
                     </BusyButton>
                 </VStack>

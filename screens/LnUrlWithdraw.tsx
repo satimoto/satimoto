@@ -42,7 +42,8 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
     const [description, setDescription] = useState("")
     const [isBusy, setIsBusy] = useState(false)
-    const [isInvalid, setIsInvalid] = useState(false)
+    const [isDirty, setIsDirty] = useState(false)
+    const [isInvalid, setIsInvalid] = useState(true)
     const [lastError, setLastError] = useState("")
     const [maxReceivable, setMaxReceivable] = useState(0)
     const [minReceivable, setMinReceivable] = useState(0)
@@ -58,6 +59,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const onAmountChange = (text: string) => {
         setAmount(text)
         setAmountNumber(+text)
+        setIsDirty(true)
     }
 
     const onConfirmPress = async () => {
@@ -110,8 +112,8 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     useEffect(() => {
         setOpeningFee(channelStore.calculateOpeningFee(amountNumber))
         setChannelRequestNeeded(amountNumber >= channelStore.remoteBalance)
-        setIsInvalid(amountNumber < minReceivable || amountNumber > maxReceivable)
-    }, [amountNumber])
+        setIsInvalid(isDirty && (amountNumber < minReceivable || amountNumber > maxReceivable))
+    }, [amountNumber, channelStore.remoteBalance, isDirty, minReceivable, maxReceivable])
 
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
@@ -144,7 +146,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                         </FormControl.ErrorMessage>
                     </FormControl>
                     {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
+                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid || !isDirty}>
                         {I18n.t("Button_Next")}
                     </BusyButton>
                 </VStack>
