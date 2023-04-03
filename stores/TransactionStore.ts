@@ -71,13 +71,12 @@ export class TransactionStore implements TransactionStoreInterface {
         this.actionAddTransaction(transaction)
     }
 
-
     clearTransactions() {
         this.actionClearTransactions()
     }
 
     clearFailedTransactions() {
-        this.clearFailedTransactions()
+        this.actionClearFailedTransactions()
     }
 
     reset() {
@@ -89,6 +88,10 @@ export class TransactionStore implements TransactionStoreInterface {
      */
 
     actionAddTransaction(transaction: TransactionModel) {
+        if (!transaction.timestamp) {
+            transaction.timestamp = moment(transaction.invoice ? transaction.invoice?.createdAt : transaction.payment?.createdAt).unix()
+        }
+
         let existingTransaction = this.transactions.find(
             ({ invoice, payment }) =>
                 (transaction.invoice && invoice && transaction.invoice.hash === invoice.hash) ||
@@ -99,6 +102,7 @@ export class TransactionStore implements TransactionStoreInterface {
             Object.assign(existingTransaction, transaction)
         } else {
             this.transactions.unshift(transaction)
+            this.transactions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
         }
     }
 
@@ -107,18 +111,32 @@ export class TransactionStore implements TransactionStoreInterface {
         const openInvoiceStatuses = [InvoiceStatus.ACCEPTED, InvoiceStatus.OPEN]
         const openPaymentStatuses = [PaymentStatus.IN_PROGRESS, PaymentStatus.UNKNOWN]
 
-        for (const { invoice, payment } of this.transactions) {
-            if (invoice && openInvoiceStatuses.includes(invoice.status) && moment(invoice.expiresAt).isBefore(now)) {
-                invoice.status = InvoiceStatus.EXPIRED
-                invoice.failureReasonKey = "InvoiceFailure_Expired"
+        for (const transaction of this.transactions) {
+            if (!transaction.timestamp) {
+                transaction.timestamp = moment(transaction.invoice ? transaction.invoice?.createdAt : transaction.payment?.createdAt).unix()
             }
-            if (payment && openPaymentStatuses.includes(payment.status) && moment(payment.expiresAt).isBefore(now)) {
-                payment.status = PaymentStatus.EXPIRED
-                payment.failureReasonKey = "PaymentFailure_Expired"
+
+            if (
+                transaction.invoice &&
+                openInvoiceStatuses.includes(transaction.invoice.status) &&
+                moment(transaction.invoice.expiresAt).isBefore(now)
+            ) {
+                transaction.invoice.status = InvoiceStatus.EXPIRED
+                transaction.invoice.failureReasonKey = "InvoiceFailure_Expired"
+            }
+            if (
+                transaction.payment &&
+                openPaymentStatuses.includes(transaction.payment.status) &&
+                moment(transaction.payment.expiresAt).isBefore(now)
+            ) {
+                transaction.payment.status = PaymentStatus.EXPIRED
+                transaction.payment.failureReasonKey = "PaymentFailure_Expired"
             }
         }
+
+        this.transactions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
     }
-    
+
     actionClearTransactions() {
         this.transactions.clear()
     }

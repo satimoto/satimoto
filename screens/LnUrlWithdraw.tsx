@@ -6,7 +6,6 @@ import useColor from "hooks/useColor"
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
-import InvoiceModel from "models/Invoice"
 import { FormControl, HStack, Text, useColorModeValue, useTheme, VStack, WarningOutlineIcon } from "native-base"
 import { useConfetti } from "providers/ConfettiProvider"
 import React, { useEffect, useLayoutEffect, useState } from "react"
@@ -14,7 +13,6 @@ import { View } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { InvoiceStatus } from "types/invoice"
 import { errorToString, toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
@@ -47,7 +45,6 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const [lastError, setLastError] = useState("")
     const [maxReceivable, setMaxReceivable] = useState(0)
     const [minReceivable, setMinReceivable] = useState(0)
-    const [invoice, setInvoice] = useState<InvoiceModel>()
     const [openingFee, setOpeningFee] = useState(0)
     const { channelStore, invoiceStore, uiStore } = useStore()
 
@@ -71,7 +68,8 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                 const response = await invoiceStore.withdrawLnurl(uiStore.lnUrlWithdrawParams, amountNumber)
 
                 if (response.status.toLowerCase() === "ok") {
-                    setInvoice(invoice)
+                    await startConfetti()
+                    onClose()
                 } else if (response.reason) {
                     setLastError(response.reason)
                 }
@@ -110,12 +108,6 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
         setChannelRequestNeeded(amountNumber >= channelStore.remoteBalance)
         setIsInvalid(amountNumber < minReceivable || amountNumber > maxReceivable)
     }, [amountNumber])
-
-    useEffect(() => {
-        if (invoice && invoice.status === InvoiceStatus.SETTLED) {
-            startConfetti().then(onClose)
-        }
-    }, [invoice?.status])
 
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>

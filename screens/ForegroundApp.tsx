@@ -1,10 +1,14 @@
 import { ApolloProvider } from "@apollo/client"
 import { Buffer } from "buffer"
+import { observer } from "mobx-react"
+import moment from "moment"
 import { NativeBaseProvider } from "native-base"
 import * as protobuf from "protobufjs"
+import ConfettiProvider from "providers/ConfettiProvider"
 import { StoreProvider } from "providers/StoreProvider"
 import React, { useEffect } from "react"
 import messaging from "@react-native-firebase/messaging"
+import BackgroundFetch from "react-native-background-fetch"
 import RNBootSplash from "react-native-bootsplash"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { NavigationContainer } from "@react-navigation/native"
@@ -12,16 +16,15 @@ import AppStack from "screens/AppStack"
 import notificationMessageHandler from "services/notification"
 import client from "services/satimoto"
 import store from "stores/Store"
+import { backgroundEvent, backgroundTimeout, BACKGROUND_FETCH_CONFIG } from "utils/background"
 import { API_URI, APPLICATION_ID, MAPBOX_API_KEY, NETWORK } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
-import ConfettiProvider from "providers/ConfettiProvider"
-import { observer } from "mobx-react"
-import BackgroundFetch from "react-native-background-fetch"
-import { backgroundEvent, backgroundTimeout, BACKGROUND_FETCH_CONFIG } from "utils/background"
+import 'moment/locale/en-gb'
 
 global.Buffer = Buffer
 global.process = require("../polyfills/process")
+moment().locale('en-gb')
 protobuf.util.toJSONOptions = { defaults: true }
 
 const log = new Log("ForegroundApp")

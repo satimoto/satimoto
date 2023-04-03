@@ -175,17 +175,18 @@ export class ChannelStore implements ChannelStoreInterface {
 
     async getChannelBalance() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const { maxPayableMsat, maxReceivableMsat, maxChanReserveMsats } = await breezSdk.nodeInfo()
+            const { inboundLiquidityMsats, maxPayableMsat, maxReceivableMsat, maxChanReserveMsats, maxSinglePaymentAmountMsat } = await breezSdk.nodeInfo()
+            const inboundLiquidity = toNumber(toSatoshi(inboundLiquidityMsats))
             const maxPayable = toNumber(toSatoshi(maxPayableMsat))
-            const maxReceivable = toNumber(toSatoshi(maxReceivableMsat))
             const maxChanReserve = toNumber(toSatoshi(maxChanReserveMsats))
 
-            this.actionUpdateChannelBalance(maxPayable, maxReceivable, maxChanReserve)
+            log.debug(`SAT064: max receivable ${maxReceivableMsat}, single payment ${maxSinglePaymentAmountMsat}`, true)
+            this.actionUpdateChannelBalance(maxPayable, inboundLiquidity, maxChanReserve)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const { localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse = await lnd.channelBalance()
-            const localBalanceSat = localBalance && localBalance.sat ? toNumber(localBalance.sat) : this.localBalance
-            const remoteBalanceSat = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : this.remoteBalance
-            const unsettledLocalBalanceSat = unsettledLocalBalance && unsettledLocalBalance.sat ? toNumber(unsettledLocalBalance.sat) : 0
+            const localBalanceSat = localBalance ? toNumber(localBalance.sat || 0) : this.localBalance
+            const remoteBalanceSat = remoteBalance ? toNumber(remoteBalance.sat || 0) : this.remoteBalance
+            const unsettledLocalBalanceSat = unsettledLocalBalance ? toNumber(unsettledLocalBalance.sat || 0) : 0
 
             this.actionUpdateChannelBalance(localBalanceSat + unsettledLocalBalanceSat, remoteBalanceSat, this.reservedBalance)
         }
@@ -231,11 +232,9 @@ export class ChannelStore implements ChannelStoreInterface {
 
     async getLspInfo() {
         const lspId = await breezSdk.lspId()
-        const { name, channelFeePermyriad, channelMinimumFeeMsat, pubkey, host } = await breezSdk.fetchLspInfo(lspId)
+        const { name, channelFeePermyriad, channelMinimumFeeMsat, minHtlcMsat, pubkey, host } = await breezSdk.fetchLspInfo(lspId)
         
-        log.debug(`SAT044: LSP Pubkey: ${pubkey}`, true)
-        log.debug(`SAT044: LSP Host: ${host}`, true)
-
+        log.debug(`SAT044: LSP min htlc ${minHtlcMsat}, address: ${pubkey}@${host}`, true)
         this.actionUpdateLspInfo(name, channelFeePermyriad, toSatoshi(channelMinimumFeeMsat).toNumber())
     }
 
@@ -410,7 +409,7 @@ export class ChannelStore implements ChannelStoreInterface {
         this.localBalance = localBalance
         this.remoteBalance = remoteBalance
         this.reservedBalance = reserveBalance
-        log.debug(`SAT039: Channel Balance: ${this.localBalance}`, true)
+        log.debug(`SAT039: Channel Balance: ${this.localBalance}, ${this.remoteBalance}, ${this.reservedBalance}`, true)
     }
 
     actionUpdateChannel(channel: ChannelModel): ChannelModel {

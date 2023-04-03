@@ -140,7 +140,7 @@ export default {
     SettingsBackend_InactiveText: "INACTIVE",
     SettingsBackend_ImportMnemonicText: "Import your Backup Phrase from an existing Breez SDK application to share access to the same backend.",
     SettingsBattery_HeaderTitle: "Battery",
-    SettingsBattery_AboutText: "Information about battery capacity and charge power help more accurately calculate invoices which charging.",
+    SettingsBattery_AboutText: "Information about battery capacity and charge power help more accurately calculate invoices when charging.",
     SettingsBattery_MoreInfoText: "You can find more information about your vehicle at:",
     SettingsBattery_CapacityText: "Battery Capacity",
     SettingsBattery_CapacityHint: "Useable capacity in kilowatt-hours",

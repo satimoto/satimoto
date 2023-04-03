@@ -20,7 +20,7 @@ const fromBreezInvoice = (invoice: breezSdk.LnInvoice): InvoiceModel => {
         expiresAt: moment(createdAt).add(toNumber(invoice.expiry), "second").toISOString(),
         description: invoice.description,
         hash: invoice.paymentHash,
-        preimage: invoice.paymentSecret && bytesToHex(invoice.paymentSecret),
+        preimage: invoice.paymentSecret ? bytesToHex(invoice.paymentSecret) : "",
         paymentRequest: invoice.bolt11,
         status: InvoiceStatus.ACCEPTED,
         valueMsat: invoice.amountMsat?.toString(),

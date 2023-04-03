@@ -9,12 +9,10 @@ import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineI
 import { useConfetti } from "providers/ConfettiProvider"
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
 import { View } from "react-native"
-import * as breezSdk from "react-native-breez-sdk"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { getMetadataElement } from "services/lnUrl"
-import { PaymentStatus } from "types/payment"
 import { errorToString, toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
@@ -63,9 +61,14 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
 
         if (route.params.payParams) {
             try {
-                await paymentStore.payLnurl(route.params.payParams, amountNumber)
-                await startConfetti()
-                onClose()
+                const response = await paymentStore.payLnurl(route.params.payParams, amountNumber)
+
+                if (response) {
+                    await startConfetti()
+                    onClose()
+                } else {
+                    setLastError(I18n.t("LnUrlPay_PayReqError"))
+                }
             } catch (error) {
                 setLastError(errorToString(error))
                 log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)

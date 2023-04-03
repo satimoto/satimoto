@@ -39,12 +39,13 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
     const safeAreaInsets = useSafeAreaInsets()
     const [invoice] = useState(route.params.invoice)
     const [expiryMinutes, setExpiryMinutes] = useState(60)
+    const [lightningPaymentRequest, setLightningPaymentRequest] = useState("")
     const { uiStore } = useStore()
 
     const size = Dimensions.get("window").width - 20
 
     const onPress = async () => {
-        await Share.share({ message: `lightning:${invoice?.paymentRequest}` })
+        await Share.share({ message: lightningPaymentRequest })
     }
 
     const onClose = () => {
@@ -78,6 +79,10 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
     }, [invoice.expiresAt])
 
     useEffect(() => {
+        setLightningPaymentRequest(`lightning:${invoice.paymentRequest}`)
+    }, [invoice.paymentRequest])
+
+    useEffect(() => {
         if (invoice.status === InvoiceStatus.SETTLED) {
             startConfetti().then(onClose)
         }
@@ -88,7 +93,7 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
             <SatoshiBalance size={36} color={textColor} satoshis={parseInt(invoice.valueSat)} />
             <View style={{ alignItems: "center" }}>
                 <QrCode value={invoice.paymentRequest} color="white" backgroundColor={backgroundColor} onPress={onPress} size={size} />
-                {IS_ANDROID && uiStore.nfcAvailable && <NfcTransmitter value={invoice.paymentRequest} size={30} />}
+                {IS_ANDROID && uiStore.nfcAvailable && <NfcTransmitter value={lightningPaymentRequest} size={30} />}
             </View>
             <Text color={textColor} fontSize="xl" paddingTop={IS_ANDROID ? 0 : 4}>
                 {expiryMinutes <= 60
