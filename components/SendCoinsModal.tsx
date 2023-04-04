@@ -91,7 +91,14 @@ const SendCoinsModal = ({ isVisible, onClose }: SendCoinsModalProps) => {
             </VStack>
             <VStack alignItems="center" space={5} width="100%" marginTop={5}>
                 <FormControl isRequired={true}>
-                    <Input value={address} keyboardType="default" isFullWidth={true} onChangeText={onInputChange} />
+                    <Input
+                        autoCorrect={false}
+                        autoCapitalize="none"
+                        value={address}
+                        keyboardType="default"
+                        isFullWidth={true}
+                        onChangeText={onInputChange}
+                    />
                 </FormControl>
                 {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
                 <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isAddressInvalid}>

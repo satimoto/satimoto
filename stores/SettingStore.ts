@@ -291,7 +291,7 @@ export class SettingStore implements SettingStoreInterface {
     }
 
     async reactionUpdateUser() {
-        if (this.accessToken && this.pushNotificationToken) {
+        if (this.accessToken) {
             updateUser({
                 batteryCapacity: this.batteryCapacity,
                 batteryPowerAc: this.batteryPowerAc,

@@ -48,6 +48,7 @@ export class PaymentStore implements PaymentStoreInterface {
             indexOffset: observable,
             payments: observable,
 
+            actionResetPayments: action,
             actionSetReady: action,
             actionUpdatePayment: action,
             actionUpdateIndexOffset: action

@@ -113,7 +113,7 @@ interface UpdateUserInput {
     batteryCapacity?: number
     batteryPowerAc?: number
     batteryPowerDc?: number
-    deviceToken: string
+    deviceToken?: string
 }
 
 const updateUser = (client: ApolloClient<NormalizedCacheObject>) => {
