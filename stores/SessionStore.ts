@@ -205,7 +205,7 @@ export class SessionStore implements SessionStoreInterface {
 
     async confirmSession() {
         if (this.stores.settingStore.accessToken && this.session) {
-            const response = await updateSession({uid: this.session.uid, isConfirmed: true})
+            const response = await updateSession({ uid: this.session.uid, isConfirmed: true })
             const session = response.data.updateSession as SessionModel
 
             this.actionUpdateSession(session)
@@ -427,8 +427,10 @@ export class SessionStore implements SessionStoreInterface {
             this.connector = undefined
 
             this.updateSessionTimer(false)
-        } else {
+        } else if (this.status === ChargeSessionStatus.ACTIVE) {
             this.status = ChargeSessionStatus.STOPPING
+
+            this.updateSessionTimer(true)
         }
     }
 
@@ -474,7 +476,7 @@ export class SessionStore implements SessionStoreInterface {
             this.meteredTime = 0
         }
     }
-    
+
     actionUpdateSessions(sessions: SessionModel[]) {
         this.sessions.replace(sessions)
     }
@@ -491,9 +493,9 @@ export class SessionStore implements SessionStoreInterface {
         }
 
         if (this.status !== ChargeSessionStatus.IDLE && updateMetrics) {
-            this.estimatedEnergy = sessionInvoice.estimatedEnergy || this.estimatedEnergy
+            this.estimatedEnergy = sessionInvoice.estimatedEnergy ? Math.round(sessionInvoice.estimatedEnergy * 100) / 100 : this.estimatedEnergy
             this.estimatedTime = sessionInvoice.estimatedTime ? Math.floor(sessionInvoice.estimatedTime * 60) : this.estimatedTime
-            this.meteredEnergy = sessionInvoice.meteredEnergy || this.meteredEnergy
+            this.meteredEnergy = sessionInvoice.meteredEnergy ? Math.round(sessionInvoice.meteredEnergy * 100) / 100 : this.meteredEnergy
             this.meteredTime = sessionInvoice.meteredTime ? Math.floor(sessionInvoice.meteredTime * 60) : this.meteredTime
         }
 

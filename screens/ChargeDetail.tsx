@@ -31,19 +31,19 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColor(colors.lightText, colors.darkText)
     const safeAreaInsets = useSafeAreaInsets()
-    const [isConfirmChargeBusy, setConfirmChargeIsBusy] = useState(false)
+    const [isConfirmChargeBusy, setIsConfirmChargeBusy] = useState(false)
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [shownPayment, setShownPayment] = useState<PaymentModel>()
     const { sessionStore } = useStore()
 
     const onConfirmChargePress = useCallback(async () => {
-        setConfirmChargeIsBusy(true)
+        setIsConfirmChargeBusy(true)
 
         try {
             await sessionStore.confirmSession()
         } catch (error) {}
 
-        setConfirmChargeIsBusy(false)
+        setIsConfirmChargeBusy(false)
     }, [])
 
     const onPaymentPress = (payment: PaymentModel) => {

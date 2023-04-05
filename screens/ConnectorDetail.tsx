@@ -43,7 +43,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [evse] = useState(route.params.evse)
     const [connector] = useState(route.params.connector)
     const [isBusy, setIsBusy] = useState(false)
-    const [isConfirmChargeBusy, setConfirmChargeIsBusy] = useState(false)
+    const [isConfirmChargeBusy, setIsConfirmChargeBusy] = useState(false)
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [isRemoteCapable] = useState(hasEvseCapability(evse.capabilities, EvseCapability.REMOTE_START_STOP_CAPABLE))
     const [isSessionConnector, setIsSessionConnector] = useState(false)
@@ -95,7 +95,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     }, [confirmationStatus])
 
     const onConfirmChargePress = useCallback(async () => {
-        setConfirmChargeIsBusy(true)
+        setIsConfirmChargeBusy(true)
 
         try {
             await sessionStore.confirmSession()
@@ -103,13 +103,11 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
             setLastError(errorToString(error))
         }
 
-        setConfirmChargeIsBusy(false)
+        setIsConfirmChargeBusy(false)
     }, [])
 
     const renderStartInfo = useCallback(() => {
-        return isRemoteCapable &&
-            ((lastError.length === 0 && sessionStore.status === ChargeSessionStatus.IDLE) ||
-                (isSessionConnector && sessionStore.status === ChargeSessionStatus.STARTING)) ? (
+        return isRemoteCapable && lastError.length === 0 && sessionStore.status === ChargeSessionStatus.IDLE ? (
             <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
                 {I18n.t("ConnectorDetail_StartInfoText")}
             </Text>
