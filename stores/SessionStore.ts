@@ -180,12 +180,6 @@ export class SessionStore implements SessionStoreInterface {
                       return valueMsat.add(payment.valueMsat)
                   }, new Long(0))
                   .toString()
-            : this.status === ChargeSessionStatus.AWAITING_PAYMENT
-            ? this.sessionInvoices
-                  .reduce((totalMsat, sessionInvoice) => {
-                      return totalMsat.add(sessionInvoice.totalMsat)
-                  }, new Long(0))
-                  .toString()
             : "0"
     }
 
@@ -509,7 +503,7 @@ export class SessionStore implements SessionStoreInterface {
 
                 this.actionUpdateSession(response.data.getSession as SessionModel)
 
-                if (this.status === ChargeSessionStatus.STARTING) {
+                if (this.status === ChargeSessionStatus.STARTING || this.status === ChargeSessionStatus.STOPPING) {
                     this.updateSessionTimer(true)
                 }
             } catch {

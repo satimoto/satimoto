@@ -17,7 +17,7 @@ import { RouteProp, StackActions, useFocusEffect } from "@react-navigation/nativ
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { ChargeSessionStatus } from "types/chargeSession"
-import { EvseCapability, EvseStatus } from "types/evse"
+import { EvseCapability } from "types/evse"
 import { TokenType } from "types/token"
 import { MINIMUM_REMOTE_CHARGE_BALANCE, MINIMUM_RFID_CHARGE_BALANCE } from "utils/constants"
 import { errorToString } from "utils/conversion"
@@ -114,7 +114,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         ) : (
             <></>
         )
-    }, [lastError, isRemoteCapable, isSessionConnector, sessionStore.status])
+    }, [lastError, isRemoteCapable, sessionStore.status])
 
     const renderStart = useCallback(() => {
         if (lastError.length === 0 && !isSessionConnector) {
@@ -124,8 +124,8 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     onPress={onShowStartConfirmation}
                     isDisabled={
                         channelStore.availableBalance < MINIMUM_REMOTE_CHARGE_BALANCE ||
-                        sessionStore.status !== ChargeSessionStatus.IDLE ||
-                        evse.status !== EvseStatus.AVAILABLE
+                        sessionStore.status === ChargeSessionStatus.ACTIVE ||
+                        sessionStore.status === ChargeSessionStatus.STARTING
                     }
                     style={styles.focusViewButton}
                 >
@@ -137,7 +137,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                 </Text>
             )
         }
-    }, [lastError, isSessionConnector, isBusy, channelStore.availableBalance, sessionStore.status, evse.status])
+    }, [lastError, isBusy, isRemoteCapable, isSessionConnector, channelStore.availableBalance, sessionStore.status, evse.status])
 
     const renderConfirmCharge = useCallback(() => {
         if (lastError.length === 0 && isSessionConnector) {
@@ -154,7 +154,19 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                 <></>
             )
         }
-    }, [lastError, isSessionConnector, isBusy, sessionStore.status])
+    }, [lastError, isBusy, isConfirmChargeBusy, isSessionConnector, sessionStore.status])
+
+    const renderStopInfo = useCallback(() => {
+        if (lastError.length === 0 && isSessionConnector) {
+            return sessionStore.tokenType === TokenType.OTHER && sessionStore.status === ChargeSessionStatus.STOPPING ? (
+                <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                    {I18n.t("ConnectorDetail_StopInfoText")}
+                </Text>
+            ) : (
+                <></>
+            )
+        }
+    }, [lastError, isSessionConnector, sessionStore.status, sessionStore.tokenType])
 
     const renderStop = useCallback(() => {
         if (lastError.length === 0 && isSessionConnector) {
@@ -163,11 +175,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     colorScheme="red"
                     isBusy={isBusy}
                     onPress={onShowStopConfirmation}
-                    isDisabled={
-                        isConfirmChargeBusy ||
-                        sessionStore.status === ChargeSessionStatus.IDLE ||
-                        sessionStore.status === ChargeSessionStatus.STOPPING
-                    }
+                    isDisabled={isConfirmChargeBusy || sessionStore.status === ChargeSessionStatus.IDLE}
                     style={[styles.focusViewButton, ChargeSessionStatus.STARTING ? { marginTop: 15 } : {}]}
                 >
                     {I18n.t("Button_Stop")}
@@ -178,7 +186,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                 </Text>
             )
         }
-    }, [lastError, isSessionConnector, isBusy, sessionStore.status])
+    }, [lastError, isBusy, isConfirmChargeBusy, isSessionConnector, sessionStore.status, sessionStore.tokenType])
 
     const renderError = useCallback(() => {
         return lastError.length > 0 ? (
@@ -232,11 +240,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         let lastError = ""
 
         if (!isSessionConnector) {
-            if (evse.status !== EvseStatus.AVAILABLE) {
-                lastError = I18n.t("ConnectorDetail_EvseStatusError", { status: I18n.t(evse.status).toLowerCase() })
-            } else if (sessionStore.status === ChargeSessionStatus.AWAITING_PAYMENT) {
-                lastError = I18n.t("ConnectorDetail_AwaitingPaymentError")
-            } else if (sessionStore.status !== ChargeSessionStatus.IDLE) {
+            if (sessionStore.status !== ChargeSessionStatus.IDLE) {
                 lastError = I18n.t("ConnectorDetail_ChargeStatusError")
             } else if (isRemoteCapable && channelStore.availableBalance < MINIMUM_REMOTE_CHARGE_BALANCE) {
                 lastError = I18n.t("ConnectorDetail_LocalBalanceError", { satoshis: MINIMUM_REMOTE_CHARGE_BALANCE - channelStore.availableBalance })
@@ -253,7 +257,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
             {location.isExperimental && (
                 <Box bgColor="error.500" padding={2}>
                     <HStack width="100%">
-                        <Text color="#ffffff" fontSize={14} fontWeight={600}>
+                        <Text color="#ffffff" fontSize={10} fontWeight={600}>
                             {I18n.t("ConnectorDetail_ExperimentalText")}
                         </Text>
                     </HStack>
@@ -273,6 +277,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     {renderStartInfo()}
                     {renderStart()}
                     {renderConfirmCharge()}
+                    {renderStopInfo()}
                     {renderStop()}
                     {renderError()}
                 </VStack>

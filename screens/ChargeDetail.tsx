@@ -66,7 +66,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                               variant="ghost"
                               p={0.5}
                               onPress={() => setIsConfirmationModalVisible(true)}
-                              isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
+                              isDisabled={sessionStore.status === ChargeSessionStatus.IDLE}
                               icon={<FontAwesomeIcon icon={faStop} />}
                               _icon={{ color: "#ffffff", size: 32 }}
                           />
@@ -92,7 +92,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                     <SatoshiBalance size={16} color={textColor} satoshis={parseInt(sessionStore.feeSat)} prependText="FEE" />
                 </View>
             </VStack>
-            {sessionStore.status === ChargeSessionStatus.STARTING ? (
+            {sessionStore.status === ChargeSessionStatus.STARTING && (
                 <View>
                     <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
                         {I18n.t("ConnectorDetail_ConfirmChargeText")}
@@ -101,7 +101,8 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                         {I18n.t("Button_ConfirmCharge")}
                     </BusyButton>
                 </View>
-            ) : (
+            )}
+            {sessionStore.status === ChargeSessionStatus.ACTIVE && (
                 <View>
                     <ChargeInfo
                         colorScheme="orange"
@@ -117,6 +118,13 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                         unit="mins"
                         estimated={sessionStore.estimatedTime}
                     />
+                </View>
+            )}
+            {sessionStore.tokenType === TokenType.OTHER && sessionStore.status === ChargeSessionStatus.STOPPING && (
+                <View>
+                    <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                        {I18n.t("ConnectorDetail_StopInfoText")}
+                    </Text>
                 </View>
             )}
             <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
