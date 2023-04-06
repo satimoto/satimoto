@@ -44,6 +44,10 @@ const SettingsBackend = ({ navigation, route }: SettingsBackendProps) => {
         return true
     }, [navigation])
 
+    const onBackupMnemonicPress = () => {
+        navigation.navigate("SettingsBackupMnemonic", { backend })
+    }
+
     const onImportMnemonicPress = () => {
         navigation.navigate("SettingsImportMnemonic", { backend })
     }
@@ -89,6 +93,19 @@ const SettingsBackend = ({ navigation, route }: SettingsBackendProps) => {
                             </HStack>
                         </ExpandableListItem>
                     )}
+                    {backend === lightningStore.backend && backend === LightningBackend.BREEZ_SDK && (
+                        <View marginTop={15}>
+                            <RoundedButton onPress={() => onBackupMnemonicPress()}>{I18n.t("Button_BackupMnemonic")}</RoundedButton>
+                        </View>
+                    )}
+                    {backend !== lightningStore.backend && backend === LightningBackend.BREEZ_SDK && (
+                        <View marginTop={15}>
+                            <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16}>
+                                {I18n.t("SettingsBackend_ImportMnemonicText")}
+                            </Text>
+                            <RoundedButton onPress={() => onImportMnemonicPress()}>{I18n.t("Button_ImportMnemonic")}</RoundedButton>
+                        </View>
+                    )}
                     <RoundedButton
                         colorScheme="red"
                         marginTop={10}
@@ -99,16 +116,6 @@ const SettingsBackend = ({ navigation, route }: SettingsBackendProps) => {
                             text: I18n.t(swapBackend)
                         })}
                     </RoundedButton>
-                    {backend !== lightningStore.backend && backend === LightningBackend.BREEZ_SDK && (
-                        <View marginTop={15}>
-                            <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16}>
-                                {I18n.t("SettingsBackend_ImportMnemonicText")}
-                            </Text>
-                            <RoundedButton onPress={() => onImportMnemonicPress()}>
-                                {I18n.t("Button_ImportMnemonic")}
-                            </RoundedButton>
-                        </View>
-                    )}
                 </VStack>
             </View>
             <SwapBackendModal isVisible={isSwapBackendModalVisible} backend={swapBackend} onClose={() => setIsSwapBackendModalVisible(false)} />

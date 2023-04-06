@@ -32,7 +32,9 @@ import SettingsBattery from "screens/SettingsBattery"
 import SettingsChannel from "screens/SettingsChannel"
 import SettingsChannels from "screens/SettingsChannels"
 import SettingsCharging from "screens/SettingsCharging"
+import SettingsBackupMnemonic from "screens/SettingsBackupMnemonic"
 import SettingsImportMnemonic from "screens/SettingsImportMnemonic"
+import SettingsLearn from "screens/SettingsLearn"
 import SettingsOnChain from "screens/SettingsOnChain"
 import SettingsPayments from "screens/SettingsPayments"
 import SettingsSendReport from "screens/SettingsSendReport"
@@ -68,7 +70,9 @@ export type AppStackParamList = {
     SettingsChannel: { channel: ChannelModel }
     SettingsChannels: undefined
     SettingsCharging: undefined
+    SettingsBackupMnemonic: { backend: LightningBackend }
     SettingsImportMnemonic: { backend: LightningBackend }
+    SettingsLearn: undefined
     SettingsOnChain: undefined
     SettingsPayments: undefined
     SettingsSendReport: undefined
@@ -98,7 +102,9 @@ export type AppStackScreenParams = {
     SettingsChannel: undefined
     SettingsChannels: undefined
     SettingsCharging: undefined
+    SettingsBackupMnemonic: undefined
     SettingsImportMnemonic: undefined
+    SettingsLearn: undefined
     SettingsOnChain: undefined
     SettingsPayments: undefined
     SettingsSendReport: undefined
@@ -193,7 +199,9 @@ const AppStack = () => {
             <AppStackNav.Screen name="SettingsChannel" component={SettingsChannel} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsChannels" component={SettingsChannels} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsCharging" component={SettingsCharging} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsBackupMnemonic" component={SettingsBackupMnemonic} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsImportMnemonic" component={SettingsImportMnemonic} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsLearn" component={SettingsLearn} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsOnChain" component={SettingsOnChain} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsPayments" component={SettingsPayments} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsSendReport" component={SettingsSendReport} options={navigationWithHeaderOptions} />

@@ -40,6 +40,7 @@ export interface WalletStoreInterface extends StoreInterface {
     lastTxid?: string
 
     refreshWalletBalance(): Promise<void>
+    getMnemonic(backend: LightningBackend): Promise<string[]>
     setMnemonic(backend: LightningBackend, mnemonic: string[]): Promise<void>
     sweep(address: string): Promise<void>
 }
@@ -173,6 +174,24 @@ export class WalletStore implements WalletStoreInterface {
             // Init wallet
             await lnd.initWallet(seedMnemonic, password, recoveryWindow)
         }
+    }
+
+    async getMnemonic(backend: LightningBackend): Promise<string[]> {
+        if (backend === LightningBackend.BREEZ_SDK) {
+            const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
+
+            if (seedMnemonic) {
+                return seedMnemonic.split(" ")
+            }
+        } else if (backend === LightningBackend.LND) {
+            const seedMnemonic: string[] = await getSecureItem(SECURE_KEY_CIPHER_SEED_MNEMONIC)
+
+            if (seedMnemonic) {
+                return seedMnemonic
+            }
+        }
+
+        throw Error("Mnemonic not found")
     }
 
     async refreshWalletBalance() {

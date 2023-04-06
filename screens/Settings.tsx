@@ -50,6 +50,12 @@ const Settings = ({ navigation }: SettingsProps) => {
                         iconRight={faChevronRight}
                         onPress={() => navigation.navigate("SettingsAdvanced")}
                     />
+                    <ListButton
+                        key="learn"
+                        title={I18n.t("Settings_ButtonLearn")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("SettingsLearn")}
+                    />
                 </VStack>
             </ScrollView>
         </View>

@@ -16,7 +16,7 @@ import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 
-const log = new Log("PaymentRequest")
+const log = new Log("SettingsImportMnemonic")
 
 const popAction = StackActions.pop()
 
@@ -123,9 +123,9 @@ const SettingsImportMnemonic = ({ navigation, route }: SettingsImportMnemonicPro
                     <Text color={errorColor} paddingX={5}>
                         {lastError}
                     </Text>
-                        <BusyButton isBusy={isBusy} isDisabled={isDisabled} marginTop={1} marginX={4} onPress={onOkPress}>
-                            {I18n.t("Button_Ok")}
-                        </BusyButton>
+                    <BusyButton isBusy={isBusy} isDisabled={isDisabled} marginTop={1} marginX={4} onPress={onOkPress}>
+                        {I18n.t("Button_Ok")}
+                    </BusyButton>
                 </VStack>
             </VStack>
         </View>
