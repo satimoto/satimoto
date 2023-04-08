@@ -3,14 +3,15 @@ import InvoiceRequestBadge from "components/InvoiceRequestBadge"
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import SatoshiBalance from "components/SatoshiBalance"
 import useColor from "hooks/useColor"
+import { observer } from "mobx-react"
 import InvoiceRequestModel from "models/InvoiceRequest"
 import { HStack, Spacer, Text, useTheme, VStack } from "native-base"
 import React, { useState } from "react"
+import TimeAgo from "react-native-timeago"
 import { transactionIcons } from "utils/assets"
 import { toSatoshi } from "utils/conversion"
+import I18n from "utils/i18n"
 import styles from "utils/styles"
-import { observer } from "mobx-react"
-import TimeAgo from "react-native-timeago"
 
 interface InvoiceRequestButtonProps {
     invoiceRequest: InvoiceRequestModel
@@ -29,10 +30,10 @@ const InvoiceRequestButton = ({ invoiceRequest }: InvoiceRequestButtonProps) => 
                 </ButtonIcon>
                 <VStack>
                     <Text color="white" fontSize="lg" fontWeight="bold" isTruncated={true}>
-                        {invoiceRequest.promotion.code}
+                        {I18n.t(`PROMOTION_${invoiceRequest.promotion.code}_TITLE`, { defaultValue: invoiceRequest.promotion.code })}
                     </Text>
                     <Text color="gray.300" fontSize="lg">
-                        {invoiceRequest.releaseDate && <TimeAgo time={invoiceRequest.releaseDate} />}
+                        {I18n.t(`PROMOTION_${invoiceRequest.promotion.code}_TEXT`, { defaultValue: "" })}
                     </Text>
                 </VStack>
                 <Spacer />

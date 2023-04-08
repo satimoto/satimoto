@@ -162,8 +162,8 @@ export default {
     SettingsCharging_ButtonTokens: "Cards",
     SettingsCharging_ButtonSessions: "Charge Sessions",
     SettingsBackupMnemonic_HeaderTitle: "Backup Mnemonic",
-    SettingsBackupMnemonic_BreezSdkBackupText: "Carefully store this mnemoic in a safe place. You can use it with other Breez SDK applications to share the same lightning node.",
-    SettingsBackupMnemonic_LndBackupText: "Carefully store this Mnemoic in a safe place. ",
+    SettingsBackupMnemonic_BreezSdkBackupText: "Carefully store this mnemonic in a safe place. You can use it with other Breez SDK applications to share the same lightning node.",
+    SettingsBackupMnemonic_LndBackupText: "Carefully store this Mnemonic in a safe place. ",
     SettingsImportMnemonic_HeaderTitle: "Import Mnemonic",
     SettingsImportMnemonic_MnemonicError: "Please check your mnemonic and try again.",
     SettingsLearn_HeaderTitle: "Learn",
@@ -247,5 +247,18 @@ export default {
     GENERAL_GREEN: "Green mix",
     SOLAR: "Solar",
     WIND: "Wind",
-    WATER: "Water"
+    WATER: "Water",
+    // Promotion
+    PROMOTION_CIRCUIT_TITLE: "Recharge",
+    PROMOTION_CIRCUIT_TEXT: "Referral Recharge",
+    PROMOTION_REBATE_TITLE: "Rebate",
+    PROMOTION_REBATE_TEXT: "Rebate overpaid session",
+    PROMOTION_SESSION_CONFIRMED_TITLE: "Confirmed",
+    PROMOTION_SESSION_CONFIRMED_TEXT: "Confirm session started",
+    PROMOTION_21_CHARGES_TITLE: "21",
+    PROMOTION_21_CHARGES_TEXT: "21 Charges",
+    PROMOTION_FIRST_USER_CHARGE_TITLE: "Hello",
+    PROMOTION_FIRST_USER_CHARGE_TEXT: "Your first charge",
+    PROMOTION_FIRST_LOCATION_CHARGE_TITLE: "First",
+    PROMOTION_FIRST_LOCATION_CHARGE_TEXT: "Location's first charge"
 }
