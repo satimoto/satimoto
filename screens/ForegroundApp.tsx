@@ -17,19 +17,20 @@ import notificationMessageHandler from "services/notification"
 import client from "services/satimoto"
 import store from "stores/Store"
 import { backgroundEvent, backgroundTimeout, BACKGROUND_FETCH_CONFIG } from "utils/background"
-import { API_URI, APPLICATION_ID, MAPBOX_API_KEY, NETWORK } from "utils/build"
+import { API_URI, APPLICATION_ID, MAPBOX_API_KEY, NETWORK, VERSION_CODE, VERSION_NAME } from "utils/build"
 import { Log } from "utils/logging"
 import { NativeBaseTheme } from "utils/theme"
-import 'moment/locale/en-gb'
+import "moment/locale/en-gb"
 
 global.Buffer = Buffer
 global.process = require("../polyfills/process")
-moment().locale('en-gb')
+moment().locale("en-gb")
 protobuf.util.toJSONOptions = { defaults: true }
 
 const log = new Log("ForegroundApp")
 
 log.debug(`SAT001: Starting: Bundle ID: ${APPLICATION_ID}`, true)
+log.debug(`SAT001: Starting: Version: ${VERSION_NAME} (${VERSION_CODE})`, true)
 log.debug(`SAT001: Starting: Api Uri: ${API_URI}`, true)
 log.debug(`SAT001: Starting: Network: ${NETWORK}`, true)
 log.debug(`SAT001: Starting: Mapbox API key: ${MAPBOX_API_KEY}`)

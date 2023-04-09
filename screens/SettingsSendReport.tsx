@@ -15,7 +15,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import * as lnd from "services/lnd"
 import { AppStackParamList } from "screens/AppStack"
 import { LightningBackend } from "types/lightningBackend"
-import { APPLICATION_VERSION } from "utils/constants"
+import { VERSION_CODE, VERSION_NAME } from "utils/build"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
@@ -64,7 +64,7 @@ const SettingsSendReport = ({ navigation }: SettingsSendReportProps) => {
                 body:
                     `Backend: ${lightningStore.backend}\n` +
                     `OS: ${Platform.OS} - ${Platform.Version}\n` +
-                    `Version: ${APPLICATION_VERSION}\n` +
+                    `Version: ${VERSION_NAME} (${VERSION_CODE})\n` +
                     `\n` +
                     `${reportBody}` +
                     `\n\n` +

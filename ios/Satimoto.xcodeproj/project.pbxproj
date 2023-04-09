@@ -643,6 +643,8 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_CODE = "$(CURRENT_PROJECT_VERSION)";
+				VERSION_NAME = "$(MARKETING_VERSION)";
 			};
 			name = Debug;
 		};
@@ -690,6 +692,8 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_CODE = "$(CURRENT_PROJECT_VERSION)";
+				VERSION_NAME = "$(MARKETING_VERSION)";
 			};
 			name = Release;
 		};
@@ -802,6 +806,8 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_CODE = "$(CURRENT_PROJECT_VERSION)";
+				VERSION_NAME = "$(MARKETING_VERSION)";
 			};
 			name = DebugTestnet;
 		};
@@ -944,6 +950,8 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_CODE = "$(CURRENT_PROJECT_VERSION)";
+				VERSION_NAME = "$(MARKETING_VERSION)";
 			};
 			name = DebugRegtest;
 		};
@@ -1078,6 +1086,8 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_CODE = "$(CURRENT_PROJECT_VERSION)";
+				VERSION_NAME = "$(MARKETING_VERSION)";
 			};
 			name = ReleaseTestnet;
 		};
@@ -1209,6 +1219,8 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_CODE = "$(CURRENT_PROJECT_VERSION)";
+				VERSION_NAME = "$(MARKETING_VERSION)";
 			};
 			name = ReleaseRegtest;
 		};
