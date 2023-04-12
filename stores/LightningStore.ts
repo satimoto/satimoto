@@ -220,7 +220,9 @@ export class LightningStore implements LightningStoreInterface {
     async walletStarted() {
         log.debug(`SAT104: walletStated`, true)
 
-        if (this.backend === LightningBackend.LND) {
+        if (this.backend === LightningBackend.BREEZ_SDK) {
+            this.percentSynced = 50
+        } else if (this.backend === LightningBackend.LND) {
             this.actionSetSyncHeaderTimestamp(this.bestHeaderTimestamp)
 
             while (true) {
@@ -290,6 +292,7 @@ export class LightningStore implements LightningStoreInterface {
 
     actionSetSynced() {
         this.syncedToChain = true
+        this.percentSynced = 100
     }
 
     actionSetSyncHeaderTimestamp(timestamp: string) {

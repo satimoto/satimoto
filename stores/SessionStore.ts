@@ -448,15 +448,17 @@ export class SessionStore implements SessionStoreInterface {
 
         log.debug(`SAT076 actionUpdateSession: uid=${this.session.uid} status=${this.session.status}/${this.status}`, true)
 
-        if (this.status === ChargeSessionStatus.ACTIVE || this.status === ChargeSessionStatus.IDLE) {
-            this.updateSessionTimer(false)
-        }
-
         if (this.session.status === SessionStatus.INVOICED) {
             this.refreshSessions()
         }
 
-        if (this.session.status !== SessionStatus.ACTIVE && this.session.status !== SessionStatus.PENDING) {
+        if (this.status === ChargeSessionStatus.ACTIVE || this.status === ChargeSessionStatus.IDLE) {
+            this.updateSessionTimer(false)
+        } else if (
+            this.session.status === SessionStatus.COMPLETED ||
+            this.session.status === SessionStatus.INVALID ||
+            this.session.status === SessionStatus.INVOICED
+        ) {
             this.payments.clear()
             this.authorizationId = undefined
             this.tokenType = undefined
