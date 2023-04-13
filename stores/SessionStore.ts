@@ -223,45 +223,41 @@ export class SessionStore implements SessionStoreInterface {
             log.debug(`SAT068: fetchSessionInvoices: count=${sessionInvoices.length}`)
 
             for (const sessionInvoice of sessionInvoices) {
-                this.paySessionInvoice(sessionInvoice, false)
+                try {
+                    await this.paySessionInvoice(sessionInvoice, false)
+                } catch (error) {
+                    log.error(`SAT079: Error paying session invoice: ${error}`, true)
+                }
             }
         }
     }
 
     async onSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void> {
-        if (this.stores.uiStore.appState === "background") {
-            const netState = await NetInfo.fetch()
+        const netState = await NetInfo.fetch()
 
-            this.queue.createJob(
-                "session-invoice-notification",
-                notification,
-                {
-                    attempts: 3,
-                    timeout: 27500
-                },
-                netState.isConnected && netState.isInternetReachable
-            )
-        } else {
-            await this.workerSessionInvoiceNotification(notification)
-        }
+        this.queue.createJob(
+            "session-invoice-notification",
+            notification,
+            {
+                attempts: 3,
+                timeout: 27500
+            },
+            netState.isConnected && netState.isInternetReachable
+        )
     }
 
     async onSessionUpdateNotification(notification: SessionUpdateNotification): Promise<void> {
-        if (this.stores.uiStore.appState === "background") {
-            const netState = await NetInfo.fetch()
+        const netState = await NetInfo.fetch()
 
-            this.queue.createJob(
-                "session-update-notification",
-                notification,
-                {
-                    attempts: 3,
-                    timeout: 1000
-                },
-                netState.isConnected && netState.isInternetReachable
-            )
-        } else {
-            await this.workerSessionUpdateNotification(notification)
-        }
+        this.queue.createJob(
+            "session-update-notification",
+            notification,
+            {
+                attempts: 3,
+                timeout: 1000
+            },
+            netState.isConnected && netState.isInternetReachable
+        )
     }
 
     async onTokenAuthorizeNotification(notification: TokenAuthorizeNotification): Promise<void> {
@@ -273,7 +269,9 @@ export class SessionStore implements SessionStoreInterface {
             if (authorized) {
                 this.actionTokenAuthorization(tokenAuthorization)
             }
-        } catch {}
+        } catch (error) {
+            log.error(`SAT106: Error updating token authorization: ${error}`, true)
+        }
     }
 
     async paySessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): Promise<void> {

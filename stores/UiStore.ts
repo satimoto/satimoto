@@ -17,7 +17,7 @@ import { Tooltip } from "types/tooltip"
 import { LightningBackend } from "types/lightningBackend"
 
 const log = new Log("UiStore")
-const EVSE_ID_REGEX = /[\/=]([A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+)/
+const EVSE_ID_REGEX = /[\/=?]([A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+)/
 const ID_REGEX = /\/([A-Za-z0-9]+)$/
 
 export interface UiStoreInterface extends StoreInterface {
@@ -224,7 +224,7 @@ export class UiStore implements UiStoreInterface {
      */
     async parseIntent(intent: string): Promise<boolean> {
         log.debug("SAT084: parseIntent: " + intent, true)
-        intent = intent.replace(/lightning:/i, "").trim()
+        intent = intent.replace(/lightning:/i, "").replace(/url:/i, "").trim()
 
         const lowerCaseIntent = intent.toLowerCase()
         let errorCode = "Scanner_DataError"

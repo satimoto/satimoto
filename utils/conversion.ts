@@ -9,7 +9,7 @@ export const deepCopy = (data: any): any => {
 }
 
 export const hexToBytes = (data: BytesLikeType): Uint8Array => {
-    return typeof data === "string" ? Uint8Array.from(Buffer.from(data, "hex")) : data
+    return typeof data === "string" ? Uint8Array.from(Buffer.from(data, "hex")) : data instanceof Uint8Array ? data : Uint8Array.from(data)
 }
 
 export const bytesToHex = (data: BytesLikeType): string => {
@@ -17,7 +17,7 @@ export const bytesToHex = (data: BytesLikeType): string => {
 }
 
 export const base64ToBytes = (data: BytesLikeType): Uint8Array => {
-    return typeof data === "string" ? b64ToBytes(data) : data
+    return typeof data === "string" ? b64ToBytes(data) : data instanceof Uint8Array ? data : Uint8Array.from(data)
 }
 
 export const bytesToBase64 = (data: BytesLikeType): string => {

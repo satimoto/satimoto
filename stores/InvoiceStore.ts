@@ -177,21 +177,17 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     async onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void> {
-        if (this.stores.uiStore.appState === "background") {
-            const netState = await NetInfo.fetch()
+        const netState = await NetInfo.fetch()
 
-            this.queue.createJob(
-                "invoice-request-notification",
-                notification,
-                {
-                    attempts: 3,
-                    timeout: 20000
-                },
-                netState.isConnected && netState.isInternetReachable
-            )
-        } else {
-            await this.workerInvoiceRequestNotification(notification)
-        }
+        this.queue.createJob(
+            "invoice-request-notification",
+            notification,
+            {
+                attempts: 3,
+                timeout: 20000
+            },
+            netState.isConnected && netState.isInternetReachable
+        )
     }
 
     reset() {
@@ -202,21 +198,6 @@ export class InvoiceStore implements InvoiceStoreInterface {
         this.actionSettleInvoice(hash)
     }
 
-    startInvoiceRequestUpdates() {
-        log.debug(`SAT043 startInvoiceRequestUpdates`, true)
-
-        if (!this.invoiceRequestUpdateTimer) {
-            this.fetchInvoiceRequests()
-            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), INVOICE_REQUEST_UPDATE_INTERVAL * 1000)
-        }
-    }
-
-    stopInvoiceRequestUpdates() {
-        log.debug(`SAT044 stopInvoiceRequestUpdates`, true)
-        clearInterval(this.invoiceRequestUpdateTimer)
-        this.invoiceRequestUpdateTimer = null
-    }
-
     async updateBreezInvoices(payments: breezSdk.Payment[]) {
         for (const payment of payments) {
             this.actionUpdateInvoice(fromBreezPayment(payment))
@@ -224,6 +205,18 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
 
         this.actionSetReady()
+    }
+
+    updateInvoiceRequestTimer(start: boolean) {
+        if (start && !this.invoiceRequestUpdateTimer) {
+            log.debug(`SAT043 updateInvoiceRequestTimer: start`, true)
+            this.fetchInvoiceRequests()
+            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), INVOICE_REQUEST_UPDATE_INTERVAL * 1000)
+        } else if (!start) {
+            log.debug(`SAT044 updateInvoiceRequestTimer: stop`, true)
+            clearInterval(this.invoiceRequestUpdateTimer)
+            this.invoiceRequestUpdateTimer = null
+        }
     }
 
     waitForInvoice(hash: string): Promise<InvoiceModel> {
@@ -342,6 +335,6 @@ export class InvoiceStore implements InvoiceStoreInterface {
             this.actionSubscribeInvoices()
         }
 
-        this.startInvoiceRequestUpdates()
+        this.updateInvoiceRequestTimer(true)
     }
 }

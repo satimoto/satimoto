@@ -122,7 +122,7 @@ export class LightningStore implements LightningStoreInterface {
     }
 
     receiveBreezEvent(type: breezSdk.EventType, data?: breezSdk.EventData) {
-        log.debug(`SAT0062: ${type}${data ? " : " + JSON.stringify(data) : ""}`, true)
+        log.debug(`SAT071: ${type}${data ? " : " + JSON.stringify(data) : ""}`, true)
 
         switch (type) {
             case breezSdk.EventType.INVOICE_PAID:
@@ -280,6 +280,7 @@ export class LightningStore implements LightningStoreInterface {
 
     actionSetBlockHeight(height: number) {
         log.debug(`SAT049: Height: ${height}`)
+        this.blockHeight = height
 
         if (this.backend === LightningBackend.LND || !this.identityPubkey) {
             this.getNodeInfo()

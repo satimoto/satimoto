@@ -24,7 +24,7 @@ export const addWorkers = (queue: any, store: Store) => {
     queue.addWorker("invoice-request-notification", async (id: string, payload: any) => {
         const startTime = log.debugTime(`SAT091: Started work on invoice-request id: ${id}`, undefined, true)
         await store.invoiceStore.workerInvoiceRequestNotification(payload as InvoiceRequestNotification)
-        log.debugTime(`SAT092: Finished work on invoice-request id: ${id}`, startTime), true
+        log.debugTime(`SAT092: Finished work on invoice-request id: ${id}`, startTime, true)
     })
 
     queue.addWorker("session-invoice-notification", async (id: string, payload: any) => {
