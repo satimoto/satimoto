@@ -1,5 +1,7 @@
-import { action, makeObservable, observable, reaction } from "mobx"
+import { action, makeObservable, observable, reaction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import FiatCurrencyModel from "models/FiatCurrency"
+import FiatRateModel from "models/FiatRate"
 import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NetInfo from "@react-native-community/netinfo"
@@ -23,6 +25,10 @@ export interface SettingStoreInterface extends StoreInterface {
     batteryCapacity?: number
     batteryPowerAc?: number
     batteryPowerDc?: number
+    fiatCurrencies: FiatCurrencyModel[]
+    fiatRates: FiatRateModel[]
+    selectedFiatCurrencies: string[]
+    selectedFiatCurrency?: string
     referralCode?: string
     pushNotificationEnabled: boolean
     pushNotificationToken?: string
@@ -30,9 +36,11 @@ export interface SettingStoreInterface extends StoreInterface {
 
     onDataPingNotification(notification: DataPingNotification): Promise<void>
     requestPushNotificationPermission(): Promise<boolean>
+    selectNextFiatCurrency(): void
     setBatterySettings(batteryCapacity?: number, batteryPowerAc?: number, batteryPowerDc?: number): void
     setIncludeChannelReserve(include: boolean): void
     setPushNotificationSettings(enabled: boolean, token: string): void
+    setSelectedFiatCurrencies(ids: string[]): void
 }
 
 export class SettingStore implements SettingStoreInterface {
@@ -45,6 +53,10 @@ export class SettingStore implements SettingStoreInterface {
     batteryCapacity?: number = undefined
     batteryPowerAc?: number = undefined
     batteryPowerDc?: number = undefined
+    fiatCurrencies
+    fiatRates
+    selectedFiatCurrencies
+    selectedFiatCurrency?: string = undefined
     includeChannelReserve = true
     pushNotificationEnabled = false
     pushNotificationToken?: string = undefined
@@ -52,6 +64,9 @@ export class SettingStore implements SettingStoreInterface {
 
     constructor(stores: Store) {
         this.stores = stores
+        this.fiatCurrencies = observable<FiatCurrencyModel>([])
+        this.fiatRates = observable<FiatRateModel>([])
+        this.selectedFiatCurrencies = observable<string>([])
 
         makeObservable(this, {
             hydrated: observable,
@@ -61,6 +76,10 @@ export class SettingStore implements SettingStoreInterface {
             batteryCapacity: observable,
             batteryPowerAc: observable,
             batteryPowerDc: observable,
+            fiatCurrencies: observable,
+            fiatRates: observable,
+            selectedFiatCurrencies: observable,
+            selectedFiatCurrency: observable,
             includeChannelReserve: observable,
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
@@ -69,6 +88,10 @@ export class SettingStore implements SettingStoreInterface {
             actionResetSettings: action,
             actionSetAccessToken: action,
             actionSetBatterySettings: action,
+            actionSetFiatCurrencies: action,
+            actionSetFiatRates: action,
+            actionSetSelectedFiatCurrencies: action,
+            actionSetSelectedFiatCurrency: action,
             actionSetUser: action,
             actionSetIncludeChannelReserve: action,
             actionSetPushNotificationSettings: action
@@ -83,6 +106,10 @@ export class SettingStore implements SettingStoreInterface {
                     "batteryCapacity",
                     "batteryPowerAc",
                     "batteryPowerDc",
+                    "fiatCurrencies",
+                    "fiatRates",
+                    "selectedFiatCurrencies",
+                    "selectedFiatCurrency",
                     "includeChannelReserve",
                     "pushNotificationEnabled",
                     "pushNotificationToken",
@@ -111,6 +138,16 @@ export class SettingStore implements SettingStoreInterface {
         reaction(
             () => [this.accessToken, this.stores.lightningStore.syncedToChain],
             () => this.reactionGetUser()
+        )
+
+        reaction(
+            () => [this.stores.uiStore.appState, this.stores.lightningStore.syncedToChain],
+            () => this.reactionAppState()
+        )
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
         )
 
         this.actionSetReady()
@@ -206,6 +243,18 @@ export class SettingStore implements SettingStoreInterface {
         this.actionResetSettings()
     }
 
+    selectNextFiatCurrency() {
+        if (this.selectedFiatCurrencies.length > 0) {
+            const index = this.selectedFiatCurrency ? this.selectedFiatCurrencies.indexOf(this.selectedFiatCurrency) : 0
+
+            if (index < this.selectedFiatCurrencies.length - 1) {
+                this.actionSetSelectedFiatCurrency(this.selectedFiatCurrencies[index + 1])
+            } else {
+                this.actionSetSelectedFiatCurrency(this.selectedFiatCurrencies[0])
+            }
+        }
+    }
+
     setBatterySettings(batteryCapacity?: number, batteryPowerAc?: number, batteryPowerDc?: number) {
         this.actionSetBatterySettings(batteryCapacity, batteryPowerAc, batteryPowerDc)
     }
@@ -216,6 +265,30 @@ export class SettingStore implements SettingStoreInterface {
 
     setPushNotificationSettings(enabled: boolean, token: string) {
         this.setPushNotificationSettings(enabled, token)
+    }
+
+    setSelectedFiatCurrencies(ids: string[]) {
+        this.actionSetSelectedFiatCurrencies(ids)
+    }
+
+    async updateFiatCurrencies() {
+        const fiatCurrencies = await breezSdk.listFiatCurrencies()
+
+        this.actionSetFiatCurrencies(
+            fiatCurrencies.map(({ id, info }) => {
+                return { id, name: info.name, decimals: info.fractionSize, symbol: info.symbol?.grapheme || "" }
+            })
+        )
+    }
+
+    async updateFiatRates() {
+        const fiatRates = await breezSdk.fetchFiatRates()
+
+        this.actionSetFiatRates(
+            fiatRates.map(({ coin, value }) => {
+                return { id: coin, value }
+            })
+        )
     }
 
     /*
@@ -247,6 +320,36 @@ export class SettingStore implements SettingStoreInterface {
         this.batteryPowerDc = batteryPowerDc
     }
 
+    actionSetFiatCurrencies(fiatCurrencies: FiatCurrencyModel[]) {
+        this.fiatCurrencies.replace(fiatCurrencies.sort((a, b) => a.name.localeCompare(b.name)))
+
+        this.actionSetSelectedFiatCurrencies(
+            this.selectedFiatCurrencies.filter((id) => this.fiatCurrencies.findIndex((fiatCurrency) => fiatCurrency.id === id) !== -1)
+        )
+    }
+
+    actionSetFiatRates(fiatRates: FiatRateModel[]) {
+        this.fiatRates.replace(fiatRates)
+    }
+
+    actionSetSelectedFiatCurrencies(ids: string[]) {
+        this.selectedFiatCurrencies.replace(ids)
+
+        if (this.selectedFiatCurrencies.length > 0) {
+            const index = this.selectedFiatCurrency ? this.selectedFiatCurrencies.indexOf(this.selectedFiatCurrency) : -1
+
+            if (index === -1) {
+                this.selectedFiatCurrency = this.selectedFiatCurrencies[0]
+            }
+        } else {
+            this.selectedFiatCurrency = undefined
+        }
+    }
+
+    actionSetSelectedFiatCurrency(id: string) {
+        this.selectedFiatCurrency = id
+    }
+
     actionSetIncludeChannelReserve(include: boolean) {
         this.includeChannelReserve = include
     }
@@ -267,6 +370,12 @@ export class SettingStore implements SettingStoreInterface {
         this.batteryCapacity = user?.batteryCapacity
         this.batteryPowerAc = user?.batteryPowerAc
         this.batteryPowerDc = user?.batteryPowerDc
+    }
+
+    async reactionAppState() {
+        if (this.stores.lightningStore.syncedToChain && this.stores.uiStore.appState === "active") {
+            this.updateFiatRates()
+        }
     }
 
     async reactionGetUser() {
@@ -298,6 +407,13 @@ export class SettingStore implements SettingStoreInterface {
                 batteryPowerDc: this.batteryPowerDc,
                 deviceToken: this.pushNotificationToken
             })
+        }
+    }
+
+    async whenSyncedToChain(): Promise<void> {
+        if (this.stores.lightningStore.backend == LightningBackend.BREEZ_SDK) {
+            this.updateFiatCurrencies()
+            this.updateFiatRates()
         }
     }
 }

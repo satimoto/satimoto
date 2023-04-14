@@ -84,7 +84,13 @@ const SettingsAdvanced = ({ navigation }: SettingsAdvancedProps) => {
                         onPress={() => navigation.navigate("SettingsBackends")}
                     />
                     <ListButton
-                        key="send-report"
+                        key="fiatcurrencies"
+                        title={I18n.t("SettingsAdvanced_FiatCurrenciesText")}
+                        iconRight={faChevronRight}
+                        onPress={() => navigation.navigate("SettingsFiatCurrencies")}
+                    />
+                    <ListButton
+                        key="sendreport"
                         title={I18n.t("SettingsAdvanced_SendReportText")}
                         iconRight={faChevronRight}
                         onPress={() => navigation.navigate("SettingsSendReport")}

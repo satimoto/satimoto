@@ -32,6 +32,7 @@ import SettingsBattery from "screens/SettingsBattery"
 import SettingsChannel from "screens/SettingsChannel"
 import SettingsChannels from "screens/SettingsChannels"
 import SettingsCharging from "screens/SettingsCharging"
+import SettingsFiatCurrencies from "screens/SettingsFiatCurrencies"
 import SettingsBackupMnemonic from "screens/SettingsBackupMnemonic"
 import SettingsImportMnemonic from "screens/SettingsImportMnemonic"
 import SettingsLearn from "screens/SettingsLearn"
@@ -70,6 +71,7 @@ export type AppStackParamList = {
     SettingsChannel: { channel: ChannelModel }
     SettingsChannels: undefined
     SettingsCharging: undefined
+    SettingsFiatCurrencies: undefined,
     SettingsBackupMnemonic: { backend: LightningBackend }
     SettingsImportMnemonic: { backend: LightningBackend }
     SettingsLearn: undefined
@@ -102,6 +104,7 @@ export type AppStackScreenParams = {
     SettingsChannel: undefined
     SettingsChannels: undefined
     SettingsCharging: undefined
+    SettingsFiatCurrencies: undefined
     SettingsBackupMnemonic: undefined
     SettingsImportMnemonic: undefined
     SettingsLearn: undefined
@@ -199,6 +202,7 @@ const AppStack = () => {
             <AppStackNav.Screen name="SettingsChannel" component={SettingsChannel} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsChannels" component={SettingsChannels} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsCharging" component={SettingsCharging} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsFiatCurrencies" component={SettingsFiatCurrencies} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsBackupMnemonic" component={SettingsBackupMnemonic} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsImportMnemonic" component={SettingsImportMnemonic} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsLearn" component={SettingsLearn} options={navigationWithHeaderOptions} />
