@@ -12,11 +12,12 @@ const log = new Log("CameraScanner")
 
 interface CameraScannerProps extends PropsWithChildren<any> {
     isActive: boolean
+    isValid?: boolean
     onNotAuthorized: () => void
     onQrCode: (qrCode: string) => void
 }
 
-const CameraScanner = ({ children, isActive, onNotAuthorized, onQrCode }: CameraScannerProps) => {
+const CameraScanner = ({ children, isActive, isValid = true, onNotAuthorized, onQrCode }: CameraScannerProps) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
@@ -50,7 +51,7 @@ const CameraScanner = ({ children, isActive, onNotAuthorized, onQrCode }: Camera
             onBarCodeRead={onBarCodeRead}
             onStatusChange={onStatusChange}
         >
-            <CameraViewFinder width={width} height={width} style={{marginTop: top}} />
+            <CameraViewFinder width={width} height={width} style={{marginTop: top}} isValid={isValid} />
             {children}
         </RNCamera>
     )

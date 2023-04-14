@@ -10,7 +10,7 @@
         "pods": "cd ios && pod install",
         "postinstall": "npm run protobuf",
         "protobuf": "pbjs -t static-module -w es6 --force-long -o proto/proto.js proto/lightning.proto proto/stateservice.proto proto/walletunlocker.proto proto/autopilotrpc/autopilot.proto proto/chainrpc/chainnotifier.proto proto/devrpc/dev.proto proto/invoicesrpc/invoices.proto proto/neutrinorpc/neutrino.proto proto/peersrpc/peers.proto proto/routerrpc/router.proto proto/signrpc/signer.proto proto/walletrpc/walletkit.proto && pbts -o proto/proto.d.ts proto/proto.js",
-        "react:clean": "rm -rf /tmp/metro-* && yarn start --reset-cache",
+        "clean": "rm -rf /tmp/metro-* && yarn start --reset-cache",
         "android:clean": "cd android && ./gradlew clean",
         "android:reverse": "adb reverse tcp:8081 tcp:8081",
         "android:regtest": "react-native run-android --variant networkregtestRelease --appIdSuffix regtest",

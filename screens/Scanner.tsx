@@ -13,24 +13,26 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 import { errorToString } from "utils/conversion"
-import { StackActions } from "@react-navigation/native"
+import { CommonActions, StackActions } from "@react-navigation/native"
 
 const log = new Log("Scanner")
 const replaceAction = StackActions.replace("TokenList")
 const popAction = StackActions.pop()
 
 const styleSheet = StyleSheet.create({
-    headerButtonView: { 
+    headerButtonView: {
         position: "absolute",
         top: 50,
         left: 12,
         alignItems: "center",
-        justifyContent: "space-between",
-
+        justifyContent: "space-between"
     },
     errorText: {
         position: "absolute",
         alignItems: "center",
+        paddingVertical: 5,
+        paddingHorizontal: 5,
+        borderRadius: 5
     }
 })
 
@@ -40,11 +42,13 @@ type ScannerProps = {
 
 const Scanner = ({ navigation }: ScannerProps) => {
     const { colors } = useTheme()
+    const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColor(colors.lightText, colors.darkText)
     const safeAreaInsets = useSafeAreaInsets()
     const { uiStore } = useStore()
     const [isActive, setIsActive] = useState(true)
+    const [isValid, setIsValid] = useState(true)
     const [lastError, setLastError] = useState("")
 
     useEffect(() => {
@@ -54,10 +58,10 @@ const Scanner = ({ navigation }: ScannerProps) => {
     }, [uiStore.linkToken])
 
     useEffect(() => {
-        if (uiStore.lnUrlAuthParams) {
-            navigation.dispatch(popAction)
-        }
-    }, [uiStore.lnUrlAuthParams])
+        setLastError("")
+        setIsActive(true)
+        setIsValid(true)
+    }, [])
 
     const onNotAuthorized = () => {
         navigation.goBack()
@@ -68,25 +72,39 @@ const Scanner = ({ navigation }: ScannerProps) => {
         setLastError("")
 
         try {
-            await uiStore.parseIntent(qrCode)
+            const success = await uiStore.parseIntent(qrCode)
+
+            if (success) {
+                navigation.dispatch((state) => {
+                    const routes = state.routes.filter((route) => route.name !== "Scanner")
+        
+                    return CommonActions.reset({ ...state, routes, index: routes.length - 1 })
+                })
+            }
         } catch (error) {
             setLastError(I18n.t(errorToString(error)))
-
+            setIsValid(false)
+        } finally {
             setTimeout(() => {
                 setIsActive(true)
+                setIsValid(true)
             }, 2000)
         }
     }
 
     return (
-        <CameraScanner isActive={isActive} onNotAuthorized={onNotAuthorized} onQrCode={onQrCode}>
+        <CameraScanner isActive={isActive} isValid={isValid} onNotAuthorized={onNotAuthorized} onQrCode={onQrCode}>
             {!IS_ANDROID && (
                 <View style={styleSheet.headerButtonView}>
                     <HeaderBackButton tintColor={textColor} onPress={() => navigation.goBack()} />
                 </View>
             )}
             {lastError.length > 0 && (
-                <Text color={errorColor} fontSize="xl" style={[styleSheet.errorText, {bottom: safeAreaInsets.bottom}]}>
+                <Text
+                    color={errorColor}
+                    fontSize="xl"
+                    style={[styleSheet.errorText, { backgroundColor, top: safeAreaInsets.top + 10 }]}
+                >
                     {lastError}
                 </Text>
             )}
