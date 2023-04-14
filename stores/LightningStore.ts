@@ -115,7 +115,9 @@ export class LightningStore implements LightningStoreInterface {
                 this.actionSetBackend(this.identityPubkey ? LightningBackend.LND : LightningBackend.BREEZ_SDK)
             }
 
-            await this.startLogEvents()
+            if (DEBUG) {
+                await this.startLogEvents()
+            }
         } catch (error) {
             log.error(`SAT048: Error Initializing: ${error}`, true)
         }
