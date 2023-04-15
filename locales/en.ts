@@ -196,7 +196,7 @@ export default {
     PaymentFailure_Error: "Payment Error",
     PaymentFailure_IncorrectPaymentDetails: "Incorrect payment details",
     PaymentFailure_InsufficientBalance: "Insufficient balance",
-    PaymentFailure_NoRoute: "No route",
+    PaymentFailure_NoRoute: "Could not route payment",
     PaymentFailure_Timeout: "Timeout",
     PaymentFailure_Expired: "Expired",
     // Backend

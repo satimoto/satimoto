@@ -74,7 +74,7 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                         setLastError(I18n.t("LnUrlPay_PayReqError"))
                     }
                 } catch (error) {
-                    setLastError(errorToString(error))
+                    setLastError(I18n.t("PaymentFailure_NoRoute"))
                     log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)
                 }
             }

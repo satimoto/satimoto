@@ -29,6 +29,7 @@ export interface SettingStoreInterface extends StoreInterface {
     fiatRates: FiatRateModel[]
     selectedFiatCurrencies: string[]
     selectedFiatCurrency?: string
+    selectedFiatRate?: number
     referralCode?: string
     pushNotificationEnabled: boolean
     pushNotificationToken?: string
@@ -57,6 +58,7 @@ export class SettingStore implements SettingStoreInterface {
     fiatRates
     selectedFiatCurrencies
     selectedFiatCurrency?: string = undefined
+    selectedFiatRate?: number = undefined
     includeChannelReserve = true
     pushNotificationEnabled = false
     pushNotificationToken?: string = undefined
@@ -80,6 +82,7 @@ export class SettingStore implements SettingStoreInterface {
             fiatRates: observable,
             selectedFiatCurrencies: observable,
             selectedFiatCurrency: observable,
+            selectedFiatRate: observable,
             includeChannelReserve: observable,
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
@@ -110,6 +113,7 @@ export class SettingStore implements SettingStoreInterface {
                     "fiatRates",
                     "selectedFiatCurrencies",
                     "selectedFiatCurrency",
+                    "selectedFiatRate",
                     "includeChannelReserve",
                     "pushNotificationEnabled",
                     "pushNotificationToken",
@@ -329,7 +333,10 @@ export class SettingStore implements SettingStoreInterface {
     }
 
     actionSetFiatRates(fiatRates: FiatRateModel[]) {
+        const fiatRate = fiatRates.find((fiatRate) => fiatRate.id === this.selectedFiatCurrency)
+       
         this.fiatRates.replace(fiatRates)
+        this.selectedFiatRate = fiatRate ? fiatRate.value : undefined
     }
 
     actionSetSelectedFiatCurrencies(ids: string[]) {
@@ -339,15 +346,18 @@ export class SettingStore implements SettingStoreInterface {
             const index = this.selectedFiatCurrency ? this.selectedFiatCurrencies.indexOf(this.selectedFiatCurrency) : -1
 
             if (index === -1) {
-                this.selectedFiatCurrency = this.selectedFiatCurrencies[0]
+                this.actionSetSelectedFiatCurrency(this.selectedFiatCurrencies[0])
             }
         } else {
-            this.selectedFiatCurrency = undefined
+            this.actionSetSelectedFiatCurrency(undefined)
         }
     }
 
-    actionSetSelectedFiatCurrency(id: string) {
+    actionSetSelectedFiatCurrency(id?: string) {
+        const fiatRate = id ? this.fiatRates.find((fiatRate) => fiatRate.id === id) : undefined
+
         this.selectedFiatCurrency = id
+        this.selectedFiatRate = fiatRate ? fiatRate.value : undefined
     }
 
     actionSetIncludeChannelReserve(include: boolean) {

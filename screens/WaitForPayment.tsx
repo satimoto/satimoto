@@ -1,3 +1,4 @@
+import FiatBalance from "components/FiatBalance"
 import HeaderBackButton from "components/HeaderBackButton"
 import NfcTransmitter from "components/NfcTransmitter"
 import QrCode from "components/QrCode"
@@ -34,13 +35,14 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
     const { startConfetti } = useConfetti()
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
-    const textColor = useColor(colors.lightText, colors.darkText)
+    const primaryTextColor = useColor(colors.lightText, colors.darkText)
+    const secondaryTextColor = useColor(colors.warmGray[400], colors.dark[200])
     const navigationOptions = useNavigationOptions({ headerShown: true })
     const safeAreaInsets = useSafeAreaInsets()
     const [invoice] = useState(route.params.invoice)
     const [expiryMinutes, setExpiryMinutes] = useState(60)
     const [lightningPaymentRequest, setLightningPaymentRequest] = useState("")
-    const { uiStore } = useStore()
+    const { settingStore, uiStore } = useStore()
 
     const size = Dimensions.get("window").width - 20
 
@@ -90,12 +92,15 @@ const WaitForPayment = ({ navigation, route }: WaitForPaymentProps) => {
 
     return (
         <View style={[styles.matchParent, styleSheet.container, { backgroundColor, paddingBottom: safeAreaInsets.bottom }]}>
-            <SatoshiBalance size={36} color={textColor} satoshis={parseInt(invoice.valueSat)} />
+            <View style={{ alignItems: "center" }}>
+                <SatoshiBalance size={36} color={primaryTextColor} satoshis={parseInt(invoice.valueSat)} />
+                {settingStore.selectedFiatCurrency && <FiatBalance color={secondaryTextColor} size={18} satoshis={parseInt(invoice.valueSat)} />}
+            </View>
             <View style={{ alignItems: "center" }}>
                 <QrCode value={invoice.paymentRequest} color="white" backgroundColor={backgroundColor} onPress={onPress} size={size} />
                 {IS_ANDROID && uiStore.nfcAvailable && <NfcTransmitter value={lightningPaymentRequest} size={30} />}
             </View>
-            <Text color={textColor} fontSize="xl" paddingTop={IS_ANDROID ? 0 : 4}>
+            <Text color={primaryTextColor} fontSize="xl" paddingTop={IS_ANDROID ? 0 : 4}>
                 {expiryMinutes <= 60
                     ? expiryMinutes === 1
                         ? I18n.t("WaitForPayment_Expiry")
