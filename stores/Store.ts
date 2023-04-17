@@ -110,6 +110,11 @@ export class Store implements StoreInterface {
         }
     }
 
+    async startQueue(lifespan?: number): Promise<void> {
+        await this.queue.start(lifespan)
+        await this.sessionStore.enqueueJobs()
+    }
+
     /*
      * Mobx actions and reactions
      */
@@ -122,7 +127,7 @@ export class Store implements StoreInterface {
         if (this.uiStore.appState === "active") {
             const startTime = log.debugTime(`SAT079: Foreground queue started`, undefined, true)
 
-            await this.queue.start()
+            await this.startQueue()
             log.debugTime(`SAT080: Foreground queue finished`, startTime, true)
         }
     }
@@ -130,7 +135,7 @@ export class Store implements StoreInterface {
     async reactionLastActiveTimestamp() {
         const startTime = log.debugTime(`SAT081: ActiveChannel queue started`, undefined, true)
 
-        await this.queue.start()
+        await this.startQueue()
         log.debugTime(`SAT082: ActiveChannel queue finished`, startTime, true)
     }
 }

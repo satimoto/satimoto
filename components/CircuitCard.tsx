@@ -31,13 +31,11 @@ const CircuitCard = ({}: CircuitCardProps) => {
     const size = (Dimensions.get("window").width - 20) / 2
 
     const onPress = async () => {
-        const notificationsEnabled = await settingStore.requestPushNotificationPermission()
+        await settingStore.requestPushNotificationPermission()
 
-        if (notificationsEnabled) {
-            await Share.share({
-                message: `Join me on Satimoto and every time you charge your electric vehicle, I receive satoshis!\n\n#Bitcoin #UsingBitcoin\n\n${referralLink}`
-            })
-        }
+        await Share.share({
+            message: `Join me on Satimoto and every time you charge your electric vehicle, I receive satoshis!\n\n#Bitcoin #UsingBitcoin\n\n${referralLink}`
+        })
     }
 
     useEffect(() => {

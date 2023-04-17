@@ -28,7 +28,7 @@ import { SessionInvoiceNotification, SessionUpdateNotification, TokenAuthorizeNo
 import { SessionStatus } from "types/session"
 import { TokenType, toTokenType } from "types/token"
 import { DEBUG } from "utils/build"
-import { MINIMUM_RFID_CHARGE_BALANCE, SESSION_INVOICE_UPDATE_INTERVAL, SESSION_UPDATE_INTERVAL } from "utils/constants"
+import { MINIMUM_RFID_CHARGE_BALANCE, ONE_MINUTE_INTERVAL, TEN_MINUTES_INTERVAL, TEN_SECONDS_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { toSatoshi } from "utils/conversion"
 import { CommandStatus } from "types/command"
@@ -71,6 +71,7 @@ export class SessionStore implements SessionStoreInterface {
 
     status = ChargeSessionStatus.IDLE
     authorizationId?: string = undefined
+    enqueueJobTimer: any = undefined
     tokenType?: TokenType = undefined
     location?: LocationModel = undefined
     evse?: EvseModel = undefined
@@ -206,6 +207,27 @@ export class SessionStore implements SessionStoreInterface {
         }
     }
 
+    async enqueueJobs() {
+        if (this.status !== ChargeSessionStatus.IDLE && !this.stores.settingStore.pushNotificationEnabled) {
+            log.debug(`SAT111 enqueue session-update-worker`, true)
+            
+            clearTimeout(this.enqueueJobTimer)
+            
+            this.queue.flushQueue("session-update-worker")
+            this.queue.createJob(
+                "session-update-worker",
+                {},
+                {
+                    attempts: 1,
+                    timeout: 27500
+                },
+                false
+            )
+
+            this.enqueueJobTimer = setTimeout(() => this.stores.startQueue(), ONE_MINUTE_INTERVAL * 1000)
+        }
+    }
+
     async fetchSession(): Promise<void> {
         if (this.stores.settingStore.accessToken && (this.session || this.authorizationId)) {
             const response = await getSession(this.session ? { uid: this.session.uid } : { authorizationId: this.authorizationId })
@@ -312,6 +334,7 @@ export class SessionStore implements SessionStoreInterface {
 
         if (startCommand.status === CommandStatus.ACCEPTED) {
             this.actionStartSession(startCommand.authorizationId, location, evse, connector)
+            await this.enqueueJobs()
         }
     }
 
@@ -327,7 +350,7 @@ export class SessionStore implements SessionStoreInterface {
         if (start && !this.sessionUpdateTimer) {
             log.debug(`SAT072 updateSessionTimer: start`, true)
             this.fetchSession()
-            this.sessionUpdateTimer = setInterval(this.fetchSession.bind(this), SESSION_UPDATE_INTERVAL * 1000)
+            this.sessionUpdateTimer = setInterval(this.fetchSession.bind(this), TEN_SECONDS_INTERVAL * 1000)
         } else if (!start) {
             log.debug(`SAT073 updateSessionTimer: stop`, true)
             clearInterval(this.sessionUpdateTimer)
@@ -339,7 +362,7 @@ export class SessionStore implements SessionStoreInterface {
         if (start && !this.sessionInvoicesUpdateTimer) {
             log.debug(`SAT074 updateSessionInvoiceTimer: start`, true)
             this.fetchSessionInvoices()
-            this.sessionInvoicesUpdateTimer = setInterval(this.fetchSessionInvoices.bind(this), SESSION_INVOICE_UPDATE_INTERVAL * 1000)
+            this.sessionInvoicesUpdateTimer = setInterval(this.fetchSessionInvoices.bind(this), TEN_MINUTES_INTERVAL * 1000)
         } else if (!start) {
             log.debug(`SAT075 updateSessionInvoiceTimer: stop`, true)
             clearInterval(this.sessionInvoicesUpdateTimer)
@@ -350,6 +373,11 @@ export class SessionStore implements SessionStoreInterface {
     /*
      * Queue workers
      */
+
+    async workerSessionUpdate(): Promise<void> {
+        await this.fetchSession()
+        await this.fetchSessionInvoices()
+    }
 
     async workerSessionInvoiceNotification(notification: SessionInvoiceNotification): Promise<void> {
         const response = await getSessionInvoice(notification.sessionInvoiceId)
@@ -505,6 +533,7 @@ export class SessionStore implements SessionStoreInterface {
 
                 if (this.status === ChargeSessionStatus.STARTING || this.status === ChargeSessionStatus.STOPPING) {
                     this.updateSessionTimer(true)
+                    await this.enqueueJobs()
                 }
             } catch {
                 this.actionSetIdle()

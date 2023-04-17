@@ -5,7 +5,7 @@ import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import { FormControl, HStack, Spacer, Text, useColorModeValue, VStack } from "native-base"
 import { ResponsiveValue } from "native-base/lib/typescript/components/types"
 import { IFontSize, IFontWeight } from "native-base/lib/typescript/theme/base/typography"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { KeyboardTypeOptions, StyleProp, View, ViewStyle } from "react-native"
 import I18n from "utils/i18n"
 

@@ -78,11 +78,8 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
 
         try {
             if (confirmationStatus === ChargeSessionStatus.STARTING) {
-                const notificationsEnabled = await settingStore.requestPushNotificationPermission()
-
-                if (notificationsEnabled) {
-                    await sessionStore.startSession(location, evse, connector)
-                }
+                await settingStore.requestPushNotificationPermission()
+                await sessionStore.startSession(location, evse, connector)
             } else {
                 await sessionStore.stopSession()
             }

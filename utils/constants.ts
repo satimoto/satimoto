@@ -8,10 +8,10 @@ export const INTERVAL_MINUTE = 60000
 export const IS_ANDROID = Platform.OS === "android"
 export const IS_IOS = Platform.OS === "ios"
 
-export const INVOICE_REQUEST_UPDATE_INTERVAL = 3600
-export const SESSION_INVOICE_UPDATE_INTERVAL = 600
-export const SESSION_UPDATE_INTERVAL = 10
-export const LOCATION_UPDATE_INTERVAL = 60
+export const ONE_HOUR_INTERVAL = 3600
+export const TEN_MINUTES_INTERVAL = 600
+export const ONE_MINUTE_INTERVAL = 60
+export const TEN_SECONDS_INTERVAL = 10
 
 export const LN_BECH32_PREFIX = NETWORK === "mainnet" ? "lnbc" : NETWORK === "testnet" ? "lntb" : "lnbcrt"
 export const LNURL_CANONICAL_PHRASE =

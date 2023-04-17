@@ -9,7 +9,7 @@ import { getConnector, getEvse, getLocation, getPoi, listLocations, listPois } f
 import { StoreInterface, Store } from "stores/Store"
 import { EvseStatus, EvseStatusSortMap } from "types/evse"
 import { DEBUG } from "utils/build"
-import { LOCATION_UPDATE_INTERVAL } from "utils/constants"
+import { ONE_MINUTE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { delta } from "utils/delta"
 
@@ -135,7 +135,7 @@ export class LocationStore implements LocationStoreInterface {
                 }
 
                 const locations = await listLocations({
-                    interval: this.lastLocationChanged ? 0 : LOCATION_UPDATE_INTERVAL,
+                    interval: this.lastLocationChanged ? 0 : ONE_MINUTE_INTERVAL,
                     isExperimental: this.stores.uiStore.filterExperimental,
                     isRemoteCapable: this.stores.uiStore.filterRemoteCapable,
                     isRfidCapable: this.stores.uiStore.filterRfidCapable,
@@ -212,7 +212,7 @@ export class LocationStore implements LocationStoreInterface {
         log.debug(`SAT053 startLocationUpdates`, true)
 
         if (!this.locationUpdateTimer) {
-            this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
+            this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), ONE_MINUTE_INTERVAL * 1000)
             this.fetchLocations()
         }
     }

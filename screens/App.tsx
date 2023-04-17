@@ -4,9 +4,11 @@ import messaging from "@react-native-firebase/messaging"
 import BackgroundApp from "screens/BackgroundApp"
 import ForegroundApp from "screens/ForegroundApp"
 import notificationMessageHandler from "services/notification"
+import { DEBUG } from "utils/build"
 
 FileLogger.configure({
-    captureConsole: false
+    captureConsole: false,
+    maximumNumberOfFiles: DEBUG ? 25 : 5
 })
 
 messaging().setBackgroundMessageHandler(notificationMessageHandler)

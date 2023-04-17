@@ -29,11 +29,10 @@ const SettingsTokens = ({ navigation }: SettingsTokensProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColorModeValue("lightText", "darkText")
     const safeAreaInsets = useSafeAreaInsets()
-    const [confirmationModalText, setConfirmationModalText] = useState("")
-    const [confirmationButtonText, setConfirmationButtonText] = useState("")
     const [tokens, setTokens] = useState<TokenModel[]>([])
     const [isAboutModalVisible, setIsAboutModalVisible] = useState(false)
     const [isLinkTokenModalVisible, setIsLinkTokenModalVisible] = useState(false)
+    const [isNotificationModalVisible, setIsNotificationModalVisible] = useState(false)
     const [isScanNfcModalVisible, setIsScanNfcModalVisible] = useState(false)
     const { settingStore, uiStore } = useStore()
 
@@ -42,6 +41,8 @@ const SettingsTokens = ({ navigation }: SettingsTokensProps) => {
 
         if (notificationsEnabled) {
             setIsScanNfcModalVisible(true)
+        } else {
+            setIsNotificationModalVisible(true)
         }
     }
 
@@ -83,8 +84,6 @@ const SettingsTokens = ({ navigation }: SettingsTokensProps) => {
 
     useEffect(() => {
         if (uiStore.linkToken) {
-            setConfirmationModalText(I18n.t("ConfirmationModal_LinkTokenText", { token: uiStore.linkToken }))
-            setConfirmationButtonText(I18n.t("Button_Ok"))
             setIsLinkTokenModalVisible(true)
         } else {
             setIsLinkTokenModalVisible(false)
@@ -126,10 +125,19 @@ const SettingsTokens = ({ navigation }: SettingsTokensProps) => {
             <TokensInfoModal isVisible={isAboutModalVisible} onPress={onAboutModalPress} onClose={() => setIsAboutModalVisible(false)} />
             <ConfirmationModal
                 isVisible={isLinkTokenModalVisible}
-                text={confirmationModalText}
-                buttonText={confirmationButtonText}
+                text={I18n.t("ConfirmationModal_LinkTokenText", { token: uiStore.linkToken })}
+                buttonText={I18n.t("Button_Ok")}
                 onPress={onLinkTokenPress}
                 onClose={() => uiStore.setLinkToken(undefined)}
+            />
+            <ConfirmationModal
+                isVisible={isNotificationModalVisible}
+                text={I18n.t("ConfirmationModal_NotificationText")}
+                textSize="lg"
+                subtext={I18n.t("ConfirmationModal_NotificationSubtext")}
+                buttonText={I18n.t("Button_Ok")}
+                onPress={async () => await setIsNotificationModalVisible(false)}
+                onClose={() => setIsNotificationModalVisible(false)}
             />
             <ScanNfcModal isVisible={isScanNfcModalVisible} onNfcTag={onNfcTag} onClose={() => setIsScanNfcModalVisible(false)} />
         </View>

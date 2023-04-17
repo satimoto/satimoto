@@ -2,18 +2,21 @@ import BusyButton from "components/BusyButton"
 import Modal from "components/Modal"
 import { observer } from "mobx-react"
 import { Text, useColorModeValue, VStack } from "native-base"
+import { ResponsiveValue } from "native-base/lib/typescript/components/types"
+import { IFontSize } from "native-base/lib/typescript/theme/base/typography"
 import React, { PropsWithChildren, useState } from "react"
 
 interface ConfirmationModalProps extends PropsWithChildren<any> {
     isVisible: boolean
     text?: string
+    textSize?: ResponsiveValue<IFontSize | number | (string & {})>
     subtext?: string
     buttonText: string
     onClose: () => void
     onPress: () => Promise<void>
 }
 
-const ConfirmationModal = ({ isVisible, children, text, subtext, buttonText, onClose, onPress }: ConfirmationModalProps) => {
+const ConfirmationModal = ({ isVisible, children, text, textSize = "xl", subtext, buttonText, onClose, onPress }: ConfirmationModalProps) => {
     const textColor = useColorModeValue("lightText", "darkText")
     const [isBusy, setIsBusy] = useState(false)
 
@@ -32,7 +35,7 @@ const ConfirmationModal = ({ isVisible, children, text, subtext, buttonText, onC
             <VStack alignItems="center" space={5} width="100%">
                 {children}
                 {text && (
-                    <Text color={textColor} fontSize="xl">
+                    <Text color={textColor} fontSize={textSize}>
                         {text}
                     </Text>
                 )}

@@ -17,7 +17,7 @@ import { fromBreezInvoice, fromBreezPayment, fromLndInvoice, fromLndInvoiceRespo
 import { LightningBackend } from "types/lightningBackend"
 import { InvoiceRequestNotification } from "types/notification"
 import { DEBUG } from "utils/build"
-import { INVOICE_REQUEST_UPDATE_INTERVAL } from "utils/constants"
+import { ONE_HOUR_INTERVAL } from "utils/constants"
 import { bytesToBase64, bytesToHex, deepCopy, toMilliSatoshi, toSatoshi } from "utils/conversion"
 import { Log } from "utils/logging"
 import { doWhileUntil } from "utils/backoff"
@@ -211,7 +211,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
         if (start && !this.invoiceRequestUpdateTimer) {
             log.debug(`SAT043 updateInvoiceRequestTimer: start`, true)
             this.fetchInvoiceRequests()
-            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), INVOICE_REQUEST_UPDATE_INTERVAL * 1000)
+            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), ONE_HOUR_INTERVAL * 1000)
         } else if (!start) {
             log.debug(`SAT044 updateInvoiceRequestTimer: stop`, true)
             clearInterval(this.invoiceRequestUpdateTimer)

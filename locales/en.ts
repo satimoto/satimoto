@@ -33,6 +33,8 @@ export default {
     CloseChannelModal_CloseError: "Could not close channel",
     ConfirmationModal_BackendTooltipTitle: "Breez SDK Available!",    
     ConfirmationModal_BackendTooltipText: "You can now switch to the Breez SDK backend. Using Breez SDK enables faster syncing using Greenlight, improved battery usage and more reliable payments.",    
+    ConfirmationModal_NotificationText: "Push notifications need to be enabled so your application can approve NFC authorisation requests.",    
+    ConfirmationModal_NotificationSubtext: "Please check your settings and try again.",    
     ConfirmationModal_OpenUriText: "Open in your default browser?",    
     ConfirmationModal_StartConfirmationText: "If the cable is locked, press Start first then connect the cable",    
     ConfirmationModal_StopConfirmationText: "Are you sure you want to end this charging session?",    
