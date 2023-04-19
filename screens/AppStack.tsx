@@ -71,7 +71,7 @@ export type AppStackParamList = {
     SettingsChannel: { channel: ChannelModel }
     SettingsChannels: undefined
     SettingsCharging: undefined
-    SettingsFiatCurrencies: undefined,
+    SettingsFiatCurrencies: undefined
     SettingsBackupMnemonic: { backend: LightningBackend }
     SettingsImportMnemonic: { backend: LightningBackend }
     SettingsLearn: undefined

@@ -1,6 +1,7 @@
 import BusyButton from "components/BusyButton"
 import HeaderBackButton from "components/HeaderBackButton"
 import Input from "components/Input"
+import RoundedButton from "components/RoundedButton"
 import useColor from "hooks/useColor"
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
@@ -8,13 +9,21 @@ import { observer } from "mobx-react"
 import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineIcon } from "native-base"
 import { useConfetti } from "providers/ConfettiProvider"
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
-import { View } from "react-native"
+import { Linking, View } from "react-native"
+import {
+    AesSuccessActionDataDecrypted,
+    LnUrlErrorData,
+    LnUrlPayResultType,
+    MessageSuccessActionData,
+    SuccessActionDataType,
+    UrlSuccessActionData
+} from "react-native-breez-sdk"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { getMetadataElement } from "services/lnUrl"
 import { tick } from "utils/backoff"
-import { errorToString, toSatoshi } from "utils/conversion"
+import { toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
@@ -35,16 +44,19 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
+    const [amountError, setAmountError] = useState("")
     const [amountString, setAmountString] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
     const [description, setDescription] = useState("")
+    const [decryptedAes, setDecryptedAes] = useState("")
     const [isBusy, setIsBusy] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
     const [isInvalid, setIsInvalid] = useState(true)
+    const [isSuccessful, setIsSuccessful] = useState(false)
     const [lastError, setLastError] = useState("")
     const [maxSendable, setMaxSendable] = useState(0)
     const [minSendable, setMinSendable] = useState(0)
-    const [amountError, setAmountError] = useState("")
+    const [url, setUrl] = useState("")
     const { channelStore, paymentStore, uiStore } = useStore()
 
     const onClose = () => {
@@ -67,11 +79,33 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                 try {
                     const response = await paymentStore.payLnurl(route.params.payParams, amountNumber)
 
-                    if (response) {
-                        await startConfetti()
-                        onClose()
+                    if (response.type === LnUrlPayResultType.ENDPOINT_SUCCESS) {
+                        if (response.data) {
+                            let actionData = response.data as UrlSuccessActionData
+                            setIsSuccessful(true)
+
+                            if (actionData.type === SuccessActionDataType.AES) {
+                                const lnSuccessActionData = response.data as AesSuccessActionDataDecrypted
+                                setDescription(lnSuccessActionData.description)
+                                setDecryptedAes(lnSuccessActionData.plaintext)
+                            } else if (actionData.type === SuccessActionDataType.MESSAGE) {
+                                const lnSuccessActionData = response.data as MessageSuccessActionData
+                                setDescription(lnSuccessActionData.message)
+                            } else {
+                                const lnSuccessActionData = actionData
+                                setDescription(lnSuccessActionData.description)
+                                setUrl(lnSuccessActionData.url)
+                            }
+
+                            await startConfetti()
+                        } else {
+                            await startConfetti()
+                            onClose()
+                        }
                     } else {
-                        setLastError(I18n.t("LnUrlPay_PayReqError"))
+                        const lnUrlErrorData = response.data as LnUrlErrorData
+
+                        setLastError(lnUrlErrorData?.reason || I18n.t("LnUrlPay_PayReqError"))
                     }
                 } catch (error) {
                     setLastError(I18n.t("PaymentFailure_NoRoute"))
@@ -82,6 +116,12 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
             setIsBusy(false)
         })
     }, [route.params.payParams, amountNumber])
+
+    const onUrlPress = useCallback(async () => {
+        if (url) {
+            Linking.openURL(url)
+        }
+    }, [url])
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -113,25 +153,47 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
             <View style={[styles.focusViewPanel, { backgroundColor }]}>
-                <VStack space={5}>
-                    {description.length > 0 && (
-                        <Text color={textColor} fontSize="lg">
-                            {description}
-                        </Text>
-                    )}
-                    <FormControl isInvalid={isInvalid} isRequired={true}>
-                        <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
-                        <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
-                        {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
-                        <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
-                            {amountError}
-                        </FormControl.ErrorMessage>
-                    </FormControl>
-                    {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid || !isDirty}>
-                        {I18n.t("Button_Next")}
-                    </BusyButton>
-                </VStack>
+                {isSuccessful ? (
+                    <VStack space={5}>
+                        {description.length > 0 && (
+                            <Text color={textColor} fontSize="lg">
+                                {description}
+                            </Text>
+                        )}
+                        {decryptedAes.length > 0 && (
+                            <View style={{ backgroundColor, alignItems: "center" }}>
+                                <Text color={textColor} fontSize="xl" fontWeight="bold">
+                                    {decryptedAes}
+                                </Text>
+                            </View>
+                        )}
+                        {url.length > 0 && (
+                            <RoundedButton size="md" onPress={onUrlPress}>
+                                {I18n.t("Button_Website")}
+                            </RoundedButton>
+                        )}
+                    </VStack>
+                ) : (
+                    <VStack space={5}>
+                        {description.length > 0 && (
+                            <Text color={textColor} fontSize="lg">
+                                {description}
+                            </Text>
+                        )}
+                        <FormControl isInvalid={isInvalid} isRequired={true}>
+                            <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
+                            <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
+                            {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
+                            <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
+                                {amountError}
+                            </FormControl.ErrorMessage>
+                        </FormControl>
+                        {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
+                        <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid || !isDirty}>
+                            {I18n.t("Button_Next")}
+                        </BusyButton>
+                    </VStack>
+                )}
             </View>
         </View>
     )

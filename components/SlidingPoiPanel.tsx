@@ -130,7 +130,7 @@ const SlidingPoiPanel = React.forwardRef(({ onHide }: SlidingPoiPanelProps, ref?
                                 {website && (
                                     <RoundedButton
                                         size="md"
-                                        onPress={() => onWebsitePress}
+                                        onPress={onWebsitePress}
                                         onPressIn={onPressIn}
                                         onPressOut={onPressOut}
                                         leftIcon={<FontAwesomeIcon icon={faGlobe} color="#ffffff" />}

@@ -8,7 +8,7 @@ import { DEBUG } from "utils/build"
 
 FileLogger.configure({
     captureConsole: false,
-    maximumNumberOfFiles: DEBUG ? 25 : 5
+    maximumNumberOfFiles: DEBUG ? 20 : 5
 })
 
 messaging().setBackgroundMessageHandler(notificationMessageHandler)

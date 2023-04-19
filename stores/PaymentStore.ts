@@ -26,7 +26,7 @@ export interface PaymentStoreInterface extends StoreInterface {
     payments: PaymentModel[]
 
     findPayment(hash: string): PaymentModelLike
-    payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number): Promise<boolean>
+    payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number): Promise<breezSdk.LnUrlPayResult>
     sendPayment(bolt11: string): Promise<PaymentModel>
 }
 
@@ -77,17 +77,11 @@ export class PaymentStore implements PaymentStoreInterface {
         return this.payments.find((payment) => payment.hash === hash)
     }
 
-    async payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number): Promise<boolean> {
+    async payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number): Promise<breezSdk.LnUrlPayResult> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const lnUrlPayResult = await breezSdk.payLnurl(deepCopy(payParams), amountSats)
 
-            if (lnUrlPayResult.type === breezSdk.LnUrlPayResultType.ENDPOINT_ERROR) {
-                const lnUrlErrorData = lnUrlPayResult.data as breezSdk.LnUrlErrorData
-
-                throw Error(lnUrlErrorData.reason)
-            }
-
-            return true
+            return lnUrlPayResult
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const amountMsats = toNumber(toMilliSatoshi(amountSats))
             const payResponse = await lnUrl.payRequest(payParams.callback, amountMsats.toString())
@@ -104,13 +98,13 @@ export class PaymentStore implements PaymentStoreInterface {
                 const payment = await this.sendPayment(payResponse.pr)
 
                 if (payment.status === PaymentStatus.SUCCEEDED) {
-                    return true
+                    return { type: breezSdk.LnUrlPayResultType.ENDPOINT_SUCCESS }
                 } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
-                    throw Error(I18n.t(payment.failureReasonKey))
+                    return { type: breezSdk.LnUrlPayResultType.ENDPOINT_ERROR, data: { reason: I18n.t(payment.failureReasonKey) } }
                 }
             }
 
-            throw Error(I18n.t("LnUrlPay_PayReqError"))
+            return { type: breezSdk.LnUrlPayResultType.ENDPOINT_ERROR, data: { reason: I18n.t("LnUrlPay_PayReqError") } }
         }
 
         throw Error("Not implemented")

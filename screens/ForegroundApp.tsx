@@ -72,7 +72,8 @@ const ForegroundApp = () => {
     return (
         <ApolloProvider client={client}>
             <ConfettiProvider
-                count={300}
+                count={128}
+                size={32}
                 colors={["#0099FF", "#3874ED", "#744CD8", "#957AE3", "#A12EC9", "#CC11BB"]}
                 fallSpeed={5000}
                 origin={{ x: -20, y: 0 }}

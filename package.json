@@ -75,7 +75,7 @@
         "react-native-build-config": "^0.3.2",
         "react-native-camera": "https://github.com/satimoto/react-native-camera",
         "react-native-circular-progress": "https://github.com/satimoto/react-native-circular-progress",
-        "react-native-confetti-cannon": "^1.5.2",
+        "react-native-confetti-cannon": "https://github.com/satimoto/react-native-confetti-cannon",
         "react-native-custom-qr-codes": "https://github.com/satimoto/react-native-custom-qr-codes",
         "react-native-file-logger": "^0.4.0",
         "react-native-gesture-handler": "^2.8.0",
