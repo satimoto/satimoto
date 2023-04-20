@@ -77,14 +77,14 @@ export class PaymentStore implements PaymentStoreInterface {
         return this.payments.find((payment) => payment.hash === hash)
     }
 
-    async payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number): Promise<breezSdk.LnUrlPayResult> {
+    async payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number, comment?: string): Promise<breezSdk.LnUrlPayResult> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const lnUrlPayResult = await breezSdk.payLnurl(deepCopy(payParams), amountSats)
+            const lnUrlPayResult = await breezSdk.payLnurl(deepCopy(payParams), amountSats, comment)
 
             return lnUrlPayResult
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const amountMsats = toNumber(toMilliSatoshi(amountSats))
-            const payResponse = await lnUrl.payRequest(payParams.callback, amountMsats.toString())
+            const payResponse = await lnUrl.payRequest(payParams.callback, amountMsats.toString(), comment)
 
             assertNetwork(payResponse.pr)
 

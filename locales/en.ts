@@ -114,6 +114,7 @@ export default {
     WaitForPayment_ChannelRequestOpenedText: "Payment channel opened",
     LnUrlPay_HeaderTitle: "Send Payment",
     LnUrlPay_AmountError: "Must be between {{minSats}} and {{maxSats}} sats",
+    LnUrlPay_CommentError: "Must be between 0 and {{maxChars}} characters",
     LnUrlPay_PayReqError: "Payment request invalid",
     LnUrlWithdraw_HeaderTitle: "Receive Payment",
     LnUrlWithdraw_AmountError: "Must be between {{minSats}} and {{maxSats}} sats",

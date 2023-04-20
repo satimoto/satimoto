@@ -47,9 +47,13 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const [amountError, setAmountError] = useState("")
     const [amountString, setAmountString] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
+    const [comment, setComment] = useState("")
+    const [commentAllowed, setCommentAllowed] = useState(0)
+    const [commentError, setCommentError] = useState("")
     const [description, setDescription] = useState("")
     const [decryptedAes, setDecryptedAes] = useState("")
     const [isBusy, setIsBusy] = useState(false)
+    const [isCommentInvalid, setIsCommentInvalid] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
     const [isInvalid, setIsInvalid] = useState(true)
     const [isSuccessful, setIsSuccessful] = useState(false)
@@ -140,15 +144,21 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
             maxSats = channelStore.availableBalance
         }
 
+        setCommentAllowed(payParams.commentAllowed)
         setDescription(getMetadataElement(decodedMetadata, "text/plain") || "")
         setMaxSendable(maxSats)
         setMinSendable(minSats)
         setAmountError(I18n.t("LnUrlPay_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
+        setCommentError(I18n.t("LnUrlPay_CommentError", { maxChars: payParams.commentAllowed }))
     }, [route.params.payParams])
 
     useEffect(() => {
         setIsInvalid(isDirty && (amountNumber < minSendable || amountNumber > maxSendable))
     }, [amountNumber, isDirty, minSendable, maxSendable])
+
+    useEffect(() => {
+        setIsCommentInvalid(comment.length > commentAllowed)
+    }, [comment, commentAllowed])
 
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
@@ -188,8 +198,17 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                                 {amountError}
                             </FormControl.ErrorMessage>
                         </FormControl>
+                        {commentAllowed > 0 && (
+                            <FormControl isInvalid={isCommentInvalid}>
+                                <FormControl.Label _text={{ color: textColor }}>Comment</FormControl.Label>
+                                <Input value={comment} onChangeText={setComment} />
+                                <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
+                                    {commentError}
+                                </FormControl.ErrorMessage>
+                            </FormControl>
+                        )}
                         {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                        <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid || !isDirty}>
+                        <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid || isCommentInvalid || !isDirty}>
                             {I18n.t("Button_Next")}
                         </BusyButton>
                     </VStack>
