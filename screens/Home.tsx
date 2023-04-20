@@ -34,7 +34,7 @@ import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { TagEvent } from "react-native-nfc-manager"
 import { LightningBackend } from "types/lightningBackend"
-import { CommonActions, StackActions } from "@react-navigation/native"
+import { CommonActions } from "@react-navigation/native"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")

@@ -224,7 +224,9 @@ export class UiStore implements UiStoreInterface {
      */
     async parseIntent(intent: string): Promise<boolean> {
         log.debug("SAT084: parseIntent: " + intent, true)
-        intent = intent.replace(/lightning:/i, "").replace(/url:/i, "").trim()
+        intent = intent
+            .replace(/(lightning|url):/i, "")
+            .trim()
 
         const lowerCaseIntent = intent.toLowerCase()
         let errorCode = "Scanner_DataError"
@@ -237,6 +239,7 @@ export class UiStore implements UiStoreInterface {
 
                 if (identifier) {
                     this.actionSetLinkToken(identifier)
+                    return true
                 }
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
@@ -277,27 +280,28 @@ export class UiStore implements UiStoreInterface {
 
                     errorCode = "Scanner_UnrecognizedEvseIdError"
                 }
-            } else {
-                const input = await breezSdk.parseInput(intent)
+            }
 
-                switch (input.type) {
-                    case breezSdk.InputType.LNURL_AUTH:
-                        const lnUrlAuthRequestData = input.data as breezSdk.LnUrlAuthRequestData
-                        this.actionSetLnUrlAuthParams(lnUrlAuthRequestData)
-                        return true
-                    case breezSdk.InputType.LNURL_PAY:
-                        const lnUrlPayRequestData = input.data as breezSdk.LnUrlPayRequestData
-                        this.actionSetLnUrlPayParams(lnUrlPayRequestData)
-                        return true
-                    case breezSdk.InputType.LNURL_WITHDRAW:
-                        const lnUrlWithdrawRequestData = input.data as breezSdk.LnUrlWithdrawRequestData
-                        this.actionSetLnUrlWithdrawParams(lnUrlWithdrawRequestData)
-                        return true
-                    case breezSdk.InputType.BOLT11:
-                        const lnInvoice = input.data as breezSdk.LnInvoice
-                        this.actionSetPaymentRequest(lnInvoice.bolt11, lnInvoice)
-                        return true
-                }
+            // Fallback to BreezSDK parsing
+            const input = await breezSdk.parseInput(intent)
+
+            switch (input.type) {
+                case breezSdk.InputType.LNURL_AUTH:
+                    const lnUrlAuthRequestData = input.data as breezSdk.LnUrlAuthRequestData
+                    this.actionSetLnUrlAuthParams(lnUrlAuthRequestData)
+                    return true
+                case breezSdk.InputType.LNURL_PAY:
+                    const lnUrlPayRequestData = input.data as breezSdk.LnUrlPayRequestData
+                    this.actionSetLnUrlPayParams(lnUrlPayRequestData)
+                    return true
+                case breezSdk.InputType.LNURL_WITHDRAW:
+                    const lnUrlWithdrawRequestData = input.data as breezSdk.LnUrlWithdrawRequestData
+                    this.actionSetLnUrlWithdrawParams(lnUrlWithdrawRequestData)
+                    return true
+                case breezSdk.InputType.BOLT11:
+                    const lnInvoice = input.data as breezSdk.LnInvoice
+                    this.actionSetPaymentRequest(lnInvoice.bolt11, lnInvoice)
+                    return true
             }
         } catch (error) {
             log.debug(`SAT085: Error parsing intent`, true)
