@@ -311,7 +311,7 @@ const Home = ({ navigation }: HomeProps) => {
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard onLayout={onBalanceCardLayout} />
-            <HomeSideContainer top={balanceCardRectangle.y + balanceCardRectangle.height}>
+            <HomeSideContainer isVisible={balanceCardRectangle.height > 0} top={balanceCardRectangle.y + balanceCardRectangle.height}>
                 {sessionStore.status !== ChargeSessionStatus.IDLE && <ChargeButton onPress={onChargeButtonPress} />}
                 <FilterButton onPress={() => setIsFilterModalVisible(true)} />
                 {!followUserLocation && <RecenterButton onPress={onRecenterButtonPress} />}

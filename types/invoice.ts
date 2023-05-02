@@ -1,7 +1,7 @@
 import InvoiceModel from "models/Invoice"
 import moment from "moment"
 import { lnrpc } from "proto/proto"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { bytesToHex, secondsToDate, secondsToMilliseconds, toNumber, toSatoshi } from "utils/conversion"
 
 export enum InvoiceStatus {

@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import PaymentModel, { PaymentModelLike } from "models/Payment"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"

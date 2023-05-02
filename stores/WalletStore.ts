@@ -3,7 +3,7 @@ import { makePersistable } from "mobx-persist-store"
 import { lnrpc } from "proto/proto"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import bip39 from "react-native-bip39"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { generateSecureRandom } from "react-native-securerandom"
 import { StoreInterface, Store } from "stores/Store"
 import * as lnd from "services/lnd"
@@ -144,7 +144,10 @@ export class WalletStore implements WalletStoreInterface {
                 setSecureItem(SECURE_KEY_GREENLIGHT_DEVICE_KEY_STORE, creds.deviceKey)
                 setSecureItem(SECURE_KEY_GREENLIGHT_DEVICE_CERT_STORE, creds.deviceCert)
 
-                await breezSdk.initServices(BREEZ_SDK_API_KEY, creds.deviceKey, creds.deviceCert, seed)
+                const config = await breezSdk.defaultConfig(breezSdk.EnvironmentType.PRODUCTION)
+                config.apiKey = BREEZ_SDK_API_KEY
+
+                await breezSdk.initServices(config, creds.deviceKey, creds.deviceCert, seed)
                 await breezSdk.start()
 
                 this.actionSetState(WalletState.STARTED)
@@ -256,8 +259,11 @@ export class WalletStore implements WalletStoreInterface {
             const deviceKey: Uint8Array = await getSecureItem(SECURE_KEY_GREENLIGHT_DEVICE_KEY_STORE)
             const deviceCert: Uint8Array = await getSecureItem(SECURE_KEY_GREENLIGHT_DEVICE_CERT_STORE)
 
+            const config = await breezSdk.defaultConfig(breezSdk.EnvironmentType.PRODUCTION)
+            config.apiKey = BREEZ_SDK_API_KEY
+
             log.debug(`SAT107: unlockWallet: initServices`)
-            await breezSdk.initServices(BREEZ_SDK_API_KEY, deviceKey, deviceCert, seed)
+            await breezSdk.initServices(config, deviceKey, deviceCert, seed)
             log.debug(`SAT108: unlockWallet: start`)
             await breezSdk.start()
 

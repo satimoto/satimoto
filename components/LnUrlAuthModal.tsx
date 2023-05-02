@@ -3,7 +3,7 @@ import Modal from "components/Modal"
 import { useStore } from "hooks/useStore"
 import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 

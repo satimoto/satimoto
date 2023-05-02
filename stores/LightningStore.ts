@@ -2,7 +2,7 @@ import Long from "long"
 import { action, makeObservable, observable, reaction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import { NativeEventEmitter, NativeModules } from "react-native"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { chainrpc, lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
@@ -115,7 +115,7 @@ export class LightningStore implements LightningStoreInterface {
                 this.actionSetBackend(this.identityPubkey ? LightningBackend.LND : LightningBackend.BREEZ_SDK)
             }
 
-            if (DEBUG) {
+            if (this.stores.settingStore.traceLogEnabled) {
                 await this.startLogEvents()
             }
         } catch (error) {

@@ -17,7 +17,7 @@ import {
     MessageSuccessActionData,
     SuccessActionDataType,
     UrlSuccessActionData
-} from "react-native-breez-sdk"
+} from "@breeztech/react-native-breez-sdk"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"

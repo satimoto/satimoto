@@ -8,7 +8,7 @@ import { Text, TextArea, useColorModeValue, useTheme, VStack } from "native-base
 import { lnrpc } from "proto/proto"
 import React, { useCallback, useLayoutEffect, useState } from "react"
 import { BackHandler, Platform, View } from "react-native"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { FileLogger } from "react-native-file-logger"
 import { StackActions, useFocusEffect } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"

@@ -32,6 +32,7 @@
     "dependencies": {
         "@apollo/client": "^3.5.9",
         "@bitcoin-design/bitcoin-icons-react-native": "../Bitcoin-Icons/react-native",
+        "@breeztech/react-native-breez-sdk": "^0.0.1",
         "@fortawesome/fontawesome-svg-core": "^6.1.2",
         "@fortawesome/free-brands-svg-icons": "^6.1.2",
         "@fortawesome/free-regular-svg-icons": "^6.1.2",
@@ -71,7 +72,6 @@
         "react-native-bip39": "https://github.com/valora-inc/react-native-bip39",
         "react-native-blob-util": "^0.17.2",
         "react-native-bootsplash": "^4.3.2",
-        "react-native-breez-sdk": "file:../breez-sdk/libs/sdk-react-native",
         "react-native-build-config": "^0.3.2",
         "react-native-camera": "https://github.com/satimoto/react-native-camera",
         "react-native-circular-progress": "https://github.com/satimoto/react-native-circular-progress",

@@ -1,5 +1,5 @@
 import { Network } from "bitcoin-address-validation"
-import { Network as BreezNetwork } from "react-native-breez-sdk"
+import { Network as BreezNetwork } from "@breeztech/react-native-breez-sdk"
 
 const toNetwork = (network: string): Network => {
     switch (network) {

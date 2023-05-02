@@ -4,7 +4,7 @@ import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
 import { AppState, AppStateStatus, Linking } from "react-native"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NfcManager from "react-native-nfc-manager"
 import { StoreInterface, Store } from "stores/Store"
@@ -41,6 +41,7 @@ export interface UiStoreInterface extends StoreInterface {
     onboardingVersion: string
     tooltipShownBackend: boolean
     tooltipShownCards: boolean
+    tooltipShownCircuit: boolean
     tooltipShownSyncing: boolean
 
     clearChargePoint(): void
@@ -82,6 +83,7 @@ export class UiStore implements UiStoreInterface {
     onboardingVersion: string = ""
     tooltipShownBackend: boolean = true
     tooltipShownCards: boolean = false
+    tooltipShownCircuit: boolean = false
     tooltipShownSyncing: boolean = false
 
     constructor(stores: Store) {
@@ -110,6 +112,7 @@ export class UiStore implements UiStoreInterface {
             onboardingVersion: observable,
             tooltipShownBackend: observable,
             tooltipShownCards: observable,
+            tooltipShownCircuit: observable,
             tooltipShownSyncing: observable,
 
             hasOnboardingUpdates: computed,
@@ -152,6 +155,7 @@ export class UiStore implements UiStoreInterface {
                     "onboardingWelcomed",
                     "onboardingVersion",
                     "tooltipShownCards",
+                    "tooltipShownCircuit",
                     "tooltipShownSyncing"
                 ],
                 storage: AsyncStorage,
@@ -436,13 +440,17 @@ export class UiStore implements UiStoreInterface {
         this.ready = true
     }
 
-    actionSetTooltipShown({ backend, cards, syncing }: Tooltip) {
+    actionSetTooltipShown({ backend, cards, circuit, syncing }: Tooltip) {
         if (backend) {
             this.tooltipShownBackend = true
         }
 
         if (cards) {
             this.tooltipShownCards = true
+        }
+
+        if (circuit) {
+            this.tooltipShownCircuit = true
         }
 
         if (syncing) {

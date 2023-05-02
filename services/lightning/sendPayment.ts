@@ -1,7 +1,7 @@
 import { ChannelModel } from "models/Node"
 import PaymentModel from "models/Payment"
 import { lnrpc } from "proto/proto"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { LightningBackend } from "types/lightningBackend"
 import * as lnd from "services/lnd"
 import { listChannels } from "services/satimoto"

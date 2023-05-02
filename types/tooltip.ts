@@ -1,6 +1,7 @@
 interface Tooltip {
     backend?: boolean
     cards?: boolean
+    circuit?: boolean
     syncing?: boolean
 }
 

@@ -12,6 +12,7 @@ import useColor from "hooks/useColor"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { LightningBackend } from "types/lightningBackend"
+import { DEBUG } from "utils/build"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 
@@ -24,6 +25,7 @@ const SettingsAdvanced = ({ navigation }: SettingsAdvancedProps) => {
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const safeAreaInsets = useSafeAreaInsets()
     const [includeChannelReserve, setIncludeChannelReserve] = useState(false)
+    const [traceLogEnabled, setTraceLogEnabled] = useState(false)
     const { lightningStore, settingStore } = useStore()
 
     useLayoutEffect(() => {
@@ -34,15 +36,24 @@ const SettingsAdvanced = ({ navigation }: SettingsAdvancedProps) => {
 
     useEffect(() => {
         setIncludeChannelReserve(settingStore.includeChannelReserve)
+        setTraceLogEnabled(settingStore.traceLogEnabled)
     }, [])
 
     useEffect(() => {
         settingStore.setIncludeChannelReserve(includeChannelReserve)
     }, [includeChannelReserve])
 
+    useEffect(() => {
+        settingStore.setTraceLogEnabled(traceLogEnabled)
+    }, [traceLogEnabled])
+
     const onIncludeChannelReserveChange = useCallback(() => {
         setIncludeChannelReserve(!includeChannelReserve)
     }, [includeChannelReserve])
+
+    const onTraceLogEnabledChange = useCallback(() => {
+        setTraceLogEnabled(!traceLogEnabled)
+    }, [traceLogEnabled])
 
     const onBatteryOptimization = useCallback(() => {
         if (IS_ANDROID) {
@@ -95,6 +106,17 @@ const SettingsAdvanced = ({ navigation }: SettingsAdvancedProps) => {
                         iconRight={faChevronRight}
                         onPress={() => navigation.navigate("SettingsSendReport")}
                     />
+                    {DEBUG && (
+                        <ListSwitch
+                            key="tracelogenabled"
+                            title={I18n.t("SettingsAdvanced_TraceLogEnabledText")}
+                            titleWeight="bold"
+                            hint={I18n.t("SettingsAdvanced_TraceLogEnabledHint")}
+                            style={styles.listSwitch}
+                            isChecked={traceLogEnabled}
+                            onToggle={onTraceLogEnabledChange}
+                        />
+                    )}
                     <ListSwitch
                         key="channelreserve"
                         title={I18n.t("SettingsAdvanced_IncludeChannelReserveText")}

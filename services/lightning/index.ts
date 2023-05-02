@@ -1,5 +1,5 @@
 import { lnrpc } from "proto/proto"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import * as lnd from "services/lnd"
 import { LightningBackend } from "types/lightningBackend"
 import { BytesLikeType } from "utils/types"

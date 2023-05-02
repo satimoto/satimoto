@@ -6,7 +6,7 @@ import UserModel from "models/User"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NetInfo from "@react-native-community/netinfo"
 import messaging from "@react-native-firebase/messaging"
-import * as breezSdk from "react-native-breez-sdk"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { updateUser, getUser, pongUser, createAuthentication, AuthenticationAction, createUser, exchangeAuthentication } from "services/satimoto"
 import { StoreInterface, Store } from "stores/Store"
 import { DataPingNotification } from "types/notification"
@@ -63,6 +63,7 @@ export class SettingStore implements SettingStoreInterface {
     pushNotificationEnabled = false
     pushNotificationToken?: string = undefined
     referralCode?: string = undefined
+    traceLogEnabled: boolean = DEBUG
 
     constructor(stores: Store) {
         this.stores = stores
@@ -87,6 +88,7 @@ export class SettingStore implements SettingStoreInterface {
             pushNotificationEnabled: observable,
             pushNotificationToken: observable,
             referralCode: observable,
+            traceLogEnabled: observable,
 
             actionResetSettings: action,
             actionSetAccessToken: action,
@@ -97,7 +99,8 @@ export class SettingStore implements SettingStoreInterface {
             actionSetSelectedFiatCurrency: action,
             actionSetUser: action,
             actionSetIncludeChannelReserve: action,
-            actionSetPushNotificationSettings: action
+            actionSetPushNotificationSettings: action,
+            actionSetTraceLogEnabled: action
         })
 
         makePersistable(
@@ -117,7 +120,8 @@ export class SettingStore implements SettingStoreInterface {
                     "includeChannelReserve",
                     "pushNotificationEnabled",
                     "pushNotificationToken",
-                    "referralCode"
+                    "referralCode",
+                    "traceLogEnabled"
                 ],
                 storage: AsyncStorage,
                 debugMode: DEBUG
@@ -275,6 +279,10 @@ export class SettingStore implements SettingStoreInterface {
         this.actionSetSelectedFiatCurrencies(ids)
     }
 
+    setTraceLogEnabled(enabled: boolean) {
+        this.actionSetTraceLogEnabled(enabled)
+    }
+
     async updateFiatCurrencies() {
         const fiatCurrencies = await breezSdk.listFiatCurrencies()
 
@@ -334,7 +342,7 @@ export class SettingStore implements SettingStoreInterface {
 
     actionSetFiatRates(fiatRates: FiatRateModel[]) {
         const fiatRate = fiatRates.find((fiatRate) => fiatRate.id === this.selectedFiatCurrency)
-       
+
         this.fiatRates.replace(fiatRates)
         this.selectedFiatRate = fiatRate ? fiatRate.value : undefined
     }
@@ -373,6 +381,10 @@ export class SettingStore implements SettingStoreInterface {
 
     actionSetReady() {
         this.ready = true
+    }
+
+    actionSetTraceLogEnabled(enabled: boolean): void {
+        this.traceLogEnabled = enabled
     }
 
     actionSetUser(user?: UserModel) {
