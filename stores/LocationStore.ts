@@ -134,18 +134,20 @@ export class LocationStore implements LocationStoreInterface {
                     this.actionUpdatePois(pois.data.listPois)
                 }
 
-                const locations = await listLocations({
-                    interval: this.lastLocationChanged ? 0 : ONE_MINUTE_INTERVAL,
-                    isExperimental: this.stores.uiStore.filterExperimental,
-                    isRemoteCapable: this.stores.uiStore.filterRemoteCapable,
-                    isRfidCapable: this.stores.uiStore.filterRfidCapable,
-                    xMin: this.bounds[1][0],
-                    yMin: this.bounds[0][1],
-                    xMax: this.bounds[0][0],
-                    yMax: this.bounds[1][1]
-                })
-
-                this.actionUpdateLocations(locations.data.listLocations)
+                if (this.stores.uiStore.filterExperimental || this.stores.uiStore.filterRemoteCapable || this.stores.uiStore.filterRfidCapable) {
+                    const locations = await listLocations({
+                        interval: this.lastLocationChanged ? 0 : ONE_MINUTE_INTERVAL,
+                        isExperimental: this.stores.uiStore.filterExperimental,
+                        isRemoteCapable: this.stores.uiStore.filterRemoteCapable,
+                        isRfidCapable: this.stores.uiStore.filterRfidCapable,
+                        xMin: this.bounds[1][0],
+                        yMin: this.bounds[0][1],
+                        xMax: this.bounds[0][0],
+                        yMax: this.bounds[1][1]
+                    })
+    
+                    this.actionUpdateLocations(locations.data.listLocations)
+                }
             }
         }
     }
