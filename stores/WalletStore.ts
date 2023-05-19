@@ -234,6 +234,10 @@ export class WalletStore implements WalletStoreInterface {
         }
     }
 
+    setState(state: WalletState) {
+        this.actionSetState(state)
+    }
+
     subscribeStateResponse({ state }: lnrpc.SubscribeStateResponse) {
         this.actionSetState(fromLndWalletState(state))
     }
@@ -265,9 +269,7 @@ export class WalletStore implements WalletStoreInterface {
             log.debug(`SAT107: unlockWallet: initServices`)
             await breezSdk.initServices(config, deviceKey, deviceCert, seed)
             log.debug(`SAT108: unlockWallet: start`)
-            await breezSdk.start()
-
-            this.actionSetState(WalletState.STARTED)
+            breezSdk.start()
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
             await lnd.unlockWallet(password)
@@ -299,8 +301,10 @@ export class WalletStore implements WalletStoreInterface {
     }
 
     actionSetState(state: WalletState) {
-        log.debug(`SAT051: State: ${state}`, true)
-        this.state = state
+        if (state != this.state) {
+            log.debug(`SAT051: State: ${state}`, true)
+            this.state = state
+        }
     }
 
     actionSubscribeState() {

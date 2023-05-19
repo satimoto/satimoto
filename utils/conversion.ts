@@ -24,12 +24,14 @@ export const bytesToBase64 = (data: BytesLikeType): string => {
     return data instanceof Uint8Array || Array.isArray(data) ? bytesToB64(data) : data
 }
 
-export const errorToString = (error: unknown): string => {
+export const errorToString = (error: unknown, action: string = "[\\w]+"): string => {
+    const re = new RegExp(`Breez SDK error: (?:${action}: )?`)
+
     if (error instanceof Error) {
-        return error.message
+        return error.message.replace(re, "")
     }
 
-    return String(error)
+    return String(error).replace(re, "")
 }
 
 export const nanosecondsToMilliseconds = (nanoseconds: LongLikeType): number => {
