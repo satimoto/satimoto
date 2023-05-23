@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react"
 import { Dimensions, GestureResponderEvent, StatusBar, StyleProp, StyleSheet, View, ViewStyle } from "react-native"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 import Tooltip from "react-native-walkthrough-tooltip"
+import { LightningBackend } from "types/lightningBackend"
 import { IS_ANDROID } from "utils/constants"
 
 const styleSheet = StyleSheet.create({
@@ -41,16 +42,18 @@ const CircularProgressButton = ({ isBusy, value, onPress = () => {}, style = {} 
     }
 
     useEffect(() => {
-        if (!lightningStore.syncedToChain && !uiStore.tooltipShownSyncing && !showTooltip) {
-            setTimeout(() => {
-                setShowTooltip(true)
-            }, 1000)
-        } else if (lightningStore.syncedToChain && showTooltip) {
-            setTimeout(() => {
-                onTooltipClose()
-            }, 5000)
+        if (uiStore.showSyncing) {
+            if (!lightningStore.syncedToChain && !uiStore.tooltipShownSyncing && !showTooltip) {
+                setTimeout(() => {
+                    setShowTooltip(true)
+                }, 1000)
+            } else if (lightningStore.syncedToChain && showTooltip) {
+                setTimeout(() => {
+                    onTooltipClose()
+                }, 5000)
+            }
         }
-    }, [lightningStore.syncedToChain, uiStore.tooltipShownSyncing])
+    }, [lightningStore.syncedToChain, uiStore.showSyncing, uiStore.tooltipShownSyncing])
 
     return (
         <Tooltip

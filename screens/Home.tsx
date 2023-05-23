@@ -105,7 +105,7 @@ const Home = ({ navigation }: HomeProps) => {
     }
 
     const onHomeButtonPress = (event: HomeFooterContainerEvent) => {
-        if (lightningStore.syncedToChain) {
+        if (!uiStore.showSyncing || lightningStore.syncedToChain) {
             if (event === "send") {
                 setIsSendActionsheetOpen(true)
             } else if (event === "qr") {

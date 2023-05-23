@@ -116,6 +116,7 @@ export class UiStore implements UiStoreInterface {
             tooltipShownSyncing: observable,
 
             hasOnboardingUpdates: computed,
+            showSyncing: computed,
 
             actionSetAppState: action,
             actionSetReady: action,
@@ -215,6 +216,10 @@ export class UiStore implements UiStoreInterface {
 
     get hasOnboardingUpdates(): boolean {
         return !this.onboardingWelcomed || this.onboardingVersion !== ONBOARDING_VERSION
+    }
+
+    get showSyncing(): boolean {
+        return this.stores.lightningStore.backend !== LightningBackend.BREEZ_SDK
     }
 
     /**
