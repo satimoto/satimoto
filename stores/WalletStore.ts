@@ -11,7 +11,7 @@ import * as lightning from "services/lightning"
 import { fromLndWalletState, WalletState } from "types/wallet"
 import { LightningBackend } from "types/lightningBackend"
 import { toBreezNetwork } from "types/network"
-import { BREEZ_SDK_API_KEY, DEBUG, NETWORK } from "utils/build"
+import { BREEZ_SDK_API_KEY, DEBUG, GREENLIGHT_PARTNER_CERT, GREENLIGHT_PARTNER_KEY, NETWORK } from "utils/build"
 import {
     RECOVERY_WINDOW_DEFAULT,
     SECURE_KEY_WALLET_PASSWORD,
@@ -135,7 +135,7 @@ export class WalletStore implements WalletStoreInterface {
             let creds: breezSdk.GreenlightCredentials
 
             if (createMnemonic) {
-                creds = await breezSdk.registerNode(network, seed)
+                creds = await breezSdk.registerNode(network, seed, { deviceCert: GREENLIGHT_PARTNER_CERT, deviceKey: GREENLIGHT_PARTNER_KEY })
             } else {
                 creds = await breezSdk.recoverNode(network, seed)
             }

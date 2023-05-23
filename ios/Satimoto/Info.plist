@@ -79,6 +79,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>DEBUG</key>
 	<string>$(DEBUG)</string>
+	<key>GREENLIGHT_PARTNER_CERT</key>
+	<string>$(GREENLIGHT_PARTNER_CERT)</string>
+	<key>GREENLIGHT_PARTNER_KEY</key>
+	<string>$(GREENLIGHT_PARTNER_KEY)</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>LSRequiresIPhoneOS</key>

@@ -19,7 +19,7 @@ import { deepCopy } from "utils/conversion"
 
 const log = new Log("LightningStore")
 
-const BreezSDK = NativeModules.BreezSDK
+const BreezSDK = NativeModules.RNBreezSDK
 const BreezSDKEmitter = new NativeEventEmitter(BreezSDK)
 
 export interface LightningStoreInterface extends StoreInterface {

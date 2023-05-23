@@ -7,7 +7,7 @@ import { DEBUG } from "utils/build"
 const breezSdkLog = new Log("BreezSDK")
 const log = new Log("Lightning")
 
-const BreezSDK = NativeModules.BreezSDK
+const BreezSDK = NativeModules.RNBreezSDK
 const BreezSDKEmitter = new NativeEventEmitter(BreezSDK)
 
 export const startLogEvents = async (backend: LightningBackend): Promise<void> => {
