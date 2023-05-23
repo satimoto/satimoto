@@ -199,6 +199,7 @@ export default {
     Welcome_OnboardingSlide3Title: "Pay As You Charge",
     Welcome_OnboardingSlide3Subtitle: "No need to give credit card details, simply fund your application with bitcoin, then stream micro-payments instantly as you charge your vehicle.",
     Welcome_ImportButton: "Import Backup",
+    Welcome_NextButton: "Next",
     Welcome_StartButton: "Start!",
     // Errors
     InvoiceFailure_Expired: "Expired",
