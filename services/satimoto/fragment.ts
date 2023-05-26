@@ -129,6 +129,7 @@ const LOCATION_WITH_EVSES_FRAGMENT = gql`
 
 const POI_FRAGMENT = gql`
     fragment PoiFragment on Poi {
+        uid
         source
         name
         description

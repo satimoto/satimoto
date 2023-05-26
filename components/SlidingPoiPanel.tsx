@@ -79,7 +79,11 @@ const SlidingPoiPanel = React.forwardRef(({ onHide }: SlidingPoiPanelProps, ref?
     }, [phone])
 
     const onSourcePress = useCallback(() => {
-        Linking.openURL(`https://btcmap.org`)
+        if (locationStore.selectedPoi?.uid) {
+            Linking.openURL(`https://btcmap.org/merchant/node:${locationStore.selectedPoi.uid}`)
+        } else {
+            Linking.openURL(`https://btcmap.org`)
+        }
     }, [])
 
     const onWebsitePress = useCallback(async () => {
