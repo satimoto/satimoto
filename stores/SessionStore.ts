@@ -210,9 +210,9 @@ export class SessionStore implements SessionStoreInterface {
     async enqueueJobs() {
         if (this.status !== ChargeSessionStatus.IDLE && !this.stores.settingStore.pushNotificationEnabled) {
             log.debug(`SAT111 enqueue session-update-worker`, true)
-            
+
             clearTimeout(this.enqueueJobTimer)
-            
+
             this.queue.flushQueue("session-update-worker")
             this.queue.createJob(
                 "session-update-worker",
@@ -297,7 +297,9 @@ export class SessionStore implements SessionStoreInterface {
     }
 
     async paySessionInvoice(sessionInvoice: SessionInvoiceModel, updateMetrics: boolean = true): Promise<void> {
-        if (sessionInvoice && !sessionInvoice.isExpired && !sessionInvoice.isSettled) {
+        let existingSessionInvoice = this.sessionInvoices.find(({ id }) => id === sessionInvoice.id)
+
+        if (!sessionInvoice.isExpired && !sessionInvoice.isSettled && (!existingSessionInvoice || !existingSessionInvoice.isSettled)) {
             log.debug(`SAT069 paySessionInvoice: id=${sessionInvoice.id} status=${this.status}`, true)
             log.debug(`SAT070 paySessionInvoice: pr=${sessionInvoice.paymentRequest} sig=${sessionInvoice.signature}`, true)
 
