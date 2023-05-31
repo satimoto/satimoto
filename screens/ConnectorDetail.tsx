@@ -144,7 +144,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                         {I18n.t("ConnectorDetail_ConfirmChargeText")}
                     </Text>
                     <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} isDisabled={isBusy} style={styles.focusViewButton}>
-                        {I18n.t("Button_ConfirmCharge")}
+                        {I18n.t("Button_ConfirmChargeStarted")}
                     </BusyButton>
                 </View>
             ) : (
@@ -156,9 +156,14 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const renderStopInfo = useCallback(() => {
         if (lastError.length === 0 && isSessionConnector) {
             return sessionStore.tokenType === TokenType.OTHER && sessionStore.status === ChargeSessionStatus.STOPPING ? (
-                <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
-                    {I18n.t("ConnectorDetail_StopInfoText")}
-                </Text>
+                <View>
+                    <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                        {I18n.t("ConnectorDetail_StopInfoText")}
+                    </Text>
+                    <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} isDisabled={isBusy} style={styles.focusViewButton}>
+                        {I18n.t("Button_ConfirmChargeStopped")}
+                    </BusyButton>
+                </View>
             ) : (
                 <></>
             )

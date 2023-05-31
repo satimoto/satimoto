@@ -116,7 +116,8 @@ const UPDATE_SESSION = gql`
 
 interface UpdateSessionInput {
     uid: string
-    isConfirmed: boolean
+    isConfirmedStarted?: boolean
+    isConfirmedStopped?: boolean
 }
 
 const updateSession = (client: ApolloClient<NormalizedCacheObject>) => {

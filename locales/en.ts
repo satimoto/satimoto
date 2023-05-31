@@ -2,7 +2,8 @@ export default {
     // Buttons
     Button_Back: "Back",
     Button_Close: "Close",
-    Button_ConfirmCharge: "Confirm Charge",
+    Button_ConfirmChargeStarted: "Confirm Charging",
+    Button_ConfirmChargeStopped: "Confirm Stopped",
     Button_BackupMnemonic: "Backup Mnemonic",
     Button_ImportMnemonic: "Import Mnemonic",
     Button_Login: "Login",

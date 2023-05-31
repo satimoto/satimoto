@@ -12,15 +12,18 @@ import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import PaymentModel from "models/Payment"
 import { IconButton, Text, useTheme, VStack } from "native-base"
-import React, { useCallback, useLayoutEffect, useState } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
 import { ScrollView, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { StackActions } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { ChargeSessionStatus } from "types/chargeSession"
 import { TokenType } from "types/token"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
+
+const popAction = StackActions.pop()
 
 type ChargeDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ChargeDetail">
@@ -75,6 +78,12 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
         })
     }, [navigation, sessionStore.tokenType])
 
+    useEffect(() => {
+        if (sessionStore.status === ChargeSessionStatus.IDLE) {
+            navigation.dispatch(popAction)
+        }
+    }, [sessionStore.status])
+
     return (
         <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
             {sessionStore.location && (
@@ -98,7 +107,7 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                         {I18n.t("ConnectorDetail_ConfirmChargeText")}
                     </Text>
                     <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} style={styles.focusViewButton}>
-                        {I18n.t("Button_ConfirmCharge")}
+                        {I18n.t("Button_ConfirmChargeStarted")}
                     </BusyButton>
                 </View>
             )}
@@ -125,15 +134,21 @@ const ChargeDetail = ({ navigation }: ChargeDetailProps) => {
                     <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
                         {I18n.t("ConnectorDetail_StopInfoText")}
                     </Text>
+                    <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} style={styles.focusViewButton}>
+                        {I18n.t("Button_ConfirmChargeStopped")}
+                    </BusyButton>
                 </View>
             )}
-            <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
-                <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
-                    {sessionStore.payments.map((payment) => (
-                        <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />
-                    ))}
-                </VStack>
-            </ScrollView>
+            {sessionStore.status === ChargeSessionStatus.STARTING ||
+                (sessionStore.status === ChargeSessionStatus.ACTIVE && (
+                    <ScrollView style={[styles.matchParent, { backgroundColor, borderRadius: 12, marginTop: 10 }]}>
+                        <VStack space={3} style={{ paddingBottom: safeAreaInsets.bottom }}>
+                            {sessionStore.payments.map((payment) => (
+                                <PaymentButton key={payment.hash} payment={payment} onPress={onPaymentPress} />
+                            ))}
+                        </VStack>
+                    </ScrollView>
+                ))}
             <ConfirmationModal
                 isVisible={isConfirmationModalVisible}
                 text={I18n.t("ConfirmationModal_StopConfirmationText")}

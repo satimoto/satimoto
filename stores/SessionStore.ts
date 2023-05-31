@@ -200,7 +200,11 @@ export class SessionStore implements SessionStoreInterface {
 
     async confirmSession() {
         if (this.stores.settingStore.accessToken && this.session) {
-            const response = await updateSession({ uid: this.session.uid, isConfirmed: true })
+            const response = await updateSession(
+                this.status === ChargeSessionStatus.STARTING
+                    ? { uid: this.session.uid, isConfirmedStarted: true }
+                    : { uid: this.session.uid, isConfirmedStopped: true }
+            )
             const session = response.data.updateSession as SessionModel
 
             this.actionUpdateSession(session)
