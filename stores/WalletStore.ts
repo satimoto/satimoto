@@ -11,7 +11,7 @@ import * as lightning from "services/lightning"
 import { fromLndWalletState, WalletState } from "types/wallet"
 import { LightningBackend } from "types/lightningBackend"
 import { toBreezNetwork } from "types/network"
-import { tick } from "utils/backoff"
+import { foregroundTick } from "utils/backoff"
 import { BREEZ_SDK_API_KEY, DEBUG, GREENLIGHT_PARTNER_CERT, GREENLIGHT_PARTNER_KEY, NETWORK } from "utils/build"
 import {
     RECOVERY_WINDOW_DEFAULT,
@@ -259,7 +259,7 @@ export class WalletStore implements WalletStoreInterface {
 
     async unlockWallet() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            tick(async () => {
+            foregroundTick(async () => {
                 const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
                 const seed: Uint8Array = await lightning.mnemonicToSeed(seedMnemonic)
                 const deviceKey: Uint8Array = await getSecureItem(SECURE_KEY_GREENLIGHT_DEVICE_KEY_STORE)
@@ -273,7 +273,7 @@ export class WalletStore implements WalletStoreInterface {
 
                 log.debug(`SAT108: unlockWallet: start`)
                 breezSdk.start()
-            })
+            }, this.stores.uiStore.appState === "active")
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
             await lnd.unlockWallet(password)
