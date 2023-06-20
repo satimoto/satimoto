@@ -192,7 +192,7 @@ export class LightningStore implements LightningStoreInterface {
     }
 
     async startLogEvents() {
-        if (DEBUG && !this.startedLogEvents) {
+        if (!this.startedLogEvents) {
             await lightning.startLogEvents(this.backend)
             this.startedLogEvents = true
         }

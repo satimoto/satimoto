@@ -12,7 +12,6 @@ import useColor from "hooks/useColor"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { LightningBackend } from "types/lightningBackend"
-import { DEBUG } from "utils/build"
 import { IS_ANDROID } from "utils/constants"
 import I18n from "utils/i18n"
 
@@ -106,17 +105,15 @@ const SettingsAdvanced = ({ navigation }: SettingsAdvancedProps) => {
                         iconRight={faChevronRight}
                         onPress={() => navigation.navigate("SettingsSendReport")}
                     />
-                    {DEBUG && (
-                        <ListSwitch
-                            key="tracelogenabled"
-                            title={I18n.t("SettingsAdvanced_TraceLogEnabledText")}
-                            titleWeight="bold"
-                            hint={I18n.t("SettingsAdvanced_TraceLogEnabledHint")}
-                            style={styles.listSwitch}
-                            isChecked={traceLogEnabled}
-                            onToggle={onTraceLogEnabledChange}
-                        />
-                    )}
+                    <ListSwitch
+                        key="tracelogenabled"
+                        title={I18n.t("SettingsAdvanced_TraceLogEnabledText")}
+                        titleWeight="bold"
+                        hint={I18n.t("SettingsAdvanced_TraceLogEnabledHint")}
+                        style={styles.listSwitch}
+                        isChecked={traceLogEnabled}
+                        onToggle={onTraceLogEnabledChange}
+                    />
                     <ListSwitch
                         key="channelreserve"
                         title={I18n.t("SettingsAdvanced_IncludeChannelReserveText")}
