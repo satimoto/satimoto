@@ -5,7 +5,6 @@ import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
-import { tick } from "utils/backoff"
 import { LN_BECH32_PREFIX } from "utils/constants"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
@@ -26,16 +25,14 @@ const SendLightningModal = ({ isVisible, onClose }: SendLightningModalProps) => 
         setIsBusy(true)
         setLastError("")
 
-        tick(async () => {
-            try {
-                await uiStore.setPaymentRequest(paymentRequest)
-                onClose()
-            } catch (error) {
-                setLastError(errorToString(error))
-            }
+        try {
+            await uiStore.setPaymentRequest(paymentRequest)
+            onClose()
+        } catch (error) {
+            setLastError(errorToString(error))
+        }
 
-            setIsBusy(false)
-        })
+        setIsBusy(false)
     }
 
     const onModalClose = () => {

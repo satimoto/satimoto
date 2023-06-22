@@ -8,7 +8,6 @@ import { observer } from "mobx-react"
 import { FormControl, HStack, Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
 import { HomeNavigationProp } from "screens/Home"
-import { tick } from "utils/backoff"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 
@@ -37,21 +36,19 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
     const onConfirmPress = async () => {
         setIsBusy(true)
 
-        tick(async () => {
-            try {
-                const invoice = await invoiceStore.addInvoice({ value: +amount, createChannel: true })
-                const lnInvoice = invoiceStore.findInvoice(invoice.hash)
+        try {
+            const invoice = await invoiceStore.addInvoice({ value: +amount, createChannel: true })
+            const lnInvoice = invoiceStore.findInvoice(invoice.hash)
 
-                if (lnInvoice) {
-                    navigation.navigate("WaitForPayment", { invoice: lnInvoice })
-                    onClose()
-                }
-            } catch (error) {
-                setLastError(errorToString(error))
+            if (lnInvoice) {
+                navigation.navigate("WaitForPayment", { invoice: lnInvoice })
+                onClose()
             }
+        } catch (error) {
+            setLastError(errorToString(error))
+        }
 
-            setIsBusy(false)
-        })
+        setIsBusy(false)
     }
 
     const onModalClose = () => {

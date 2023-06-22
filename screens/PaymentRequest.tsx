@@ -14,8 +14,7 @@ import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { PaymentStatus } from "types/payment"
-import { tick } from "utils/backoff"
-import { errorToString, toNumber, toSatoshi } from "utils/conversion"
+import { toNumber, toSatoshi } from "utils/conversion"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
@@ -50,27 +49,25 @@ const PaymentRequest = ({ navigation, route }: PaymentRequestProps) => {
         navigation.navigate("Home")
     }
 
-    const onConfirmPress = () => {
+    const onConfirmPress = async () => {
         setIsBusy(true)
         setLastError("")
 
-        tick(async () => {
-            try {
-                const payment = await paymentStore.sendPayment(payReq)
+        try {
+            const payment = await paymentStore.sendPayment(payReq)
 
-                if (payment.status === PaymentStatus.SUCCEEDED) {
-                    await startConfetti()
-                    onClose()
-                } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
-                    setLastError(I18n.t(payment.failureReasonKey))
-                }
-            } catch (error) {
-                setLastError(I18n.t("PaymentFailure_NoRoute"))
-                log.debug(`SAT011 onConfirmPress: Error sending payment: ${error}`, true)
+            if (payment.status === PaymentStatus.SUCCEEDED) {
+                await startConfetti()
+                onClose()
+            } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
+                setLastError(I18n.t(payment.failureReasonKey))
             }
+        } catch (error) {
+            setLastError(I18n.t("PaymentFailure_NoRoute"))
+            log.debug(`SAT011 onConfirmPress: Error sending payment: ${error}`, true)
+        }
 
-            setIsBusy(false)
-        })
+        setIsBusy(false)
     }
 
     useEffect(() => {

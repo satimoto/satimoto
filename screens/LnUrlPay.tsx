@@ -22,7 +22,6 @@ import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { getMetadataElement } from "services/lnUrl"
-import { tick } from "utils/backoff"
 import { toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
@@ -78,7 +77,6 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
         setIsBusy(true)
         setLastError("")
 
-        tick(async () => {
             if (route.params.payParams) {
                 try {
                     const response = await paymentStore.payLnurl(route.params.payParams, amountNumber)
@@ -118,7 +116,6 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
             }
 
             setIsBusy(false)
-        })
     }, [route.params.payParams, amountNumber])
 
     const onUrlPress = useCallback(async () => {

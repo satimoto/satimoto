@@ -16,7 +16,9 @@ export const assertEmail = (address: string) => {
 }
 
 export const assertNetwork = (bech32Address: string) => {
-    if (bech32Address && !bech32Address.toLowerCase().startsWith(LN_BECH32_PREFIX)) {
+    const trimmmedBech32Address = bech32Address.replace(/(lightning|url):/i, "").trim()
+
+    if (trimmmedBech32Address && !trimmmedBech32Address.toLowerCase().startsWith(LN_BECH32_PREFIX)) {
         throw Error("Invalid lightning invoice")
     }
 }

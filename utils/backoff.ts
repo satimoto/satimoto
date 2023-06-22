@@ -77,15 +77,3 @@ export const doWhileBackoffUntil = (
         }
     )
 }
-
-export const tick = (callback: () => void, milliseconds: number = 0) => {
-    setTimeout(callback, milliseconds)
-}
-
-export const foregroundTick = (callback: () => void, isForeground: boolean = true, milliseconds: number = 0) => {
-    if (isForeground) {
-        tick(callback, milliseconds)
-    } else {
-        callback()
-    }
-}
