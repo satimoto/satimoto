@@ -32,7 +32,7 @@ public class MainActivity extends ReactActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         }
 
-        super.onCreate(savedInstanceState);
+        super.onCreate(null);
     }
     
     /**

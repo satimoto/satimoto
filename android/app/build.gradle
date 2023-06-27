@@ -140,7 +140,7 @@ android {
         applicationId "com.satimoto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 57
+        versionCode 58
         versionName "0.4.4"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         buildConfigField "String", "BREEZ_SDK_API_KEY", project.property('BREEZ_SDK_API_KEY')
@@ -307,7 +307,7 @@ android {
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.1.0')
     
-    implementation project(':react-native-breez-sdk')
+    implementation project(':@breeztech_react-native-breez-sdk')
 
     implementation project(':react-native-build-config')
 
