@@ -52,7 +52,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [confirmationStatus, setConfirmationStatus] = useState(ChargeSessionStatus.IDLE)
     const [lastError, setLastError] = useState("")
     const [energySources, setEnergySources] = useState<StackedBarItems>([])
-    const { channelStore, sessionStore, settingStore } = useStore()
+    const { channelStore, sessionStore, settingStore, uiStore } = useStore()
 
     const onShowStartConfirmation = () => {
         setConfirmationModalText(I18n.t("ConfirmationModal_StartConfirmationText"))
@@ -69,6 +69,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     }
 
     const onBackPress = useCallback((): boolean => {
+        uiStore.clearChargePoint()
         navigation.dispatch(popAction)
         return true
     }, [navigation])
