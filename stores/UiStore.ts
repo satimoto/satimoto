@@ -194,13 +194,6 @@ export class UiStore implements UiStoreInterface {
         runInAction(() => {
             this.nfcAvailable = isSupported
         })
-
-        // Process initial intent
-        const intent = await Linking.getInitialURL()
-
-        if (intent) {
-            this.parseIntent(intent)
-        }
     }
 
     clearAll() {

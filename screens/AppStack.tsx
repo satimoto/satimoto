@@ -136,6 +136,16 @@ const AppStack = () => {
         uiStore.parseIntent(url)
     }
 
+    const onHydrated = async () => {
+        // Process initial intent
+        const intent = await Linking.getInitialURL()
+
+        if (intent) {
+            log.debug(`SAT112 getInitialURL: ${intent}`, true)
+            uiStore.parseIntent(intent)
+        }
+    }
+
     useEffect(() => {
         const linkingListener = Linking.addEventListener("url", onLinkingUrl)
 
@@ -143,6 +153,12 @@ const AppStack = () => {
             linkingListener.remove()
         }
     }, [])
+
+    useEffect(() => {
+        if (uiStore.hydrated) {
+            onHydrated()
+        }
+    }, [uiStore.hydrated])
 
     useEffect(() => {
         if (channelStore.channelRequestStatus === ChannelRequestStatus.NEGOTIATING) {
