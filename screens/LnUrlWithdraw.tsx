@@ -47,6 +47,8 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const [maxReceivable, setMaxReceivable] = useState(0)
     const [minReceivable, setMinReceivable] = useState(0)
     const [openingFee, setOpeningFee] = useState(0)
+    const [lspFeeProportional, setLspFeeProportional] = useState(0)
+    const [lspFeeMinimum, setLspFeeMinimum] = useState(0)
     const { channelStore, invoiceStore, uiStore } = useStore()
 
     const onClose = () => {
@@ -84,6 +86,14 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
         setIsBusy(false)
     }
 
+    const updateLspFees = async (amountSats: number) => {
+        const lspFees = await channelStore.getLspFees(amountSats)
+
+        setOpeningFee(toSatoshi(lspFees.feeMsat).toNumber())
+        setLspFeeMinimum(toSatoshi(lspFees.usedFeeParams?.minMsat || 0).toNumber())
+        setLspFeeProportional(lspFees.usedFeeParams?.proportional || 0)
+    }
+
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => <HeaderBackButton tintColor={navigationOptions.headerTintColor} onPress={onClose} />,
@@ -107,7 +117,10 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     }, [route.params.withdrawParams])
 
     useEffect(() => {
-        setOpeningFee(channelStore.calculateOpeningFee(amountNumber))
+        if (amountNumber >= channelStore.remoteBalance) {
+            updateLspFees(amountNumber)
+        }
+
         setChannelRequestNeeded(amountNumber >= channelStore.remoteBalance)
         setIsInvalid(isDirty && (amountNumber < minReceivable || amountNumber > maxReceivable))
     }, [amountNumber, channelStore.remoteBalance, isDirty, minReceivable, maxReceivable])
@@ -130,9 +143,9 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                                     <Text color={secondaryTextColor} fontSize="xs">
                                         {I18n.t("ReceiveLightning_FeeInfoText", {
                                             name: channelStore.lspName,
-                                            minimumFee: channelStore.lspFeeMinimum,
-                                            percentFee: channelStore.lspFeePpmyraid / 100
-                                        })}
+                                            minimumFee: lspFeeMinimum,
+                                            percentFee: lspFeeProportional / 10000
+                                            })}
                                     </Text>
                                 </HStack>
                             </ExpandableInfoItem>

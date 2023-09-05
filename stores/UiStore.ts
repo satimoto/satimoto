@@ -44,6 +44,7 @@ export interface UiStoreInterface extends StoreInterface {
     tooltipShownCircuit: boolean
     tooltipShownSyncing: boolean
 
+    clearAll(): void
     clearChargePoint(): void
     clearLnUrl(): void
     clearPaymentRequest(): void
@@ -200,6 +201,12 @@ export class UiStore implements UiStoreInterface {
         if (intent) {
             this.parseIntent(intent)
         }
+    }
+
+    clearAll() {
+        this.actionClearChargePoint()
+        this.actionClearLnUrl()
+        this.actionClearPaymentRequest()
     }
 
     clearChargePoint() {
@@ -385,6 +392,7 @@ export class UiStore implements UiStoreInterface {
     actionSetChargePoint(evse: EvseModel) {
         if (evse.location) {
             if (evse.connectors.length === 1) {
+                this.clearAll()
                 this.evse = evse
                 this.connector = this.evse.connectors[0]
                 this.location = this.evse.location
@@ -416,21 +424,22 @@ export class UiStore implements UiStoreInterface {
     }
 
     actionSetLnUrlAuthParams(authParams: breezSdk.LnUrlAuthRequestData) {
-        this.actionClearLnUrl()
+        this.clearAll()
         this.lnUrlAuthParams = authParams
     }
 
     actionSetLnUrlPayParams(payParams: breezSdk.LnUrlPayRequestData) {
-        this.actionClearLnUrl()
+        this.clearAll()
         this.lnUrlPayParams = payParams
     }
 
     actionSetLnUrlWithdrawParams(withdrawParams: breezSdk.LnUrlWithdrawRequestData) {
-        this.actionClearLnUrl()
+        this.clearAll()
         this.lnUrlWithdrawParams = withdrawParams
     }
 
     async actionSetPaymentRequest(paymentRequest: string, lnInvoice: breezSdk.LnInvoice) {
+        this.clearAll()
         this.lnInvoice = lnInvoice
         this.paymentRequest = paymentRequest
         log.debug(JSON.stringify(this.lnInvoice))

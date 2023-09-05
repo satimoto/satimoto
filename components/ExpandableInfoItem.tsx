@@ -1,7 +1,6 @@
 import TouchableOpacityOptional from "components/TouchableOpacityOptional"
 import { faInfo } from "@fortawesome/free-solid-svg-icons"
-import useColor from "hooks/useColor"
-import { Flex, HStack, Spacer, useTheme, Text, VStack, useColorModeValue } from "native-base"
+import { HStack, Spacer, Text, VStack, useColorModeValue } from "native-base"
 import React, { PropsWithChildren, useState } from "react"
 import styles from "utils/styles"
 import { View } from "react-native"

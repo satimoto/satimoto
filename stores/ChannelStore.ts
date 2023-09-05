@@ -11,7 +11,7 @@ import { createChannelRequest, CreateChannelRequestInput } from "services/satimo
 import { ChannelRequestStatus } from "types/channelRequest"
 import { ChannelModelUpdate, toChannel } from "types/channel"
 import { LightningBackend } from "types/lightningBackend"
-import { bytesToHex, reverseByteOrder, toLong, toNumber, toSatoshi } from "utils/conversion"
+import { bytesToHex, reverseByteOrder, toLong, toMilliSatoshi, toNumber, toSatoshi } from "utils/conversion"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { isValue } from "utils/null"
@@ -31,12 +31,10 @@ export interface ChannelStoreInterface extends StoreInterface {
     remoteBalance: number
     reservedBalance: number
     lspName: string
-    lspFeePpmyraid: number
-    lspFeeMinimum: number
 
-    calculateOpeningFee(amountSats: number): number
     closeChannel(request: lnd.CloseChannelProps): Promise<ChannelModel>
     createChannelRequest(channelRequest: CreateChannelRequestInput): Promise<lnrpc.IHopHint>
+    getLspFees(amountSats: number): Promise<breezSdk.OpenChannelFeeResponse>
 }
 
 export class ChannelStore implements ChannelStoreInterface {
@@ -54,8 +52,6 @@ export class ChannelStore implements ChannelStoreInterface {
     remoteBalance = 0
     reservedBalance = 0
     lspName = "Satimoto LSP"
-    lspFeePpmyraid = 0
-    lspFeeMinimum = 0
 
     constructor(stores: Store) {
         this.stores = stores
@@ -75,8 +71,6 @@ export class ChannelStore implements ChannelStoreInterface {
             remoteBalance: observable,
             reservedBalance: observable,
             lspName: observable,
-            lspFeeMinimum: observable,
-            lspFeePpmyraid: observable,
 
             availableBalance: computed,
             balance: computed,
@@ -86,7 +80,7 @@ export class ChannelStore implements ChannelStoreInterface {
             actionChannelEventReceived: action,
             actionRemoveChannelRequest: action,
             actionResetChannels: action,
-            actionUpdateLspInfo: action,
+            actionUpdateLspName: action,
             actionUpdateChannel: action,
             actionUpdateChannelByChannelPoint: action,
             actionUpdateChannelRequestStatus: action,
@@ -130,12 +124,6 @@ export class ChannelStore implements ChannelStoreInterface {
 
     get balance(): number {
         return this.stores.settingStore.includeChannelReserve ? this.localBalance : this.availableBalance
-    }
-
-    calculateOpeningFee(amountSats: number): number {
-        const openingFee = (amountSats * this.lspFeePpmyraid) / 10000
-
-        return Math.max(this.lspFeeMinimum, openingFee)
     }
 
     cancelChannelAcceptor() {
@@ -232,10 +220,18 @@ export class ChannelStore implements ChannelStoreInterface {
 
     async getLspInfo() {
         const lspId = await breezSdk.lspId()
-        const { name, channelFeePermyriad, channelMinimumFeeMsat, minHtlcMsat, pubkey, host } = await breezSdk.fetchLspInfo(lspId)
+        const { name, minHtlcMsat, pubkey, host } = await breezSdk.fetchLspInfo(lspId)
         
         log.debug(`SAT044: LSP min htlc ${minHtlcMsat}, address: ${pubkey}@${host}`, true)
-        this.actionUpdateLspInfo(name, channelFeePermyriad, toSatoshi(channelMinimumFeeMsat).toNumber())
+        this.actionUpdateLspName(name)
+    }
+
+    async getLspFees(amountSats: number): Promise<breezSdk.OpenChannelFeeResponse> {
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            return await breezSdk.openChannelFee({amountMsat: toMilliSatoshi(amountSats).toNumber()})
+        }
+        
+        return { feeMsat: 0 } as breezSdk.OpenChannelFeeResponse
     }
 
     onChannelAcceptRequest({ nodePubkey, pendingChanId, wantsZeroConf }: lnrpc.ChannelAcceptRequest) {
@@ -381,8 +377,6 @@ export class ChannelStore implements ChannelStoreInterface {
 
     actionResetChannels() {
         this.lspName = "Satimoto LSP"
-        this.lspFeePpmyraid = 0
-        this.lspFeeMinimum = 0
         this.localBalance = 0
         this.remoteBalance = 0
         this.reservedBalance = 0
@@ -395,10 +389,8 @@ export class ChannelStore implements ChannelStoreInterface {
         this.ready = true
     }
 
-    actionUpdateLspInfo(lspName: string, lspFeePpmyraid: number, lspFeeMinimum: number) {
+    actionUpdateLspName(lspName: string) {
         this.lspName = lspName
-        this.lspFeePpmyraid = lspFeePpmyraid
-        this.lspFeeMinimum = lspFeeMinimum
     }
 
     actionUpdateChannelRequestStatus(status: ChannelRequestStatus) {

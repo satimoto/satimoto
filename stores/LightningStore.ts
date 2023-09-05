@@ -201,7 +201,7 @@ export class LightningStore implements LightningStoreInterface {
     async switchBackend(backend: LightningBackend) {
         if (backend !== this.backend) {
             if (this.backend === LightningBackend.BREEZ_SDK) {
-                await breezSdk.stop()
+                await breezSdk.disconnect()
             } else if (this.backend === LightningBackend.LND) {
                 await lnd.stop()
             }

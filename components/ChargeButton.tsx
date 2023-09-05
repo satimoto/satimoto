@@ -5,7 +5,6 @@ import { LayoutChangeEvent, StyleSheet } from "react-native"
 import { LightningIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import { observer } from "mobx-react"
 import { useStore } from "hooks/useStore"
-import { ChargeSessionStatus } from "types/chargeSession"
 
 const styleSheet = StyleSheet.create({
     button: {

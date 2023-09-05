@@ -6,7 +6,6 @@ import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { Log } from "utils/logging"
 import { Text, useColorModeValue, useTheme } from "native-base"
 import { StyleSheet, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -15,9 +14,7 @@ import I18n from "utils/i18n"
 import { errorToString } from "utils/conversion"
 import { CommonActions, StackActions } from "@react-navigation/native"
 
-const log = new Log("Scanner")
 const replaceAction = StackActions.replace("TokenList")
-const popAction = StackActions.pop()
 
 const styleSheet = StyleSheet.create({
     headerButtonView: {

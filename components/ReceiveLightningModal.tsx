@@ -8,7 +8,7 @@ import { observer } from "mobx-react"
 import { FormControl, HStack, Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
 import { HomeNavigationProp } from "screens/Home"
-import { errorToString } from "utils/conversion"
+import { errorToString, toSatoshi } from "utils/conversion"
 import I18n from "utils/i18n"
 
 interface ReceiveLightningModalProps {
@@ -27,6 +27,8 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
     const [lastError, setLastError] = useState("")
     const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
     const [openingFee, setOpeningFee] = useState(0)
+    const [lspFeeProportional, setLspFeeProportional] = useState(0)
+    const [lspFeeMinimum, setLspFeeMinimum] = useState(0)
     const { channelStore, invoiceStore } = useStore()
 
     const onAmountChange = (text: string) => {
@@ -57,10 +59,21 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
         }
     }
 
+    const updateLspFees = async (amountSats: number) => {
+        const lspFees = await channelStore.getLspFees(amountSats)
+
+        setOpeningFee(toSatoshi(lspFees.feeMsat).toNumber())
+        setLspFeeMinimum(toSatoshi(lspFees.usedFeeParams?.minMsat || 0).toNumber())
+        setLspFeeProportional(lspFees.usedFeeParams?.proportional || 0)
+    }
+
     useEffect(() => {
         const amountNumber = +amount
 
-        setOpeningFee(channelStore.calculateOpeningFee(amountNumber))
+        if (amountNumber >= channelStore.remoteBalance) {
+            updateLspFees(amountNumber)
+        }
+
         setChannelRequestNeeded(amountNumber >= channelStore.remoteBalance)
         setIsAmountInvalid(amountNumber <= 0)
     }, [amount])
@@ -87,8 +100,8 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
                                 <Text color={secondaryTextColor} fontSize="xs">
                                     {I18n.t("ReceiveLightning_FeeInfoText", {
                                         name: channelStore.lspName,
-                                        minimumFee: channelStore.lspFeeMinimum,
-                                        percentFee: channelStore.lspFeePpmyraid / 100
+                                        minimumFee: lspFeeMinimum,
+                                        percentFee: lspFeeProportional / 10000
                                     })}
                                 </Text>
                             </HStack>

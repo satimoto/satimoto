@@ -12,7 +12,7 @@ const MnemonicInput = ({ wordNo, size = "lg", width, ...props }: MnemonicInputPr
 
     return (
         <FormControl width={width}>
-            <FormControl.Label  _text={{ color: textColor }}>{I18n.t("MnemonicInput_PlaceholderText", { no: wordNo })}</FormControl.Label>
+            <FormControl.Label _text={{ color: textColor }}>{I18n.t("MnemonicInput_PlaceholderText", { no: wordNo })}</FormControl.Label>
             <Input autoCorrect={false} variant="outline" autoCapitalize="none" size={size} {...props} />
         </FormControl>
     )

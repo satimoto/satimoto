@@ -610,6 +610,7 @@
 				CURRENT_PROJECT_VERSION = 23;
 				DEBUG = true;
 				DEVELOPMENT_TEAM = F922YVP6UQ;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = F922YVP6UQ;
 				DISPLAY_NAME = "Satimoto Debug";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -635,6 +636,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug;
 				PRODUCT_NAME = "Satimoto Debug";
 				PROVISIONING_PROFILE_SPECIFIER = "Satimoto Debug";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Satimoto Debug";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

@@ -5,10 +5,7 @@ import { useTheme } from "native-base"
 import useColor from "hooks/useColor"
 import CameraViewFinder from "components/CameraViewFinder"
 import I18n from "utils/i18n"
-import { Log } from "utils/logging"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-
-const log = new Log("CameraScanner")
 
 interface CameraScannerProps extends PropsWithChildren<any> {
     isActive: boolean

@@ -113,9 +113,9 @@ export class InvoiceStore implements InvoiceStoreInterface {
         valueMsat = valueMsat || toMilliSatoshi(value!).toNumber()
 
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const breezInvoice = await breezSdk.receivePayment(value, memo || "")
-            log.debug(`Invoice: ${breezInvoice.timestamp} ${breezInvoice.expiry}`)
-            const invoice = fromBreezInvoice(breezInvoice)
+            const { lnInvoice } = await breezSdk.receivePayment({amountSats: value, description: memo || ""})
+            log.debug(`Invoice: ${lnInvoice.timestamp} ${lnInvoice.expiry}`)
+            const invoice = fromBreezInvoice(lnInvoice)
 
             return this.actionUpdateInvoice(invoice)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
