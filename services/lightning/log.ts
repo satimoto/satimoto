@@ -16,7 +16,7 @@ export const startLogEvents = async (backend: LightningBackend): Promise<void> =
         BreezSDKEmitter.addListener("breezSdkLog", (logEntry) => {
             breezSdkLog.debug(`[${logEntry.level}] ${logEntry.line}`, true)
         })
-        await BreezSDK.startLogStream()
+        BreezSDK.setLogStream()
     } else if (backend === LightningBackend.LND) {
         LndUtilsEventEmitter.addListener("logEvent", (data) => {
             log.debug(data, true)

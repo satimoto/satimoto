@@ -28,21 +28,20 @@ const fromBreezInvoice = (invoice: breezSdk.LnInvoice): InvoiceModel => {
     } as InvoiceModel
 }
 
-const fromBreezPayment = (payment: breezSdk.Payment): InvoiceModel => {
+const fromBreezPayment = (payment: breezSdk.Payment, details: breezSdk.LnPaymentDetails): InvoiceModel => {
     const createdAt = new Date(secondsToMilliseconds(payment.paymentTime))
-    const details = payment.details as breezSdk.LnPaymentDetails
 
     return {
         createdAt: createdAt.toISOString(),
         expiresAt: createdAt.toISOString(),
-        description: payment.description,
+        description: details.label,
         hash: details.paymentHash,
         preimage: details.paymentPreimage,
         paymentRequest: details.bolt11,
         status: InvoiceStatus.SETTLED,
         valueMsat: payment.amountMsat.toString(),
         valueSat: toSatoshi(payment.amountMsat).toString()
-    } as InvoiceModel
+    }
 }
 
 const fromLndInvoice = (invoice: lnrpc.Invoice): InvoiceModel => {

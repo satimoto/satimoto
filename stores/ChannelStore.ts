@@ -220,10 +220,15 @@ export class ChannelStore implements ChannelStoreInterface {
 
     async getLspInfo() {
         const lspId = await breezSdk.lspId()
-        const { name, minHtlcMsat, pubkey, host } = await breezSdk.fetchLspInfo(lspId)
-        
-        log.debug(`SAT044: LSP min htlc ${minHtlcMsat}, address: ${pubkey}@${host}`, true)
-        this.actionUpdateLspName(name)
+
+        if (lspId) {
+            const lspInfo = await breezSdk.fetchLspInfo(lspId)
+
+            if (lspInfo) {
+                log.debug(`SAT044: LSP min htlc ${lspInfo.minHtlcMsat}, address: ${lspInfo.pubkey}@${lspInfo.host}`, true)
+                this.actionUpdateLspName(lspInfo.name)
+            }
+        }
     }
 
     async getLspFees(amountSats: number): Promise<breezSdk.OpenChannelFeeResponse> {

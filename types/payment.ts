@@ -12,22 +12,21 @@ export enum PaymentStatus {
     EXPIRED = "EXPIRED"
 }
 
-const fromBreezPayment = (payment: breezSdk.Payment): PaymentModel => {
-    const paymentDetails = payment.details as breezSdk.LnPaymentDetails
+const fromBreezPayment = (payment: breezSdk.Payment, details: breezSdk.LnPaymentDetails): PaymentModel => {
     const createdAt = new Date(secondsToMilliseconds(payment.paymentTime))
 
     return {
         createdAt: createdAt.toISOString(),
         expiresAt: createdAt.toISOString(),
-        description: payment.description,
-        hash: paymentDetails.paymentHash,
-        preimage: paymentDetails.paymentPreimage,
+        description: details.label,
+        hash: details.paymentHash,
+        preimage: details.paymentPreimage,
         status: payment.pending ? PaymentStatus.IN_PROGRESS : PaymentStatus.SUCCEEDED,
         valueMsat: payment.amountMsat.toString(),
         valueSat: toSatoshi(payment.amountMsat).toString(),
         feeMsat: payment.feeMsat.toString(),
         feeSat: toSatoshi(payment.feeMsat).toString()
-    } as PaymentModel
+    }
 }
 
 const fromLndPayment = (payment: lnrpc.Payment, paymentRequest: breezSdk.LnInvoice): PaymentModel => {

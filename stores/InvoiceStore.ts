@@ -113,7 +113,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
         valueMsat = valueMsat || toMilliSatoshi(value!).toNumber()
 
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const { lnInvoice } = await breezSdk.receivePayment({amountSats: value, description: memo || ""})
+            const { lnInvoice } = await breezSdk.receivePayment({ amountSats: value, description: memo || "" })
             log.debug(`Invoice: ${lnInvoice.timestamp} ${lnInvoice.expiry}`)
             const invoice = fromBreezInvoice(lnInvoice)
 
@@ -200,8 +200,10 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
     async updateBreezInvoices(payments: breezSdk.Payment[]) {
         for (const payment of payments) {
-            this.actionUpdateInvoice(fromBreezPayment(payment))
-            this.actionUpdateAddIndex(payment.paymentTime.toString())
+            if (payment.details.type === breezSdk.PaymentDetailsVariant.LN) {
+                this.actionUpdateInvoice(fromBreezPayment(payment, payment.details.data as breezSdk.LnPaymentDetails))
+                this.actionUpdateAddIndex(payment.paymentTime.toString())
+            }
         }
 
         this.actionSetReady()
@@ -228,8 +230,11 @@ export class InvoiceStore implements InvoiceStoreInterface {
             return breezSdk.withdrawLnurl(deepCopy(withdrawParams), amountSats)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const invoice = await this.addInvoice({ value: amountSats, createChannel: true })
+            const lnUrlResponse = await lnUrl.withdrawRequest(withdrawParams.callback, withdrawParams.k1, invoice.paymentRequest)
 
-            return lnUrl.withdrawRequest(withdrawParams.callback, withdrawParams.k1, invoice.paymentRequest)
+            return lnUrlResponse.status.toLowerCase() === "ok"
+                ? { type: breezSdk.LnUrlCallbackStatusVariant.OK }
+                : { type: breezSdk.LnUrlCallbackStatusVariant.ERROR_STATUS, data: { reason: lnUrlResponse.reason } }
         }
 
         throw Error("Not implemented")

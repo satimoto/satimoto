@@ -295,21 +295,17 @@ export class UiStore implements UiStoreInterface {
             const input = await breezSdk.parseInput(intent)
 
             switch (input.type) {
-                case breezSdk.InputType.LNURL_AUTH:
-                    const lnUrlAuthRequestData = input.data as breezSdk.LnUrlAuthRequestData
-                    this.actionSetLnUrlAuthParams(lnUrlAuthRequestData)
+                case breezSdk.InputTypeVariant.LN_URL_AUTH:
+                    this.actionSetLnUrlAuthParams(input.data)
                     return true
-                case breezSdk.InputType.LNURL_PAY:
-                    const lnUrlPayRequestData = input.data as breezSdk.LnUrlPayRequestData
-                    this.actionSetLnUrlPayParams(lnUrlPayRequestData)
+                case breezSdk.InputTypeVariant.LN_URL_PAY:
+                    this.actionSetLnUrlPayParams(input.data)
                     return true
-                case breezSdk.InputType.LNURL_WITHDRAW:
-                    const lnUrlWithdrawRequestData = input.data as breezSdk.LnUrlWithdrawRequestData
-                    this.actionSetLnUrlWithdrawParams(lnUrlWithdrawRequestData)
+                case breezSdk.InputTypeVariant.LN_URL_WITHDRAW:
+                    this.actionSetLnUrlWithdrawParams(input.data)
                     return true
-                case breezSdk.InputType.BOLT11:
-                    const lnInvoice = input.data as breezSdk.LnInvoice
-                    this.actionSetPaymentRequest(lnInvoice.bolt11, lnInvoice)
+                case breezSdk.InputTypeVariant.BOLT11:
+                    this.actionSetPaymentRequest(input.invoice.bolt11, input.invoice)
                     return true
             }
         } catch (error) {

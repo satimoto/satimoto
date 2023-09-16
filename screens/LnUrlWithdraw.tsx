@@ -1,3 +1,4 @@
+import { LnUrlCallbackStatusVariant } from "@breeztech/react-native-breez-sdk"
 import BusyButton from "components/BusyButton"
 import ExpandableInfoItem from "components/ExpandableInfoItem"
 import HeaderBackButton from "components/HeaderBackButton"
@@ -71,11 +72,11 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
             try {
                 const response = await invoiceStore.withdrawLnurl(uiStore.lnUrlWithdrawParams, amountNumber)
 
-                if (response.status.toLowerCase() === "ok") {
+                if (response.type === LnUrlCallbackStatusVariant.OK) {
                     await startConfetti()
                     onClose()
-                } else if (response.reason) {
-                    setLastError(response.reason)
+                } else if (response.data && response.data.reason) {
+                    setLastError(response.data.reason)
                 }
             } catch (error) {
                 setLastError(errorToString(error))

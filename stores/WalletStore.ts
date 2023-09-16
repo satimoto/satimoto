@@ -20,8 +20,11 @@ import {
 import { bytesToBase64, toNumber, toSatoshi } from "utils/conversion"
 import { Log } from "utils/logging"
 import { getSecureItem, setSecureItem } from "utils/storage"
+import { PaymentStatus, fromBreezPayment } from "types/payment"
+import { NativeModules } from "react-native"
 
 const log = new Log("WalletStore")
+const BreezSDK = NativeModules.RNBreezSDK
 
 export interface WalletStoreInterface extends StoreInterface {
     hydrated: boolean
@@ -119,7 +122,7 @@ export class WalletStore implements WalletStoreInterface {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             let mnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
             const nodeConfig: breezSdk.NodeConfig = {
-                type: breezSdk.NodeConfigType.GREENLIGHT,
+                type: breezSdk.NodeConfigVariant.GREENLIGHT,
                 config: {
                     partnerCredentials: { deviceCert: GREENLIGHT_PARTNER_CERT, deviceKey: GREENLIGHT_PARTNER_KEY }
                 }
@@ -135,7 +138,7 @@ export class WalletStore implements WalletStoreInterface {
             const seed = await lightning.mnemonicToSeed(mnemonic)
             const config = await breezSdk.defaultConfig(breezSdk.EnvironmentType.PRODUCTION, BREEZ_SDK_API_KEY, nodeConfig)
 
-            await breezSdk.connect(config, seed)
+            await BreezSDK.connect(config, seed)
 
             this.actionSetState(WalletState.STARTED)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
@@ -181,6 +184,45 @@ export class WalletStore implements WalletStoreInterface {
         }
 
         throw Error("Mnemonic not found")
+    }
+
+    receiveBreezEvent(event: breezSdk.BreezEvent) {
+        log.debug(`SAT071: ${event.type}: ${JSON.stringify(event)}`, true)
+
+        switch (event.type) {
+            case breezSdk.BreezEventVariant.INVOICE_PAID:
+                this.stores.invoiceStore.settleInvoice(event.details.paymentHash)
+                break
+            case breezSdk.BreezEventVariant.NEW_BLOCK:
+                this.stores.lightningStore.actionSetBlockHeight(event.block)
+                break
+            case breezSdk.BreezEventVariant.PAYMENT_FAILED:
+                const { error, invoice } = event.details
+                const failedPayment = invoice && this.stores.paymentStore.findPayment(invoice.paymentHash)
+
+                if (failedPayment) {
+                    failedPayment.status = PaymentStatus.FAILED
+                    failedPayment.failureReasonKey = error
+
+                    this.stores.paymentStore.updatePayment(failedPayment)
+                }
+                break
+            case breezSdk.BreezEventVariant.PAYMENT_SUCCEED:
+                const lnPayment = event.details
+
+                if (lnPayment.details.type === breezSdk.PaymentDetailsVariant.LN) {
+                    const payment = fromBreezPayment(lnPayment, lnPayment.details.data as breezSdk.LnPaymentDetails)
+                    payment.status = PaymentStatus.SUCCEEDED
+
+                    this.stores.paymentStore.updatePayment(payment)
+                }
+                break
+            case breezSdk.BreezEventVariant.SYNCED:
+                this.stores.lightningStore.actionSetSynced()
+                this.stores.channelStore.getChannelBalance()
+                this.stores.walletStore.setState(WalletState.STARTED)
+                break
+        }
     }
 
     async refreshWalletBalance() {
@@ -243,9 +285,9 @@ export class WalletStore implements WalletStoreInterface {
     async unlockWallet() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
-            const seed: Uint8Array = await lightning.mnemonicToSeed(seedMnemonic)
+            const seed: number[] = await lightning.mnemonicToSeed(seedMnemonic)
             const nodeConfig: breezSdk.NodeConfig = {
-                type: breezSdk.NodeConfigType.GREENLIGHT,
+                type: breezSdk.NodeConfigVariant.GREENLIGHT,
                 config: {
                     partnerCredentials: { deviceCert: GREENLIGHT_PARTNER_CERT, deviceKey: GREENLIGHT_PARTNER_KEY }
                 }
@@ -255,7 +297,7 @@ export class WalletStore implements WalletStoreInterface {
             const config = await breezSdk.defaultConfig(breezSdk.EnvironmentType.PRODUCTION, BREEZ_SDK_API_KEY, nodeConfig)
 
             log.debug(`SAT108: unlockWallet: connect`)
-            await breezSdk.connect(config, seed)
+            await BreezSDK.connect(config, seed)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
             await lnd.unlockWallet(password)

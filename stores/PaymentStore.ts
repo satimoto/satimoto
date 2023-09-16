@@ -98,13 +98,13 @@ export class PaymentStore implements PaymentStoreInterface {
                 const payment = await this.sendPayment(payResponse.pr)
 
                 if (payment.status === PaymentStatus.SUCCEEDED) {
-                    return { type: breezSdk.LnUrlPayResultType.ENDPOINT_SUCCESS }
+                    return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_SUCCESS }
                 } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
-                    return { type: breezSdk.LnUrlPayResultType.ENDPOINT_ERROR, data: { reason: I18n.t(payment.failureReasonKey) } }
+                    return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_ERROR, data: { reason: I18n.t(payment.failureReasonKey) } }
                 }
             }
 
-            return { type: breezSdk.LnUrlPayResultType.ENDPOINT_ERROR, data: { reason: I18n.t("LnUrlPay_PayReqError") } }
+            return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_ERROR, data: { reason: I18n.t("LnUrlPay_PayReqError") } }
         }
 
         throw Error("Not implemented")
@@ -121,8 +121,10 @@ export class PaymentStore implements PaymentStoreInterface {
 
     async updateBreezPayments(payments: breezSdk.Payment[]) {
         for (const payment of payments) {
-            this.actionUpdatePayment(fromBreezPayment(payment))
-            this.actionUpdateIndexOffset(payment.paymentTime.toString())
+            if (payment.details.type === breezSdk.PaymentDetailsVariant.LN) {
+                this.actionUpdatePayment(fromBreezPayment(payment, payment.details.data as breezSdk.LnPaymentDetails))
+                this.actionUpdateIndexOffset(payment.paymentTime.toString())
+            }
         }
 
         this.actionSetReady()

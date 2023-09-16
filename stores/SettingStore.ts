@@ -173,7 +173,7 @@ export class SettingStore implements SettingStoreInterface {
                         const inputParams = await breezSdk.parseInput(createAuthenticationResult.data.createAuthentication.lnUrl)
                         log.debug("SAT062: parseInput: " + JSON.stringify(inputParams))
 
-                        if (inputParams.type === breezSdk.InputType.LNURL_AUTH) {
+                        if (inputParams.type === breezSdk.InputTypeVariant.LN_URL_AUTH) {
                             const lnUrlAuthRequestData = inputParams.data as breezSdk.LnUrlAuthRequestData
                             const authenticateOk = await this.stores.lightningStore.authLnurl(lnUrlAuthRequestData)
 

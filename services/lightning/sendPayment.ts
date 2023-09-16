@@ -25,7 +25,7 @@ export const sendPayment = async (
     if (backend === LightningBackend.BREEZ_SDK) {
         const paymentResponse = await breezSdk.sendPayment(bolt11, amountSats)
 
-        return fromBreezPayment(paymentResponse)
+        return fromBreezPayment(paymentResponse, paymentResponse.details.data as breezSdk.LnPaymentDetails)
     } else if (backend === LightningBackend.LND) {
         const paymentResponse = await sendLndPayment({ paymentRequest: bolt11 }, { withReset, withEdgeUpdate })
         const paymentRequest = await breezSdk.parseInvoice(bolt11)

@@ -15,7 +15,7 @@ export const signMessage = async (backend: LightningBackend, msg: BytesLikeType)
     throw Error("Not implemented")
 }
 
-export const parseInput = async (input: string): Promise<breezSdk.InputResponse> => {
+export const parseInput = async (input: string): Promise<breezSdk.InputType> => {
     return breezSdk.parseInput(input)
 }
 
@@ -23,7 +23,7 @@ export const parseInvoice = async (bolt11: string): Promise<breezSdk.LnInvoice> 
     return breezSdk.parseInvoice(bolt11)
 }
 
-export const mnemonicToSeed = async (mnemonic: string): Promise<Uint8Array> => {
+export const mnemonicToSeed = async (mnemonic: string): Promise<number[]> => {
     return breezSdk.mnemonicToSeed(mnemonic)
 }
 

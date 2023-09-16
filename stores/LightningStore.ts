@@ -10,12 +10,12 @@ import * as lightning from "services/lightning"
 import * as lnd from "services/lnd"
 import * as lnUrl from "services/lnUrl"
 import { LightningBackend } from "types/lightningBackend"
-import { fromBreezPayment, PaymentStatus } from "types/payment"
 import { WalletState } from "types/wallet"
 import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { timeout } from "utils/backoff"
 import { deepCopy } from "utils/conversion"
+import { PaymentStatus, fromBreezPayment } from "types/payment"
 
 const log = new Log("LightningStore")
 
@@ -123,20 +123,18 @@ export class LightningStore implements LightningStoreInterface {
         }
     }
 
-    receiveBreezEvent(type: breezSdk.EventType, data?: breezSdk.EventData) {
-        log.debug(`SAT071: ${type}${data ? " : " + JSON.stringify(data) : ""}`, true)
+    receiveBreezEvent(event: breezSdk.BreezEvent) {
+        log.debug(`SAT071: ${event.type}: ${JSON.stringify(event)}`, true)
 
-        switch (type) {
-            case breezSdk.EventType.INVOICE_PAID:
-                const invoicePaidDetails = data as breezSdk.InvoicePaidDetails
-
-                this.stores.invoiceStore.settleInvoice(invoicePaidDetails.paymentHash)
+        switch (event.type) {
+            case breezSdk.BreezEventVariant.INVOICE_PAID:
+                this.stores.invoiceStore.settleInvoice(event.details.paymentHash)
                 break
-            case breezSdk.EventType.NEW_BLOCK:
-                this.actionSetBlockHeight(data as number)
+            case breezSdk.BreezEventVariant.NEW_BLOCK:
+                this.actionSetBlockHeight(event.block)
                 break
-            case breezSdk.EventType.PAYMENT_FAILED:
-                const { error, invoice } = data as breezSdk.PaymentFailedData
+            case breezSdk.BreezEventVariant.PAYMENT_FAILED:
+                const { error, invoice } = event.details
                 const failedPayment = invoice && this.stores.paymentStore.findPayment(invoice.paymentHash)
 
                 if (failedPayment) {
@@ -146,13 +144,17 @@ export class LightningStore implements LightningStoreInterface {
                     this.stores.paymentStore.updatePayment(failedPayment)
                 }
                 break
-            case breezSdk.EventType.PAYMENT_SUCCEED:
-                const payment = fromBreezPayment(data as breezSdk.Payment)
-                payment.status = PaymentStatus.SUCCEEDED
+            case breezSdk.BreezEventVariant.PAYMENT_SUCCEED:
+                const lnPayment = event.details
 
-                this.stores.paymentStore.updatePayment(payment)
+                if (lnPayment.details.type === breezSdk.PaymentDetailsVariant.LN) {
+                    const payment = fromBreezPayment(lnPayment, lnPayment.details.data as breezSdk.LnPaymentDetails)
+                    payment.status = PaymentStatus.SUCCEEDED
+
+                    this.stores.paymentStore.updatePayment(payment)
+                }
                 break
-            case breezSdk.EventType.SYNCED:
+            case breezSdk.BreezEventVariant.SYNCED:
                 this.actionSetSynced()
                 this.stores.channelStore.getChannelBalance()
                 this.stores.walletStore.setState(WalletState.STARTED)
@@ -174,10 +176,10 @@ export class LightningStore implements LightningStoreInterface {
         if (this.backend === LightningBackend.BREEZ_SDK) {
             const authResponse = await breezSdk.lnurlAuth(deepCopy(authParams))
 
-            if (authResponse.status.toUpperCase() === "OK") {
+            if (authResponse.type === breezSdk.LnUrlCallbackStatusVariant.OK) {
                 return true
-            } else if (authResponse.reason) {
-                throw new Error(authResponse.reason)
+            } else if (authResponse.data.reason) {
+                throw new Error(authResponse.data.reason)
             }
         } else if (this.backend === LightningBackend.LND) {
             return lnUrl.authenticate({
@@ -308,7 +310,7 @@ export class LightningStore implements LightningStoreInterface {
             log.debug(`SAT105: actionSubscribeEvents`, true)
 
             BreezSDKEmitter.addListener("breezSdkEvent", (event) => {
-                this.receiveBreezEvent(event.type, event.data)
+                this.receiveBreezEvent(event)
             })
 
             this.subscribedBreezEvents = true

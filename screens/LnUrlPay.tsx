@@ -1,3 +1,8 @@
+import {
+    LnUrlErrorData,
+    LnUrlPayResultVariant,
+    SuccessActionProcessedVariant
+} from "@breeztech/react-native-breez-sdk"
 import BusyButton from "components/BusyButton"
 import HeaderBackButton from "components/HeaderBackButton"
 import Input from "components/Input"
@@ -10,14 +15,6 @@ import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineI
 import { useConfetti } from "providers/ConfettiProvider"
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
 import { Linking, View } from "react-native"
-import {
-    AesSuccessActionDataDecrypted,
-    LnUrlErrorData,
-    LnUrlPayResultType,
-    MessageSuccessActionData,
-    SuccessActionDataType,
-    UrlSuccessActionData
-} from "@breeztech/react-native-breez-sdk"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
@@ -81,22 +78,19 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                 try {
                     const response = await paymentStore.payLnurl(route.params.payParams, amountNumber)
 
-                    if (response.type === LnUrlPayResultType.ENDPOINT_SUCCESS) {
+                    if (response.type === LnUrlPayResultVariant.ENDPOINT_SUCCESS) {
                         if (response.data) {
-                            let actionData = response.data as UrlSuccessActionData
+                            let successAction = response.data
                             setIsSuccessful(true)
 
-                            if (actionData.type === SuccessActionDataType.AES) {
-                                const lnSuccessActionData = response.data as AesSuccessActionDataDecrypted
-                                setDescription(lnSuccessActionData.description)
-                                setDecryptedAes(lnSuccessActionData.plaintext)
-                            } else if (actionData.type === SuccessActionDataType.MESSAGE) {
-                                const lnSuccessActionData = response.data as MessageSuccessActionData
-                                setDescription(lnSuccessActionData.message)
-                            } else {
-                                const lnSuccessActionData = actionData
-                                setDescription(lnSuccessActionData.description)
-                                setUrl(lnSuccessActionData.url)
+                            if (successAction.type === SuccessActionProcessedVariant.AES) {
+                                setDescription(successAction.data.description)
+                                setDecryptedAes(successAction.data.plaintext)
+                            } else if (successAction.type === SuccessActionProcessedVariant.MESSAGE) {
+                                setDescription(successAction.data.message)
+                            } else if (successAction.type === SuccessActionProcessedVariant.URL) {
+                                setDescription(successAction.data.description)
+                                setUrl(successAction.data.url)
                             }
 
                             await startConfetti()
