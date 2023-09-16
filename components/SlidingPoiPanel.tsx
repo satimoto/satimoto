@@ -32,9 +32,10 @@ const styles = StyleSheet.create({
 
 interface SlidingPoiPanelProps {
     onHide?: () => void
+    onBottomReached?: () => void
 }
 
-const SlidingPoiPanel = React.forwardRef(({ onHide }: SlidingPoiPanelProps, ref?: React.LegacyRef<SlidingUpPanel>) => {
+const SlidingPoiPanel = React.forwardRef(({ onHide, onBottomReached }: SlidingPoiPanelProps, ref?: React.LegacyRef<SlidingUpPanel>) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const textColor = useColorModeValue("lightText", "darkText")
@@ -103,6 +104,7 @@ const SlidingPoiPanel = React.forwardRef(({ onHide }: SlidingPoiPanelProps, ref?
             snappingPoints={snappingPoints}
             ref={ref}
             onHide={onHide}
+            onBottomReached={onBottomReached}
             allowDragging={allowDragging}
             backdropStyle={{ alignItems: "flex-start" }}
         >

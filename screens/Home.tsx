@@ -211,16 +211,20 @@ const Home = ({ navigation }: HomeProps) => {
 
     useEffect(() => {
         if (locationStore.selectedLocation) {
+            log.debug(`SATXXX slidingLocationPanelRef.show`, true)
             slidingLocationPanelRef.current?.show({ toValue: Dimensions.get("window").height / 2, velocity: 0.1 })
         } else {
+            log.debug(`SATXXX slidingLocationPanelRef.hide`, true)
             slidingLocationPanelRef.current?.hide()
         }
     }, [locationStore.selectedLocation])
 
     useEffect(() => {
         if (locationStore.selectedPoi) {
+            log.debug(`SATXXX slidingPoiPanelRef.show`, true)
             slidingPoiPanelRef.current?.show({ toValue: 350, velocity: 0.1 })
         } else {
+            log.debug(`SATXXX slidingPoiPanelRef.hide`, true)
             slidingPoiPanelRef.current?.hide()
         }
     }, [locationStore.selectedPoi])
@@ -317,8 +321,8 @@ const Home = ({ navigation }: HomeProps) => {
                 {!followUserLocation && <RecenterButton onPress={onRecenterButtonPress} />}
             </HomeSideContainer>
             <HomeFooterContainer onPress={onHomeButtonPress} />
-            <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
-            <SlidingPoiPanel ref={slidingPoiPanelRef} onHide={onSlidingPoiPanelHide} />
+            <SlidingLocationPanel ref={slidingLocationPanelRef} onBottomReached={onSlidingLocationPanelHide} />
+            <SlidingPoiPanel ref={slidingPoiPanelRef} onBottomReached={onSlidingPoiPanelHide} />
             <ReceiveActionsheet isOpen={isReceiveActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsReceiveActionsheetOpen(false)} />
             <SendActionsheet isOpen={isSendActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsSendActionsheetOpen(false)} />
             <ConfirmationModal
