@@ -19,11 +19,14 @@ interface PoiModel {
     paymentUri?: string
     openingTimes?: string
     phone?: string
-    website?: string
-    
+    website?: string 
+}
+
+type PoiModelWithIcon = PoiModel & {
+    iconImage: string
 }
 
 type PoiModelLike = PoiModel | undefined
 
 export default PoiModel
-export type { PoiModelLike }
+export type { PoiModelLike, PoiModelWithIcon }

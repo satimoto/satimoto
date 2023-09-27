@@ -60,7 +60,7 @@ const locationsSymbolLayer: SymbolLayerStyle = {
 
 const poisSymbolLayer: SymbolLayerStyle = {
     iconAnchor: "center",
-    iconImage: ["coalesce", ["concat", ["get", "tagKey"], "_", ["get", "tagValue"]], ["get", "tagKey"]],
+    iconImage: ["coalesce", ["get", "iconImage"], ["get", "tagKey"]],
     iconSize: 0.3
 }
 

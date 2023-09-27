@@ -3,13 +3,13 @@ import { makePersistable } from "mobx-persist-store"
 import ConnectorModel, { ConnectorGroup, ConnectorGroupMap, ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel, { LocationModelLike } from "models/Location"
-import PoiModel, { PoiModelLike } from "models/Poi"
+import PoiModel, { PoiModelLike, PoiModelWithIcon } from "models/Poi"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { getConnector, getEvse, getLocation, getPoi, listLocations, listPois } from "services/satimoto"
 import { StoreInterface, Store } from "stores/Store"
 import { EvseStatus, EvseStatusSortMap } from "types/evse"
 import { DEBUG } from "utils/build"
-import { ONE_MINUTE_INTERVAL } from "utils/constants"
+import { ASSET_IMAGES, ONE_MINUTE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { delta } from "utils/delta"
 
@@ -21,7 +21,7 @@ export interface LocationStoreInterface extends StoreInterface {
 
     bounds: GeoJSON.Position[]
     locations: LocationModel[]
-    pois: PoiModel[]
+    pois: PoiModelWithIcon[]
 
     selectedConnectors: ConnectorGroup[]
     selectedLocation: LocationModelLike
@@ -58,7 +58,7 @@ export class LocationStore implements LocationStoreInterface {
         this.stores = stores
         this.bounds = observable<GeoJSON.Position>([])
         this.locations = observable<LocationModel>([])
-        this.pois = observable<PoiModel>([])
+        this.pois = observable<PoiModelWithIcon>([])
         this.selectedConnectors = observable<ConnectorGroup>([])
 
         makeObservable(this, {
@@ -145,7 +145,7 @@ export class LocationStore implements LocationStoreInterface {
                         xMax: this.bounds[0][0],
                         yMax: this.bounds[1][1]
                     })
-    
+
                     this.actionUpdateLocations(locations.data.listLocations)
                 }
             }
@@ -322,6 +322,12 @@ export class LocationStore implements LocationStoreInterface {
     actionUpdatePois(pois: PoiModel[]) {
         log.debug(`SAT055 actionUpdatePois: ${this.pois.length} ${pois.length}`)
 
-        this.pois.replace(pois)
+        this.pois.replace(
+            pois.map((poi: PoiModel) => {
+                const iconImage = `${poi.tagKey}_${poi.tagValue}`
+                log.debug(iconImage)
+                return { ...poi, iconImage: ASSET_IMAGES.includes(iconImage) ? iconImage : poi.tagKey }
+            })
+        )
     }
 }
