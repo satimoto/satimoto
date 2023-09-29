@@ -17,7 +17,7 @@ import {
     SECURE_KEY_CIPHER_SEED_MNEMONIC,
     SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC
 } from "utils/constants"
-import { bytesToBase64, toNumber, toSatoshi } from "utils/conversion"
+import { bytesToBase64, bytesToHex, reverseByteOrder, toNumber, toSatoshi } from "utils/conversion"
 import { Log } from "utils/logging"
 import { getSecureItem, setSecureItem } from "utils/storage"
 import { PaymentStatus, fromBreezPayment } from "types/payment"
@@ -271,8 +271,9 @@ export class WalletStore implements WalletStoreInterface {
     async sweep(address: string) {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const recommendedFees = await breezSdk.recommendedFees()
-            await breezSdk.sweep(address, recommendedFees.hourFee)
+            const response = await breezSdk.sweep({toAddress: address, feeRateSatsPerVbyte: recommendedFees.hourFee})
 
+            this.actionSetLastTxid(bytesToHex(reverseByteOrder(response.txid)))
             this.refreshWalletBalance()
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const response = await lnd.sendCoins({ addr: address })

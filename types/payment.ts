@@ -12,6 +12,19 @@ export enum PaymentStatus {
     EXPIRED = "EXPIRED"
 }
 
+const fromBreezPaymentStatus = (status: breezSdk.PaymentStatus): PaymentStatus => {
+    switch (status) {
+        case breezSdk.PaymentStatus.COMPLETE:
+            return PaymentStatus.SUCCEEDED
+        case breezSdk.PaymentStatus.FAILED:
+            return PaymentStatus.FAILED
+        case breezSdk.PaymentStatus.PENDING:
+            return PaymentStatus.IN_PROGRESS
+    }
+
+    return PaymentStatus.UNKNOWN
+}
+
 const fromBreezPayment = (payment: breezSdk.Payment, details: breezSdk.LnPaymentDetails): PaymentModel => {
     const createdAt = new Date(secondsToMilliseconds(payment.paymentTime))
 
@@ -21,7 +34,7 @@ const fromBreezPayment = (payment: breezSdk.Payment, details: breezSdk.LnPayment
         description: details.label,
         hash: details.paymentHash,
         preimage: details.paymentPreimage,
-        status: payment.pending ? PaymentStatus.IN_PROGRESS : PaymentStatus.SUCCEEDED,
+        status: fromBreezPaymentStatus(payment.status),
         valueMsat: payment.amountMsat.toString(),
         valueSat: toSatoshi(payment.amountMsat).toString(),
         feeMsat: payment.feeMsat.toString(),

@@ -70,13 +70,11 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
 
         if (uiStore.lnUrlWithdrawParams) {
             try {
-                const response = await invoiceStore.withdrawLnurl(uiStore.lnUrlWithdrawParams, amountNumber)
+                const success = await invoiceStore.withdrawLnurl(uiStore.lnUrlWithdrawParams, amountNumber)
 
-                if (response.type === LnUrlCallbackStatusVariant.OK) {
+                if (success) {
                     await startConfetti()
                     onClose()
-                } else if (response.data && response.data.reason) {
-                    setLastError(response.data.reason)
                 }
             } catch (error) {
                 setLastError(errorToString(error))

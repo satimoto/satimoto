@@ -1,5 +1,5 @@
 import { Hash } from "fast-sha256"
-import { LNURLResponse, LNURLWithdrawParams } from "js-lnurl"
+import { LNURLWithdrawParams } from "js-lnurl"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import InvoiceModel, { InvoiceModelLike } from "models/Invoice"
@@ -45,7 +45,7 @@ export interface InvoiceStoreInterface extends StoreInterface {
     onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void>
     settleInvoice(hash: string): void
     waitForInvoice(hash: string): Promise<InvoiceModel>
-    withdrawLnurl(withdrawParams: LNURLWithdrawParams, amountSats: number): Promise<breezSdk.LnUrlCallbackStatus>
+    withdrawLnurl(withdrawParams: LNURLWithdrawParams, amountSats: number): Promise<boolean>
 }
 
 export class InvoiceStore implements InvoiceStoreInterface {
@@ -225,16 +225,24 @@ export class InvoiceStore implements InvoiceStoreInterface {
         return doWhileUntil("GetInvoice", () => this.findInvoice(hash), 500, 10)
     }
 
-    async withdrawLnurl(withdrawParams: breezSdk.LnUrlWithdrawRequestData, amountSats: number): Promise<breezSdk.LnUrlCallbackStatus> {
+    async withdrawLnurl(withdrawParams: breezSdk.LnUrlWithdrawRequestData, amountSats: number): Promise<boolean> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            return breezSdk.withdrawLnurl(deepCopy(withdrawParams), amountSats)
+            const response = await breezSdk.withdrawLnurl(deepCopy(withdrawParams), amountSats)
+
+            if (response.type !== breezSdk.LnUrlWithdrawResultVariant.OK) {
+                throw Error(response.data.reason)
+            }
+            
+            return true
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const invoice = await this.addInvoice({ value: amountSats, createChannel: true })
             const lnUrlResponse = await lnUrl.withdrawRequest(withdrawParams.callback, withdrawParams.k1, invoice.paymentRequest)
 
-            return lnUrlResponse.status.toLowerCase() === "ok"
-                ? { type: breezSdk.LnUrlCallbackStatusVariant.OK }
-                : { type: breezSdk.LnUrlCallbackStatusVariant.ERROR_STATUS, data: { reason: lnUrlResponse.reason } }
+            if (lnUrlResponse.status.toLowerCase() !== "ok") {
+                throw Error(lnUrlResponse.reason)
+            }
+
+            return true
         }
 
         throw Error("Not implemented")
@@ -333,7 +341,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
     async whenSyncedToChain(): Promise<void> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const fromTimestamp = this.addIndex !== "0" ? parseInt(this.addIndex) : undefined
-            const payments = await breezSdk.listPayments(breezSdk.PaymentTypeFilter.RECEIVED, fromTimestamp)
+            const payments = await breezSdk.listPayments({filter: breezSdk.PaymentTypeFilter.RECEIVED, fromTimestamp})
 
             this.updateBreezInvoices(payments)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {

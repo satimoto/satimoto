@@ -194,7 +194,7 @@ export class PaymentStore implements PaymentStoreInterface {
     async whenSyncedToChain() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const fromTimestamp = this.indexOffset !== "0" ? parseInt(this.indexOffset) : undefined
-            const payments = await breezSdk.listPayments(breezSdk.PaymentTypeFilter.SENT, fromTimestamp)
+            const payments = await breezSdk.listPayments({filter: breezSdk.PaymentTypeFilter.SENT, fromTimestamp})
 
             this.updateBreezPayments(payments)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
