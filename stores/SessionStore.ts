@@ -412,6 +412,11 @@ export class SessionStore implements SessionStoreInterface {
     actionResetSessions() {
         this.payments.clear()
         this.sessions.clear()
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
     }
 
     actionSetIdle() {

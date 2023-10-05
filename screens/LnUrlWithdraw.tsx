@@ -1,4 +1,3 @@
-import { LnUrlCallbackStatusVariant } from "@breeztech/react-native-breez-sdk"
 import BusyButton from "components/BusyButton"
 import ExpandableInfoItem from "components/ExpandableInfoItem"
 import HeaderBackButton from "components/HeaderBackButton"
@@ -39,6 +38,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     const [amount, setAmount] = useState("")
     const [amountError, setAmountError] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
+    const [channelOpeningNotAllowed, setChannelOpeningNotAllowed] = useState(false)
     const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
     const [description, setDescription] = useState("")
     const [isBusy, setIsBusy] = useState(false)
@@ -116,12 +116,16 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
     }, [route.params.withdrawParams])
 
     useEffect(() => {
-        if (amountNumber >= channelStore.remoteBalance) {
+        let openingNotAllowed = false
+
+        if (amountNumber > 0 && amountNumber >= channelStore.remoteBalance) {
             updateLspFees(amountNumber)
+            openingNotAllowed = channelStore.lspOpeningNotAllowed
         }
 
-        setChannelRequestNeeded(amountNumber >= channelStore.remoteBalance)
-        setIsInvalid(isDirty && (amountNumber < minReceivable || amountNumber > maxReceivable))
+        setChannelOpeningNotAllowed(openingNotAllowed)
+        setChannelRequestNeeded(amountNumber > 0 && amountNumber >= channelStore.remoteBalance && !openingNotAllowed)
+        setIsInvalid((isDirty && (amountNumber < minReceivable || amountNumber > maxReceivable)) || openingNotAllowed)
     }, [amountNumber, channelStore.remoteBalance, isDirty, minReceivable, maxReceivable])
 
     return (
@@ -136,6 +140,16 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                     <FormControl isInvalid={isInvalid} isRequired={true}>
                         <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
                         <Input value={amount} keyboardType="number-pad" onChangeText={onAmountChange} />
+                        {channelOpeningNotAllowed && (
+                            <HStack alignItems="center">
+                                <Text color={secondaryTextColor} fontSize="xs">
+                                    {I18n.t("ReceiveLightning_OpeningNotAllowed", {
+                                        name: channelStore.lspName,
+                                        altBackend: I18n.t("BREEZ_SDK")
+                                    })}
+                                </Text>
+                            </HStack>
+                        )}
                         {isInvalid && channelRequestNeeded && (
                             <ExpandableInfoItem title={I18n.t("ReceiveLightning_OpeningFeeText", { fee: openingFee })}>
                                 <HStack alignItems="center">
@@ -144,7 +158,7 @@ const LnUrlWithdraw = ({ navigation, route }: LnUrlWithdrawProps) => {
                                             name: channelStore.lspName,
                                             minimumFee: lspFeeMinimum,
                                             percentFee: lspFeeProportional / 10000
-                                            })}
+                                        })}
                                     </Text>
                                 </HStack>
                             </ExpandableInfoItem>

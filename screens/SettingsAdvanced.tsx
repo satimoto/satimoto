@@ -93,12 +93,14 @@ const SettingsAdvanced = ({ navigation }: SettingsAdvancedProps) => {
                         iconRight={faChevronRight}
                         onPress={() => navigation.navigate("SettingsBackends")}
                     />
-                    <ListButton
-                        key="fiatcurrencies"
-                        title={I18n.t("SettingsAdvanced_FiatCurrenciesText")}
-                        iconRight={faChevronRight}
-                        onPress={() => navigation.navigate("SettingsFiatCurrencies")}
-                    />
+                    {lightningStore.backend === LightningBackend.BREEZ_SDK && (
+                        <ListButton
+                            key="fiatcurrencies"
+                            title={I18n.t("SettingsAdvanced_FiatCurrenciesText")}
+                            iconRight={faChevronRight}
+                            onPress={() => navigation.navigate("SettingsFiatCurrencies")}
+                        />
+                    )}
                     <ListButton
                         key="sendreport"
                         title={I18n.t("SettingsAdvanced_SendReportText")}

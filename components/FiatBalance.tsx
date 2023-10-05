@@ -4,6 +4,7 @@ import { observer } from "mobx-react"
 import { FiatCurrencyModelLike } from "models/FiatCurrency"
 import React, { useCallback, useEffect, useState } from "react"
 import { StyleProp, Text, ViewStyle } from "react-native"
+import { LightningBackend } from "types/lightningBackend"
 
 interface FiatBalanceProps {
     satoshis: number
@@ -14,7 +15,7 @@ interface FiatBalanceProps {
 }
 
 const FiatBalance = ({ style = {}, color = "#FFFFFF", size = 38, weight = "normal", satoshis }: FiatBalanceProps) => {
-    const { settingStore } = useStore()
+    const { lightningStore, settingStore } = useStore()
     const [amount, setAmount] = useState(0)
     const [formattedAmount, setFormattedAmount] = useState("")
     const [fiatCurrency, setFiatCurrency] = useState<FiatCurrencyModelLike>()
@@ -39,10 +40,12 @@ const FiatBalance = ({ style = {}, color = "#FFFFFF", size = 38, weight = "norma
         settingStore.selectNextFiatCurrency()
     }, [settingStore])
 
-    return (
+    return lightningStore.backend === LightningBackend.BREEZ_SDK ? (
         <TouchableOpacityOptional onPress={onPress} style={style}>
             <Text style={{ fontSize: size, fontWeight: weight, color: color }}>{formattedAmount}</Text>
         </TouchableOpacityOptional>
+    ) : (
+        <></>
     )
 }
 

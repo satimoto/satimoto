@@ -165,6 +165,11 @@ export class PeerStore implements PeerStoreInterface {
     actionResetPeers() {
         this.subscribedPeerEvents = false
         this.peers.clear()
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.actionListPeers()
+        )
     }
 
     actionSetReady() {

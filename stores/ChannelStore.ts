@@ -31,6 +31,7 @@ export interface ChannelStoreInterface extends StoreInterface {
     remoteBalance: number
     reservedBalance: number
     lspName: string
+    lspOpeningNotAllowed: boolean
 
     closeChannel(request: lnd.CloseChannelProps): Promise<ChannelModel>
     createChannelRequest(channelRequest: CreateChannelRequestInput): Promise<lnrpc.IHopHint>
@@ -52,6 +53,7 @@ export class ChannelStore implements ChannelStoreInterface {
     remoteBalance = 0
     reservedBalance = 0
     lspName = "Satimoto LSP"
+    lspOpeningNotAllowed = true
 
     constructor(stores: Store) {
         this.stores = stores
@@ -71,6 +73,7 @@ export class ChannelStore implements ChannelStoreInterface {
             remoteBalance: observable,
             reservedBalance: observable,
             lspName: observable,
+            lspOpeningNotAllowed: observable,
 
             availableBalance: computed,
             balance: computed,
@@ -80,7 +83,7 @@ export class ChannelStore implements ChannelStoreInterface {
             actionChannelEventReceived: action,
             actionRemoveChannelRequest: action,
             actionResetChannels: action,
-            actionUpdateLspName: action,
+            actionUpdateLsp: action,
             actionUpdateChannel: action,
             actionUpdateChannelByChannelPoint: action,
             actionUpdateChannelRequestStatus: action,
@@ -226,7 +229,7 @@ export class ChannelStore implements ChannelStoreInterface {
 
             if (lspInfo) {
                 log.debug(`SAT044: LSP min htlc ${lspInfo.minHtlcMsat}, address: ${lspInfo.pubkey}@${lspInfo.host}`, true)
-                this.actionUpdateLspName(lspInfo.name)
+                this.actionUpdateLsp(lspInfo.name, false)
             }
         }
     }
@@ -382,20 +385,27 @@ export class ChannelStore implements ChannelStoreInterface {
 
     actionResetChannels() {
         this.lspName = "Satimoto LSP"
+        this.lspOpeningNotAllowed = true
         this.localBalance = 0
         this.remoteBalance = 0
         this.reservedBalance = 0
         this.channels.clear()
         this.channelRequests.clear()
         this.subscribedChannelEvents = false
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
     }
 
     actionSetReady() {
         this.ready = true
     }
 
-    actionUpdateLspName(lspName: string) {
-        this.lspName = lspName
+    actionUpdateLsp(name: string, openingNotAllowed: boolean) {
+        this.lspName = name
+        this.lspOpeningNotAllowed = openingNotAllowed
     }
 
     actionUpdateChannelRequestStatus(status: ChannelRequestStatus) {

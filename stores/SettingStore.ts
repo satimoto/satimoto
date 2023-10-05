@@ -284,23 +284,27 @@ export class SettingStore implements SettingStoreInterface {
     }
 
     async updateFiatCurrencies() {
-        const fiatCurrencies = await breezSdk.listFiatCurrencies()
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const fiatCurrencies = await breezSdk.listFiatCurrencies()
 
-        this.actionSetFiatCurrencies(
-            fiatCurrencies.map(({ id, info }) => {
-                return { id, name: info.name, decimals: info.fractionSize, symbol: info.symbol?.grapheme || "" }
-            })
-        )
+            this.actionSetFiatCurrencies(
+                fiatCurrencies.map(({ id, info }) => {
+                    return { id, name: info.name, decimals: info.fractionSize, symbol: info.symbol?.grapheme || "" }
+                })
+            )
+        }
     }
 
     async updateFiatRates() {
-        const fiatRates = await breezSdk.fetchFiatRates()
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const fiatRates = await breezSdk.fetchFiatRates()
 
-        this.actionSetFiatRates(
-            fiatRates.map(({ coin, value }) => {
-                return { id: coin, value }
-            })
-        )
+            this.actionSetFiatRates(
+                fiatRates.map(({ coin, value }) => {
+                    return { id: coin, value }
+                })
+            )
+        }
     }
 
     /*
@@ -320,6 +324,11 @@ export class SettingStore implements SettingStoreInterface {
         this.pushNotificationEnabled = false
         this.pushNotificationToken = undefined
         this.referralCode = undefined
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
     }
 
     actionSetAccessToken(accessToken?: string) {

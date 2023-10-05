@@ -70,6 +70,7 @@ export default {
     ReceiveActionsheet_ReceiveQr: "Receive via QR code",
     ReceiveActionsheet_ReceiveNfc: "Receive via NFC card",
     ReceiveLightning_OpeningFeeText: "An opening fee of {{fee}} sats will be deducted.",
+    ReceiveLightning_OpeningNotAllowed: "Please switch to the {{altBackend}} backend to open new channels.",
     ReceiveLightning_FeeInfoText: "{{name}} has a minimum fee of {{minimumFee}} sats or {{percentFee}}% of the amount received.",
     SendActionsheet_SendAddress: "Send to a lightning address",
     SendActionsheet_SendLightning: "Paste a lightning invoice",

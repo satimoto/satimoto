@@ -304,6 +304,11 @@ export class InvoiceStore implements InvoiceStoreInterface {
         this.settleIndex = "0"
         this.invoices.clear()
         this.subscribedInvoices = false
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
     }
 
     actionSetReady() {

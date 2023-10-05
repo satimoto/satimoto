@@ -153,6 +153,11 @@ export class PaymentStore implements PaymentStoreInterface {
     actionResetPayments() {
         this.indexOffset = "0"
         this.payments.clear()
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
     }
 
     actionSetReady() {

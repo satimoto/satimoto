@@ -25,6 +25,7 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
     const [isAmountInvalid, setIsAmountInvalid] = useState(true)
     const [amount, setAmount] = useState("")
     const [lastError, setLastError] = useState("")
+    const [channelOpeningNotAllowed, setChannelOpeningNotAllowed] = useState(false)
     const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
     const [openingFee, setOpeningFee] = useState(0)
     const [lspFeeProportional, setLspFeeProportional] = useState(0)
@@ -69,14 +70,17 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
 
     useEffect(() => {
         const amountNumber = +amount
+        let openingNotAllowed = false
 
-        if (amountNumber >= channelStore.remoteBalance) {
+        if (amountNumber > 0 && amountNumber >= channelStore.remoteBalance) {
             updateLspFees(amountNumber)
+            openingNotAllowed = channelStore.lspOpeningNotAllowed
         }
 
-        setChannelRequestNeeded(amountNumber >= channelStore.remoteBalance)
-        setIsAmountInvalid(amountNumber <= 0)
-    }, [amount])
+        setChannelOpeningNotAllowed(openingNotAllowed)
+        setChannelRequestNeeded(amountNumber > 0 && amountNumber >= channelStore.remoteBalance && !openingNotAllowed)
+        setIsAmountInvalid(amountNumber <= 0 || openingNotAllowed)
+    }, [amount, channelStore.lspOpeningNotAllowed, channelStore.remoteBalance])
 
     useEffect(() => {
         if (!isVisible) {
@@ -94,6 +98,16 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
                 </Text>
                 <FormControl isRequired={true}>
                     <Input value={amount} keyboardType="number-pad" isFullWidth={true} onChangeText={onAmountChange} />
+                    {channelOpeningNotAllowed && (
+                        <HStack alignItems="center">
+                            <Text color={secondaryTextColor} fontSize="xs">
+                                {I18n.t("ReceiveLightning_OpeningNotAllowed", {
+                                    name: channelStore.lspName,
+                                    altBackend: I18n.t("BREEZ_SDK")
+                                })}
+                            </Text>
+                        </HStack>
+                    )}
                     {channelRequestNeeded && (
                         <ExpandableInfoItem title={I18n.t("ReceiveLightning_OpeningFeeText", { fee: openingFee })}>
                             <HStack alignItems="center">

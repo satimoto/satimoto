@@ -208,6 +208,8 @@ export class LightningStore implements LightningStoreInterface {
                 await lnd.stop()
             }
 
+            this.actionUpdateNodeInfo(this.blockHeight, this.bestHeaderTimestamp, this.identityPubkey, false)
+
             this.stores.channelStore.reset()
             this.stores.invoiceStore.reset()
             this.stores.paymentStore.reset()
