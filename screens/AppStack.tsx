@@ -1,7 +1,6 @@
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
 import I18n from "i18n-js"
-import { LNURLPayParams, LNURLWithdrawParams } from "js-lnurl"
 import { observer } from "mobx-react"
 import ConnectorModel, { ConnectorGroup } from "models/Connector"
 import EvseModel from "models/Evse"
@@ -12,11 +11,9 @@ import SessionModel from "models/Session"
 import { useToast } from "native-base"
 import React, { useEffect } from "react"
 import { Linking } from "react-native"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { useNavigation } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackNavigationOptions } from "@react-navigation/native-stack"
-import Advanced from "screens/Advanced"
-import ChannelDetail from "screens/ChannelDetail"
-import ChannelList from "screens/ChannelList"
 import ChargeDetail from "screens/ChargeDetail"
 import ConnectorDetail from "screens/ConnectorDetail"
 import Developer from "screens/Developer"
@@ -24,55 +21,71 @@ import EvseList from "screens/EvseList"
 import Home, { HomeNavigationProp } from "screens/Home"
 import LnUrlPay from "screens/LnUrlPay"
 import LnUrlWithdraw from "screens/LnUrlWithdraw"
-import OnChain from "screens/OnChain"
 import PaymentRequest from "screens/PaymentRequest"
 import PdfViewer from "screens/PdfViewer"
 import Scanner from "screens/Scanner"
-import SendReport from "screens/SendReport"
-import SessionDetail from "screens/SessionDetail"
-import SessionList from "screens/SessionList"
 import Settings from "screens/Settings"
-import TokenList from "screens/TokenList"
-import TransactionList from "screens/TransactionList"
+import SettingsAdvanced from "screens/SettingsAdvanced"
+import SettingsBackend from "screens/SettingsBackend"
+import SettingsBackends from "screens/SettingsBackends"
+import SettingsBattery from "screens/SettingsBattery"
+import SettingsChannel from "screens/SettingsChannel"
+import SettingsChannels from "screens/SettingsChannels"
+import SettingsCharging from "screens/SettingsCharging"
+import SettingsFiatCurrencies from "screens/SettingsFiatCurrencies"
+import SettingsBackupMnemonic from "screens/SettingsBackupMnemonic"
+import SettingsImportMnemonic from "screens/SettingsImportMnemonic"
+import SettingsLearn from "screens/SettingsLearn"
+import SettingsOnChain from "screens/SettingsOnChain"
+import SettingsPayments from "screens/SettingsPayments"
+import SettingsSendReport from "screens/SettingsSendReport"
+import SettingsSession from "screens/SettingsSession"
+import SettingsSessions from "screens/SettingsSessions"
+import SettingsTokens from "screens/SettingsTokens"
 import WaitForPayment from "screens/WaitForPayment"
 import Welcome from "screens/Welcome"
 import { ChannelRequestStatus } from "types/channelRequest"
 import { LinkingEvent } from "types/linking"
-import { PayReq } from "types/payment"
 import { Log } from "utils/logging"
 import { Source } from "react-native-pdf"
+import { LightningBackend } from "types/lightningBackend"
 
 const log = new Log("AppStack")
 
 export type AppStackParamList = {
-    Advanced: undefined
-    ChannelDetail: { channel: ChannelModel }
-    ChannelList: undefined
     ChargeDetail: undefined
     ConnectorDetail: { location: LocationModel; evse: EvseModel; connector: ConnectorModel }
     Developer: undefined
     EvseList: { location: LocationModel; evses: EvseModel[]; connectorGroup: ConnectorGroup }
     Home: undefined
-    LnUrlPay: { payParams: LNURLPayParams }
-    LnUrlWithdraw: { withdrawParams: LNURLWithdrawParams }
-    OnChain: undefined
-    PaymentRequest: { payReq: string; decodedPayReq: PayReq }
-    PdfViewer: { downloadPath?: string, source: Source, title?: string }
+    LnUrlPay: { payParams: breezSdk.LnUrlPayRequestData }
+    LnUrlWithdraw: { withdrawParams: breezSdk.LnUrlWithdrawRequestData }
+    PaymentRequest: { payReq: string; lnInvoice: breezSdk.LnInvoice }
+    PdfViewer: { downloadPath?: string; source: Source; title?: string }
     Scanner: undefined
-    SendReport: undefined
-    SessionDetail: { session: SessionModel }
-    SessionList: undefined
     Settings: undefined
-    TokenList: undefined
-    TransactionList: undefined
+    SettingsAdvanced: undefined
+    SettingsBackend: { backend: LightningBackend }
+    SettingsBackends: undefined
+    SettingsBattery: undefined
+    SettingsChannel: { channel: ChannelModel }
+    SettingsChannels: undefined
+    SettingsCharging: undefined
+    SettingsFiatCurrencies: undefined
+    SettingsBackupMnemonic: { backend: LightningBackend }
+    SettingsImportMnemonic: { backend: LightningBackend }
+    SettingsLearn: undefined
+    SettingsOnChain: undefined
+    SettingsPayments: undefined
+    SettingsSendReport: undefined
+    SettingsSession: { session: SessionModel }
+    SettingsSessions: undefined
+    SettingsTokens: undefined
     WaitForPayment: { invoice: InvoiceModel }
     Welcome: undefined
 }
 
 export type AppStackScreenParams = {
-    Advanced: undefined
-    ChannelDetail: undefined
-    ChannelList: undefined
     ChargeDetail: undefined
     ConnectorDetail: undefined
     Developer: undefined
@@ -80,16 +93,27 @@ export type AppStackScreenParams = {
     Home: undefined
     LnUrlPay: undefined
     LnUrlWithdraw: undefined
-    OnChain: undefined
     PaymentRequest: undefined
     PdfViewer: undefined
     Scanner: undefined
-    SendReport: undefined
-    SessionDetail: undefined
-    SessionList: undefined
     Settings: undefined
-    TokenList: undefined
-    TransactionList: undefined
+    SettingsAdvanced: undefined
+    SettingsBackend: undefined
+    SettingsBackends: undefined
+    SettingsBattery: undefined
+    SettingsChannel: undefined
+    SettingsChannels: undefined
+    SettingsCharging: undefined
+    SettingsFiatCurrencies: undefined
+    SettingsBackupMnemonic: undefined
+    SettingsImportMnemonic: undefined
+    SettingsLearn: undefined
+    SettingsOnChain: undefined
+    SettingsPayments: undefined
+    SettingsSendReport: undefined
+    SettingsSession: undefined
+    SettingsSessions: undefined
+    SettingsTokens: undefined
     WaitForPayment: undefined
     Welcome: undefined
 }
@@ -112,6 +136,16 @@ const AppStack = () => {
         uiStore.parseIntent(url)
     }
 
+    const onHydrated = async () => {
+        // Process initial intent
+        const intent = await Linking.getInitialURL()
+
+        if (intent) {
+            log.debug(`SAT112 getInitialURL: ${intent}`, true)
+            uiStore.parseIntent(intent)
+        }
+    }
+
     useEffect(() => {
         const linkingListener = Linking.addEventListener("url", onLinkingUrl)
 
@@ -119,6 +153,12 @@ const AppStack = () => {
             linkingListener.remove()
         }
     }, [])
+
+    useEffect(() => {
+        if (uiStore.hydrated) {
+            onHydrated()
+        }
+    }, [uiStore.hydrated])
 
     useEffect(() => {
         if (channelStore.channelRequestStatus === ChannelRequestStatus.NEGOTIATING) {
@@ -153,16 +193,13 @@ const AppStack = () => {
     }, [uiStore.lnUrlWithdrawParams])
 
     useEffect(() => {
-        if (uiStore.paymentRequest && uiStore.decodedPaymentRequest) {
-            navigation.navigate("PaymentRequest", { payReq: uiStore.paymentRequest, decodedPayReq: uiStore.decodedPaymentRequest })
+        if (uiStore.paymentRequest && uiStore.lnInvoice) {
+            navigation.navigate("PaymentRequest", { payReq: uiStore.paymentRequest, lnInvoice: uiStore.lnInvoice })
         }
-    }, [uiStore.decodedPaymentRequest, uiStore.paymentRequest])
+    }, [uiStore.lnInvoice, uiStore.paymentRequest])
 
     return uiStore.hydrated ? (
         <AppStackNav.Navigator initialRouteName={uiStore.hasOnboardingUpdates ? "Welcome" : "Home"} screenOptions={screenOptions}>
-            <AppStackNav.Screen name="Advanced" component={Advanced} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="ChannelDetail" component={ChannelDetail} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="ChannelList" component={ChannelList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ChargeDetail" component={ChargeDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="ConnectorDetail" component={ConnectorDetail} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Home" component={Home} options={navigationWithoutHeaderOptions} />
@@ -170,16 +207,27 @@ const AppStack = () => {
             <AppStackNav.Screen name="Developer" component={Developer} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="LnUrlPay" component={LnUrlPay} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="LnUrlWithdraw" component={LnUrlWithdraw} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="OnChain" component={OnChain} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="PaymentRequest" component={PaymentRequest} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="PdfViewer" component={PdfViewer} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Scanner" component={Scanner} options={navigationWithoutHeaderOptions} />
-            <AppStackNav.Screen name="SendReport" component={SendReport} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="SessionDetail" component={SessionDetail} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="SessionList" component={SessionList} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Settings" component={Settings} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="TokenList" component={TokenList} options={navigationWithHeaderOptions} />
-            <AppStackNav.Screen name="TransactionList" component={TransactionList} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsAdvanced" component={SettingsAdvanced} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsBackend" component={SettingsBackend} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsBackends" component={SettingsBackends} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsBattery" component={SettingsBattery} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsChannel" component={SettingsChannel} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsChannels" component={SettingsChannels} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsCharging" component={SettingsCharging} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsFiatCurrencies" component={SettingsFiatCurrencies} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsBackupMnemonic" component={SettingsBackupMnemonic} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsImportMnemonic" component={SettingsImportMnemonic} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsLearn" component={SettingsLearn} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsOnChain" component={SettingsOnChain} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsPayments" component={SettingsPayments} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsSendReport" component={SettingsSendReport} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsSession" component={SettingsSession} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsSessions" component={SettingsSessions} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="SettingsTokens" component={SettingsTokens} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="WaitForPayment" component={WaitForPayment} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Welcome" component={Welcome} options={navigationWithoutHeaderOptions} />
         </AppStackNav.Navigator>

@@ -1,4 +1,4 @@
-export type BytesLikeType = Uint8Array | string
+export type BytesLikeType = Uint8Array | number[] | string
 
 export type LongLikeType = Long | string | number
 

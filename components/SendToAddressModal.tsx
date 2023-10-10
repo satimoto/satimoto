@@ -32,12 +32,13 @@ const SendToAddressModal = ({ isVisible, onClose }: SendToAddressModalProps) => 
         setLastError("")
 
         try {
-            await uiStore.setLightningAddress(address)
+            await uiStore.parseIntent(address)
             onClose()
         } catch (error) {
-            setIsBusy(false)
             setLastError(errorToString(error))
         }
+
+        setIsBusy(false)
     }
 
     const onModalClose = () => {

@@ -1,23 +1,26 @@
 import { Hash } from "fast-sha256"
+import { LNURLWithdrawParams } from "js-lnurl"
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import InvoiceModel, { InvoiceModelLike } from "models/Invoice"
 import InvoiceRequestModel from "models/InvoiceRequest"
-import moment from "moment"
 import { lnrpc } from "proto/proto"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NetInfo from "@react-native-community/netinfo"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { generateSecureRandom } from "react-native-securerandom"
 import { StoreInterface, Store } from "stores/Store"
-import { addInvoice, subscribeInvoices } from "services/LightningService"
-import { listInvoiceRequests, updateInvoiceRequest } from "services/SatimotoService"
-import { InvoiceStatus, toInvoiceStatus } from "types/invoice"
+import * as lnd from "services/lnd"
+import * as lnUrl from "services/lnUrl"
+import { listInvoiceRequests, updateInvoiceRequest } from "services/satimoto"
+import { fromBreezInvoice, fromBreezPayment, fromLndInvoice, fromLndInvoiceResponse, InvoiceStatus, toInvoiceStatus } from "types/invoice"
+import { LightningBackend } from "types/lightningBackend"
 import { InvoiceRequestNotification } from "types/notification"
 import { DEBUG } from "utils/build"
+import { ONE_HOUR_INTERVAL } from "utils/constants"
+import { bytesToBase64, bytesToHex, deepCopy, toMilliSatoshi, toSatoshi } from "utils/conversion"
 import { Log } from "utils/logging"
-import { INVOICE_REQUEST_UPDATE_INTERVAL } from "utils/constants"
-import { bytesToBase64, bytesToHex, secondsToDate, toMilliSatoshi, toNumber, toSatoshi } from "utils/conversion"
-import { doWhileUntil } from "utils/tools"
+import { doWhileUntil } from "utils/backoff"
 
 const log = new Log("InvoiceStore")
 
@@ -37,11 +40,12 @@ export interface InvoiceStoreInterface extends StoreInterface {
     invoices: InvoiceModel[]
     subscribedInvoices: boolean
 
-    addInvoice(addInvoiceProps: AddInvoiceProps): Promise<lnrpc.AddInvoiceResponse>
+    addInvoice(addInvoiceProps: AddInvoiceProps): Promise<InvoiceModel>
     findInvoice(hash: string): InvoiceModelLike
     onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void>
     settleInvoice(hash: string): void
     waitForInvoice(hash: string): Promise<InvoiceModel>
+    withdrawLnurl(withdrawParams: LNURLWithdrawParams, amountSats: number): Promise<boolean>
 }
 
 export class InvoiceStore implements InvoiceStoreInterface {
@@ -71,9 +75,12 @@ export class InvoiceStore implements InvoiceStoreInterface {
             subscribedInvoices: observable,
 
             actionInvoiceReceived: action,
+            actionResetInvoices: action,
             actionSetReady: action,
             actionSubscribeInvoices: action,
-            actionSettleInvoice: action
+            actionSettleInvoice: action,
+            actionUpdateAddIndex: action,
+            actionUpdateInvoice: action
         })
 
         makePersistable(
@@ -97,11 +104,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
     }
 
-    async addInvoice({ value, valueMsat, memo, createChannel = false }: AddInvoiceProps) {
-        const preimage: Uint8Array = await generateSecureRandom(32)
-        const paymentAddr: Uint8Array = await generateSecureRandom(32)
-        const routeHints: lnrpc.RouteHint[] = []
-
+    async addInvoice({ value, valueMsat, memo, createChannel = false }: AddInvoiceProps): Promise<InvoiceModel> {
         if (!value && !valueMsat) {
             throw new Error("No value set")
         }
@@ -109,27 +112,44 @@ export class InvoiceStore implements InvoiceStoreInterface {
         value = value || toSatoshi(valueMsat!).toNumber()
         valueMsat = valueMsat || toMilliSatoshi(value!).toNumber()
 
-        if (this.stores.channelStore.remoteBalance < value) {
-            if (createChannel) {
-                const paymentHash = new Hash().update(preimage).digest()
-                const hopHint = await this.stores.channelStore.createChannelRequest({
-                    paymentAddr: bytesToBase64(paymentAddr),
-                    paymentHash: bytesToBase64(paymentHash),
-                    amountMsat: valueMsat.toString(10)
-                })
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const { lnInvoice } = await breezSdk.receivePayment({ amountSats: value, description: memo || "" })
+            log.debug(`Invoice: ${lnInvoice.timestamp} ${lnInvoice.expiry}`)
+            const invoice = fromBreezInvoice(lnInvoice)
 
-                routeHints.push(
-                    lnrpc.RouteHint.create({
-                        hopHints: [hopHint]
+            return this.actionUpdateInvoice(invoice)
+        } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            const preimage: Uint8Array = await generateSecureRandom(32)
+            const paymentAddr: Uint8Array = await generateSecureRandom(32)
+            const routeHints: lnrpc.RouteHint[] = []
+
+            if (this.stores.channelStore.remoteBalance < value) {
+                if (createChannel) {
+                    const paymentHash = new Hash().update(preimage).digest()
+                    const hopHint = await this.stores.channelStore.createChannelRequest({
+                        paymentAddr: bytesToBase64(paymentAddr),
+                        paymentHash: bytesToBase64(paymentHash),
+                        amountMsat: valueMsat.toString(10)
                     })
-                )
-            } else {
-                throw new Error("Insufficient funds")
+
+                    routeHints.push(
+                        lnrpc.RouteHint.create({
+                            hopHints: [hopHint]
+                        })
+                    )
+                } else {
+                    throw new Error("Insufficient funds")
+                }
             }
+
+            const lndInvoiceResponse = await lnd.addInvoice({ valueMsat, memo, paymentAddr, preimage, routeHints })
+            const paymentRequest = await breezSdk.parseInvoice(lndInvoiceResponse.paymentRequest)
+            const invoice = fromLndInvoiceResponse(lndInvoiceResponse, paymentRequest)
+
+            return this.actionUpdateInvoice(invoice)
         }
 
-        const invoice = await addInvoice({ valueMsat, memo, paymentAddr, preimage, routeHints })
-        return invoice
+        throw Error("Not implemented")
     }
 
     findInvoice(hash: string): InvoiceModelLike {
@@ -157,44 +177,75 @@ export class InvoiceStore implements InvoiceStoreInterface {
     }
 
     async onInvoiceRequestNotification(notification: InvoiceRequestNotification): Promise<void> {
-        if (this.stores.uiStore.appState === "background") {
-            const netState = await NetInfo.fetch()
+        const netState = await NetInfo.fetch()
 
-            this.queue.createJob(
-                "invoice-request-notification",
-                notification,
-                {
-                    attempts: 3,
-                    timeout: 20000
-                },
-                netState.isConnected && netState.isInternetReachable
-            )
-        } else {
-            await this.workerInvoiceRequestNotification(notification)
-        }
+        this.queue.createJob(
+            "invoice-request-notification",
+            notification,
+            {
+                attempts: 3,
+                timeout: 20000
+            },
+            netState.isConnected && netState.isInternetReachable
+        )
+    }
+
+    reset() {
+        this.actionResetInvoices()
     }
 
     settleInvoice(hash: string) {
         this.actionSettleInvoice(hash)
     }
 
-    startInvoiceRequestUpdates() {
-        log.debug(`SAT043 startInvoiceRequestUpdates`, true)
-
-        if (!this.invoiceRequestUpdateTimer) {
-            this.fetchInvoiceRequests()
-            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), INVOICE_REQUEST_UPDATE_INTERVAL * 1000)
+    async updateBreezInvoices(payments: breezSdk.Payment[]) {
+        for (const payment of payments) {
+            if (payment.details.type === breezSdk.PaymentDetailsVariant.LN) {
+                this.actionUpdateInvoice(fromBreezPayment(payment, payment.details.data as breezSdk.LnPaymentDetails))
+                this.actionUpdateAddIndex(payment.paymentTime.toString())
+            }
         }
+
+        this.actionSetReady()
     }
 
-    stopInvoiceRequestUpdates() {
-        log.debug(`SAT044 stopInvoiceRequestUpdates`, true)
-        clearInterval(this.invoiceRequestUpdateTimer)
-        this.invoiceRequestUpdateTimer = null
+    updateInvoiceRequestTimer(start: boolean) {
+        if (start && !this.invoiceRequestUpdateTimer) {
+            log.debug(`SAT043 updateInvoiceRequestTimer: start`, true)
+            this.fetchInvoiceRequests()
+            this.invoiceRequestUpdateTimer = setInterval(this.fetchInvoiceRequests.bind(this), ONE_HOUR_INTERVAL * 1000)
+        } else if (!start) {
+            log.debug(`SAT044 updateInvoiceRequestTimer: stop`, true)
+            clearInterval(this.invoiceRequestUpdateTimer)
+            this.invoiceRequestUpdateTimer = null
+        }
     }
 
     waitForInvoice(hash: string): Promise<InvoiceModel> {
         return doWhileUntil("GetInvoice", () => this.findInvoice(hash), 500, 10)
+    }
+
+    async withdrawLnurl(withdrawParams: breezSdk.LnUrlWithdrawRequestData, amountSats: number): Promise<boolean> {
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const response = await breezSdk.withdrawLnurl(deepCopy(withdrawParams), amountSats)
+
+            if (response.type !== breezSdk.LnUrlWithdrawResultVariant.OK) {
+                throw Error(response.data.reason)
+            }
+            
+            return true
+        } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            const invoice = await this.addInvoice({ value: amountSats, createChannel: true })
+            const lnUrlResponse = await lnUrl.withdrawRequest(withdrawParams.callback, withdrawParams.k1, invoice.paymentRequest)
+
+            if (lnUrlResponse.status.toLowerCase() !== "ok") {
+                throw Error(lnUrlResponse.reason)
+            }
+
+            return true
+        }
+
+        throw Error("Not implemented")
     }
 
     /*
@@ -209,6 +260,20 @@ export class InvoiceStore implements InvoiceStoreInterface {
      * Mobx actions and reactions
      */
 
+    actionUpdateInvoice(invoice: InvoiceModel): InvoiceModel {
+        let existingInvoice = this.invoices.find(({ hash }) => hash === invoice.hash)
+
+        if (existingInvoice) {
+            Object.assign(existingInvoice, invoice)
+        } else {
+            this.invoices.push(invoice)
+        }
+
+        this.stores.transactionStore.addTransaction({ hash: invoice.hash, invoice })
+
+        return invoice
+    }
+
     actionInvoiceReceived(data: lnrpc.Invoice) {
         const hash = bytesToHex(data.rHash)
         log.debug(`SAT045: Update invoice: ${hash}`, true)
@@ -221,18 +286,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
                 status: toInvoiceStatus(data.state)
             })
         } else {
-            const createdAt = secondsToDate(data.creationDate)
-            invoice = {
-                createdAt: createdAt.toISOString(),
-                expiresAt: moment(createdAt).add(toNumber(data.expiry), "second").toISOString(),
-                description: data.memo,
-                hash,
-                preimage: bytesToHex(data.rPreimage),
-                paymentRequest: data.paymentRequest,
-                status: toInvoiceStatus(data.state),
-                valueMsat: data.valueMsat.toString(),
-                valueSat: data.value.toString()
-            }
+            invoice = fromLndInvoice(data)
 
             this.invoices.push(invoice)
         }
@@ -245,13 +299,25 @@ export class InvoiceStore implements InvoiceStoreInterface {
         }
     }
 
+    actionResetInvoices() {
+        this.addIndex = "0"
+        this.settleIndex = "0"
+        this.invoices.clear()
+        this.subscribedInvoices = false
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
+    }
+
     actionSetReady() {
         this.ready = true
     }
 
     actionSubscribeInvoices() {
         if (!this.subscribedInvoices) {
-            subscribeInvoices((data: lnrpc.Invoice) => this.actionInvoiceReceived(data), this.addIndex, this.settleIndex)
+            lnd.subscribeInvoices((data: lnrpc.Invoice) => this.actionInvoiceReceived(data), this.addIndex, this.settleIndex)
             this.subscribedInvoices = true
         }
     }
@@ -262,13 +328,31 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
         if (invoice) {
             log.debug(`SAT047: Invoice marked settled: ${hash}`, true)
-            invoice.status = InvoiceStatus.SETTLED
+            Object.assign(invoice, {
+                status: InvoiceStatus.SETTLED
+            })
+
             this.stores.transactionStore.addTransaction({ hash, invoice })
+            this.stores.channelStore.getChannelBalance()
+        }
+    }
+
+    actionUpdateAddIndex(addIndex?: string) {
+        if (addIndex) {
+            this.addIndex = addIndex
         }
     }
 
     async whenSyncedToChain(): Promise<void> {
-        this.actionSubscribeInvoices()
-        this.startInvoiceRequestUpdates()
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const fromTimestamp = this.addIndex !== "0" ? parseInt(this.addIndex) : undefined
+            const payments = await breezSdk.listPayments({filter: breezSdk.PaymentTypeFilter.RECEIVED, fromTimestamp})
+
+            this.updateBreezInvoices(payments)
+        } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            this.actionSubscribeInvoices()
+        }
+
+        this.updateInvoiceRequestTimer(true)
     }
 }

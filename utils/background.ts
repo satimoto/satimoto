@@ -16,27 +16,33 @@ export const BACKGROUND_FETCH_CONFIG = {
 
 export const addWorkers = (queue: any, store: Store) => {
     queue.addWorker("data-ping-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`SAT089: Started work on data-ping id: ${id}`, undefined, true)
+        const startTime = log.debugTime(`SAT089: Started work on data-ping-notification id: ${id}`, undefined, true)
         await store.settingStore.workerDataPingNotification(payload as DataPingNotification)
-        log.debugTime(`SAT090: Finished work on data-ping id: ${id}`, startTime, true)
+        log.debugTime(`SAT090: Finished work on data-ping-notification id: ${id}`, startTime, true)
     })
 
     queue.addWorker("invoice-request-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`SAT091: Started work on invoice-request id: ${id}`, undefined, true)
+        const startTime = log.debugTime(`SAT091: Started work on invoice-request-notification id: ${id}`, undefined, true)
         await store.invoiceStore.workerInvoiceRequestNotification(payload as InvoiceRequestNotification)
-        log.debugTime(`SAT092: Finished work on invoice-request id: ${id}`, startTime), true
+        log.debugTime(`SAT092: Finished work on invoice-request-notification id: ${id}`, startTime, true)
+    })
+
+    queue.addWorker("session-update-worker", async (id: string, payload: any) => {
+        const startTime = log.debugTime(`SAT109: Started work on session-update-worker id: ${id}`, undefined, true)
+        await store.sessionStore.workerSessionUpdate()
+        log.debugTime(`SAT110: Finished work on session-update-worker id: ${id}`, startTime, true)
     })
 
     queue.addWorker("session-invoice-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`SAT093: Started work on session-invoice id: ${id}`, undefined, true)
+        const startTime = log.debugTime(`SAT093: Started work on session-invoice-notification id: ${id}`, undefined, true)
         await store.sessionStore.workerSessionInvoiceNotification(payload as SessionInvoiceNotification)
-        log.debugTime(`SAT094: Finished work on session-invoice id: ${id}`, startTime, true)
+        log.debugTime(`SAT094: Finished work on session-invoice-notification id: ${id}`, startTime, true)
     })
 
     queue.addWorker("session-update-notification", async (id: string, payload: any) => {
-        const startTime = log.debugTime(`SAT095: Started work on session-update id: ${id}`, undefined, true)
+        const startTime = log.debugTime(`SAT095: Started work on session-update-notification id: ${id}`, undefined, true)
         await store.sessionStore.workerSessionUpdateNotification(payload as SessionUpdateNotification)
-        log.debugTime(`SAT096: Finished work on session-update id: ${id}`, startTime, true)
+        log.debugTime(`SAT096: Finished work on session-update-notification id: ${id}`, startTime, true)
     })
 }
 
@@ -49,9 +55,9 @@ export const backgroundEvent = async (taskId: string) => {
     if (netState.isConnected) {
         const queue = await queueFactory()
 
-        addWorkers(queue, store)
+        addWorkers(store.queue, store)
 
-        await queue.start(30000)
+        await store.startQueue(30000)
     }
 
     BackgroundFetch.finish(taskId)

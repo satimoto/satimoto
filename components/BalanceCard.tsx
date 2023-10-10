@@ -1,3 +1,4 @@
+import FiatBalance from "components/FiatBalance"
 import SatoshiBalance from "components/SatoshiBalance"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faGear } from "@fortawesome/free-solid-svg-icons"
@@ -17,7 +18,7 @@ const styleSheet = StyleSheet.create({
         minHeight: 100,
         borderRadius: 16,
         padding: 10,
-        paddingVertical: 20,
+        paddingtop: 20,
         justifyContent: "center"
     },
     settingsButton: {
@@ -32,10 +33,10 @@ interface BalanceCardProps {
     onLayout?: (event: LayoutChangeEvent) => void
 }
 
-const BalanceCard = ({ onLayout = () => {}}: BalanceCardProps) => {
+const BalanceCard = ({ onLayout = () => {} }: BalanceCardProps) => {
     const navigation = useNavigation<HomeNavigationProp>()
     const safeAreaInsets = useSafeAreaInsets()
-    const { channelStore } = useStore()
+    const { channelStore, settingStore } = useStore()
 
     return (
         <LinearGradient
@@ -46,6 +47,7 @@ const BalanceCard = ({ onLayout = () => {}}: BalanceCardProps) => {
             onLayout={onLayout}
         >
             <SatoshiBalance size={38} color={"#ffffff"} satoshis={channelStore.balance} />
+            {settingStore.selectedFiatCurrency && <FiatBalance size={18} satoshis={channelStore.balance} style={{ marginTop: 5, marginLeft: 5 }} />}
             <IconButton
                 variant="outline"
                 borderRadius="xl"

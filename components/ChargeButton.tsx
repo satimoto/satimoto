@@ -5,7 +5,6 @@ import { LayoutChangeEvent, StyleSheet } from "react-native"
 import { LightningIcon } from "@bitcoin-design/bitcoin-icons-react-native/outline"
 import { observer } from "mobx-react"
 import { useStore } from "hooks/useStore"
-import { ChargeSessionStatus } from "types/chargeSession"
 
 const styleSheet = StyleSheet.create({
     button: {
@@ -35,7 +34,7 @@ const ChargeButton = ({ onLayout = () => {}, onPress = () => {}, ...props }: Cha
             borderRadius="full"
             size="lg"
             padding={2}
-            colorScheme={sessionStore.status == ChargeSessionStatus.AWAITING_PAYMENT ? "red" : "orange"}
+            colorScheme="orange"
             style={styleSheet.button}
             onLayout={onLayout}
             onPress={onPress}

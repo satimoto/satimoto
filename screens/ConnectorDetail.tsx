@@ -2,6 +2,7 @@ import BusyButton from "components/BusyButton"
 import ConfirmationModal from "components/ConfirmationModal"
 import HeaderBackButton from "components/HeaderBackButton"
 import AddressHeader from "components/AddressHeader"
+import PriceComponentTray from "components/PriceComponentTray"
 import StackedBar, { StackedBarItem, StackedBarItems } from "components/StackedBar"
 import useColor from "hooks/useColor"
 import useEnergySourceColors from "hooks/useEnergySourceColors"
@@ -11,26 +12,19 @@ import { observer } from "mobx-react"
 import { hasEvseCapability } from "models/Evse"
 import { Box, HStack, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
-import { BackHandler, StyleSheet, View } from "react-native"
+import { BackHandler, View } from "react-native"
 import { RouteProp, StackActions, useFocusEffect } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import { ChargeSessionStatus } from "types/chargeSession"
-import { EvseCapability, EvseStatus } from "types/evse"
+import { EvseCapability } from "types/evse"
 import { TokenType } from "types/token"
 import { MINIMUM_REMOTE_CHARGE_BALANCE, MINIMUM_RFID_CHARGE_BALANCE } from "utils/constants"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 import styles from "utils/styles"
-import PriceComponentTray from "components/PriceComponentTray"
 
 const popAction = StackActions.pop()
-
-const styleSheet = StyleSheet.create({
-    nfcInfo: {
-        paddingVertical: 20
-    }
-})
 
 type ConnectorDetailProps = {
     navigation: NativeStackNavigationProp<AppStackParamList, "ConnectorDetail">
@@ -49,6 +43,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [evse] = useState(route.params.evse)
     const [connector] = useState(route.params.connector)
     const [isBusy, setIsBusy] = useState(false)
+    const [isConfirmChargeBusy, setIsConfirmChargeBusy] = useState(false)
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
     const [isRemoteCapable] = useState(hasEvseCapability(evse.capabilities, EvseCapability.REMOTE_START_STOP_CAPABLE))
     const [isSessionConnector, setIsSessionConnector] = useState(false)
@@ -57,7 +52,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     const [confirmationStatus, setConfirmationStatus] = useState(ChargeSessionStatus.IDLE)
     const [lastError, setLastError] = useState("")
     const [energySources, setEnergySources] = useState<StackedBarItems>([])
-    const { channelStore, sessionStore, settingStore } = useStore()
+    const { channelStore, sessionStore, settingStore, uiStore } = useStore()
 
     const onShowStartConfirmation = () => {
         setConfirmationModalText(I18n.t("ConfirmationModal_StartConfirmationText"))
@@ -74,6 +69,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
     }
 
     const onBackPress = useCallback((): boolean => {
+        uiStore.clearChargePoint()
         navigation.dispatch(popAction)
         return true
     }, [navigation])
@@ -83,11 +79,8 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
 
         try {
             if (confirmationStatus === ChargeSessionStatus.STARTING) {
-                const notificationsEnabled = await settingStore.requestPushNotificationPermission()
-
-                if (notificationsEnabled) {
-                    await sessionStore.startSession(location, evse, connector)
-                }
+                await settingStore.requestPushNotificationPermission()
+                await sessionStore.startSession(location, evse, connector)
             } else {
                 await sessionStore.stopSession()
             }
@@ -99,6 +92,105 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         setIsBusy(false)
     }, [confirmationStatus])
 
+    const onConfirmChargePress = useCallback(async () => {
+        setIsConfirmChargeBusy(true)
+
+        try {
+            await sessionStore.confirmSession()
+        } catch (error) {
+            setLastError(errorToString(error))
+        }
+
+        setIsConfirmChargeBusy(false)
+    }, [])
+
+    const renderStartInfo = useCallback(() => {
+        return isRemoteCapable && lastError.length === 0 && sessionStore.status === ChargeSessionStatus.IDLE ? (
+            <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                {I18n.t("ConnectorDetail_StartInfoText")}
+            </Text>
+        ) : (
+            <></>
+        )
+    }, [lastError, isRemoteCapable, sessionStore.status])
+
+    const renderStart = useCallback(() => {
+        if (lastError.length === 0 && !isSessionConnector) {
+            return isRemoteCapable ? (
+                <BusyButton
+                    isBusy={isBusy}
+                    onPress={onShowStartConfirmation}
+                    isDisabled={
+                        channelStore.availableBalance < MINIMUM_REMOTE_CHARGE_BALANCE ||
+                        sessionStore.status === ChargeSessionStatus.ACTIVE ||
+                        sessionStore.status === ChargeSessionStatus.STARTING
+                    }
+                    style={styles.focusViewButton}
+                >
+                    {I18n.t("Button_Start")}
+                </BusyButton>
+            ) : (
+                <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={18} bold>
+                    {I18n.t("ConnectorDetail_NfcStartText")}
+                </Text>
+            )
+        }
+    }, [lastError, isBusy, isRemoteCapable, isSessionConnector, channelStore.availableBalance, sessionStore.status, evse.status])
+
+    const renderConfirmCharge = useCallback(() => {
+        if (lastError.length === 0 && isSessionConnector) {
+            return sessionStore.status === ChargeSessionStatus.STARTING ? (
+                <View>
+                    <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                        {I18n.t("ConnectorDetail_ConfirmChargeText")}
+                    </Text>
+                    <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} isDisabled={isBusy} style={styles.focusViewButton}>
+                        {I18n.t("Button_ConfirmChargeStarted")}
+                    </BusyButton>
+                </View>
+            ) : (
+                <></>
+            )
+        }
+    }, [lastError, isBusy, isConfirmChargeBusy, isSessionConnector, sessionStore.status])
+
+    const renderStopInfo = useCallback(() => {
+        if (lastError.length === 0 && isSessionConnector) {
+            return sessionStore.tokenType === TokenType.OTHER && sessionStore.status === ChargeSessionStatus.STOPPING ? (
+                <View>
+                    <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={16} bold>
+                        {I18n.t("ConnectorDetail_StopInfoText")}
+                    </Text>
+                    <BusyButton isBusy={isConfirmChargeBusy} onPress={onConfirmChargePress} isDisabled={isBusy} style={styles.focusViewButton}>
+                        {I18n.t("Button_ConfirmChargeStopped")}
+                    </BusyButton>
+                </View>
+            ) : (
+                <></>
+            )
+        }
+    }, [lastError, isSessionConnector, sessionStore.status, sessionStore.tokenType])
+
+    const renderStop = useCallback(() => {
+        if (lastError.length === 0 && isSessionConnector) {
+            return sessionStore.tokenType === TokenType.OTHER ? (
+                <BusyButton
+                    colorScheme="red"
+                    isBusy={isBusy}
+                    onPress={onShowStopConfirmation}
+                    isDisabled={isConfirmChargeBusy || sessionStore.status === ChargeSessionStatus.IDLE}
+                    style={[styles.focusViewButton, ChargeSessionStatus.STARTING ? { marginTop: 15 } : {}]}
+                >
+                    {I18n.t("Button_Stop")}
+                </BusyButton>
+            ) : (
+                <Text style={styles.connectorInfo} textAlign="center" color={textColor} fontSize={18} bold>
+                    {I18n.t("ConnectorDetail_NfcStopText")}
+                </Text>
+            )
+        }
+    }, [lastError, isBusy, isConfirmChargeBusy, isSessionConnector, sessionStore.status, sessionStore.tokenType])
+
     const renderError = useCallback(() => {
         return lastError.length > 0 ? (
             <Text textAlign="center" color={errorColor} fontSize={18} bold>
@@ -108,60 +200,6 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
             <></>
         )
     }, [lastError])
-
-    const renderStop = useCallback(() => {
-        if (lastError.length == 0 && isSessionConnector) {
-            return sessionStore.tokenType === TokenType.OTHER ? (
-                <BusyButton
-                    isBusy={isBusy}
-                    onPress={onShowStopConfirmation}
-                    isDisabled={sessionStore.status === ChargeSessionStatus.IDLE || sessionStore.status === ChargeSessionStatus.STOPPING}
-                    style={styles.focusViewButton}
-                >
-                    {I18n.t("Button_Stop")}
-                </BusyButton>
-            ) : (
-                <Text style={styleSheet.nfcInfo} textAlign="center" color={textColor} fontSize={18} bold>
-                    {I18n.t("ConnectorDetail_NfcStopText")}
-                </Text>
-            )
-        }
-    }, [lastError, isSessionConnector, isBusy, sessionStore.status])
-
-    const renderStartInfo = useCallback(() => {
-        return isRemoteCapable &&
-            ((lastError.length == 0 && sessionStore.status === ChargeSessionStatus.IDLE) ||
-                (isSessionConnector && sessionStore.status == ChargeSessionStatus.STARTING)) ? (
-            <Text style={styleSheet.nfcInfo} textAlign="center" color={textColor} fontSize={16} bold>
-                {I18n.t("ConnectorDetail_StartInfoText")}
-            </Text>
-        ) : (
-            <></>
-        )
-    }, [lastError, isRemoteCapable, isSessionConnector, sessionStore.status])
-
-    const renderStart = useCallback(() => {
-        if (lastError.length == 0 && !isSessionConnector) {
-            return isRemoteCapable ? (
-                <BusyButton
-                    isBusy={isBusy}
-                    onPress={onShowStartConfirmation}
-                    isDisabled={
-                        channelStore.availableBalance < MINIMUM_REMOTE_CHARGE_BALANCE ||
-                        sessionStore.status !== ChargeSessionStatus.IDLE ||
-                        evse.status !== EvseStatus.AVAILABLE
-                    }
-                    style={styles.focusViewButton}
-                >
-                    {I18n.t("Button_Start")}
-                </BusyButton>
-            ) : (
-                <Text style={styleSheet.nfcInfo} textAlign="center" color={textColor} fontSize={18} bold>
-                    {I18n.t("ConnectorDetail_NfcStartText")}
-                </Text>
-            )
-        }
-    }, [lastError, isSessionConnector, isBusy, channelStore.availableBalance, sessionStore.status, evse.status])
 
     useFocusEffect(
         useCallback(() => {
@@ -205,11 +243,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
         let lastError = ""
 
         if (!isSessionConnector) {
-            if (evse.status !== EvseStatus.AVAILABLE) {
-                lastError = I18n.t("ConnectorDetail_EvseStatusError", { status: I18n.t(evse.status).toLowerCase() })
-            } else if (sessionStore.status === ChargeSessionStatus.AWAITING_PAYMENT) {
-                lastError = I18n.t("ConnectorDetail_AwaitingPaymentError")
-            } else if (sessionStore.status !== ChargeSessionStatus.IDLE) {
+            if (sessionStore.status !== ChargeSessionStatus.IDLE) {
                 lastError = I18n.t("ConnectorDetail_ChargeStatusError")
             } else if (isRemoteCapable && channelStore.availableBalance < MINIMUM_REMOTE_CHARGE_BALANCE) {
                 lastError = I18n.t("ConnectorDetail_LocalBalanceError", { satoshis: MINIMUM_REMOTE_CHARGE_BALANCE - channelStore.availableBalance })
@@ -226,7 +260,7 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
             {location.isExperimental && (
                 <Box bgColor="error.500" padding={2}>
                     <HStack width="100%">
-                        <Text color="#ffffff" fontSize={14} fontWeight={600}>
+                        <Text color="#ffffff" fontSize={10} fontWeight={600}>
                             {I18n.t("ConnectorDetail_ExperimentalText")}
                         </Text>
                     </HStack>
@@ -245,6 +279,8 @@ const ConnectorDetail = ({ navigation, route }: ConnectorDetailProps) => {
                     {energySources.length > 0 && <StackedBar items={energySources} />}
                     {renderStartInfo()}
                     {renderStart()}
+                    {renderConfirmCharge()}
+                    {renderStopInfo()}
                     {renderStop()}
                     {renderError()}
                 </VStack>

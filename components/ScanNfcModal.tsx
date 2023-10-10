@@ -1,8 +1,7 @@
 import { Buffer } from "buffer"
 import Modal from "components/Modal"
+import NfcIcon from "components/NfcIcon"
 import NfcReceiver from "components/NfcReceiver"
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faWifi } from "@fortawesome/free-solid-svg-icons"
 import useColor from "hooks/useColor"
 import { Text, useColorModeValue, useTheme, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
@@ -30,7 +29,7 @@ const ScanNfcModal = ({ isVisible, schemes = [], onNfcTag, onClose }: ScanNfcMod
     const onTag = (tag: TagEvent) => {
         setLastError("")
 
-        if (schemes.length == 0) {
+        if (schemes.length === 0) {
             onNfcTag(tag)
             return
         }
@@ -65,7 +64,7 @@ const ScanNfcModal = ({ isVisible, schemes = [], onNfcTag, onClose }: ScanNfcMod
                         <Text color={textColor} fontSize="xl">
                             {I18n.t("ScanNfcModal_Title")}
                         </Text>
-                        <FontAwesomeIcon color={iconColor} size={48} icon={faWifi} />
+                        <NfcIcon color={iconColor} size={48} />
                         {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
                     </VStack>
                 </Modal>

@@ -18,9 +18,9 @@ interface SessionModel {
     evse?: EvseModel
     connector?: ConnectorModel
     meterId?: string
+    invoiceRequests?: InvoiceRequestModel[]
     sessionInvoices?: SessionInvoiceModel[]
     sessionUpdates?: SessionUpdateModel[]
-    invoiceRequest?: InvoiceRequestModel
     status: SessionStatus
     lastUpdated: string
 }

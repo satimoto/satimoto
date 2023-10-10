@@ -1,6 +1,6 @@
 import RoundedButton from "components/RoundedButton"
 import { observer } from "mobx-react"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { StyleSheet, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import I18n from "utils/i18n"
@@ -34,7 +34,12 @@ interface HomeFooterContainerProps {
 
 const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
     const safeAreaInsets = useSafeAreaInsets()
-    const { lightningStore } = useStore()
+    const [isSyncing, setIsSyncing] = useState(false)
+    const { lightningStore, uiStore } = useStore()
+
+    useEffect(() => {
+        setIsSyncing(uiStore.showSyncing && !lightningStore.syncedToChain)
+    }, [uiStore.showSyncing, lightningStore.syncedToChain])
 
     return (
         <View style={[{ bottom: safeAreaInsets.bottom, left: 10 + safeAreaInsets.left, right: 10 + safeAreaInsets.right }, styles.container]}>
@@ -45,7 +50,7 @@ const HomeFooterContainer = ({ onPress }: HomeFooterContainerProps) => {
             </View>
             <View style={styles.iconButtonSpacer}>
                 <CircularProgressButton
-                    isBusy={!lightningStore.syncedToChain}
+                    isBusy={isSyncing}
                     value={lightningStore.percentSynced}
                     onPress={() => onPress("qr")}
                     style={styles.button}

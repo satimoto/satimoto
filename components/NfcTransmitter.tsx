@@ -1,7 +1,10 @@
 import NfcButton from "components/NfcButton"
 import React, { useEffect, useState } from "react"
 import { StyleProp, ViewStyle } from "react-native"
-import HCESession, { NFCContentType, NFCTagType4 } from "react-native-hce"
+import { HCESession, NFCTagType4NDEFContentType, NFCTagType4 } from "react-native-hce"
+import { Log } from "utils/logging"
+
+const log = new Log("NfcTransmitter")
 
 interface NfcTransmitterProps {
     value: string
@@ -22,15 +25,19 @@ const NfcTransmitter = ({ value, color, size = 50, style = {} }: NfcTransmitterP
         stopTransmitter()
 
         try {
-            const tag = new NFCTagType4(NFCContentType.Text, value)
-            const session = await new HCESession(tag).start()
+            const tag = new NFCTagType4({type: NFCTagType4NDEFContentType.Text, content: value, writable: false})
+            const session = await HCESession.getInstance()
+            session.setApplication(tag)
+            await session.setEnabled(true)
             setHceSession(session)
-        } catch {}
+        } catch (error) {
+            log.debug(`SAT066: NFC error: ${JSON.stringify(error)}`, true)
+        }
     }
 
     const stopTransmitter = async () => {
         if (hceSession) {
-            await hceSession.terminate()
+            await hceSession.setEnabled(false)
         }
     }
 

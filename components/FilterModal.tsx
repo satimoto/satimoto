@@ -3,7 +3,7 @@ import Modal from "components/Modal"
 import { useStore } from "hooks/useStore"
 import I18n from "i18n-js"
 import { observer } from "mobx-react"
-import { useColorModeValue, VStack } from "native-base"
+import { VStack } from "native-base"
 import React, { useCallback, useEffect, useState } from "react"
 
 interface FilterModalProps {
@@ -12,7 +12,6 @@ interface FilterModalProps {
 }
 
 const FilterModal = ({ isVisible, onClose }: FilterModalProps) => {
-    const textColor = useColorModeValue("lightText", "darkText")
     const { uiStore } = useStore()
     const [filterExperimental, setFilterExperimental] = useState(false)
     const [filterRemoteCapable, setFilterRemoteCapable] = useState(false)

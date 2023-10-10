@@ -12,6 +12,7 @@ module.exports = {
         //...defaultResolver,
         extraNodeModules: {
             ...defaultResolver.extraNodeModules,
+            assert: require.resolve("assert"),
             stream: require.resolve("readable-stream")
         },
         sourceExts: [...defaultResolver.sourceExts, "cjs"]
