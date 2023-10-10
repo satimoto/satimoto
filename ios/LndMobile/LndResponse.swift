@@ -60,12 +60,13 @@ class LndRecvStream: NSObject, LndmobileRecvStreamProtocol {
   }
   
   func onError(_ p0: Error?) {
-    let type = p0 != nil && p0!.localizedDescription.contains("EOF") ? "end" : "error"
+    let error = p0 != nil ? p0!.localizedDescription : "EOF"
+    let type = error.contains("EOF") || error.contains("shutting down") ? "end" : "error"
     self.eventEmitter.sendEvent(withName: LndRecvStream.streamEventName,
                                 body: [
                                   "streamId": self.streamId,
                                   "type": type,
-                                  "error": p0?.localizedDescription,
+                                  "error": error,
                                 ])
     self.callback.onStreamClose(streamId: self.streamId)
   }

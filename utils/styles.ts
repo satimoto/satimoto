@@ -18,6 +18,9 @@ export default StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
+    connectorInfo: {
+        paddingVertical: 20
+    },
     expandableItem: {
         paddingRight: 20
     },

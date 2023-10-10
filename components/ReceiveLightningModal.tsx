@@ -1,14 +1,15 @@
-import { useNavigation } from "@react-navigation/native"
-import Input from "components/Input"
 import BusyButton from "components/BusyButton"
+import ExpandableInfoItem from "components/ExpandableInfoItem"
+import Input from "components/Input"
 import Modal from "components/Modal"
+import { useNavigation } from "@react-navigation/native"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
-import { FormControl, Text, useColorModeValue, VStack } from "native-base"
+import { FormControl, HStack, Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
 import { HomeNavigationProp } from "screens/Home"
+import { errorToString, toSatoshi } from "utils/conversion"
 import I18n from "utils/i18n"
-import { bytesToHex, errorToString } from "utils/conversion"
 
 interface ReceiveLightningModalProps {
     isVisible: boolean
@@ -18,12 +19,17 @@ interface ReceiveLightningModalProps {
 const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProps) => {
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
+    const secondaryTextColor = useColorModeValue("warmGray.200", "dark.200")
     const navigation = useNavigation<HomeNavigationProp>()
     const [isBusy, setIsBusy] = useState(false)
     const [isAmountInvalid, setIsAmountInvalid] = useState(true)
     const [amount, setAmount] = useState("")
     const [lastError, setLastError] = useState("")
+    const [channelOpeningNotAllowed, setChannelOpeningNotAllowed] = useState(false)
     const [channelRequestNeeded, setChannelRequestNeeded] = useState(false)
+    const [openingFee, setOpeningFee] = useState(0)
+    const [lspFeeProportional, setLspFeeProportional] = useState(0)
+    const [lspFeeMinimum, setLspFeeMinimum] = useState(0)
     const { channelStore, invoiceStore } = useStore()
 
     const onAmountChange = (text: string) => {
@@ -34,12 +40,13 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
         setIsBusy(true)
 
         try {
-            const addInvoiceResponse = await invoiceStore.addInvoice({ value: +amount, createChannel: true })
-            const hash = bytesToHex(addInvoiceResponse.rHash)
-            const invoice = await invoiceStore.waitForInvoice(hash)
+            const invoice = await invoiceStore.addInvoice({ value: +amount, createChannel: true })
+            const lnInvoice = invoiceStore.findInvoice(invoice.hash)
 
-            navigation.navigate("WaitForPayment", { invoice })
-            onClose()
+            if (lnInvoice) {
+                navigation.navigate("WaitForPayment", { invoice: lnInvoice })
+                onClose()
+            }
         } catch (error) {
             setLastError(errorToString(error))
         }
@@ -53,12 +60,27 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
         }
     }
 
-    useEffect(() => {
-        const amountInt = +amount
+    const updateLspFees = async (amountSats: number) => {
+        const lspFees = await channelStore.getLspFees(amountSats)
 
-        setChannelRequestNeeded(amountInt >= channelStore.remoteBalance)
-        setIsAmountInvalid(amountInt <= 0)
-    }, [amount])
+        setOpeningFee(toSatoshi(lspFees.feeMsat).toNumber())
+        setLspFeeMinimum(toSatoshi(lspFees.usedFeeParams?.minMsat || 0).toNumber())
+        setLspFeeProportional(lspFees.usedFeeParams?.proportional || 0)
+    }
+
+    useEffect(() => {
+        const amountNumber = +amount
+        let openingNotAllowed = false
+
+        if (amountNumber > 0 && amountNumber >= channelStore.remoteBalance) {
+            updateLspFees(amountNumber)
+            openingNotAllowed = channelStore.lspOpeningNotAllowed
+        }
+
+        setChannelOpeningNotAllowed(openingNotAllowed)
+        setChannelRequestNeeded(amountNumber > 0 && amountNumber >= channelStore.remoteBalance && !openingNotAllowed)
+        setIsAmountInvalid(amountNumber <= 0 || openingNotAllowed)
+    }, [amount, channelStore.lspOpeningNotAllowed, channelStore.remoteBalance])
 
     useEffect(() => {
         if (!isVisible) {
@@ -76,7 +98,29 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
                 </Text>
                 <FormControl isRequired={true}>
                     <Input value={amount} keyboardType="number-pad" isFullWidth={true} onChangeText={onAmountChange} />
-                    {channelRequestNeeded && <FormControl.HelperText>{I18n.t("ReceiveLightningModal_InputAmountWarning")}</FormControl.HelperText>}
+                    {channelOpeningNotAllowed && (
+                        <HStack alignItems="center">
+                            <Text color={secondaryTextColor} fontSize="xs">
+                                {I18n.t("ReceiveLightning_OpeningNotAllowed", {
+                                    name: channelStore.lspName,
+                                    altBackend: I18n.t("BREEZ_SDK")
+                                })}
+                            </Text>
+                        </HStack>
+                    )}
+                    {channelRequestNeeded && (
+                        <ExpandableInfoItem title={I18n.t("ReceiveLightning_OpeningFeeText", { fee: openingFee })}>
+                            <HStack alignItems="center">
+                                <Text color={secondaryTextColor} fontSize="xs">
+                                    {I18n.t("ReceiveLightning_FeeInfoText", {
+                                        name: channelStore.lspName,
+                                        minimumFee: lspFeeMinimum,
+                                        percentFee: lspFeeProportional / 10000
+                                    })}
+                                </Text>
+                            </HStack>
+                        </ExpandableInfoItem>
+                    )}
                 </FormControl>
                 {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
                 <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isAmountInvalid}>

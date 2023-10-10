@@ -1,5 +1,6 @@
+import NfcIcon from "components/NfcIcon"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faAt, faBolt, faWifi } from "@fortawesome/free-solid-svg-icons"
+import { faAt, faBolt } from "@fortawesome/free-solid-svg-icons"
 import I18n from "i18n-js"
 import { Actionsheet } from "native-base"
 import React from "react"
@@ -46,7 +47,7 @@ const SendActionsheet = ({ isOpen, onPress, onClose }: SendActionsheetProps) => 
                     {I18n.t("SendActionsheet_SendLightning")}
                 </Actionsheet.Item>
                 {uiStore.nfcAvailable && (
-                    <Actionsheet.Item onPress={() => onActionsheetPress("send_nfc")} startIcon={<FontAwesomeIcon icon={faWifi} />}>
+                    <Actionsheet.Item onPress={() => onActionsheetPress("send_nfc")} startIcon={<NfcIcon color="#000000" size={16} />}>
                         {I18n.t("SendActionsheet_SendNfc")}
                     </Actionsheet.Item>
                 )}

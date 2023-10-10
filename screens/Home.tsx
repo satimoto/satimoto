@@ -33,6 +33,8 @@ import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
 import { TagEvent } from "react-native-nfc-manager"
+import { LightningBackend } from "types/lightningBackend"
+import { CommonActions } from "@react-navigation/native"
 
 const empty = require("assets/empty.png")
 const busy = require("assets/busy.png")
@@ -58,7 +60,7 @@ const locationsSymbolLayer: SymbolLayerStyle = {
 
 const poisSymbolLayer: SymbolLayerStyle = {
     iconAnchor: "center",
-    iconImage: ["coalesce", ["concat", ["get", "tagKey"], "_", ["get", "tagValue"]], ["get", "tagKey"]],
+    iconImage: ["coalesce", ["get", "iconImage"], ["get", "tagKey"]],
     iconSize: 0.3
 }
 
@@ -83,7 +85,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [hasLocationPermission, setHasLocationPermission] = useState(!IS_ANDROID)
     const [locationsShapeSource, setLocationsShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
     const [poisShapeSource, setPoisShapeSource] = useState<any>({ type: "FeatureCollection", features: [] })
-    const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false)
+    const [isBackendTooltipVisible, setIsBackendTooltipVisible] = useState(false)
     const [isFilterModalVisible, setIsFilterModalVisible] = useState(false)
     const [isReceiveActionsheetOpen, setIsReceiveActionsheetOpen] = useState(false)
     const [isReceiveLightningModalVisible, setIsReceiveLightningModalVisible] = useState(false)
@@ -92,6 +94,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [isSendToAddressModalVisible, setIsSendToAddressModalVisible] = useState(false)
     const [isSendLightningModalVisible, setIsSendLightningModalVisible] = useState(false)
     const [isSendNfcModalVisible, setIsSendNfcModalVisible] = useState(false)
+    const [isSyncingTooltipVisible, setIsSyncingTooltipVisible] = useState(false)
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
     const { uiStore, lightningStore, locationStore, sessionStore } = useStore()
 
@@ -102,7 +105,7 @@ const Home = ({ navigation }: HomeProps) => {
     }
 
     const onHomeButtonPress = (event: HomeFooterContainerEvent) => {
-        if (lightningStore.syncedToChain) {
+        if (!uiStore.showSyncing || lightningStore.syncedToChain) {
             if (event === "send") {
                 setIsSendActionsheetOpen(true)
             } else if (event === "qr") {
@@ -111,7 +114,7 @@ const Home = ({ navigation }: HomeProps) => {
                 setIsReceiveActionsheetOpen(true)
             }
         } else {
-            setIsConfirmationModalVisible(true)
+            setIsSyncingTooltipVisible(true)
         }
     }
 
@@ -130,14 +133,12 @@ const Home = ({ navigation }: HomeProps) => {
     }
 
     const onLocationPress = ({ features }: OnPressEvent) => {
-        log.debug(`onLocationPress`, true)
         if (features.length) {
             store.locationStore.selectLocation(features[0].properties?.uid, features[0].properties?.country)
         }
     }
 
     const onPoiPress = ({ features }: OnPressEvent) => {
-        log.debug(`onPoiPress`, true)
         if (features.length) {
             store.locationStore.selectPoi(features[0].properties?.uid)
         }
@@ -158,6 +159,21 @@ const Home = ({ navigation }: HomeProps) => {
         }
     }
 
+    const onOpenSettingsPress = useCallback(() => {
+        uiStore.setTooltipShown({ backend: true })
+
+        navigation.dispatch((state) => {
+            const pushedRoutes = [
+                ...state.routes,
+                { name: "SettingsAdvanced" },
+                { name: "SettingsBackends" },
+                { name: "SettingsBackend", params: { backend: LightningBackend.BREEZ_SDK } }
+            ]
+
+            return CommonActions.reset({ ...state, routes: pushedRoutes, index: pushedRoutes.length - 1 })
+        })
+    }, [])
+
     const onRecenterButtonPress = useCallback(() => {
         setFollowUserLocation(true)
 
@@ -175,12 +191,10 @@ const Home = ({ navigation }: HomeProps) => {
     }, [mapViewRef])
 
     const onSlidingLocationPanelHide = () => {
-        log.debug(`onSlidingLocationPanelHide`, true)
         locationStore.deselectLocation()
     }
 
     const onSlidingPoiPanelHide = () => {
-        log.debug(`onSlidingPoiPanelHide`, true)
         locationStore.deselectPoi()
     }
 
@@ -196,6 +210,34 @@ const Home = ({ navigation }: HomeProps) => {
     )
 
     useEffect(() => {
+        if (locationStore.selectedLocation) {
+            log.debug(`SATXXX slidingLocationPanelRef.show`, true)
+            slidingLocationPanelRef.current?.show({ toValue: Dimensions.get("window").height / 2, velocity: 0.1 })
+        } else {
+            log.debug(`SATXXX slidingLocationPanelRef.hide`, true)
+            slidingLocationPanelRef.current?.hide()
+        }
+    }, [locationStore.selectedLocation])
+
+    useEffect(() => {
+        if (locationStore.selectedPoi) {
+            log.debug(`SATXXX slidingPoiPanelRef.show`, true)
+            slidingPoiPanelRef.current?.show({ toValue: 350, velocity: 0.1 })
+        } else {
+            log.debug(`SATXXX slidingPoiPanelRef.hide`, true)
+            slidingPoiPanelRef.current?.hide()
+        }
+    }, [locationStore.selectedPoi])
+
+    useEffect(() => {
+        if (uiStore.tooltipShownBackend) {
+            setIsBackendTooltipVisible(false)
+        } else {
+            setIsBackendTooltipVisible(true)
+        }
+    }, [uiStore.tooltipShownBackend])
+
+    useEffect(() => {
         const requestPermissions = async () => {
             const isGranted = await MapboxGL.requestAndroidLocationPermissions()
             setHasLocationPermission(isGranted)
@@ -206,22 +248,6 @@ const Home = ({ navigation }: HomeProps) => {
             requestPermissions()
         }
     }, [])
-
-    useEffect(() => {
-        if (locationStore.selectedLocation) {
-            slidingLocationPanelRef.current?.show({ toValue: Dimensions.get("window").height / 2, velocity: 0.1 })
-        } else {
-            slidingLocationPanelRef.current?.hide()
-        }
-    }, [locationStore.selectedLocation])
-
-    useEffect(() => {
-        if (locationStore.selectedPoi) {
-            slidingPoiPanelRef.current?.show({ toValue: 350, velocity: 0.1 })
-        } else {
-            slidingPoiPanelRef.current?.hide()
-        }
-    }, [locationStore.selectedPoi])
 
     useEffect(() => {
         locationStore.startLocationUpdates()
@@ -289,22 +315,30 @@ const Home = ({ navigation }: HomeProps) => {
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
             <BalanceCard onLayout={onBalanceCardLayout} />
-            <HomeSideContainer top={balanceCardRectangle.y + balanceCardRectangle.height}>
+            <HomeSideContainer isVisible={balanceCardRectangle.height > 0} top={balanceCardRectangle.y + balanceCardRectangle.height}>
                 {sessionStore.status !== ChargeSessionStatus.IDLE && <ChargeButton onPress={onChargeButtonPress} />}
                 <FilterButton onPress={() => setIsFilterModalVisible(true)} />
                 {!followUserLocation && <RecenterButton onPress={onRecenterButtonPress} />}
             </HomeSideContainer>
             <HomeFooterContainer onPress={onHomeButtonPress} />
-            <SlidingLocationPanel ref={slidingLocationPanelRef} onHide={onSlidingLocationPanelHide} />
-            <SlidingPoiPanel ref={slidingPoiPanelRef} onHide={onSlidingPoiPanelHide} />
+            <SlidingLocationPanel ref={slidingLocationPanelRef} onBottomReached={onSlidingLocationPanelHide} />
+            <SlidingPoiPanel ref={slidingPoiPanelRef} onBottomReached={onSlidingPoiPanelHide} />
             <ReceiveActionsheet isOpen={isReceiveActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsReceiveActionsheetOpen(false)} />
             <SendActionsheet isOpen={isSendActionsheetOpen} onPress={onActionsheetPress} onClose={() => setIsSendActionsheetOpen(false)} />
             <ConfirmationModal
+                text={I18n.t("ConfirmationModal_BackendTooltipTitle")}
+                subtext={I18n.t("ConfirmationModal_BackendTooltipText")}
+                buttonText={I18n.t("Button_OpenSettings")}
+                isVisible={isBackendTooltipVisible}
+                onClose={async () => uiStore.setTooltipShown({ backend: true })}
+                onPress={async () => onOpenSettingsPress()}
+            />
+            <ConfirmationModal
                 text={I18n.t("CircularProgressButton_TooltipText")}
                 buttonText={I18n.t("Button_Ok")}
-                isVisible={isConfirmationModalVisible}
-                onClose={async () => setIsConfirmationModalVisible(false)}
-                onPress={async () => setIsConfirmationModalVisible(false)}
+                isVisible={isSyncingTooltipVisible}
+                onClose={async () => setIsSyncingTooltipVisible(false)}
+                onPress={async () => setIsSyncingTooltipVisible(false)}
             />
             <FilterModal isVisible={isFilterModalVisible} onClose={() => setIsFilterModalVisible(false)} />
             <LnUrlAuthModal lnUrlAuthParams={uiStore.lnUrlAuthParams} onClose={() => uiStore.clearLnUrl()} />

@@ -1,6 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faNfcSymbol } from "@fortawesome/free-brands-svg-icons"
 import { IconButton, useTheme } from "native-base"
+import NfcIcon from "components/NfcIcon"
 import React from "react"
 import { GestureResponderEvent, StyleProp, StyleSheet, ViewStyle } from "react-native"
 import useColor from "hooks/useColor"
@@ -26,7 +25,7 @@ const NfcButton = ({ isActive, onPress, color, size = 50, style = {} }: NfcButto
     if (color) {
         textColor = color
     }
-    
+
     return (
         <IconButton
             borderRadius="full"
@@ -35,7 +34,7 @@ const NfcButton = ({ isActive, onPress, color, size = 50, style = {} }: NfcButto
             variant="outline"
             style={[styleSheet.button, style]}
             onPress={onPress}
-            icon={<FontAwesomeIcon icon={faNfcSymbol} />}
+            icon={<NfcIcon size={30} />}
             _icon={{ color: isActive ? "#ffffff" : textColor, size }}
         />
     )

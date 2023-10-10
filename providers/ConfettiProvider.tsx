@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react"
 import ConfettiCannon from "react-native-confetti-cannon"
-import { timeout } from "utils/tools"
+import { timeout } from "utils/backoff"
 
 interface ConfettiContextProps {
     startConfetti: (resume?: boolean) => Promise<void>
@@ -14,6 +14,7 @@ type ConfettiOrigin = {
 
 interface ConfettiProvderProps extends PropsWithChildren<any> {
     count: number
+    size?: number
     colors?: string[]
     fallSpeed?: number
     origin: ConfettiOrigin
@@ -22,7 +23,7 @@ interface ConfettiProvderProps extends PropsWithChildren<any> {
 const ConfettiContext = createContext<ConfettiContextProps>({} as ConfettiContextProps)
 const useConfetti = () => useContext(ConfettiContext)
 
-const ConfettiProvider = ({ children, count, colors, fallSpeed = 3000, origin }: ConfettiProvderProps) => {
+const ConfettiProvider = ({ children, count, size, colors, fallSpeed = 3000, origin }: ConfettiProvderProps) => {
     const confettiRef = useRef<ConfettiCannon>(null)
 
     const startConfetti = useCallback((resume?: boolean): Promise<void> => {
@@ -44,6 +45,7 @@ const ConfettiProvider = ({ children, count, colors, fallSpeed = 3000, origin }:
             {children}
             <ConfettiCannon
                 count={count}
+                size={size}
                 colors={colors}
                 origin={origin}
                 autoStart={false}

@@ -3,6 +3,7 @@ import PaymentModel from "models/Payment"
 
 interface TransactionModel {
     hash: string
+    timestamp?: number
     payment?: PaymentModel
     invoice?: InvoiceModel
 }

@@ -3,28 +3,24 @@ import { NETWORK } from "utils/build"
 
 export const EMAIL_REGEX: RegExp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
-export const CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID = 51727
-export const CUSTOMMESSAGE_CHANNELREQUEST_SEND_PREIMAGE = 51728
-
 export const INTERVAL_RETRY = 1000
 export const INTERVAL_MINUTE = 60000
 export const IS_ANDROID = Platform.OS === "android"
 export const IS_IOS = Platform.OS === "ios"
 
-export const INVOICE_REQUEST_UPDATE_INTERVAL = 3600
-export const SESSION_INVOICE_UPDATE_INTERVAL = 600
-export const SESSION_UPDATE_INTERVAL = 10
-export const LOCATION_UPDATE_INTERVAL = 60
+export const ONE_HOUR_INTERVAL = 3600
+export const TEN_MINUTES_INTERVAL = 600
+export const ONE_MINUTE_INTERVAL = 60
+export const TEN_SECONDS_INTERVAL = 10
 
 export const LN_BECH32_PREFIX = NETWORK === "mainnet" ? "lnbc" : NETWORK === "testnet" ? "lntb" : "lnbcrt"
 export const LNURL_CANONICAL_PHRASE =
     "DO NOT EVER SIGN THIS TEXT WITH YOUR PRIVATE KEYS! IT IS ONLY USED FOR DERIVATION OF LNURL-AUTH HASHING-KEY, DISCLOSING ITS SIGNATURE WILL COMPROMISE YOUR LNURL-AUTH IDENTITY AND MAY LEAD TO LOSS OF FUNDS!"
 
-export const MINIMUM_REMOTE_CHARGE_BALANCE = 6000
+export const MINIMUM_REMOTE_CHARGE_BALANCE = 60000
 export const MINIMUM_RFID_CHARGE_BALANCE = 60000
 
 export const ONBOARDING_VERSION = "0.3.0"
-export const APPLICATION_VERSION = "0.4.0"
 
 export const INVOICE_EXPIRY = 3600
 export const PAYMENT_TIMEOUT_SECONDS = 120
@@ -35,6 +31,10 @@ export const RECOVERY_WINDOW_DEFAULT = 250
 
 export const SECURE_KEY_CIPHER_SEED_MNEMONIC = "CIPHER_SEED_MNEMONIC"
 export const SECURE_KEY_WALLET_PASSWORD = "WALLET_PASSWORD"
+export const SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC = "BREEZ_SDK_SEED_MNEMONIC"
+export const SECURE_KEY_GREENLIGHT_DEVICE_KEY_STORE = "GREENLIGHT_DEVICE_KEY_STORE"
+export const SECURE_KEY_GREENLIGHT_DEVICE_CERT_STORE = "GREENLIGHT_DEVICE_CERT_STORE"
+
 
 export const ASSET_IMAGES = [
     "amenity_advertising_column",
@@ -109,6 +109,7 @@ export const ASSET_IMAGES = [
     "amenity_veterinary",
     "amenity_waste_basket",
     "amenity_waste_disposal",
+    "amenity",
     "barrier_cattle_grid",
     "barrier_cycle_barrier",
     "barrier_full_height_turnstile",
@@ -120,10 +121,12 @@ export const ASSET_IMAGES = [
     "barrier_motorcycle_barrier",
     "barrier_stile",
     "barrier_toll_booth",
+    "barrier",
     "highway_bus_stop",
     "highway_elevator",
     "highway_ford",
     "highway_traffic_light",
+    "highway",
     "historic_archaeological_site",
     "historic_bust",
     "historic_castle",
@@ -139,6 +142,7 @@ export const ASSET_IMAGES = [
     "historic_shrine",
     "historic_statue",
     "historic_stone",
+    "historic",
     "leisure_amusement_arcade",
     "leisure_beach_resort",
     "leisure_bird_hide",
@@ -154,6 +158,7 @@ export const ASSET_IMAGES = [
     "leisure_sauna",
     "leisure_slipway",
     "leisure_water_park",
+    "leisure",
     "man_made_bell_tower",
     "man_made_bunker",
     "man_made_chimney",
@@ -183,19 +188,24 @@ export const ASSET_IMAGES = [
     "man_made_tower_observation",
     "man_made_water_tower",
     "man_made_windmill",
+    "man_made",
     "natural_cave",
     "natural_peak",
     "natural_saddle",
     "natural_spring",
     "natural_waterfall",
+    "natural",
     "office_consulate",
     "office_embassy",
+    "office",
+    "other",
     "place_place_4_z7",
     "place_place_4",
     "place_place_6_z7",
     "place_place_6",
     "place_place_capital_6",
     "place_place_capital_8",
+    "place",
     "religion_buddhist",
     "religion_christian",
     "religion_hinduist",
@@ -204,6 +214,7 @@ export const ASSET_IMAGES = [
     "religion_shintoist",
     "religion_sikhist",
     "religion_taoist",
+    "religion",
     "shop_alcohol",
     "shop_art",
     "shop_bag",
@@ -273,6 +284,7 @@ export const ASSET_IMAGES = [
     "shop_variety_store",
     "shop_video",
     "shop_video_games",
+    "shop",
     "tourism_alpinehut",
     "tourism_apartment",
     "tourism_artwork",
@@ -292,5 +304,6 @@ export const ASSET_IMAGES = [
     "tourism_picnic",
     "tourism_terminal",
     "tourism_viewpoint",
-    "tourism_wilderness_hut"
+    "tourism_wilderness_hut",
+    "tourism"
 ]

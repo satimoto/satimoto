@@ -1,11 +1,17 @@
 PODS:
   - boost (1.76.0)
+  - breez_sdk (0.2.5):
+    - BreezSDK (= 0.2.5)
+    - React-Core
+  - breez_sdkFFI (0.2.5)
+  - BreezSDK (0.2.5):
+    - breez_sdkFFI (= 0.2.5)
   - BVLinearGradient (2.6.2):
     - React-Core
   - CocoaAsyncSocket (7.6.5)
-  - CocoaLumberjack (3.8.0):
-    - CocoaLumberjack/Core (= 3.8.0)
-  - CocoaLumberjack/Core (3.8.0)
+  - CocoaLumberjack (3.8.1):
+    - CocoaLumberjack/Core (= 3.8.1)
+  - CocoaLumberjack/Core (3.8.1)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.70.6)
   - FBReactNativeSpec (0.70.6):
@@ -106,26 +112,26 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - GoogleDataTransport (9.2.0):
+  - GoogleDataTransport (9.2.5):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/AppDelegateSwizzler (7.10.0):
+  - GoogleUtilities/AppDelegateSwizzler (7.11.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (7.10.0):
+  - GoogleUtilities/Environment (7.11.5):
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.10.0):
+  - GoogleUtilities/Logger (7.11.5):
     - GoogleUtilities/Environment
-  - GoogleUtilities/Network (7.10.0):
+  - GoogleUtilities/Network (7.11.5):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (7.10.0)"
-  - GoogleUtilities/Reachability (7.10.0):
+  - "GoogleUtilities/NSData+zlib (7.11.5)"
+  - GoogleUtilities/Reachability (7.11.5):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (7.10.0):
+  - GoogleUtilities/UserDefaults (7.11.5):
     - GoogleUtilities/Logger
   - hermes-engine (0.70.6)
   - libevent (2.1.12)
@@ -138,7 +144,7 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - OpenSSL-Universal (1.1.1100)
-  - PromisesObjC (2.1.1)
+  - PromisesObjC (2.3.1)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -365,7 +371,7 @@ PODS:
   - React-jsinspector (0.70.6)
   - React-logger (0.70.6):
     - glog
-  - react-native-blob-util (0.17.2):
+  - react-native-blob-util (0.17.3):
     - React-Core
   - react-native-build-config (0.3.2):
     - React
@@ -377,7 +383,7 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hce (0.1.3):
+  - react-native-hce (0.2.0):
     - React
   - react-native-mapbox-gl (8.6.0-beta.0):
     - Mapbox-iOS-SDK (~> 5.9.0)
@@ -393,7 +399,7 @@ PODS:
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
     - React-Core
-  - react-native-netinfo (9.3.7):
+  - react-native-netinfo (9.3.8):
     - React-Core
   - react-native-nfc-manager (3.14.2):
     - React-Core
@@ -469,13 +475,13 @@ PODS:
     - React-perflogger (= 0.70.6)
   - RealmJS (11.3.1):
     - React
-  - RNBackgroundFetch (4.1.7):
+  - RNBackgroundFetch (4.1.9):
     - React-Core
-  - RNBootSplash (4.4.0):
+  - RNBootSplash (4.5.3):
     - React-Core
-  - RNCAsyncStorage (1.17.11):
+  - RNCAsyncStorage (1.18.1):
     - React-Core
-  - RNCClipboard (1.11.1):
+  - RNCClipboard (1.11.2):
     - React-Core
   - RNFBApp (14.12.0):
     - Firebase/CoreOnly (= 8.15.0)
@@ -484,14 +490,14 @@ PODS:
     - Firebase/Messaging (= 8.15.0)
     - React-Core
     - RNFBApp
-  - RNFileLogger (0.4.0):
+  - RNFileLogger (0.4.1):
     - CocoaLumberjack
     - React
-  - RNGestureHandler (2.8.0):
+  - RNGestureHandler (2.9.0):
     - React-Core
-  - RNLocalize (2.2.4):
+  - RNLocalize (2.2.6):
     - React-Core
-  - RNReanimated (2.13.0):
+  - RNReanimated (2.14.4):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -518,23 +524,24 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.18.2):
+  - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
   - RNSecureRandom (1.0.1):
     - React
   - RNSecureStorage (0.1.2):
     - React
-  - RNSVG (12.5.0):
+  - RNSVG (12.5.1):
     - React-Core
-  - SocketRocket (0.6.0)
-  - SwiftProtobuf (1.20.3)
+  - SocketRocket (0.6.1)
+  - SwiftProtobuf (1.23.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
+  - "breez_sdk (from `../node_modules/@breeztech/react-native-breez-sdk`)"
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -622,6 +629,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - breez_sdkFFI
+    - BreezSDK
     - CocoaAsyncSocket
     - CocoaLumberjack
     - Firebase
@@ -654,6 +663,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  breez_sdk:
+    :path: "../node_modules/@breeztech/react-native-breez-sdk"
   BVLinearGradient:
     :path: "../node_modules/react-native-linear-gradient"
   DoubleConversion:
@@ -773,9 +784,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
+  breez_sdk: bb3eaabddb16f87886428c7fbf6f60a968780a0d
+  breez_sdkFFI: 2a6e787802966d4d7b86a2dd820eda22bb0f4373
+  BreezSDK: 4a50668cdccb73d8109106898ac4fec3113cc5c3
   BVLinearGradient: 34a999fda29036898a09c6a6b728b0b4189e1a44
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
-  CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
+  CocoaLumberjack: 5c7e64cdb877770859bddec4d3d5a0d7c9299df9
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 48289402952f4f7a4e235de70a9a590aa0b79ef4
   FBReactNativeSpec: dd1186fd05255e3457baa2f4ca65e94c2cd1e3ac
@@ -795,15 +809,15 @@ SPEC CHECKSUMS:
   FlipperKit: cbdee19bdd4e7f05472a66ce290f1b729ba3cb86
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
-  GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
+  GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
+  GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
   hermes-engine: 2af7b7a59128f250adfd86f15aa1d5a2ecd39995
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Mapbox-iOS-SDK: a5915700ec84bc1a7f8b3e746d474789e35b7956
   MapboxMobileEvents: 2bc0ca2eedb627b73cf403258dce2b2fa98074a6
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
-  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
   RCTRequired: e1866f61af7049eb3d8e08e8b133abd38bc1ca7a
   RCTTypeSafety: 27c2ac1b00609a432ced1ae701247593f07f901e
@@ -819,12 +833,12 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b4a65947391c658450151275aa406f2b8263178f
   React-jsinspector: 60769e5a0a6d4b32294a2456077f59d0266f9a8b
   React-logger: 1623c216abaa88974afce404dc8f479406bbc3a0
-  react-native-blob-util: 31b9463ef2efe90e841e7525d687ec69b1d71157
+  react-native-blob-util: 99f4d79189252f597fe0d810c57a3733b1b1dea6
   react-native-build-config: 1130ad8668ca251b65e95e002b5b8f308a96726f
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hce: 0975747752d28526fecf80e1d91f60da09a1cc4c
+  react-native-hce: d416a1fcb8fd85e1d46260f72c29589a77869879
   react-native-mapbox-gl: b92795f61ff130323e6d25693bd68b081e105455
-  react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
+  react-native-netinfo: fbc23bc2fe217155d85f2f7e0644b1654df8029b
   react-native-nfc-manager: c0e6048b119fa3ae7b02ae927d4a801b8e76f287
   react-native-pdf: 33c622cbdf776a649929e8b9d1ce2d313347c4fa
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
@@ -841,22 +855,22 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 15437b576139df27635400de0599d9844f1ab817
   ReactCommon: 349be31adeecffc7986a0de875d7fb0dcf4e251c
   RealmJS: 43fc7bfb83229c8a2755cb34f71f769c97b7b581
-  RNBackgroundFetch: 13fbe7b23d4a082eac8caa7b08c5bcbeabd92f79
-  RNBootSplash: 8ecffd190fae05291b671ea2280c5238f15499a9
-  RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
-  RNCClipboard: 2834e1c4af68697089cdd455ee4a4cdd198fa7dd
+  RNBackgroundFetch: 642777e4e76435773c149d565a043d66f1781237
+  RNBootSplash: 8fb33325dc3620a01984c6660c42cbd93fadcc80
+  RNCAsyncStorage: b90b71f45b8b97be43bc4284e71a6af48ac9f547
+  RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
   RNFBApp: e4439717c23252458da2b41b81b4b475c86f90c4
   RNFBMessaging: 40dac204b4197a2661dec5be964780c6ec39bf65
-  RNFileLogger: 87fc2a50db74403f9a97b4b6731a0177dd8a631a
-  RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
-  RNLocalize: 0df7970cfc60389f00eb62fd7c097dc75af3fb4f
-  RNReanimated: ce445c233a6ff5600223484a88ad5704945d972a
-  RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
+  RNFileLogger: 9eaf7a6ea709eaaffe646cc485b98ae1dbf1e9f0
+  RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
+  RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
+  RNReanimated: 6668b0587bebd4b15dd849b99e5a9c70fc12ed95
+  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNSecureRandom: 07efbdf2cd99efe13497433668e54acd7df49fef
   RNSecureStorage: 24d433f7673a0daade43689de805933a70641731
-  RNSVG: 6adc5c52d2488a476248413064b7f2832e639057
-  SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
-  SwiftProtobuf: b02b5075dcf60c9f5f403000b3b0c202a11b6ae1
+  RNSVG: d7d7bc8229af3842c9cfc3a723c815a52cdd1105
+  SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  SwiftProtobuf: b70d65f419fbfe61a2d58003456ca5da58e337d6
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

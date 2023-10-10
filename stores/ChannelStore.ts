@@ -1,26 +1,19 @@
-import { action, computed, makeObservable, observable, when } from "mobx"
+import { action, computed, makeObservable, observable, reaction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ChannelModel, { ChannelModelLike } from "models/Channel"
 import ChannelRequestModel, { ChannelRequestModelLike } from "models/ChannelRequest"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import {
-    CloseChannelProps,
-    ChannelAcceptor,
-    channelAcceptor,
-    channelBalance,
-    closeChannel,
-    listChannels,
-    subscribeChannelEvents,
-    closedChannels
-} from "services/LightningService"
-import { bytesToHex, reverseByteOrder, toLong, toNumber } from "utils/conversion"
-import { DEBUG } from "utils/build"
-import { Log } from "utils/logging"
-import { createChannelRequest, CreateChannelRequestInput } from "services/SatimotoService"
+import * as lnd from "services/lnd"
+import { createChannelRequest, CreateChannelRequestInput } from "services/satimoto"
 import { ChannelRequestStatus } from "types/channelRequest"
 import { ChannelModelUpdate, toChannel } from "types/channel"
+import { LightningBackend } from "types/lightningBackend"
+import { bytesToHex, reverseByteOrder, toLong, toMilliSatoshi, toNumber, toSatoshi } from "utils/conversion"
+import { DEBUG } from "utils/build"
+import { Log } from "utils/logging"
 import { isValue } from "utils/null"
 
 const log = new Log("ChannelStore")
@@ -37,9 +30,12 @@ export interface ChannelStoreInterface extends StoreInterface {
     localBalance: number
     remoteBalance: number
     reservedBalance: number
+    lspName: string
+    lspOpeningNotAllowed: boolean
 
-    closeChannel(request: CloseChannelProps): Promise<ChannelModel>
+    closeChannel(request: lnd.CloseChannelProps): Promise<ChannelModel>
     createChannelRequest(channelRequest: CreateChannelRequestInput): Promise<lnrpc.IHopHint>
+    getLspFees(amountSats: number): Promise<breezSdk.OpenChannelFeeResponse>
 }
 
 export class ChannelStore implements ChannelStoreInterface {
@@ -48,7 +44,7 @@ export class ChannelStore implements ChannelStoreInterface {
     stores
 
     channelRequestStatus = ChannelRequestStatus.IDLE
-    channelAcceptor: ChannelAcceptor | null = null
+    channelAcceptor: lnd.ChannelAcceptor | null = null
     channels
     channelRequests
     lastActiveTimestamp = 0
@@ -56,6 +52,8 @@ export class ChannelStore implements ChannelStoreInterface {
     localBalance = 0
     remoteBalance = 0
     reservedBalance = 0
+    lspName = "Satimoto LSP"
+    lspOpeningNotAllowed = true
 
     constructor(stores: Store) {
         this.stores = stores
@@ -74,6 +72,8 @@ export class ChannelStore implements ChannelStoreInterface {
             localBalance: observable,
             remoteBalance: observable,
             reservedBalance: observable,
+            lspName: observable,
+            lspOpeningNotAllowed: observable,
 
             availableBalance: computed,
             balance: computed,
@@ -82,6 +82,8 @@ export class ChannelStore implements ChannelStoreInterface {
             actionAddChannelRequest: action,
             actionChannelEventReceived: action,
             actionRemoveChannelRequest: action,
+            actionResetChannels: action,
+            actionUpdateLsp: action,
             actionUpdateChannel: action,
             actionUpdateChannelByChannelPoint: action,
             actionUpdateChannelRequestStatus: action,
@@ -105,6 +107,11 @@ export class ChannelStore implements ChannelStoreInterface {
     async initialize(): Promise<void> {
         try {
             // When the synced to chain, subscribe to channel events
+            reaction(
+                () => [this.stores.lightningStore.blockHeight],
+                () => this.reactionBlockHeight()
+            )
+
             when(
                 () => this.stores.lightningStore.syncedToChain,
                 () => this.whenSyncedToChain()
@@ -129,10 +136,10 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
-    closeChannel(request: CloseChannelProps): Promise<ChannelModel> {
+    closeChannel(request: lnd.CloseChannelProps): Promise<ChannelModel> {
         return new Promise<ChannelModel>(async (resolve, reject) => {
             try {
-                await closeChannel(async ({ closePending, chanClose }: lnrpc.CloseStatusUpdate) => {
+                await lnd.closeChannel(async ({ closePending, chanClose }: lnrpc.CloseStatusUpdate) => {
                     const txid = closePending ? closePending.txid : chanClose ? chanClose.closingTxid : null
 
                     if (txid) {
@@ -158,17 +165,31 @@ export class ChannelStore implements ChannelStoreInterface {
     }
 
     async getChannelBalance() {
-        const channelBalanceResponse: lnrpc.ChannelBalanceResponse = await channelBalance()
-        this.actionUpdateChannelBalance(channelBalanceResponse)
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const { inboundLiquidityMsats, maxPayableMsat, maxReceivableMsat, maxChanReserveMsats, maxSinglePaymentAmountMsat } = await breezSdk.nodeInfo()
+            const inboundLiquidity = toNumber(toSatoshi(inboundLiquidityMsats))
+            const maxPayable = toNumber(toSatoshi(maxPayableMsat))
+            const maxChanReserve = toNumber(toSatoshi(maxChanReserveMsats))
+
+            log.debug(`SAT064: max receivable ${maxReceivableMsat}, single payment ${maxSinglePaymentAmountMsat}`, true)
+            this.actionUpdateChannelBalance(maxPayable, inboundLiquidity, maxChanReserve)
+        } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            const { localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse = await lnd.channelBalance()
+            const localBalanceSat = localBalance ? toNumber(localBalance.sat || 0) : this.localBalance
+            const remoteBalanceSat = remoteBalance ? toNumber(remoteBalance.sat || 0) : this.remoteBalance
+            const unsettledLocalBalanceSat = unsettledLocalBalance ? toNumber(unsettledLocalBalance.sat || 0) : 0
+
+            this.actionUpdateChannelBalance(localBalanceSat + unsettledLocalBalanceSat, remoteBalanceSat, this.reservedBalance)
+        }
     }
 
     async getChannels() {
-        const listChannelsResponse: lnrpc.ListChannelsResponse = await listChannels({})
+        const listChannelsResponse: lnrpc.ListChannelsResponse = await lnd.listChannels({})
         this.actionUpdateChannels(listChannelsResponse)
     }
 
     async getClosedChannels() {
-        const closedChannelsResponse: lnrpc.ClosedChannelsResponse = await closedChannels({})
+        const closedChannelsResponse: lnrpc.ClosedChannelsResponse = await lnd.closedChannels({})
         this.actionUpdateClosedChannels(closedChannelsResponse)
     }
 
@@ -200,6 +221,27 @@ export class ChannelStore implements ChannelStoreInterface {
         )
     }
 
+    async getLspInfo() {
+        const lspId = await breezSdk.lspId()
+
+        if (lspId) {
+            const lspInfo = await breezSdk.fetchLspInfo(lspId)
+
+            if (lspInfo) {
+                log.debug(`SAT044: LSP min htlc ${lspInfo.minHtlcMsat}, address: ${lspInfo.pubkey}@${lspInfo.host}`, true)
+                this.actionUpdateLsp(lspInfo.name, false)
+            }
+        }
+    }
+
+    async getLspFees(amountSats: number): Promise<breezSdk.OpenChannelFeeResponse> {
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            return await breezSdk.openChannelFee({amountMsat: toMilliSatoshi(amountSats).toNumber()})
+        }
+        
+        return { feeMsat: 0 } as breezSdk.OpenChannelFeeResponse
+    }
+
     onChannelAcceptRequest({ nodePubkey, pendingChanId, wantsZeroConf }: lnrpc.ChannelAcceptRequest) {
         log.debug(`SAT034: Channel Acceptor`, true)
 
@@ -222,10 +264,14 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
+    reset() {
+        this.actionResetChannels()
+    }
+
     subscribeChannelAcceptor() {
         this.cancelChannelAcceptor()
 
-        this.channelAcceptor = channelAcceptor((data: lnrpc.ChannelAcceptRequest) => this.onChannelAcceptRequest(data))
+        this.channelAcceptor = lnd.channelAcceptor((data: lnrpc.ChannelAcceptRequest) => this.onChannelAcceptRequest(data))
 
         this.channelAcceptor.finally(() => {
             log.debug(`SAT035: Channel Acceptor shutdown`, true)
@@ -235,15 +281,18 @@ export class ChannelStore implements ChannelStoreInterface {
 
     subscribeChannelEvents() {
         if (!this.subscribedChannelEvents) {
-            subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.actionChannelEventReceived(data))
+            lnd.subscribeChannelEvents((data: lnrpc.ChannelEventUpdate) => this.actionChannelEventReceived(data))
             this.subscribedChannelEvents = true
         }
     }
 
     async updateChannels() {
         await this.getChannelBalance()
-        await this.getChannels()
-        await this.getClosedChannels()
+
+        if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            await this.getChannels()
+            await this.getClosedChannels()
+        }
     }
 
     /*
@@ -272,7 +321,7 @@ export class ChannelStore implements ChannelStoreInterface {
     }: lnrpc.ChannelEventUpdate) {
         log.debug(`SAT037: Channel Event: ${type}`, true)
 
-        if (type == lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
+        if (type === lnrpc.ChannelEventUpdate.UpdateType.OPEN_CHANNEL && openChannel) {
             const remotePubkey = openChannel.remotePubkey
             log.debug(`SAT038: Remote pubkey: ${remotePubkey}`, true)
             log.debug(`SAT038: ChanID: ${openChannel.chanId}`, true)
@@ -286,7 +335,7 @@ export class ChannelStore implements ChannelStoreInterface {
                     this.cancelChannelAcceptor()
                 }
             }
-        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.ACTIVE_CHANNEL && activeChannel) {
+        } else if (type === lnrpc.ChannelEventUpdate.UpdateType.ACTIVE_CHANNEL && activeChannel) {
             const timestamp = new Date().getTime()
 
             if (this.lastActiveTimestamp < timestamp - 10000) {
@@ -300,7 +349,7 @@ export class ChannelStore implements ChannelStoreInterface {
             }
 
             this.lastActiveTimestamp = timestamp
-        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.INACTIVE_CHANNEL && inactiveChannel) {
+        } else if (type === lnrpc.ChannelEventUpdate.UpdateType.INACTIVE_CHANNEL && inactiveChannel) {
             if (isValue(inactiveChannel.fundingTxidStr) && isValue(inactiveChannel.outputIndex)) {
                 this.actionUpdateChannelByChannelPoint({
                     fundingTxid: inactiveChannel.fundingTxidStr!,
@@ -308,7 +357,7 @@ export class ChannelStore implements ChannelStoreInterface {
                     isActive: false
                 })
             }
-        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.CLOSED_CHANNEL && closedChannel) {
+        } else if (type === lnrpc.ChannelEventUpdate.UpdateType.CLOSED_CHANNEL && closedChannel) {
             if (isValue(closedChannel.channelPoint)) {
                 this.actionUpdateChannelByChannelPoint({
                     channelPoint: closedChannel.channelPoint!,
@@ -317,7 +366,7 @@ export class ChannelStore implements ChannelStoreInterface {
             }
 
             this.updateChannels()
-        } else if (type == lnrpc.ChannelEventUpdate.UpdateType.FULLY_RESOLVED_CHANNEL && fullyResolvedChannel) {
+        } else if (type === lnrpc.ChannelEventUpdate.UpdateType.FULLY_RESOLVED_CHANNEL && fullyResolvedChannel) {
             if (isValue(fullyResolvedChannel.fundingTxidStr) && isValue(fullyResolvedChannel.outputIndex)) {
                 this.actionUpdateChannelByChannelPoint({
                     fundingTxid: fullyResolvedChannel.fundingTxidStr!,
@@ -334,22 +383,40 @@ export class ChannelStore implements ChannelStoreInterface {
         this.channelRequests.remove(channelRequest)
     }
 
+    actionResetChannels() {
+        this.lspName = "Satimoto LSP"
+        this.lspOpeningNotAllowed = true
+        this.localBalance = 0
+        this.remoteBalance = 0
+        this.reservedBalance = 0
+        this.channels.clear()
+        this.channelRequests.clear()
+        this.subscribedChannelEvents = false
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
+    }
+
     actionSetReady() {
         this.ready = true
+    }
+
+    actionUpdateLsp(name: string, openingNotAllowed: boolean) {
+        this.lspName = name
+        this.lspOpeningNotAllowed = openingNotAllowed
     }
 
     actionUpdateChannelRequestStatus(status: ChannelRequestStatus) {
         this.channelRequestStatus = status
     }
 
-    actionUpdateChannelBalance({ localBalance, remoteBalance, unsettledLocalBalance }: lnrpc.ChannelBalanceResponse) {
-        const localBalanceSat = localBalance && localBalance.sat ? toNumber(localBalance.sat) : 0
-        const remoteBalanceSat = remoteBalance && remoteBalance.sat ? toNumber(remoteBalance.sat) : 0
-        const unsettledLocalBalanceSat = unsettledLocalBalance && unsettledLocalBalance.sat ? toNumber(unsettledLocalBalance.sat) : 0
-
-        this.localBalance = localBalanceSat + unsettledLocalBalanceSat
-        this.remoteBalance = remoteBalanceSat
-        log.debug(`SAT039: Channel Balance: ${this.localBalance}`, true)
+    actionUpdateChannelBalance(localBalance: number, remoteBalance: number, reserveBalance: number) {
+        this.localBalance = localBalance
+        this.remoteBalance = remoteBalance
+        this.reservedBalance = reserveBalance
+        log.debug(`SAT039: Channel Balance: ${this.localBalance}, ${this.remoteBalance}, ${this.reservedBalance}`, true)
     }
 
     actionUpdateChannel(channel: ChannelModel): ChannelModel {
@@ -412,8 +479,19 @@ export class ChannelStore implements ChannelStoreInterface {
         }
     }
 
+    reactionBlockHeight() {
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            this.lastActiveTimestamp = new Date().getTime()
+        }
+    }
+
     async whenSyncedToChain() {
-        this.subscribeChannelEvents()
-        this.updateChannels()
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            this.getLspInfo()
+            this.updateChannels()
+        } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            this.subscribeChannelEvents()
+            this.updateChannels()
+        }
     }
 }

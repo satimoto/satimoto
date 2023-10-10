@@ -27,11 +27,12 @@ const styles = StyleSheet.create({
 
 interface SlidingLocationPanelProps {
     onHide?: () => void
+    onBottomReached?: () => void
 }
 
 type SlidingLocationNavigationProp = NativeStackNavigationProp<AppStackParamList, "Home">
 
-const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelProps, ref?: React.LegacyRef<SlidingUpPanel>) => {
+const SlidingLocationPanel = React.forwardRef(({ onHide, onBottomReached }: SlidingLocationPanelProps, ref?: React.LegacyRef<SlidingUpPanel>) => {
     const { colors } = useTheme()
     const backgroundColor = useColor(colors.dark[200], colors.warmGray[50])
     const navigation = useNavigation<SlidingLocationNavigationProp>()
@@ -79,6 +80,7 @@ const SlidingLocationPanel = React.forwardRef(({ onHide }: SlidingLocationPanelP
             snappingPoints={snappingPoints}
             ref={ref}
             onHide={onHide}
+            onBottomReached={onBottomReached}
             allowDragging={allowDragging}
             backdropStyle={{ alignItems: "flex-start" }}
         >

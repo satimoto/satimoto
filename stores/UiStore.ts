@@ -1,26 +1,23 @@
-import { LNURLAuthParams, LNURLChannelParams, LNURLPayParams, LNURLResponse, LNURLWithdrawParams } from "js-lnurl"
 import { action, computed, makeObservable, observable, reaction, runInAction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import ConnectorModel from "models/Connector"
 import EvseModel from "models/Evse"
 import LocationModel from "models/Location"
-import { lnrpc } from "proto/proto"
 import { AppState, AppStateStatus, Linking } from "react-native"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import NfcManager from "react-native-nfc-manager"
 import { StoreInterface, Store } from "stores/Store"
-import { decodePayReq } from "services/LightningService"
-import { getParams, getTag, identifier } from "services/LnUrlService"
+import * as lightning from "services/lightning"
 import { assertNetwork } from "utils/assert"
 import { DEBUG } from "utils/build"
 import { IS_ANDROID, ONBOARDING_VERSION } from "utils/constants"
 import { Log } from "utils/logging"
-import { PayReq, toPayReq } from "types/payment"
 import { Tooltip } from "types/tooltip"
-import { errorToString } from "utils/conversion"
+import { LightningBackend } from "types/lightningBackend"
 
 const log = new Log("UiStore")
-const EVSE_ID_REGEX = /[\/=]([A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+)/
+const EVSE_ID_REGEX = /[\/=?]([A-Za-z]{2}[*-]?[A-Za-z0-9]{3}[*-]?[eE]{1}[\w*-]+)/
 const ID_REGEX = /\/([A-Za-z0-9]+)$/
 
 export interface UiStoreInterface extends StoreInterface {
@@ -34,18 +31,20 @@ export interface UiStoreInterface extends StoreInterface {
     filterRfidCapable: boolean
     linkToken?: string
     lnUrl?: string
-    lnUrlAuthParams?: LNURLAuthParams
-    lnUrlChannelParams?: LNURLChannelParams
-    lnUrlPayParams?: LNURLPayParams
-    lnUrlWithdrawParams?: LNURLWithdrawParams
+    lnUrlAuthParams?: breezSdk.LnUrlAuthRequestData
+    lnUrlPayParams?: breezSdk.LnUrlPayRequestData
+    lnUrlWithdrawParams?: breezSdk.LnUrlWithdrawRequestData
     paymentRequest?: string
-    decodedPaymentRequest?: PayReq
+    lnInvoice?: breezSdk.LnInvoice
     nfcAvailable: boolean
     onboardingWelcomed: boolean
     onboardingVersion: string
+    tooltipShownBackend: boolean
     tooltipShownCards: boolean
+    tooltipShownCircuit: boolean
     tooltipShownSyncing: boolean
 
+    clearAll(): void
     clearChargePoint(): void
     clearLnUrl(): void
     clearPaymentRequest(): void
@@ -54,9 +53,7 @@ export interface UiStoreInterface extends StoreInterface {
     setFilterExperimental(filter: boolean): void
     setFilterRemoteCapable(filter: boolean): void
     setFilterRfidCapable(filter: boolean): void
-    setLightningAddress(address: string): void
     setLinkToken(token?: string): void
-    setLnUrlPayParams(payParams: LNURLPayParams): void
     setPaymentRequest(paymentRequest: string): void
     setOnboarding(welcomed: boolean, version: string): void
     setTooltipShown(tooltips: Tooltip): void
@@ -72,21 +69,22 @@ export class UiStore implements UiStoreInterface {
     connector?: ConnectorModel = undefined
     evse?: EvseModel = undefined
     location?: LocationModel = undefined
-    filterExperimental: boolean = false
+    filterExperimental: boolean = true
     filterRemoteCapable: boolean = true
     filterRfidCapable: boolean = IS_ANDROID
     linkToken?: string = undefined
     lnUrl?: string = undefined
-    lnUrlAuthParams?: LNURLAuthParams = undefined
-    lnUrlChannelParams?: LNURLChannelParams = undefined
-    lnUrlPayParams?: LNURLPayParams = undefined
-    lnUrlWithdrawParams?: LNURLWithdrawParams = undefined
+    lnUrlAuthParams?: breezSdk.LnUrlAuthRequestData = undefined
+    lnUrlPayParams?: breezSdk.LnUrlPayRequestData = undefined
+    lnUrlWithdrawParams?: breezSdk.LnUrlWithdrawRequestData = undefined
     paymentRequest?: string = undefined
-    decodedPaymentRequest?: PayReq = undefined
+    lnInvoice?: breezSdk.LnInvoice = undefined
     nfcAvailable: boolean = false
     onboardingWelcomed: boolean = false
     onboardingVersion: string = ""
+    tooltipShownBackend: boolean = true
     tooltipShownCards: boolean = false
+    tooltipShownCircuit: boolean = false
     tooltipShownSyncing: boolean = false
 
     constructor(stores: Store) {
@@ -106,18 +104,20 @@ export class UiStore implements UiStoreInterface {
             linkToken: observable,
             lnUrl: observable,
             lnUrlAuthParams: observable,
-            lnUrlChannelParams: observable,
             lnUrlPayParams: observable,
             lnUrlWithdrawParams: observable,
             paymentRequest: observable,
-            decodedPaymentRequest: observable,
+            lnInvoice: observable,
             nfcAvailable: observable,
             onboardingWelcomed: observable,
             onboardingVersion: observable,
+            tooltipShownBackend: observable,
             tooltipShownCards: observable,
+            tooltipShownCircuit: observable,
             tooltipShownSyncing: observable,
 
             hasOnboardingUpdates: computed,
+            showSyncing: computed,
 
             actionSetAppState: action,
             actionSetReady: action,
@@ -129,8 +129,9 @@ export class UiStore implements UiStoreInterface {
             actionSetFilterRemoteCapable: action,
             actionSetFilterRfidCapable: action,
             actionSetLinkToken: action,
-            actionSetLnUrl: action,
+            actionSetLnUrlAuthParams: action,
             actionSetLnUrlPayParams: action,
+            actionSetLnUrlWithdrawParams: action,
             actionSetPaymentRequest: action,
             actionSetOnboarding: action,
             actionSetTooltipShown: action
@@ -144,18 +145,19 @@ export class UiStore implements UiStoreInterface {
                     "connector",
                     "evse",
                     "location",
+                    "filterExperimental",
                     "filterRemoteCapable",
                     "filterRfidCapable",
                     "lnUrl",
                     "lnUrlAuthParams",
-                    "lnUrlChannelParams",
                     "lnUrlPayParams",
                     "lnUrlWithdrawParams",
                     "paymentRequest",
-                    "decodedPaymentRequest",
+                    "lnInvoice",
                     "onboardingWelcomed",
                     "onboardingVersion",
                     "tooltipShownCards",
+                    "tooltipShownCircuit",
                     "tooltipShownSyncing"
                 ],
                 storage: AsyncStorage,
@@ -167,6 +169,12 @@ export class UiStore implements UiStoreInterface {
 
     async initialize(): Promise<void> {
         this.queue = this.stores.queue
+
+        reaction(
+            () => [this.stores.lightningStore.backend],
+            () => this.reactionBackend(),
+            { fireImmediately: true }
+        )
 
         when(
             () => this.hydrated,
@@ -186,13 +194,12 @@ export class UiStore implements UiStoreInterface {
         runInAction(() => {
             this.nfcAvailable = isSupported
         })
+    }
 
-        // Process initial intent
-        const intent = await Linking.getInitialURL()
-
-        if (intent) {
-            this.parseIntent(intent)
-        }
+    clearAll() {
+        this.actionClearChargePoint()
+        this.actionClearLnUrl()
+        this.actionClearPaymentRequest()
     }
 
     clearChargePoint() {
@@ -211,6 +218,10 @@ export class UiStore implements UiStoreInterface {
         return !this.onboardingWelcomed || this.onboardingVersion !== ONBOARDING_VERSION
     }
 
+    get showSyncing(): boolean {
+        return this.stores.lightningStore.backend !== LightningBackend.BREEZ_SDK
+    }
+
     /**
      * There are several different data formats possible which need to be parsed.
      * LNURL: A LNURL spec string with various encoded request types
@@ -222,31 +233,22 @@ export class UiStore implements UiStoreInterface {
      */
     async parseIntent(intent: string): Promise<boolean> {
         log.debug("SAT084: parseIntent: " + intent, true)
-        intent = intent.replace(/lightning:/i, "").trim()
+        intent = intent
+            .replace(/(lightning|url):/i, "")
+            .trim()
 
         const lowerCaseIntent = intent.toLowerCase()
         let errorCode = "Scanner_DataError"
 
         try {
-            if (lowerCaseIntent.startsWith("lnurl")) {
-                // LNURL
-                try {
-                    await this.actionSetLnUrl(intent)
-                    return true
-                } catch (error) {
-                    errorCode = errorToString(error)
-                }
-            } else if (intent.includes("@")) {
-                // Lightning Address
-                await this.setLightningAddress(intent)
-                return true
-            } else if (intent.startsWith("https://satimoto.com/link-token")) {
+            if (intent.startsWith("https://satimoto.com/link-token")) {
                 // A satimoto URL
                 let idMatches = intent.match(ID_REGEX)
                 let identifier = idMatches && idMatches.length > 1 ? idMatches[1] : null
 
                 if (identifier) {
                     this.actionSetLinkToken(identifier)
+                    return true
                 }
             } else if (lowerCaseIntent.startsWith("http")) {
                 // URL, Charge Point identifier
@@ -287,10 +289,24 @@ export class UiStore implements UiStoreInterface {
 
                     errorCode = "Scanner_UnrecognizedEvseIdError"
                 }
-            } else {
-                // Payment Request
-                await this.setPaymentRequest(intent)
-                return true
+            }
+
+            // Fallback to BreezSDK parsing
+            const input = await breezSdk.parseInput(intent)
+
+            switch (input.type) {
+                case breezSdk.InputTypeVariant.LN_URL_AUTH:
+                    this.actionSetLnUrlAuthParams(input.data)
+                    return true
+                case breezSdk.InputTypeVariant.LN_URL_PAY:
+                    this.actionSetLnUrlPayParams(input.data)
+                    return true
+                case breezSdk.InputTypeVariant.LN_URL_WITHDRAW:
+                    this.actionSetLnUrlWithdrawParams(input.data)
+                    return true
+                case breezSdk.InputTypeVariant.BOLT11:
+                    this.actionSetPaymentRequest(input.invoice.bolt11, input.invoice)
+                    return true
             }
         } catch (error) {
             log.debug(`SAT085: Error parsing intent`, true)
@@ -316,25 +332,15 @@ export class UiStore implements UiStoreInterface {
         this.actionSetFilterRfidCapable(filter)
     }
 
-    async setLightningAddress(address: string) {
-        const payParams = await identifier(address)
-        
-        this.actionSetLnUrlPayParams(payParams)
-    }
-
     setLinkToken(token?: string) {
         this.actionSetLinkToken(token)
     }
 
-    setLnUrlPayParams(payParams: LNURLPayParams) {
-        this.actionSetLnUrlPayParams(payParams)
-    }
-
     async setPaymentRequest(paymentRequest: string) {
         assertNetwork(paymentRequest)
-        const decodedPaymentRequest = await decodePayReq(paymentRequest)
+        const lnInvoice = await lightning.parseInvoice(paymentRequest)
 
-        this.actionSetPaymentRequest(paymentRequest, decodedPaymentRequest)
+        this.actionSetPaymentRequest(paymentRequest, lnInvoice)
     }
 
     setOnboarding(welcomed: boolean, version: string) {
@@ -358,14 +364,13 @@ export class UiStore implements UiStoreInterface {
     actionClearLnUrl() {
         this.lnUrl = undefined
         this.lnUrlAuthParams = undefined
-        this.lnUrlChannelParams = undefined
         this.lnUrlPayParams = undefined
         this.lnUrlWithdrawParams = undefined
     }
 
     actionClearPaymentRequest() {
         this.paymentRequest = undefined
-        this.decodedPaymentRequest = undefined
+        this.lnInvoice = undefined
     }
 
     actionSetAppState(state: AppStateStatus) {
@@ -375,7 +380,8 @@ export class UiStore implements UiStoreInterface {
 
     actionSetChargePoint(evse: EvseModel) {
         if (evse.location) {
-            if (evse.connectors.length == 1) {
+            if (evse.connectors.length === 1) {
+                this.clearAll()
                 this.evse = evse
                 this.connector = this.evse.connectors[0]
                 this.location = this.evse.location
@@ -406,43 +412,26 @@ export class UiStore implements UiStoreInterface {
         this.linkToken = token
     }
 
-    async actionSetLnUrl(lnUrl: string) {
-        this.actionClearLnUrl()
-
-        const params = await getParams(lnUrl)
-        const lnUrlResponse = params as LNURLResponse
-
-        if (lnUrlResponse && lnUrlResponse.status === "ERROR") {
-            throw new Error(lnUrlResponse.reason)
-        }
-
-        const tag = getTag(params)
-        log.debug(`SAT086: Set intent: ${JSON.stringify(params)} tag: ${tag}`)
-
-        runInAction(() => {
-            this.lnUrl = lnUrl
-
-            if (tag === "channelRequest") {
-                this.lnUrlChannelParams = params as LNURLChannelParams
-            } else if (tag === "login") {
-                this.lnUrlAuthParams = params as LNURLAuthParams
-            } else if (tag === "payRequest") {
-                this.lnUrlPayParams = params as LNURLPayParams
-            } else if (tag === "withdrawRequest") {
-                this.lnUrlWithdrawParams = params as LNURLWithdrawParams
-            }
-        })
+    actionSetLnUrlAuthParams(authParams: breezSdk.LnUrlAuthRequestData) {
+        this.clearAll()
+        this.lnUrlAuthParams = authParams
     }
 
-    actionSetLnUrlPayParams(payParams: LNURLPayParams) {
-        this.actionClearLnUrl()
+    actionSetLnUrlPayParams(payParams: breezSdk.LnUrlPayRequestData) {
+        this.clearAll()
         this.lnUrlPayParams = payParams
     }
 
-    async actionSetPaymentRequest(paymentRequest: string, payReq: lnrpc.PayReq) {
-        this.decodedPaymentRequest = toPayReq(payReq)
+    actionSetLnUrlWithdrawParams(withdrawParams: breezSdk.LnUrlWithdrawRequestData) {
+        this.clearAll()
+        this.lnUrlWithdrawParams = withdrawParams
+    }
+
+    async actionSetPaymentRequest(paymentRequest: string, lnInvoice: breezSdk.LnInvoice) {
+        this.clearAll()
+        this.lnInvoice = lnInvoice
         this.paymentRequest = paymentRequest
-        log.debug(JSON.stringify(this.decodedPaymentRequest))
+        log.debug(JSON.stringify(this.lnInvoice))
     }
 
     actionSetOnboarding(welcomed: boolean, version: string) {
@@ -454,13 +443,27 @@ export class UiStore implements UiStoreInterface {
         this.ready = true
     }
 
-    actionSetTooltipShown({ cards, syncing }: Tooltip) {
+    actionSetTooltipShown({ backend, cards, circuit, syncing }: Tooltip) {
+        if (backend) {
+            this.tooltipShownBackend = true
+        }
+
         if (cards) {
             this.tooltipShownCards = true
         }
 
+        if (circuit) {
+            this.tooltipShownCircuit = true
+        }
+
         if (syncing) {
             this.tooltipShownSyncing = true
+        }
+    }
+
+    reactionBackend() {
+        if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            this.tooltipShownBackend = false
         }
     }
 }

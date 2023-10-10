@@ -1,34 +1,24 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import CustomMessageModel from "models/CustomMessage"
 import PeerModel, { PeerModelLike } from "models/Peer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { connectPeer, disconnectPeer, listPeers, sendCustomMessage, subscribeCustomMessages, subscribePeerEvents } from "services/LightningService"
+import * as lnd from "services/lnd"
 import { DEBUG } from "utils/build"
-import { CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID } from "utils/constants"
-import { bytesToHex, errorToString, toString } from "utils/conversion"
+import { errorToString } from "utils/conversion"
 import { Log } from "utils/logging"
+import { LightningBackend } from "types/lightningBackend"
 
 const log = new Log("PeerStore")
-
-export interface CustomMessageResponder {
-    request: CustomMessageModel
-    response: CustomMessageModel
-}
 
 export interface PeerStoreInterface extends StoreInterface {
     hydrated: boolean
     stores: Store
 
-    customMessageResponders: CustomMessageResponder[]
     peers: PeerModel[]
-    peersOnline: boolean
-    subscribedCustomMessages: boolean
     subscribedPeerEvents: boolean
 
-    addCustomMessageResponder(responder: CustomMessageResponder): void
     connectPeer(pubkey: string, host: string): Promise<PeerModel>
     disconnectPeer(pubkey: string): void
     getPeer(pubkey: string): PeerModelLike
@@ -39,10 +29,7 @@ export class PeerStore implements PeerStoreInterface {
     ready = false
     stores
 
-    customMessageResponders = observable<CustomMessageResponder>([])
     peers = observable<PeerModel>([])
-    peersOnline = false
-    subscribedCustomMessages = false
     subscribedPeerEvents = false
 
     constructor(stores: Store) {
@@ -52,27 +39,21 @@ export class PeerStore implements PeerStoreInterface {
             hydrated: observable,
             ready: observable,
 
-            customMessageResponders: observable,
             peers: observable,
-            peersOnline: observable,
-            subscribedCustomMessages: observable,
             subscribedPeerEvents: observable,
 
             actionSetReady: action,
-            actionAddCustomMessageResponder: action,
-            actionRemoveCustomMessageResponder: action,
             actionConnectPeer: action,
             actionDisconnectPeer: action,
             actionListPeers: action,
-            actionSubscribeCustomMessages: action,
+            actionResetPeers: action,
             actionSubscribePeerEvents: action,
-            actionCustomMessageReceived: action,
             actionPeerEventReceived: action
         })
 
         makePersistable(
             this,
-            { name: "PeerStore", properties: ["customMessageResponders"], storage: AsyncStorage, debugMode: DEBUG },
+            { name: "PeerStore", properties: [], storage: AsyncStorage, debugMode: DEBUG },
             { delay: 1000 }
         ).then(action((persistStore) => (this.hydrated = persistStore.isHydrated)))
     }
@@ -89,10 +70,6 @@ export class PeerStore implements PeerStoreInterface {
         }
     }
 
-    addCustomMessageResponder(responder: CustomMessageResponder) {
-        this.actionAddCustomMessageResponder(responder)
-    }
-
     async connectPeer(pubkey: string, host: string) {
         const peer = await this.actionConnectPeer(pubkey, host)
         
@@ -107,15 +84,13 @@ export class PeerStore implements PeerStoreInterface {
         return this.peers.find((peer) => peer.pubkey === pubkey)
     }
 
+    reset() {
+        this.actionResetPeers()
+    }
+
     /*
      * Mobx actions and reactions
      */
-
-    actionAddCustomMessageResponder(responder: CustomMessageResponder) {
-        log.debug(`SAT062: Add CustomMessageResponder`, true)
-        log.debug(JSON.stringify(responder, undefined, 2))
-        this.customMessageResponders.push(responder)
-    }
 
     async actionConnectPeer(pubkey: string, host: string) {
         let peer: PeerModelLike = this.getPeer(pubkey)
@@ -129,7 +104,7 @@ export class PeerStore implements PeerStoreInterface {
             }
 
             try {
-                await connectPeer(pubkey, host, true)
+                await lnd.connectPeer(pubkey, host, true)
                 this.peers.push(peer)
             } catch (error) {
                 const errorString = errorToString(error)
@@ -151,7 +126,7 @@ export class PeerStore implements PeerStoreInterface {
             const peer: PeerModelLike = this.getPeer(pubkey)
 
             if (peer) {
-                await disconnectPeer(pubkey)
+                await lnd.disconnectPeer(pubkey)
                 this.peers.remove(peer)
             }
         } catch (error) {
@@ -160,8 +135,8 @@ export class PeerStore implements PeerStoreInterface {
     }
 
     async actionListPeers() {
-        try {
-            const listPeersResponse = await listPeers()
+        if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            const listPeersResponse = await lnd.listPeers()
             this.peers.clear()
 
             listPeersResponse.peers.forEach((peer) => {
@@ -173,67 +148,37 @@ export class PeerStore implements PeerStoreInterface {
                 }
             }, this)
 
-            this.actionSubscribeCustomMessages()
             this.actionSubscribePeerEvents()
-        } catch (e) {}
-    }
-
-    async actionCustomMessageReceived({ peer, type, data }: lnrpc.CustomMessage) {
-        const peerStr = bytesToHex(peer)
-        const dataStr = toString(data)
-        log.debug(`SAT064: Custom Message ${type} from ${peerStr}: ${dataStr}`, true)
-
-        const responders = this.customMessageResponders.filter(({ request }) => request.peer === peerStr && request.type === type)
-
-        for (let i = 0; i < responders.length; i++) {
-            const responder = responders[i]
-
-            if (type === CUSTOMMESSAGE_CHANNELREQUEST_RECEIVE_CHAN_ID) {
-                if (responder.request.data === dataStr) {
-                    await sendCustomMessage(responder.response.peer, responder.response.type, responder.response.data)
-                    this.actionRemoveCustomMessageResponder(responder)
-                    break
-                }
-            }
         }
     }
 
     actionPeerEventReceived({ pubKey, type }: lnrpc.PeerEvent) {
         log.debug(`SAT065: Peer ${pubKey} is ${type}`, true)
-        let areOnline = false
 
         this.peers.forEach((peer) => {
             if (peer.pubkey === pubKey) {
                 peer.online = type === lnrpc.PeerEvent.EventType.PEER_ONLINE
             }
-
-            if (peer.online) {
-                areOnline = true
-            }
         })
-
-        this.peersOnline = areOnline
     }
 
-    actionRemoveCustomMessageResponder(responder: CustomMessageResponder) {
-        log.debug(`SAT066: Remove CustomMessageResponder`, true)
-        this.customMessageResponders.remove(responder)
+    actionResetPeers() {
+        this.subscribedPeerEvents = false
+        this.peers.clear()
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.actionListPeers()
+        )
     }
 
     actionSetReady() {
         this.ready = true
     }
 
-    actionSubscribeCustomMessages() {
-        if (!this.subscribedCustomMessages) {
-            subscribeCustomMessages((data: lnrpc.CustomMessage) => this.actionCustomMessageReceived(data))
-            this.subscribedPeerEvents = true
-        }
-    }
-
     actionSubscribePeerEvents() {
         if (!this.subscribedPeerEvents) {
-            subscribePeerEvents((data: lnrpc.PeerEvent) => this.actionPeerEventReceived(data))
+            lnd.subscribePeerEvents((data: lnrpc.PeerEvent) => this.actionPeerEventReceived(data))
             this.subscribedPeerEvents = true
         }
     }

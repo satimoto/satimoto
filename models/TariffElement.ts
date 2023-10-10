@@ -17,13 +17,7 @@ type TariffElementGroupList = TariffElementGroup[]
 
 export type { TariffElementGroup, TariffElementGroupList }
 
-const isActiveTariffElementNow = (
-    element: TariffElementModel,
-    energy: number = 0,
-    minPower: number = 0,
-    maxPower: number = 0,
-    duration: number = 0
-): boolean => {
+const isActiveTariffElementNow = (element: TariffElementModel, energy?: number, minPower?: number, maxPower?: number, duration?: number): boolean => {
     const now = moment()
     const nowDate = now.format("YYYY-MM-DD")
     const nowDayOfWeek = now.format("dddd").toUpperCase()
@@ -36,10 +30,10 @@ const isActiveTariffElement = (
     now: moment.Moment,
     nowDate: string,
     nowDayOfWeek: string,
-    energy: number = 0,
-    minPower: number = 0,
-    maxPower: number = 0,
-    duration: number = 0
+    energy?: number,
+    minPower?: number,
+    maxPower?: number,
+    duration?: number
 ): boolean => {
     const restrictions = element.restrictions
 
@@ -49,15 +43,17 @@ const isActiveTariffElement = (
             (restrictions.endDate == null || now.isBefore(restrictions.endDate)) &&
             (restrictions.startTime == null || now.isAfter(moment(`${nowDate}T${restrictions.startTime}`))) &&
             (restrictions.endTime == null || now.isBefore(moment(`${nowDate}T${restrictions.endTime}`))) &&
-            (restrictions.minKwh == null || energy >= restrictions.minKwh) &&
-            (restrictions.maxKwh == null || (energy > 0 && energy < restrictions.maxKwh)) &&
-            (restrictions.minPower == null || minPower >= restrictions.minPower) &&
-            (restrictions.maxPower == null || (maxPower > 0 && maxPower < restrictions.maxPower)) &&
-            (restrictions.minDuration == null || duration >= restrictions.minDuration) &&
-            (restrictions.maxDuration == null || (duration > 0 && duration < restrictions.maxDuration)) &&
+            (restrictions.minKwh == null || energy === null || energy === undefined || energy >= restrictions.minKwh) &&
+            (restrictions.maxKwh == null || energy === null || energy === undefined || (energy > 0 && energy < restrictions.maxKwh)) &&
+            (restrictions.minPower == null || minPower === null || minPower === undefined || minPower >= restrictions.minPower) &&
+            (restrictions.maxPower == null || maxPower === null || maxPower === undefined || (maxPower > 0 && maxPower < restrictions.maxPower)) &&
+            (restrictions.minDuration == null || duration === null || duration === undefined || duration >= restrictions.minDuration) &&
+            (restrictions.maxDuration == null ||
+                duration === null ||
+                duration === undefined ||
+                (duration > 0 && duration < restrictions.maxDuration)) &&
             (restrictions.dayOfWeek.length === 0 || restrictions.dayOfWeek.includes(nowDayOfWeek)))
     )
 }
 
 export { isActiveTariffElement, isActiveTariffElementNow }
-

@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleProp, StyleSheet, ViewStyle } from "react-native"
+import { StyleProp, ViewStyle } from "react-native"
 import { SvgXml } from "react-native-svg"
 
 const xml = `
@@ -14,14 +14,21 @@ const xml = `
 </svg>
 `
 
+const xmlInvalid = `
+<svg width="500" height="500" viewBox="0 0 500 500" fill="none">
+	<rect x="10" y="10" width="480" height="480" rx="65" stroke="#ff4cac" stroke-width="10" />
+</svg>
+`
+
 interface CameraViewFinderProps {
     width: number
     height: number
     style?: StyleProp<ViewStyle>
+    isValid?: boolean
 }
 
-const CameraViewFinder = ({ width, height, style = {} }: CameraViewFinderProps) => {
-    return <SvgXml xml={xml} width={width} height={height} style={style} />
+const CameraViewFinder = ({ width, height, style = {}, isValid }: CameraViewFinderProps) => {
+    return <SvgXml xml={isValid ? xml : xmlInvalid} width={width} height={height} style={style} />
 }
 
 export default CameraViewFinder
