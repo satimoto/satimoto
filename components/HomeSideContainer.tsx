@@ -11,18 +11,21 @@ const styleSheet = StyleSheet.create({
 })
 
 interface HomeSideContainerProps extends PropsWithChildren<any> {
+    isVisible?: boolean
     top?: number
     onLayout?: (event: LayoutChangeEvent) => void
 }
 
-const HomeSideContainer = ({ children, top, onLayout = () => {}, ...props }: HomeSideContainerProps) => {
+const HomeSideContainer = ({ children, isVisible = true, top, onLayout = () => {}, ...props }: HomeSideContainerProps) => {
     const safeAreaInsets = useSafeAreaInsets()
     top = top || safeAreaInsets.top
 
-    return (
+    return isVisible ? (
         <VStack space={3} style={[{ top: 20 + top, right: 10 + safeAreaInsets.right }, styleSheet.button]} onLayout={onLayout} {...props}>
             {children}
         </VStack>
+    ) : (
+        <></>
     )
 }
 

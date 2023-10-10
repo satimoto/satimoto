@@ -1,5 +1,6 @@
+import NfcIcon from "components/NfcIcon"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faWifi, faQrcode } from "@fortawesome/free-solid-svg-icons"
+import { faQrcode } from "@fortawesome/free-solid-svg-icons"
 import I18n from "i18n-js"
 import { Actionsheet } from "native-base"
 import React from "react"
@@ -34,12 +35,12 @@ const ReceiveActionsheet = ({ isOpen, onPress, onClose }: ReceiveActionsheetProp
                 <Actionsheet.Item
                     onPress={() => onActionsheetPress("receive_qr")}
                     startIcon={<FontAwesomeIcon icon={faQrcode} />}
-                    style={uiStore.nfcAvailable ? styleSheet.item: {}}
+                    style={uiStore.nfcAvailable ? styleSheet.item : {}}
                 >
                     {I18n.t("ReceiveActionsheet_ReceiveQr")}
                 </Actionsheet.Item>
                 {uiStore.nfcAvailable && (
-                    <Actionsheet.Item onPress={() => onActionsheetPress("receive_nfc")} startIcon={<FontAwesomeIcon icon={faWifi} />}>
+                    <Actionsheet.Item onPress={() => onActionsheetPress("receive_nfc")} startIcon={<NfcIcon color="#000000" size={16} />}>
                         {I18n.t("ReceiveActionsheet_ReceiveNfc")}
                     </Actionsheet.Item>
                 )}

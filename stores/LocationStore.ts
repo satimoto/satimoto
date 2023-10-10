@@ -3,16 +3,15 @@ import { makePersistable } from "mobx-persist-store"
 import ConnectorModel, { ConnectorGroup, ConnectorGroupMap, ConnectorModelLike } from "models/Connector"
 import EvseModel, { EvseModelLike } from "models/Evse"
 import LocationModel, { LocationModelLike } from "models/Location"
-import PoiModel, { PoiModelLike } from "models/Poi"
+import PoiModel, { PoiModelLike, PoiModelWithIcon } from "models/Poi"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { getConnector, getLocation, getPoi, listLocations, listPois } from "services/SatimotoService"
+import { getConnector, getEvse, getLocation, getPoi, listLocations, listPois } from "services/satimoto"
 import { StoreInterface, Store } from "stores/Store"
 import { EvseStatus, EvseStatusSortMap } from "types/evse"
 import { DEBUG } from "utils/build"
-import { LOCATION_UPDATE_INTERVAL } from "utils/constants"
+import { ASSET_IMAGES, ONE_MINUTE_INTERVAL } from "utils/constants"
 import { Log } from "utils/logging"
 import { delta } from "utils/delta"
-import { getEvse } from "services/SatimotoService"
 
 const log = new Log("LocationStore")
 
@@ -22,7 +21,7 @@ export interface LocationStoreInterface extends StoreInterface {
 
     bounds: GeoJSON.Position[]
     locations: LocationModel[]
-    pois: PoiModel[]
+    pois: PoiModelWithIcon[]
 
     selectedConnectors: ConnectorGroup[]
     selectedLocation: LocationModelLike
@@ -59,7 +58,7 @@ export class LocationStore implements LocationStoreInterface {
         this.stores = stores
         this.bounds = observable<GeoJSON.Position>([])
         this.locations = observable<LocationModel>([])
-        this.pois = observable<PoiModel>([])
+        this.pois = observable<PoiModelWithIcon>([])
         this.selectedConnectors = observable<ConnectorGroup>([])
 
         makeObservable(this, {
@@ -123,7 +122,7 @@ export class LocationStore implements LocationStoreInterface {
 
     async fetchLocations() {
         if (this.stores.settingStore.accessToken) {
-            if (this.bounds && this.bounds.length == 2) {
+            if (this.bounds && this.bounds.length === 2) {
                 if (this.lastLocationChanged) {
                     const pois = await listPois({
                         xMin: this.bounds[1][0],
@@ -135,18 +134,20 @@ export class LocationStore implements LocationStoreInterface {
                     this.actionUpdatePois(pois.data.listPois)
                 }
 
-                const locations = await listLocations({
-                    interval: this.lastLocationChanged ? 0 : LOCATION_UPDATE_INTERVAL,
-                    isExperimental: this.stores.uiStore.filterExperimental,
-                    isRemoteCapable: this.stores.uiStore.filterRemoteCapable,
-                    isRfidCapable: this.stores.uiStore.filterRfidCapable,
-                    xMin: this.bounds[1][0],
-                    yMin: this.bounds[0][1],
-                    xMax: this.bounds[0][0],
-                    yMax: this.bounds[1][1]
-                })
+                if (this.stores.uiStore.filterExperimental || this.stores.uiStore.filterRemoteCapable || this.stores.uiStore.filterRfidCapable) {
+                    const locations = await listLocations({
+                        interval: this.lastLocationChanged ? 0 : ONE_MINUTE_INTERVAL,
+                        isExperimental: this.stores.uiStore.filterExperimental,
+                        isRemoteCapable: this.stores.uiStore.filterRemoteCapable,
+                        isRfidCapable: this.stores.uiStore.filterRfidCapable,
+                        xMin: this.bounds[1][0],
+                        yMin: this.bounds[0][1],
+                        xMax: this.bounds[0][0],
+                        yMax: this.bounds[1][1]
+                    })
 
-                this.actionUpdateLocations(locations.data.listLocations)
+                    this.actionUpdateLocations(locations.data.listLocations)
+                }
             }
         }
     }
@@ -213,7 +214,7 @@ export class LocationStore implements LocationStoreInterface {
         log.debug(`SAT053 startLocationUpdates`, true)
 
         if (!this.locationUpdateTimer) {
-            this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), LOCATION_UPDATE_INTERVAL * 1000)
+            this.locationUpdateTimer = setInterval(this.fetchLocations.bind(this), ONE_MINUTE_INTERVAL * 1000)
             this.fetchLocations()
         }
     }
@@ -321,6 +322,12 @@ export class LocationStore implements LocationStoreInterface {
     actionUpdatePois(pois: PoiModel[]) {
         log.debug(`SAT055 actionUpdatePois: ${this.pois.length} ${pois.length}`)
 
-        this.pois.replace(pois)
+        this.pois.replace(
+            pois.map((poi: PoiModel) => {
+                const iconImage = `${poi.tagKey}_${poi.tagValue}`
+                log.debug(iconImage)
+                return { ...poi, iconImage: ASSET_IMAGES.includes(iconImage) ? iconImage : poi.tagKey }
+            })
+        )
     }
 }

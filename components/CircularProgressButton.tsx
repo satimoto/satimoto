@@ -41,16 +41,18 @@ const CircularProgressButton = ({ isBusy, value, onPress = () => {}, style = {} 
     }
 
     useEffect(() => {
-        if (!lightningStore.syncedToChain && !uiStore.tooltipShownSyncing && !showTooltip) {
-            setTimeout(() => {
-                setShowTooltip(true)
-            }, 1000)
-        } else if (lightningStore.syncedToChain && showTooltip) {
-            setTimeout(() => {
-                onTooltipClose()
-            }, 5000)
+        if (uiStore.showSyncing) {
+            if (!lightningStore.syncedToChain && !uiStore.tooltipShownSyncing && !showTooltip) {
+                setTimeout(() => {
+                    setShowTooltip(true)
+                }, 1000)
+            } else if (lightningStore.syncedToChain && showTooltip) {
+                setTimeout(() => {
+                    onTooltipClose()
+                }, 5000)
+            }
         }
-    }, [lightningStore.syncedToChain, uiStore.tooltipShownSyncing])
+    }, [lightningStore.syncedToChain, uiStore.showSyncing, uiStore.tooltipShownSyncing])
 
     return (
         <Tooltip

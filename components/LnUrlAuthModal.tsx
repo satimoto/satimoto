@@ -1,14 +1,14 @@
 import BusyButton from "components/BusyButton"
 import Modal from "components/Modal"
-import { LNURLAuthParams } from "js-lnurl"
+import { useStore } from "hooks/useStore"
 import { Text, useColorModeValue, VStack } from "native-base"
 import React, { useEffect, useState } from "react"
-import { authenticate } from "services/LnUrlService"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import { errorToString } from "utils/conversion"
 import I18n from "utils/i18n"
 
 interface LnUrlAuthModalProps {
-    lnUrlAuthParams?: LNURLAuthParams
+    lnUrlAuthParams?: breezSdk.LnUrlAuthRequestData
     onClose: () => void
 }
 
@@ -18,13 +18,16 @@ const LnUrlAuthModal = ({ lnUrlAuthParams, onClose }: LnUrlAuthModalProps) => {
     const [isBusy, setIsBusy] = useState(false)
     const [domain, setDomain] = useState("")
     const [lastError, setLastError] = useState("")
+    const { lightningStore } = useStore()
 
     const onConfirmPress = async () => {
         setIsBusy(true)
 
         try {
-            await authenticate(lnUrlAuthParams!)
-            onClose()
+            if (lnUrlAuthParams) {
+                const authorized = await lightningStore.authLnurl(lnUrlAuthParams)
+                onClose()
+            }
         } catch (error) {
             setLastError(errorToString(error))
         }

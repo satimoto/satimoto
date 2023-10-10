@@ -3,5 +3,6 @@ export enum SessionStatus {
     COMPLETED = "COMPLETED",
     INVALID = "INVALID",
     INVOICED = "INVOICED",
-    PENDING = "PENDING"
+    PENDING = "PENDING",
+    ENDING = "ENDING"
 }

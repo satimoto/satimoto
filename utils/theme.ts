@@ -159,6 +159,16 @@ const NativeBaseTheme = extendTheme({
         orange: colors.orange,
         red: colors.red
     },
+    components: {
+        Input: {
+            baseStyle: {
+                _disabled: {
+                    backgroundColor: "muted.600",
+                    borderColor: "muted.600"
+                }
+            }
+        }
+    },
     useSystemColorMode: false,
     initialColorMode: "dark"
 })

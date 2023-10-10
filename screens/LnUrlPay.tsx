@@ -1,22 +1,25 @@
+import {
+    LnUrlErrorData,
+    LnUrlPayResultVariant,
+    SuccessActionProcessedVariant
+} from "@breeztech/react-native-breez-sdk"
 import BusyButton from "components/BusyButton"
 import HeaderBackButton from "components/HeaderBackButton"
 import Input from "components/Input"
+import RoundedButton from "components/RoundedButton"
 import useColor from "hooks/useColor"
 import useNavigationOptions from "hooks/useNavigationOptions"
 import { useStore } from "hooks/useStore"
 import { observer } from "mobx-react"
 import { FormControl, Text, useColorModeValue, useTheme, VStack, WarningOutlineIcon } from "native-base"
 import { useConfetti } from "providers/ConfettiProvider"
-import React, { useEffect, useLayoutEffect, useState } from "react"
-import { View } from "react-native"
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react"
+import { Linking, View } from "react-native"
 import { RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
-import { decodePayReq } from "services/LightningService"
-import { getMetadataElement, payRequest } from "services/LnUrlService"
-import { PaymentStatus } from "types/payment"
-import { assertNetwork } from "utils/assert"
-import { bytesToHex, errorToString, toHash, toMilliSatoshi, toNumber, toSatoshi } from "utils/conversion"
+import { getMetadataElement } from "services/lnUrl"
+import { toSatoshi } from "utils/conversion"
 import { formatSatoshis } from "utils/format"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
@@ -37,17 +40,24 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const errorColor = useColorModeValue("error.300", "error.500")
     const textColor = useColorModeValue("lightText", "darkText")
     const navigationOptions = useNavigationOptions({ headerShown: true })
-    const { channelStore, paymentStore, uiStore } = useStore()
+    const [amountError, setAmountError] = useState("")
     const [amountString, setAmountString] = useState("")
     const [amountNumber, setAmountNumber] = useState(0)
+    const [comment, setComment] = useState("")
+    const [commentAllowed, setCommentAllowed] = useState(0)
+    const [commentError, setCommentError] = useState("")
     const [description, setDescription] = useState("")
+    const [decryptedAes, setDecryptedAes] = useState("")
     const [isBusy, setIsBusy] = useState(false)
-    const [isInvalid, setIsInvalid] = useState(false)
+    const [isCommentInvalid, setIsCommentInvalid] = useState(false)
+    const [isDirty, setIsDirty] = useState(false)
+    const [isInvalid, setIsInvalid] = useState(true)
+    const [isSuccessful, setIsSuccessful] = useState(false)
     const [lastError, setLastError] = useState("")
     const [maxSendable, setMaxSendable] = useState(0)
     const [minSendable, setMinSendable] = useState(0)
-    const [metadataHash, setMetadataHash] = useState<string | null>(null)
-    const [amountError, setAmountError] = useState("")
+    const [url, setUrl] = useState("")
+    const { channelStore, paymentStore, uiStore } = useStore()
 
     const onClose = () => {
         uiStore.clearLnUrl()
@@ -57,42 +67,56 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
     const onAmountChange = (text: string) => {
         setAmountString(text)
         setAmountNumber(+text)
+        setIsDirty(true)
     }
 
-    const onConfirmPress = async () => {
+    const onConfirmPress = useCallback(async () => {
         setIsBusy(true)
         setLastError("")
 
-        if (uiStore.lnUrlPayParams && uiStore.lnUrlPayParams.callback) {
-            try {
-                const response = await payRequest(uiStore.lnUrlPayParams.callback, toMilliSatoshi(amountString).toString())
-                assertNetwork(response.pr)
+            if (route.params.payParams) {
+                try {
+                    const response = await paymentStore.payLnurl(route.params.payParams, amountNumber)
 
-                const decodedPayReq = await decodePayReq(response.pr)
-                log.debug(`SAT008 Metadata hash: ${metadataHash}`)
-                log.debug(`SAT008 Payment Request hash: ${decodedPayReq.descriptionHash}`)
+                    if (response.type === LnUrlPayResultVariant.ENDPOINT_SUCCESS) {
+                        if (response.data) {
+                            let successAction = response.data
+                            setIsSuccessful(true)
 
-                if (decodedPayReq.descriptionHash === metadataHash && toNumber(decodedPayReq.numSatoshis) === amountNumber) {
-                    // Pay
-                    const payment = await paymentStore.sendPayment({ paymentRequest: response.pr })
+                            if (successAction.type === SuccessActionProcessedVariant.AES) {
+                                setDescription(successAction.data.description)
+                                setDecryptedAes(successAction.data.plaintext)
+                            } else if (successAction.type === SuccessActionProcessedVariant.MESSAGE) {
+                                setDescription(successAction.data.message)
+                            } else if (successAction.type === SuccessActionProcessedVariant.URL) {
+                                setDescription(successAction.data.description)
+                                setUrl(successAction.data.url)
+                            }
 
-                    if (payment.status === PaymentStatus.SUCCEEDED) {
-                        await startConfetti()
-                        onClose()
-                    } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
-                        setLastError(I18n.t(payment.failureReasonKey))
+                            await startConfetti()
+                        } else {
+                            await startConfetti()
+                            onClose()
+                        }
+                    } else {
+                        const lnUrlErrorData = response.data as LnUrlErrorData
+
+                        setLastError(lnUrlErrorData?.reason || I18n.t("LnUrlPay_PayReqError"))
                     }
-                } else {
-                    setLastError(I18n.t("LnUrlPay_PayReqError"))
+                } catch (error) {
+                    setLastError(I18n.t("PaymentFailure_NoRoute"))
+                    log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)
                 }
-            } catch (error) {
-                setLastError(errorToString(error))
-                log.debug(`SAT009 onConfirmPress: Error getting pay request: ${error}`, true)
             }
-        }
 
-        setIsBusy(false)
-    }
+            setIsBusy(false)
+    }, [route.params.payParams, amountNumber])
+
+    const onUrlPress = useCallback(async () => {
+        if (url) {
+            Linking.openURL(url)
+        }
+    }, [url])
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -103,46 +127,83 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
 
     useEffect(() => {
         const payParams = route.params.payParams
+        const decodedMetadata = JSON.parse(payParams.metadataStr)
+        const minSats = toSatoshi(payParams.minSendable).toNumber()
         let maxSats = toSatoshi(payParams.maxSendable).toNumber()
-        let minSats = toSatoshi(payParams.minSendable).toNumber()
 
         if (maxSats > channelStore.availableBalance) {
             maxSats = channelStore.availableBalance
         }
 
-        setDescription(getMetadataElement(payParams.decodedMetadata, "text/plain") || "")
+        setCommentAllowed(payParams.commentAllowed)
+        setDescription(getMetadataElement(decodedMetadata, "text/plain") || "")
         setMaxSendable(maxSats)
         setMinSendable(minSats)
-        setMetadataHash(bytesToHex(toHash(payParams.metadata)))
         setAmountError(I18n.t("LnUrlPay_AmountError", { minSats: formatSatoshis(minSats), maxSats: formatSatoshis(maxSats) }))
+        setCommentError(I18n.t("LnUrlPay_CommentError", { maxChars: payParams.commentAllowed }))
     }, [route.params.payParams])
 
     useEffect(() => {
-        setIsInvalid(amountNumber < minSendable || amountNumber > maxSendable)
-    }, [amountNumber])
+        setIsInvalid(isDirty && (amountNumber < minSendable || amountNumber > maxSendable))
+    }, [amountNumber, isDirty, minSendable, maxSendable])
+
+    useEffect(() => {
+        setIsCommentInvalid(comment.length > commentAllowed)
+    }, [comment, commentAllowed])
 
     return (
         <View style={[styles.matchParent, { backgroundColor: focusBackgroundColor }]}>
             <View style={[styles.focusViewPanel, { backgroundColor }]}>
-                <VStack space={5}>
-                    {description.length > 0 && (
-                        <Text color={textColor} fontSize="lg">
-                            {description}
-                        </Text>
-                    )}
-                    <FormControl isInvalid={isInvalid} isRequired={true}>
-                        <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
-                        <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
-                        {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
-                        <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
-                            {amountError}
-                        </FormControl.ErrorMessage>
-                    </FormControl>
-                    {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
-                    <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid}>
-                        {I18n.t("Button_Next")}
-                    </BusyButton>
-                </VStack>
+                {isSuccessful ? (
+                    <VStack space={5}>
+                        {description.length > 0 && (
+                            <Text color={textColor} fontSize="lg">
+                                {description}
+                            </Text>
+                        )}
+                        {decryptedAes.length > 0 && (
+                            <View style={{ backgroundColor, alignItems: "center" }}>
+                                <Text color={textColor} fontSize="xl" fontWeight="bold">
+                                    {decryptedAes}
+                                </Text>
+                            </View>
+                        )}
+                        {url.length > 0 && (
+                            <RoundedButton size="md" onPress={onUrlPress}>
+                                {I18n.t("Button_Website")}
+                            </RoundedButton>
+                        )}
+                    </VStack>
+                ) : (
+                    <VStack space={5}>
+                        {description.length > 0 && (
+                            <Text color={textColor} fontSize="lg">
+                                {description}
+                            </Text>
+                        )}
+                        <FormControl isInvalid={isInvalid} isRequired={true}>
+                            <FormControl.Label _text={{ color: textColor }}>Amount</FormControl.Label>
+                            <Input value={amountString} keyboardType="number-pad" onChangeText={onAmountChange} />
+                            {!isInvalid && <FormControl.HelperText>{amountError}</FormControl.HelperText>}
+                            <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
+                                {amountError}
+                            </FormControl.ErrorMessage>
+                        </FormControl>
+                        {commentAllowed > 0 && (
+                            <FormControl isInvalid={isCommentInvalid}>
+                                <FormControl.Label _text={{ color: textColor }}>Comment</FormControl.Label>
+                                <Input value={comment} onChangeText={setComment} />
+                                <FormControl.ErrorMessage _text={{ color: errorColor }} leftIcon={<WarningOutlineIcon size="xs" />}>
+                                    {commentError}
+                                </FormControl.ErrorMessage>
+                            </FormControl>
+                        )}
+                        {lastError.length > 0 && <Text color={errorColor}>{lastError}</Text>}
+                        <BusyButton isBusy={isBusy} onPress={onConfirmPress} isDisabled={isInvalid || isCommentInvalid || !isDirty}>
+                            {I18n.t("Button_Next")}
+                        </BusyButton>
+                    </VStack>
+                )}
             </View>
         </View>
     )

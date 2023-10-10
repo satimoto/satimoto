@@ -46,7 +46,9 @@ const PaymentInfoModal = ({ payment, onClose }: PaymentInfoModalProps) => {
                 )}
                 {payment.failureReasonKey ? (
                     <ExpandableListItem title="Failure Reason">
-                        <Text style={{ color: textColor, fontSize: 16 }}>{I18n.t(payment.failureReasonKey)}</Text>
+                        <Text style={{ color: textColor, fontSize: 16 }}>
+                            {I18n.t(payment.failureReasonKey, { defaultValue: payment.failureReasonKey })}
+                        </Text>
                     </ExpandableListItem>
                 ) : (
                     <></>

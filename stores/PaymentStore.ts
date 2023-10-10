@@ -1,17 +1,19 @@
 import { action, makeObservable, observable, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import { ChannelModel } from "models/Node"
-import PaymentModel from "models/Payment"
-import moment from "moment"
+import PaymentModel, { PaymentModelLike } from "models/Payment"
+import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { lnrpc } from "proto/proto"
 import { StoreInterface, Store } from "stores/Store"
-import { decodePayReq, getNodeInfo, listPayments, markEdgeLive, resetMissionControl, sendPaymentV2 } from "services/LightningService"
-import { SendPaymentV2Props } from "services/LightningService"
-import { listChannels } from "services/SatimotoService"
-import { paymentFailureToLocaleKey, PaymentStatus, toPaymentStatus } from "types/payment"
+import * as lightning from "services/lightning"
+import * as lnd from "services/lnd"
+import * as lnUrl from "services/lnUrl"
+import { LightningBackend } from "types/lightningBackend"
+import { fromBreezPayment, fromLndPayment, PaymentStatus } from "types/payment"
+import { assertNetwork } from "utils/assert"
 import { DEBUG } from "utils/build"
-import { nanosecondsToDate, toNumber } from "utils/conversion"
+import { bytesToHex, deepCopy, toHash, toMilliSatoshi, toNumber } from "utils/conversion"
+import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 
 const log = new Log("PaymentStore")
@@ -23,7 +25,9 @@ export interface PaymentStoreInterface extends StoreInterface {
     indexOffset: string
     payments: PaymentModel[]
 
-    sendPayment(payment: SendPaymentV2Props): Promise<PaymentModel>
+    findPayment(hash: string): PaymentModelLike
+    payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number): Promise<breezSdk.LnUrlPayResult>
+    sendPayment(bolt11: string): Promise<PaymentModel>
 }
 
 export class PaymentStore implements PaymentStoreInterface {
@@ -44,8 +48,9 @@ export class PaymentStore implements PaymentStoreInterface {
             indexOffset: observable,
             payments: observable,
 
+            actionResetPayments: action,
             actionSetReady: action,
-            actionUpdatePaymentWithPayReq: action,
+            actionUpdatePayment: action,
             actionUpdateIndexOffset: action
         })
 
@@ -68,129 +73,139 @@ export class PaymentStore implements PaymentStoreInterface {
         }
     }
 
-    sendPayment(request: SendPaymentV2Props, withReset: boolean = true, withEdgeUpdate: boolean = true): Promise<PaymentModel> {
-        return new Promise<PaymentModel>(async (resolve, reject) => {
-            try {
-                await sendPaymentV2(async (response: lnrpc.Payment) => {
-                    let payment = await this.updatePayment(response)
-
-                    if (payment.status === PaymentStatus.FAILED) {
-                        const tryReset =
-                            response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE ||
-                            response.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
-
-                        if (tryReset) {
-                            if (withReset) {
-                                log.debug(`SAT057: Payment failure, resetting mission control`, true)
-                                await resetMissionControl()
-                                payment = await this.sendPayment(request, false)
-                            } else if (withEdgeUpdate) {
-                                try {
-                                    log.debug(`SAT058: Payment failure, force edges update`, true)
-                                    const listChannelsResponse = await listChannels()
-                                    const channels = listChannelsResponse.data.listChannels as ChannelModel[]
-                                    const channelIds = channels.map((channel) => channel.channelId)
-                                    log.debug(`SAT059: Edges received: ${channelIds.length}`, true)
-
-                                    if (channelIds.length > 0) {
-                                        await markEdgeLive(channelIds)
-
-                                        payment = await this.sendPayment(request, false, false)
-                                    }
-                                } catch (error) {
-                                    log.error(`SAT060: Error updating edges: ${error}`, true)
-                                }
-                            } else if (DEBUG) {
-                                await getNodeInfo('029e6289970aa5e57fe92bb8ae0cefa7ff388bb21a0f8277bc3a45fc5c10e98c4b', true)
-                            }
-                        }
-
-                        resolve(payment)
-                    } else if (payment.status === PaymentStatus.SUCCEEDED) {
-                        this.stores.channelStore.getChannelBalance()
-
-                        resolve(payment)
-                    }
-                }, request)
-            } catch (error) {
-                reject(error)
-            }
-        })
+    findPayment(hash: string): PaymentModelLike {
+        return this.payments.find((payment) => payment.hash === hash)
     }
 
-    async updatePayments({ payments }: lnrpc.ListPaymentsResponse) {
-        for (const iPayment of payments) {
-            const payment = lnrpc.Payment.fromObject(iPayment)
-            const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
+    async payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number, comment?: string): Promise<breezSdk.LnUrlPayResult> {
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const lnUrlPayResult = await breezSdk.payLnurl(deepCopy(payParams), amountSats, comment)
 
-            this.actionUpdatePaymentWithPayReq(payment, decodedPaymentRequest)
-            this.actionUpdateIndexOffset(payment)
+            return lnUrlPayResult
+        } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            const amountMsats = toNumber(toMilliSatoshi(amountSats))
+            const payResponse = await lnUrl.payRequest(payParams.callback, amountMsats.toString(), comment)
+
+            assertNetwork(payResponse.pr)
+
+            const lnInvoice = await lightning.parseInvoice(payResponse.pr)
+            const metadataHash = bytesToHex(toHash(payParams.metadataStr))
+            log.debug(`SAT008 Metadata hash: ${metadataHash}`)
+            log.debug(`SAT008 Payment Request hash: ${lnInvoice.descriptionHash}`)
+
+            // Verify metadata hash with description hash and invoice value
+            if (lnInvoice.descriptionHash === metadataHash && !!lnInvoice.amountMsat && lnInvoice.amountMsat === amountMsats) {
+                const payment = await this.sendPayment(payResponse.pr)
+
+                if (payment.status === PaymentStatus.SUCCEEDED) {
+                    return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_SUCCESS }
+                } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
+                    return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_ERROR, data: { reason: I18n.t(payment.failureReasonKey) } }
+                }
+            }
+
+            return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_ERROR, data: { reason: I18n.t("LnUrlPay_PayReqError") } }
+        }
+
+        throw Error("Not implemented")
+    }
+
+    reset() {
+        this.actionResetPayments()
+    }
+
+    async sendPayment(bolt11: string, withReset: boolean = true, withEdgeUpdate: boolean = true): Promise<PaymentModel> {
+        let payment = await lightning.sendPayment(this.stores.lightningStore.backend, bolt11, { withReset, withEdgeUpdate })
+        return this.updatePayment(payment)
+    }
+
+    async updateBreezPayments(payments: breezSdk.Payment[]) {
+        for (const payment of payments) {
+            if (payment.details.type === breezSdk.PaymentDetailsVariant.LN) {
+                this.actionUpdatePayment(fromBreezPayment(payment, payment.details.data as breezSdk.LnPaymentDetails))
+                this.actionUpdateIndexOffset(payment.paymentTime.toString())
+            }
         }
 
         this.actionSetReady()
     }
 
-    async updatePayment(payment: lnrpc.Payment): Promise<PaymentModel> {
-        const decodedPaymentRequest = await decodePayReq(payment.paymentRequest)
+    async updateLndPayments({ payments }: lnrpc.ListPaymentsResponse) {
+        for (const iPayment of payments) {
+            const payment = lnrpc.Payment.fromObject(iPayment)
+            const paymentRequest = await breezSdk.parseInvoice(payment.paymentRequest)
 
-        return this.actionUpdatePaymentWithPayReq(payment, decodedPaymentRequest)
+            this.actionUpdatePayment(fromLndPayment(payment, paymentRequest))
+            this.actionUpdateIndexOffset(payment.paymentIndex?.toString())
+        }
+
+        this.actionSetReady()
+    }
+
+    async updatePayment(payment: PaymentModel): Promise<PaymentModel> {
+        return this.actionUpdatePayment(payment)
     }
 
     /*
      * Mobx actions and reactions
      */
-    
+
+    actionResetPayments() {
+        this.indexOffset = "0"
+        this.payments.clear()
+
+        when(
+            () => this.stores.lightningStore.syncedToChain,
+            () => this.whenSyncedToChain()
+        )
+    }
+
     actionSetReady() {
         this.ready = true
     }
 
-    actionUpdateIndexOffset(payment: lnrpc.Payment) {
-        this.indexOffset = payment.paymentIndex ? payment.paymentIndex.toString() : this.indexOffset
+    actionUpdateIndexOffset(indexOffset?: string) {
+        if (indexOffset) {
+            this.indexOffset = indexOffset
+        }
     }
 
-    actionUpdatePaymentWithPayReq(
-        { creationTimeNs, feeMsat, feeSat, paymentHash, paymentPreimage, status, failureReason, valueMsat, valueSat }: lnrpc.Payment,
-        payReq: lnrpc.PayReq
-    ): PaymentModel {
-        let payment = this.payments.find(({ hash }) => hash === paymentHash)
+    actionUpdatePayment(payment: PaymentModel, forceUpdate: boolean = false): PaymentModel {
+        let existingPayment = this.payments.find(({ hash }) => hash === payment.hash)
 
-        if (payment) {
-            Object.assign(payment, {
-                description: payReq.description,
-                feeMsat: feeMsat.toString(),
-                feeSat: feeSat.toString(),
-                preimage: paymentPreimage,
-                status: toPaymentStatus(status),
-                failureReasonKey: paymentFailureToLocaleKey(failureReason),
-                valueMsat: valueMsat.toString(),
-                valueSat: valueSat.toString()
-            })
-        } else {
-            const createdAt = nanosecondsToDate(creationTimeNs)
-            payment = {
-                createdAt: createdAt.toISOString(),
-                expiresAt: moment(createdAt).add(toNumber(payReq.expiry), "second").toISOString(),
-                description: payReq.description,
-                feeMsat: feeMsat.toString(),
-                feeSat: feeSat.toString(),
-                hash: paymentHash,
-                preimage: paymentPreimage,
-                status: toPaymentStatus(status),
-                failureReasonKey: paymentFailureToLocaleKey(failureReason),
-                valueMsat: valueMsat.toString(),
-                valueSat: valueSat.toString()
+        if (existingPayment) {
+            if (forceUpdate || existingPayment.status === PaymentStatus.IN_PROGRESS) {
+                Object.assign(existingPayment, payment)
+                this.stores.transactionStore.addTransaction({ hash: payment.hash, payment: existingPayment })
+
+                if (existingPayment.status === PaymentStatus.SUCCEEDED) {
+                    this.stores.channelStore.getChannelBalance()
+                }
             }
 
-            this.payments.push(payment)
+            return existingPayment
         }
 
-        this.stores.transactionStore.addTransaction({ hash: paymentHash, payment })
+        this.payments.push(payment)
+        this.stores.transactionStore.addTransaction({ hash: payment.hash, payment })
+
+        if (payment.status === PaymentStatus.SUCCEEDED) {
+            this.stores.channelStore.getChannelBalance()
+        }
 
         return payment
     }
 
     async whenSyncedToChain() {
-        const listPaymentsResponse: lnrpc.ListPaymentsResponse = await listPayments(true, this.indexOffset)
-        this.updatePayments(listPaymentsResponse)
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            const fromTimestamp = this.indexOffset !== "0" ? parseInt(this.indexOffset) : undefined
+            const payments = await breezSdk.listPayments({filter: breezSdk.PaymentTypeFilter.SENT, fromTimestamp})
+
+            this.updateBreezPayments(payments)
+        } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
+            const listPaymentsResponse: lnrpc.ListPaymentsResponse = await lnd.listPayments(true, this.indexOffset)
+
+            this.updateLndPayments(listPaymentsResponse)
+        }
     }
 }

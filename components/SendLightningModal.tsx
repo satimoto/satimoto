@@ -29,9 +29,10 @@ const SendLightningModal = ({ isVisible, onClose }: SendLightningModalProps) => 
             await uiStore.setPaymentRequest(paymentRequest)
             onClose()
         } catch (error) {
-            setIsBusy(false)
             setLastError(errorToString(error))
         }
+
+        setIsBusy(false)
     }
 
     const onModalClose = () => {

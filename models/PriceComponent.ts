@@ -21,10 +21,10 @@ const calculateTotalPrice = (priceComponent: PriceComponentModel): number => {
 
 const getPriceComponents = (
     elements: TariffElementModel[],
-    energy: number = 0,
-    minPower: number = 0,
-    maxPower: number = 0,
-    duration: number = 0
+    energy?: number,
+    minPower?: number,
+    maxPower?: number,
+    duration?: number
 ): PriceComponentModel[] => {
     const now = moment()
     const nowDate = now.format("YYYY-MM-DD")
