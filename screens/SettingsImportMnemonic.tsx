@@ -8,13 +8,14 @@ import { observer } from "mobx-react"
 import { HStack, Text, useColorModeValue, useTheme, VStack } from "native-base"
 import { HeaderBackButton } from "@react-navigation/elements"
 import { RouteProp, StackActions, useFocusEffect } from "@react-navigation/native"
-import { BackHandler, View } from "react-native"
+import { BackHandler, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { AppStackParamList } from "screens/AppStack"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
+import KeyboardView from "components/KeyboardView"
 
 const log = new Log("SettingsImportMnemonic")
 
@@ -93,41 +94,43 @@ const SettingsImportMnemonic = ({ navigation, route }: SettingsImportMnemonicPro
     }, [mnemonic])
 
     return (
-        <View style={[styles.matchParent, { padding: 10, backgroundColor }]}>
-            <VStack flex={1} justifyContent="space-evenly" style={{ paddingBottom: safeAreaInsets.bottom }}>
-                <HStack justifyContent="space-evenly">
-                    <MnemonicInput value={mnemonic[0]} wordNo={1} width="40%" onChangeText={(text) => onMnemonicChange(0, text)} />
-                    <MnemonicInput value={mnemonic[1]} wordNo={2} width="40%" onChangeText={(text) => onMnemonicChange(1, text)} />
-                </HStack>
-                <HStack justifyContent="space-evenly">
-                    <MnemonicInput value={mnemonic[2]} wordNo={3} width="40%" onChangeText={(text) => onMnemonicChange(2, text)} />
-                    <MnemonicInput value={mnemonic[3]} wordNo={4} width="40%" onChangeText={(text) => onMnemonicChange(3, text)} />
-                </HStack>
-                <HStack justifyContent="space-evenly">
-                    <MnemonicInput value={mnemonic[4]} wordNo={5} width="40%" onChangeText={(text) => onMnemonicChange(4, text)} />
-                    <MnemonicInput value={mnemonic[5]} wordNo={6} width="40%" onChangeText={(text) => onMnemonicChange(5, text)} />
-                </HStack>
-                <HStack justifyContent="space-evenly">
-                    <MnemonicInput value={mnemonic[6]} wordNo={7} width="40%" onChangeText={(text) => onMnemonicChange(6, text)} />
-                    <MnemonicInput value={mnemonic[7]} wordNo={8} width="40%" onChangeText={(text) => onMnemonicChange(7, text)} />
-                </HStack>
-                <HStack justifyContent="space-evenly">
-                    <MnemonicInput value={mnemonic[8]} wordNo={9} width="40%" onChangeText={(text) => onMnemonicChange(8, text)} />
-                    <MnemonicInput value={mnemonic[9]} wordNo={10} width="40%" onChangeText={(text) => onMnemonicChange(9, text)} />
-                </HStack>
-                <HStack justifyContent="space-evenly">
-                    <MnemonicInput value={mnemonic[10]} wordNo={11} width="40%" onChangeText={(text) => onMnemonicChange(10, text)} />
-                    <MnemonicInput value={mnemonic[11]} wordNo={12} width="40%" onChangeText={(text) => onMnemonicChange(11, text)} />
-                </HStack>
-                <VStack>
-                    <Text color={errorColor} paddingX={5}>
-                        {lastError}
-                    </Text>
-                    <BusyButton isBusy={isBusy} isDisabled={isDisabled} marginTop={1} marginX={4} onPress={onOkPress}>
-                        {I18n.t("Button_Ok")}
-                    </BusyButton>
+        <View style={[styles.matchParent, { backgroundColor }]}>
+        <KeyboardView style={[styles.matchParent, { padding: 10 , backgroundColor }]}>
+                <VStack flex={1} justifyContent="space-evenly" style={{ paddingBottom: safeAreaInsets.bottom }}>
+                    <HStack justifyContent="space-evenly">
+                        <MnemonicInput value={mnemonic[0]} wordNo={1} width="40%" onChangeText={(text) => onMnemonicChange(0, text)} />
+                        <MnemonicInput value={mnemonic[1]} wordNo={2} width="40%" onChangeText={(text) => onMnemonicChange(1, text)} />
+                    </HStack>
+                    <HStack justifyContent="space-evenly">
+                        <MnemonicInput value={mnemonic[2]} wordNo={3} width="40%" onChangeText={(text) => onMnemonicChange(2, text)} />
+                        <MnemonicInput value={mnemonic[3]} wordNo={4} width="40%" onChangeText={(text) => onMnemonicChange(3, text)} />
+                    </HStack>
+                    <HStack justifyContent="space-evenly">
+                        <MnemonicInput value={mnemonic[4]} wordNo={5} width="40%" onChangeText={(text) => onMnemonicChange(4, text)} />
+                        <MnemonicInput value={mnemonic[5]} wordNo={6} width="40%" onChangeText={(text) => onMnemonicChange(5, text)} />
+                    </HStack>
+                    <HStack justifyContent="space-evenly">
+                        <MnemonicInput value={mnemonic[6]} wordNo={7} width="40%" onChangeText={(text) => onMnemonicChange(6, text)} />
+                        <MnemonicInput value={mnemonic[7]} wordNo={8} width="40%" onChangeText={(text) => onMnemonicChange(7, text)} />
+                    </HStack>
+                    <HStack justifyContent="space-evenly">
+                        <MnemonicInput value={mnemonic[8]} wordNo={9} width="40%" onChangeText={(text) => onMnemonicChange(8, text)} />
+                        <MnemonicInput value={mnemonic[9]} wordNo={10} width="40%" onChangeText={(text) => onMnemonicChange(9, text)} />
+                    </HStack>
+                    <HStack justifyContent="space-evenly">
+                        <MnemonicInput value={mnemonic[10]} wordNo={11} width="40%" onChangeText={(text) => onMnemonicChange(10, text)} />
+                        <MnemonicInput value={mnemonic[11]} wordNo={12} width="40%" onChangeText={(text) => onMnemonicChange(11, text)} />
+                    </HStack>
+                    <VStack>
+                        <Text color={errorColor} paddingX={5}>
+                            {lastError}
+                        </Text>
+                        <BusyButton isBusy={isBusy} isDisabled={isDisabled} marginTop={1} marginX={4} onPress={onOkPress}>
+                            {I18n.t("Button_Ok")}
+                        </BusyButton>
+                    </VStack>
                 </VStack>
-            </VStack>
+        </KeyboardView>
         </View>
     )
 }
