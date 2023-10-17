@@ -250,12 +250,13 @@ export class WalletStore implements WalletStoreInterface {
     }
 
     async setMnemonic(backend: LightningBackend, mnemonic: string[]) {
-        if (this.stores.lightningStore.backend !== backend) {
+        if (this.state === WalletState.WAITING_TO_START) {
             if (backend === LightningBackend.BREEZ_SDK) {
                 const seedMnemonic: string = mnemonic.join(" ")
 
                 await lightning.mnemonicToSeed(seedMnemonic)
                 await setSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, seedMnemonic)
+                log.debug(`SAT113: mnemonic set`)
             }
         }
     }
