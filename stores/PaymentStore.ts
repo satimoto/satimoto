@@ -79,7 +79,7 @@ export class PaymentStore implements PaymentStoreInterface {
 
     async payLnurl(payParams: breezSdk.LnUrlPayRequestData, amountSats: number, comment?: string): Promise<breezSdk.LnUrlPayResult> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const lnUrlPayResult = await breezSdk.payLnurl(deepCopy(payParams), amountSats, comment)
+            const lnUrlPayResult = await breezSdk.payLnurl({data: deepCopy(payParams), amountMsat: toMilliSatoshi(amountSats).toNumber(), comment})
 
             return lnUrlPayResult
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {

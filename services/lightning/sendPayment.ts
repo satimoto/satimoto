@@ -6,6 +6,7 @@ import { LightningBackend } from "types/lightningBackend"
 import * as lnd from "services/lnd"
 import { listChannels } from "services/satimoto"
 import { DEBUG } from "utils/build"
+import { toMilliSatoshi } from "utils/conversion"
 import { Log } from "utils/logging"
 import { fromBreezPayment, fromLndPayment } from "types/payment"
 
@@ -23,9 +24,9 @@ export const sendPayment = async (
     { amountSats, withReset = true, withEdgeUpdate = true }: SendPaymentOptions
 ): Promise<PaymentModel> => {
     if (backend === LightningBackend.BREEZ_SDK) {
-        const paymentResponse = await breezSdk.sendPayment(bolt11, amountSats)
+        const paymentResponse = await breezSdk.sendPayment({ bolt11, amountMsat: amountSats && toMilliSatoshi(amountSats).toNumber() })
 
-        return fromBreezPayment(paymentResponse, paymentResponse.details.data as breezSdk.LnPaymentDetails)
+        return fromBreezPayment(paymentResponse.payment, paymentResponse.payment.details.data as breezSdk.LnPaymentDetails)
     } else if (backend === LightningBackend.LND) {
         const paymentResponse = await sendLndPayment({ paymentRequest: bolt11 }, { withReset, withEdgeUpdate })
         const paymentRequest = await breezSdk.parseInvoice(bolt11)
@@ -45,7 +46,7 @@ const sendLndPayment = async (
             await lnd.sendPaymentV2(async (payment: lnrpc.Payment) => {
                 if (payment.status === lnrpc.Payment.PaymentStatus.FAILED) {
                     const tryReset =
-                    payment.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE ||
+                        payment.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_NO_ROUTE ||
                         payment.failureReason === lnrpc.PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
 
                     if (tryReset) {
