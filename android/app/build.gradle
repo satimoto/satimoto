@@ -140,8 +140,8 @@ android {
         applicationId "com.satimoto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 70
-        versionName "0.4.4"
+        versionCode 71
+        versionName "0.4.5"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         buildConfigField "String", "BREEZ_SDK_API_KEY", project.property('BREEZ_SDK_API_KEY')
         buildConfigField "String", "GREENLIGHT_PARTNER_CERT", project.property('GREENLIGHT_PARTNER_CERT')
