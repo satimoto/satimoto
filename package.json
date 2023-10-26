@@ -1,6 +1,6 @@
 {
     "name": "satimoto",
-    "version": "0.4.5",
+    "version": "0.4.6",
     "private": true,
     "license": "MIT",
     "scripts": {
@@ -32,7 +32,7 @@
     "dependencies": {
         "@apollo/client": "^3.5.9",
         "@bitcoin-design/bitcoin-icons-react-native": "../Bitcoin-Icons/react-native",
-        "@breeztech/react-native-breez-sdk": "0.2.5",
+        "@breeztech/react-native-breez-sdk": "0.2.7",
         "@fortawesome/fontawesome-svg-core": "^6.1.2",
         "@fortawesome/free-brands-svg-icons": "^6.1.2",
         "@fortawesome/free-regular-svg-icons": "^6.1.2",

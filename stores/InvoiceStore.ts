@@ -113,7 +113,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
         valueMsat = valueMsat || toMilliSatoshi(value!).toNumber()
 
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const { lnInvoice } = await breezSdk.receivePayment({ amountSats: value, description: memo || "" })
+            const { lnInvoice } = await breezSdk.receivePayment({ amountMsat: valueMsat, description: memo || "" })
             log.debug(`Invoice: ${lnInvoice.timestamp} ${lnInvoice.expiry}`)
             const invoice = fromBreezInvoice(lnInvoice)
 
@@ -227,12 +227,12 @@ export class InvoiceStore implements InvoiceStoreInterface {
 
     async withdrawLnurl(withdrawParams: breezSdk.LnUrlWithdrawRequestData, amountSats: number): Promise<boolean> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const response = await breezSdk.withdrawLnurl(deepCopy(withdrawParams), amountSats)
+            const response = await breezSdk.withdrawLnurl({ data: deepCopy(withdrawParams), amountMsat: toMilliSatoshi(amountSats).toNumber() })
 
             if (response.type !== breezSdk.LnUrlWithdrawResultVariant.OK) {
                 throw Error(response.data.reason)
             }
-            
+
             return true
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const invoice = await this.addInvoice({ value: amountSats, createChannel: true })
@@ -346,7 +346,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
     async whenSyncedToChain(): Promise<void> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const fromTimestamp = this.addIndex !== "0" ? parseInt(this.addIndex) : undefined
-            const payments = await breezSdk.listPayments({filter: breezSdk.PaymentTypeFilter.RECEIVED, fromTimestamp})
+            const payments = await breezSdk.listPayments({ filter: breezSdk.PaymentTypeFilter.RECEIVED, fromTimestamp })
 
             this.updateBreezInvoices(payments)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
