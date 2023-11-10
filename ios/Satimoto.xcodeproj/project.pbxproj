@@ -626,7 +626,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.6;
+				MARKETING_VERSION = 0.4.7;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -678,7 +678,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.6;
+				MARKETING_VERSION = 0.4.7;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -793,7 +793,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.6;
+				MARKETING_VERSION = 0.4.7;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -937,7 +937,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.6;
+				MARKETING_VERSION = 0.4.7;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1074,7 +1074,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.6;
+				MARKETING_VERSION = 0.4.7;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1207,7 +1207,7 @@
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.6;
+				MARKETING_VERSION = 0.4.7;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",

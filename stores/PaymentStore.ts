@@ -98,7 +98,7 @@ export class PaymentStore implements PaymentStoreInterface {
                 const payment = await this.sendPayment(payResponse.pr)
 
                 if (payment.status === PaymentStatus.SUCCEEDED) {
-                    return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_SUCCESS }
+                    return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_SUCCESS, data: { paymentHash: payment.hash } }
                 } else if (payment.status === PaymentStatus.FAILED && payment.failureReasonKey) {
                     return { type: breezSdk.LnUrlPayResultVariant.ENDPOINT_ERROR, data: { reason: I18n.t(payment.failureReasonKey) } }
                 }
@@ -199,7 +199,7 @@ export class PaymentStore implements PaymentStoreInterface {
     async whenSyncedToChain() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const fromTimestamp = this.indexOffset !== "0" ? parseInt(this.indexOffset) : undefined
-            const payments = await breezSdk.listPayments({filter: breezSdk.PaymentTypeFilter.SENT, fromTimestamp})
+            const payments = await breezSdk.listPayments({filters: [breezSdk.PaymentTypeFilter.SENT], fromTimestamp})
 
             this.updateBreezPayments(payments)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
