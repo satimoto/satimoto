@@ -80,15 +80,15 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
 
                     if (response.type === LnUrlPayResultVariant.ENDPOINT_SUCCESS) {
                         if (response.data) {
-                            let successAction = response.data
+                            let successAction = response.data.successAction
                             setIsSuccessful(true)
 
-                            if (successAction.type === SuccessActionProcessedVariant.AES) {
+                            if (successAction?.type === SuccessActionProcessedVariant.AES) {
                                 setDescription(successAction.data.description)
                                 setDecryptedAes(successAction.data.plaintext)
-                            } else if (successAction.type === SuccessActionProcessedVariant.MESSAGE) {
+                            } else if (successAction?.type === SuccessActionProcessedVariant.MESSAGE) {
                                 setDescription(successAction.data.message)
-                            } else if (successAction.type === SuccessActionProcessedVariant.URL) {
+                            } else if (successAction?.type === SuccessActionProcessedVariant.URL) {
                                 setDescription(successAction.data.description)
                                 setUrl(successAction.data.url)
                             }

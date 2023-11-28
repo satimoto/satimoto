@@ -346,7 +346,7 @@ export class InvoiceStore implements InvoiceStoreInterface {
     async whenSyncedToChain(): Promise<void> {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const fromTimestamp = this.addIndex !== "0" ? parseInt(this.addIndex) : undefined
-            const payments = await breezSdk.listPayments({ filter: breezSdk.PaymentTypeFilter.RECEIVED, fromTimestamp })
+            const payments = await breezSdk.listPayments({ filters: [breezSdk.PaymentTypeFilter.RECEIVED], fromTimestamp })
 
             this.updateBreezInvoices(payments)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {

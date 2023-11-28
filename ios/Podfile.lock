@@ -1,11 +1,11 @@
 PODS:
   - boost (1.76.0)
-  - breez_sdk (0.2.5):
-    - BreezSDK (= 0.2.5)
+  - breez_sdk (0.2.9):
+    - BreezSDK (= 0.2.9)
     - React-Core
-  - breez_sdkFFI (0.2.5)
-  - BreezSDK (0.2.5):
-    - breez_sdkFFI (= 0.2.5)
+  - breez_sdkFFI (0.2.9)
+  - BreezSDK (0.2.9):
+    - breez_sdkFFI (= 0.2.9)
   - BVLinearGradient (2.6.2):
     - React-Core
   - CocoaAsyncSocket (7.6.5)
@@ -116,22 +116,22 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/AppDelegateSwizzler (7.11.5):
+  - GoogleUtilities/AppDelegateSwizzler (7.11.6):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (7.11.5):
+  - GoogleUtilities/Environment (7.11.6):
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.11.5):
+  - GoogleUtilities/Logger (7.11.6):
     - GoogleUtilities/Environment
-  - GoogleUtilities/Network (7.11.5):
+  - GoogleUtilities/Network (7.11.6):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (7.11.5)"
-  - GoogleUtilities/Reachability (7.11.5):
+  - "GoogleUtilities/NSData+zlib (7.11.6)"
+  - GoogleUtilities/Reachability (7.11.6):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (7.11.5):
+  - GoogleUtilities/UserDefaults (7.11.6):
     - GoogleUtilities/Logger
   - hermes-engine (0.70.6)
   - libevent (2.1.12)
@@ -534,7 +534,7 @@ PODS:
   - RNSVG (12.5.1):
     - React-Core
   - SocketRocket (0.6.1)
-  - SwiftProtobuf (1.23.0)
+  - SwiftProtobuf (1.25.1)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -784,9 +784,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  breez_sdk: bb3eaabddb16f87886428c7fbf6f60a968780a0d
-  breez_sdkFFI: 2a6e787802966d4d7b86a2dd820eda22bb0f4373
-  BreezSDK: 4a50668cdccb73d8109106898ac4fec3113cc5c3
+  breez_sdk: a9e52a20f3e08a5098ec97a20dbbd2ca64340592
+  breez_sdkFFI: fd40b0586453e61c1d156aacf95488a8b55ecb5c
+  BreezSDK: 4367f85ab7594c501c60d95020abacab4b9bdb4d
   BVLinearGradient: 34a999fda29036898a09c6a6b728b0b4189e1a44
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLumberjack: 5c7e64cdb877770859bddec4d3d5a0d7c9299df9
@@ -810,7 +810,7 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
-  GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
+  GoogleUtilities: 202e7a9f5128accd11160fb9c19612de1911aa19
   hermes-engine: 2af7b7a59128f250adfd86f15aa1d5a2ecd39995
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Mapbox-iOS-SDK: a5915700ec84bc1a7f8b3e746d474789e35b7956
@@ -870,7 +870,7 @@ SPEC CHECKSUMS:
   RNSecureStorage: 24d433f7673a0daade43689de805933a70641731
   RNSVG: d7d7bc8229af3842c9cfc3a723c815a52cdd1105
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  SwiftProtobuf: b70d65f419fbfe61a2d58003456ca5da58e337d6
+  SwiftProtobuf: 69f02cd54fb03201c5e6bf8b76f687c5ef7541a3
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
