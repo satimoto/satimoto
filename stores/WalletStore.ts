@@ -272,7 +272,7 @@ export class WalletStore implements WalletStoreInterface {
     async sweep(address: string) {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const recommendedFees = await breezSdk.recommendedFees()
-            const response = await breezSdk.sweep({toAddress: address, feeRateSatsPerVbyte: recommendedFees.hourFee})
+            const response = await breezSdk.sweep({toAddress: address, satPerVbyte: recommendedFees.hourFee})
 
             this.actionSetLastTxid(bytesToHex(reverseByteOrder(response.txid)))
             this.refreshWalletBalance()
