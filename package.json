@@ -1,12 +1,13 @@
 {
     "name": "satimoto",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "private": true,
     "license": "MIT",
     "scripts": {
         "start": "react-native start",
         "test": "jest",
         "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+        "tsc": "tsc --noEmit",
         "pods": "cd ios && pod install --repo-update",
         "postinstall": "npm run protobuf",
         "protobuf": "pbjs -t static-module -w es6 --force-long -o proto/proto.js proto/lightning.proto proto/stateservice.proto proto/walletunlocker.proto proto/autopilotrpc/autopilot.proto proto/chainrpc/chainnotifier.proto proto/devrpc/dev.proto proto/invoicesrpc/invoices.proto proto/neutrinorpc/neutrino.proto proto/peersrpc/peers.proto proto/routerrpc/router.proto proto/signrpc/signer.proto proto/walletrpc/walletkit.proto && pbts -o proto/proto.d.ts proto/proto.js",
@@ -32,7 +33,7 @@
     "dependencies": {
         "@apollo/client": "^3.5.9",
         "@bitcoin-design/bitcoin-icons-react-native": "../Bitcoin-Icons/react-native",
-        "@breeztech/react-native-breez-sdk": "0.2.9",
+        "@breeztech/react-native-breez-sdk": "0.2.10",
         "@fortawesome/fontawesome-svg-core": "^6.1.2",
         "@fortawesome/free-brands-svg-icons": "^6.1.2",
         "@fortawesome/free-regular-svg-icons": "^6.1.2",

@@ -1,4 +1,5 @@
 import {
+    AesSuccessActionDataResultVariant,
     LnUrlErrorData,
     LnUrlPayResultVariant,
     SuccessActionProcessedVariant
@@ -84,8 +85,10 @@ const LnUrlPay = ({ navigation, route }: LnUrlPayProps) => {
                             setIsSuccessful(true)
 
                             if (successAction?.type === SuccessActionProcessedVariant.AES) {
-                                setDescription(successAction.data.description)
-                                setDecryptedAes(successAction.data.plaintext)
+                                if (successAction.result.type === AesSuccessActionDataResultVariant.DECRYPTED) {
+                                    setDescription(successAction.result.data.description)
+                                    setDecryptedAes(successAction.result.data.plaintext)
+                                }
                             } else if (successAction?.type === SuccessActionProcessedVariant.MESSAGE) {
                                 setDescription(successAction.data.message)
                             } else if (successAction?.type === SuccessActionProcessedVariant.URL) {
