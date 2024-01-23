@@ -1,11 +1,11 @@
 PODS:
   - boost (1.76.0)
-  - breez_sdk (0.2.10):
-    - BreezSDK (= 0.2.10)
+  - breez_sdk (0.2.14):
+    - BreezSDK (= 0.2.14)
     - React-Core
-  - breez_sdkFFI (0.2.10)
-  - BreezSDK (0.2.10):
-    - breez_sdkFFI (= 0.2.10)
+  - breez_sdkFFI (0.2.14)
+  - BreezSDK (0.2.14):
+    - breez_sdkFFI (= 0.2.14)
   - BVLinearGradient (2.6.2):
     - React-Core
   - CocoaAsyncSocket (7.6.5)
@@ -784,9 +784,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  breez_sdk: ad0bc6015381efd6d4f14162c63b04ab1a5815e6
-  breez_sdkFFI: bea35d8872751d7c07591b5e4be63df3e870801e
-  BreezSDK: d0273a84fcd80ab000e66364786328ab0bb1abd9
+  breez_sdk: c5935fdb5bced7856531fb124e2f6216f2a36070
+  breez_sdkFFI: b8e3fe587cca056b28923fc01bdd621f4c740a41
+  BreezSDK: 9c72a491ba9002a978a7cb4813b612368721e2a4
   BVLinearGradient: 34a999fda29036898a09c6a6b728b0b4189e1a44
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLumberjack: f8d89a516e7710fdb2e9b8f1560b16ec6040eef0
