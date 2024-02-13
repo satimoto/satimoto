@@ -1,17 +1,17 @@
 PODS:
   - boost (1.76.0)
-  - breez_sdk (0.2.14):
-    - BreezSDK (= 0.2.14)
+  - breez_sdk (0.3.0):
+    - BreezSDK (= 0.3.0)
     - React-Core
-  - breez_sdkFFI (0.2.14)
-  - BreezSDK (0.2.14):
-    - breez_sdkFFI (= 0.2.14)
+  - breez_sdkFFI (0.3.0)
+  - BreezSDK (0.3.0):
+    - breez_sdkFFI (= 0.3.0)
   - BVLinearGradient (2.6.2):
     - React-Core
   - CocoaAsyncSocket (7.6.5)
-  - CocoaLumberjack (3.8.2):
-    - CocoaLumberjack/Core (= 3.8.2)
-  - CocoaLumberjack/Core (3.8.2)
+  - CocoaLumberjack (3.8.4):
+    - CocoaLumberjack/Core (= 3.8.4)
+  - CocoaLumberjack/Core (3.8.4)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.70.6)
   - FBReactNativeSpec (0.70.6):
@@ -112,7 +112,7 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - GoogleDataTransport (9.2.5):
+  - GoogleDataTransport (9.3.0):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
@@ -534,7 +534,7 @@ PODS:
   - RNSVG (12.5.1):
     - React-Core
   - SocketRocket (0.6.1)
-  - SwiftProtobuf (1.25.1)
+  - SwiftProtobuf (1.25.2)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -784,12 +784,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  breez_sdk: c5935fdb5bced7856531fb124e2f6216f2a36070
-  breez_sdkFFI: b8e3fe587cca056b28923fc01bdd621f4c740a41
-  BreezSDK: 9c72a491ba9002a978a7cb4813b612368721e2a4
+  breez_sdk: ca2d9144d89cc87f260e7a490d6e85038f0210a2
+  breez_sdkFFI: b3e7813ce2d6f05ce83ba78a4f3d03122276f11c
+  BreezSDK: b8fa817b85fee64e325e5ee0f04b90edf8ca0f3a
   BVLinearGradient: 34a999fda29036898a09c6a6b728b0b4189e1a44
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
-  CocoaLumberjack: f8d89a516e7710fdb2e9b8f1560b16ec6040eef0
+  CocoaLumberjack: df59726690390bb8aaaa585938564ba1c8dbbb44
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 48289402952f4f7a4e235de70a9a590aa0b79ef4
   FBReactNativeSpec: dd1186fd05255e3457baa2f4ca65e94c2cd1e3ac
@@ -809,7 +809,7 @@ SPEC CHECKSUMS:
   FlipperKit: cbdee19bdd4e7f05472a66ce290f1b729ba3cb86
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
+  GoogleDataTransport: 57c22343ab29bc686febbf7cbb13bad167c2d8fe
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
   hermes-engine: 2af7b7a59128f250adfd86f15aa1d5a2ecd39995
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
@@ -870,7 +870,7 @@ SPEC CHECKSUMS:
   RNSecureStorage: 24d433f7673a0daade43689de805933a70641731
   RNSVG: d7d7bc8229af3842c9cfc3a723c815a52cdd1105
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  SwiftProtobuf: 69f02cd54fb03201c5e6bf8b76f687c5ef7541a3
+  SwiftProtobuf: 407a385e97fd206c4fbe880cc84123989167e0d1
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
