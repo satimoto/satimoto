@@ -636,7 +636,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug;
 				PRODUCT_NAME = "Satimoto Debug";
 				PROVISIONING_PROFILE_SPECIFIER = "Satimoto Debug";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Satimoto Debug";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SatimotoDebug2024;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
