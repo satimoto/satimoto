@@ -63,9 +63,9 @@ const ReceiveLightningModal = ({ isVisible, onClose }: ReceiveLightningModalProp
     const updateLspFees = async (amountSats: number) => {
         const lspFees = await channelStore.getLspFees(amountSats)
 
-        setOpeningFee(toSatoshi(lspFees.feeMsat).toNumber())
-        setLspFeeMinimum(toSatoshi(lspFees.usedFeeParams?.minMsat || 0).toNumber())
-        setLspFeeProportional(lspFees.usedFeeParams?.proportional || 0)
+        setOpeningFee(toSatoshi(lspFees.feeMsat || 0).toNumber())
+        setLspFeeMinimum(toSatoshi(lspFees.feeParams.minMsat).toNumber())
+        setLspFeeProportional(lspFees.feeParams.proportional)
     }
 
     useEffect(() => {

@@ -1119,10 +1119,10 @@
 "@bitcoin-design/bitcoin-icons-react-native@../Bitcoin-Icons/react-native":
   version "0.1.8"
 
-"@breeztech/react-native-breez-sdk@0.2.14":
-  version "0.2.14"
-  resolved "https://registry.yarnpkg.com/@breeztech/react-native-breez-sdk/-/react-native-breez-sdk-0.2.14.tgz#1e9472bf4ad694be788036a6c40d90e90558b816"
-  integrity sha512-Z2gIr9VpkPh7bV1mmJreateYzrXWHvqiA8TZ1phxOo7B1HRuTT890jsOHIk1dRt0vmb3lKaQN0swSej5J94UtA==
+"@breeztech/react-native-breez-sdk@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@breeztech/react-native-breez-sdk/-/react-native-breez-sdk-0.3.0.tgz#7b4d424bc287b6e52bc42e8170fffd3e0365bfe5"
+  integrity sha512-5okCI4MgUIuwybYFMjh/qIH2KjJTrbA6iRJG2rXGgQRQw1fO1DvOV8Q/o5ER8kLSUfeCOucu5OQmxfSW/Q66pA==
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
