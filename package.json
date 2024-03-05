@@ -1,6 +1,6 @@
 {
     "name": "satimoto",
-    "version": "0.4.10",
+    "version": "0.4.11",
     "private": true,
     "license": "MIT",
     "scripts": {
@@ -33,7 +33,7 @@
     "dependencies": {
         "@apollo/client": "^3.5.9",
         "@bitcoin-design/bitcoin-icons-react-native": "../Bitcoin-Icons/react-native",
-        "@breeztech/react-native-breez-sdk": "0.3.0",
+        "@breeztech/react-native-breez-sdk": "0.3.2",
         "@fortawesome/fontawesome-svg-core": "^6.1.2",
         "@fortawesome/free-brands-svg-icons": "^6.1.2",
         "@fortawesome/free-regular-svg-icons": "^6.1.2",
@@ -68,7 +68,7 @@
         "react": "18.1.0",
         "react-dom": "18.1.0",
         "react-moment": "^1.1.2",
-        "react-native": "0.70.6",
+        "react-native": "0.70.15",
         "react-native-background-fetch": "^4.1.7",
         "react-native-bip39": "https://github.com/valora-inc/react-native-bip39",
         "react-native-blob-util": "^0.17.2",
@@ -126,7 +126,7 @@
         "jest": "^26.6.3",
         "jetifier": "^2.0.0",
         "metro-minify-terser": "^0.74.0",
-        "metro-react-native-babel-preset": "0.72.3",
+        "metro-react-native-babel-preset": "0.72.4",
         "protobufjs": "https://github.com/satimoto/protobuf.js#6.11.3",
         "react-native-codegen": "^0.0.7",
         "react-test-renderer": "18.1.0",
