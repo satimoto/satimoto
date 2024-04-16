@@ -325,7 +325,6 @@ export class LocationStore implements LocationStoreInterface {
         this.pois.replace(
             pois.map((poi: PoiModel) => {
                 const iconImage = `${poi.tagKey}_${poi.tagValue}`
-                log.debug(iconImage)
                 return { ...poi, iconImage: ASSET_IMAGES.includes(iconImage) ? iconImage : poi.tagKey }
             })
         )

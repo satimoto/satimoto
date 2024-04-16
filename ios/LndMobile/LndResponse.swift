@@ -73,7 +73,6 @@ class LndRecvStream: NSObject, LndmobileRecvStreamProtocol {
   
   func onResponse(_ p0: Data?) {
     let base64Data = p0?.base64EncodedString(options: []) ?? ""
-    RCTLog(base64Data)
     self.eventEmitter.sendEvent(withName: LndRecvStream.streamEventName,
                                 body: [
                                   "streamId": self.streamId,

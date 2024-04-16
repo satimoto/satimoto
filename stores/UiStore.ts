@@ -43,6 +43,7 @@ export interface UiStoreInterface extends StoreInterface {
     tooltipShownCards: boolean
     tooltipShownCircuit: boolean
     tooltipShownSyncing: boolean
+    webhookRequestedPermission: boolean
 
     clearAll(): void
     clearChargePoint(): void
@@ -86,6 +87,7 @@ export class UiStore implements UiStoreInterface {
     tooltipShownCards: boolean = false
     tooltipShownCircuit: boolean = false
     tooltipShownSyncing: boolean = false
+    webhookRequestedPermission: boolean = false
 
     constructor(stores: Store) {
         this.stores = stores
@@ -115,6 +117,7 @@ export class UiStore implements UiStoreInterface {
             tooltipShownCards: observable,
             tooltipShownCircuit: observable,
             tooltipShownSyncing: observable,
+            webhookRequestedPermission: observable,
 
             hasOnboardingUpdates: computed,
             showSyncing: computed,
@@ -134,7 +137,8 @@ export class UiStore implements UiStoreInterface {
             actionSetLnUrlWithdrawParams: action,
             actionSetPaymentRequest: action,
             actionSetOnboarding: action,
-            actionSetTooltipShown: action
+            actionSetTooltipShown: action,
+            actionSetWebhookRequestedPermission: action
         })
 
         makePersistable(
@@ -158,7 +162,8 @@ export class UiStore implements UiStoreInterface {
                     "onboardingVersion",
                     "tooltipShownCards",
                     "tooltipShownCircuit",
-                    "tooltipShownSyncing"
+                    "tooltipShownSyncing",
+                    //"webhookRequestedPermission"
                 ],
                 storage: AsyncStorage,
                 debugMode: DEBUG
@@ -174,6 +179,11 @@ export class UiStore implements UiStoreInterface {
             () => [this.stores.lightningStore.backend],
             () => this.reactionBackend(),
             { fireImmediately: true }
+        )
+
+        reaction(
+            () => [this.stores.lightningStore.syncedToChain, !this.webhookRequestedPermission],
+            () => this.reactionRequestWebhookPermission()
         )
 
         when(
@@ -461,9 +471,20 @@ export class UiStore implements UiStoreInterface {
         }
     }
 
+    actionSetWebhookRequestedPermission(requested: boolean) {
+        this.webhookRequestedPermission = requested
+    }
+
     reactionBackend() {
         if (this.stores.lightningStore.backend === LightningBackend.LND) {
             this.tooltipShownBackend = false
+        }
+    }
+
+    async reactionRequestWebhookPermission() {
+        if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
+            this.actionSetWebhookRequestedPermission(true)
+            await this.stores.settingStore.requestPushNotificationPermission()
         }
     }
 }

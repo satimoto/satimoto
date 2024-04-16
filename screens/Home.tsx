@@ -96,7 +96,7 @@ const Home = ({ navigation }: HomeProps) => {
     const [isSendNfcModalVisible, setIsSendNfcModalVisible] = useState(false)
     const [isSyncingTooltipVisible, setIsSyncingTooltipVisible] = useState(false)
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
-    const { uiStore, lightningStore, locationStore, sessionStore } = useStore()
+    const { uiStore, lightningStore, locationStore, sessionStore, settingStore } = useStore()
 
     let userCoordinate: Position | null = null
 
@@ -118,7 +118,7 @@ const Home = ({ navigation }: HomeProps) => {
         }
     }
 
-    const onActionsheetPress = (event: string) => {
+    const onActionsheetPress = async (event: string) => {
         if (event === "send_address") {
             setIsSendToAddressModalVisible(true)
         } else if (event === "send_lightning") {
@@ -127,6 +127,12 @@ const Home = ({ navigation }: HomeProps) => {
             setIsSendNfcModalVisible(true)
         } else if (event === "receive_qr") {
             setIsReceiveLightningModalVisible(true)
+        } else if (event === "receive_lnurl") {
+            const enabled = await settingStore.requestPushNotificationPermission()
+
+            if (enabled) {
+                navigation.navigate("ReceiveLnUrl")
+            }
         } else if (event === "receive_nfc") {
             setIsReceiveNfcModalVisible(true)
         }

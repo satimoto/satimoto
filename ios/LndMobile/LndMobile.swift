@@ -201,7 +201,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
   }
 
   func onStreamClose(streamId: String) {
-    RCTLog("stream closed: \(streamId)")
     self.activeStreams.removeValue(forKey: streamId)
   }
   
@@ -216,7 +215,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       do {
         try lndUtils.writeDefaultConf()
       } catch let err {
-        RCTLogError("error writing conf: \(err.localizedDescription)")
         reject("error", err.localizedDescription, err)
         return
       }
@@ -232,7 +230,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       initWallet.cipherSeedMnemonic = seed
       
       if password.count < 8 {
-        RCTLogError("password too short: \(password.replacingOccurrences(of: ".", with: "*", options: .regularExpression))")
         reject("error", "password too short", NSError())
         return
       }
@@ -246,7 +243,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       let msg = try initWallet.serializedData()
       LndmobileInitWallet(msg, LndCallback(resolver: resolve, rejecter: reject))
     } catch let err {
-      RCTLogError("got initWallet error: \(err.localizedDescription)")
       reject("error", err.localizedDescription, err)
     }
   }
@@ -260,7 +256,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       let msg = try unlockWallet.serializedData()
       LndmobileUnlockWallet(msg, LndCallback(resolver: resolve, rejecter: reject))
     } catch let err {
-      RCTLogError("got unlockWallet error: \(err.localizedDescription)")
       reject("error", err.localizedDescription, err)
     }
   }
@@ -273,7 +268,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       
       LndmobileStopDaemon(msg, LndCallback(resolver: resolve, rejecter: reject))
     } catch let err {
-      RCTLogError("got stop error: \(err.localizedDescription)")
       reject("error", err.localizedDescription, err)
     }
   }
@@ -283,7 +277,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
     let block = LndMobile.syncMethods[method]
     
     if block == nil {
-      RCTLogError("method \(method) not found")
       return
     }
     
@@ -309,7 +302,6 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       
       if (err != nil) {
         let errStr = err?.localizedDescription ?? "unknown"
-        RCTLogError("got init error: \(errStr)")
         return
       }
       
@@ -317,17 +309,12 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
         self.activeStreams[streamId] = sendStream;
         do {
           try sendStream!.send(bytes)
-        } catch let err {
-          RCTLogError("got send error: \(err.localizedDescription)")
-        }
+        } catch {}
         return
       }
 
-      RCTLogError("no send stream for method \(method)")
       return
     }
-    
-    RCTLogError("stream method \(method) not found")
   }
   
   @objc(sendStreamWrite:body:)
@@ -339,13 +326,9 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       
       do {
         try sendStream!.send(bytes)
-      } catch let err {
-        RCTLogError("got send error: \(err.localizedDescription)")
-      }
+      } catch {}
       return
     }
-    
-    RCTLogError("stream \(streamId) not found")
   }
   
   @objc(closeStream:)
@@ -356,12 +339,8 @@ class LndMobile: RCTEventEmitter, LndStreamEventProtocol {
       self.activeStreams.removeValue(forKey: streamId)
       do {
         try sendStream!.stop()
-      } catch let err {
-        RCTLogError("got close error: \(err.localizedDescription)")
-      }
+      } catch {}
       return
     }
-    
-    RCTLogError("stream \(streamId) not found")
   }
 }

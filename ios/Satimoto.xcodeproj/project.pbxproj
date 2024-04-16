@@ -10,13 +10,15 @@
 		00E356F31AD99517003FC87E /* SatimotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* SatimotoTests.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		6C0F4B50088C9AC6A0B71CA1 /* libPods-Satimoto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */; };
+		53E71603B9B93E7BC53D5303 /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F6078D081F17CF16D388915 /* libPods-NotificationService.a */; };
+		732369E42B9B0DD600E7E9B1 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 732369E32B9B0DD600E7E9B1 /* KeychainHelper.swift */; };
+		732369E52B9BABD100E7E9B1 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 73D965EF296C2FBE00EF9120 /* Secrets.xcconfig */; };
+		7350C32D2B5FCD4900F30E19 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7350C32C2B5FCD4900F30E19 /* NotificationService.swift */; };
+		7350C3312B5FCD4900F30E19 /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7350C32A2B5FCD4900F30E19 /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7356CF9B292674DA00B5C7E8 /* GoogleService-Info-Debug.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7356CF9A292674DA00B5C7E8 /* GoogleService-Info-Debug.plist */; };
 		7362935126E63CDD006F70C2 /* LndMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362934E26E63CDD006F70C2 /* LndMobile.m */; };
 		7362938F26E8DEA5006F70C2 /* LndMobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362938E26E8DEA4006F70C2 /* LndMobile.swift */; };
 		7362939126E8EE2F006F70C2 /* LndResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362939026E8EE2F006F70C2 /* LndResponse.swift */; };
-		7362939B26EA346F006F70C2 /* RCTLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362939826EA346F006F70C2 /* RCTLog.swift */; };
-		7362939C26EA346F006F70C2 /* RCTSwiftLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362939926EA346F006F70C2 /* RCTSwiftLog.m */; };
 		7362939E26EA8E5E006F70C2 /* LndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7362939D26EA8E5D006F70C2 /* LndUtils.swift */; };
 		736293A026EA914C006F70C2 /* LndUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 7362939F26EA914C006F70C2 /* LndUtils.m */; };
 		736293A326EF898F006F70C2 /* walletunlocker.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736293A126EF898D006F70C2 /* walletunlocker.pb.swift */; };
@@ -27,7 +29,8 @@
 		73D965ED296C2C2400EF9120 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73D965EC296C2C2400EF9120 /* AppDelegate.mm */; };
 		73D965F0296C2FBE00EF9120 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 73D965EF296C2FBE00EF9120 /* Secrets.xcconfig */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		837C91D709CC5890266485F8 /* libPods-Satimoto-SatimotoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3DE9A99CD01149119407A27 /* libPods-Satimoto-SatimotoTests.a */; };
+		B4089A2AED1B01E56FDD162B /* libPods-Satimoto-SatimotoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 441E4A135691D12D99E5A8C0 /* libPods-Satimoto-SatimotoTests.a */; };
+		D233208EC076CB02A7555066 /* libPods-Satimoto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C2CD8B2B88C506B7F6DBF9 /* libPods-Satimoto.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,51 +41,92 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = Satimoto;
 		};
+		7350C32F2B5FCD4900F30E19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7350C3292B5FCD4900F30E19;
+			remoteInfo = NotificationService;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7350C3392B5FCD4A00F30E19 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7350C3312B5FCD4900F30E19 /* NotificationService.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		00E356EE1AD99517003FC87E /* SatimotoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SatimotoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* SatimotoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SatimotoTests.m; sourceTree = "<group>"; };
-		0D3514C3F243B6DC24380596 /* Pods-Satimoto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.debug.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.debug.xcconfig"; sourceTree = "<group>"; };
+		0DDF697CC3120DEF7895A156 /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Satimoto Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Satimoto Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Satimoto/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Satimoto/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Satimoto/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Satimoto/main.m; sourceTree = "<group>"; };
-		1DB38A8EF1D2531B6FB6B167 /* Pods-Satimoto.debugtestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.debugtestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.debugtestnet.xcconfig"; sourceTree = "<group>"; };
-		2BB5170F72D89F5045F38689 /* Pods-Satimoto.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releaseregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releaseregtest.xcconfig"; sourceTree = "<group>"; };
-		33FE4B1D897DF402295AF46C /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; sourceTree = "<group>"; };
-		468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Satimoto.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		288555D6E7418E90A7218581 /* Pods-Satimoto-SatimotoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.release.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.release.xcconfig"; sourceTree = "<group>"; };
+		3A9C916B3144B6339AEAD4B1 /* Pods-NotificationService.releasetestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.releasetestnet.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.releasetestnet.xcconfig"; sourceTree = "<group>"; };
+		409BE7A9451BFAA3F9B51044 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
+		441E4A135691D12D99E5A8C0 /* libPods-Satimoto-SatimotoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Satimoto-SatimotoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		52265CFFE2773AC7E5BF0330 /* Pods-Satimoto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.release.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.release.xcconfig"; sourceTree = "<group>"; };
+		618EE8DBC6AD71FE2C46B259 /* Pods-Satimoto.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.debugregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.debugregtest.xcconfig"; sourceTree = "<group>"; };
+		6238AF4DEA3B26CA49E328A0 /* Pods-Satimoto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.debug.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.debug.xcconfig"; sourceTree = "<group>"; };
+		65D0B9EF82575B128626AACE /* Pods-Satimoto.debugtestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.debugtestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.debugtestnet.xcconfig"; sourceTree = "<group>"; };
+		6F5D3B500F20594F9ED7A5F1 /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugregtest.xcconfig"; sourceTree = "<group>"; };
+		732369E32B9B0DD600E7E9B1 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		7350C32A2B5FCD4900F30E19 /* NotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		7350C32C2B5FCD4900F30E19 /* NotificationService.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		7350C32E2B5FCD4900F30E19 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7350C33D2B5FEE6C00F30E19 /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
 		7356CF9A292674DA00B5C7E8 /* GoogleService-Info-Debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Debug.plist"; path = "Satimoto/GoogleService-Info-Debug.plist"; sourceTree = "<group>"; };
 		7362934E26E63CDD006F70C2 /* LndMobile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LndMobile.m; sourceTree = "<group>"; };
 		7362938D26E8DEA3006F70C2 /* Satimoto-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Satimoto-Bridging-Header.h"; sourceTree = "<group>"; };
 		7362938E26E8DEA4006F70C2 /* LndMobile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LndMobile.swift; sourceTree = "<group>"; };
 		7362939026E8EE2F006F70C2 /* LndResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LndResponse.swift; sourceTree = "<group>"; };
-		7362939826EA346F006F70C2 /* RCTLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RCTLog.swift; path = RCTSwiftLog/RCTLog.swift; sourceTree = "<group>"; };
-		7362939926EA346F006F70C2 /* RCTSwiftLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTSwiftLog.m; path = RCTSwiftLog/RCTSwiftLog.m; sourceTree = "<group>"; };
-		7362939A26EA346F006F70C2 /* RCTSwiftLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTSwiftLog.h; path = RCTSwiftLog/RCTSwiftLog.h; sourceTree = "<group>"; };
 		7362939D26EA8E5D006F70C2 /* LndUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LndUtils.swift; sourceTree = "<group>"; };
 		7362939F26EA914C006F70C2 /* LndUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LndUtils.m; sourceTree = "<group>"; };
 		736293A126EF898D006F70C2 /* walletunlocker.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = walletunlocker.pb.swift; sourceTree = "<group>"; };
 		736293A226EF898E006F70C2 /* rpc.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rpc.pb.swift; sourceTree = "<group>"; };
+		737AC9482B8CC1EB001E5BF4 /* breez_sdkFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = breez_sdkFFI.xcframework; path = Pods/breez_sdkFFI/breez_sdkFFI.xcframework; sourceTree = "<group>"; };
+		737AC94A2B8CC1EC001E5BF4 /* libKeychainAccess.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKeychainAccess.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC94C2B8CC1EC001E5BF4 /* libXCGLogger.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libXCGLogger.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC94E2B8CC220001E5BF4 /* libXCGLogger.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libXCGLogger.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC9502B8CC228001E5BF4 /* libKeychainAccess.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKeychainAccess.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC9542B8CC352001E5BF4 /* libBreezSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libBreezSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC9552B8CC352001E5BF4 /* libKeychainAccess.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKeychainAccess.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC9562B8CC352001E5BF4 /* libXCGLogger.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libXCGLogger.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC96E2B8CCCBA001E5BF4 /* libBreezSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libBreezSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC96F2B8CCCBA001E5BF4 /* libKeychainAccess.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKeychainAccess.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		737AC9702B8CCCBA001E5BF4 /* libXCGLogger.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libXCGLogger.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		73B15AD32864570E004884B9 /* Lndmobile.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Lndmobile.xcframework; sourceTree = "<group>"; };
 		73C06CD927C50CC20095AA81 /* GoogleService-Info-Testnet.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Testnet.plist"; path = "Satimoto/GoogleService-Info-Testnet.plist"; sourceTree = "<group>"; };
 		73C06CDB27C50F090095AA81 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Satimoto/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		73D35AAD2895DCA300519935 /* Satimoto.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Satimoto.entitlements; path = Satimoto/Satimoto.entitlements; sourceTree = "<group>"; };
 		73D965EC296C2C2400EF9120 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = satimoto/AppDelegate.mm; sourceTree = "<group>"; };
 		73D965EF296C2FBE00EF9120 /* Secrets.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Secrets.xcconfig; path = satimoto/Secrets.xcconfig; sourceTree = "<group>"; };
-		752AC8EC3098CB6A402A31E9 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Satimoto/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		83C917C85CF0CAFF547E8B22 /* Pods-Satimoto.releasetestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releasetestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releasetestnet.xcconfig"; sourceTree = "<group>"; };
-		BDD5706FE35671125DB839B7 /* Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig"; sourceTree = "<group>"; };
-		C3DE9A99CD01149119407A27 /* libPods-Satimoto-SatimotoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Satimoto-SatimotoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C766A10B26172A37B10D8974 /* Pods-Satimoto-SatimotoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debug.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debug.xcconfig"; sourceTree = "<group>"; };
-		D5F94DE0214DD780CF4E5688 /* Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig"; sourceTree = "<group>"; };
+		8CCE05608336324ABC744387 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig"; sourceTree = "<group>"; };
+		9DF70CC53E8E2C131B2AEADA /* Pods-NotificationService.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debugregtest.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debugregtest.xcconfig"; sourceTree = "<group>"; };
+		9F6078D081F17CF16D388915 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1A036A1809D790351C58886 /* Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig"; sourceTree = "<group>"; };
+		A1C2CD8B2B88C506B7F6DBF9 /* libPods-Satimoto.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Satimoto.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9607F39904D74456A2839BA /* Pods-NotificationService.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.releaseregtest.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.releaseregtest.xcconfig"; sourceTree = "<group>"; };
+		CED6DA5F76DFEEE9F80E0AE2 /* Pods-Satimoto.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releaseregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releaseregtest.xcconfig"; sourceTree = "<group>"; };
+		DD47BBAFE097E6671580789E /* Pods-Satimoto.releasetestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.releasetestnet.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.releasetestnet.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		ED398C14831A85D1FCA09A69 /* Pods-Satimoto-SatimotoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.release.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.release.xcconfig"; sourceTree = "<group>"; };
-		F9B10973E8CD3190B849C384 /* Pods-Satimoto.debugregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.debugregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.debugregtest.xcconfig"; sourceTree = "<group>"; };
-		FDC64EA6D11DD876423F96B4 /* Pods-Satimoto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto.release.xcconfig"; path = "Target Support Files/Pods-Satimoto/Pods-Satimoto.release.xcconfig"; sourceTree = "<group>"; };
+		EED9194D0D94C1435A3DC471 /* Pods-Satimoto-SatimotoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.debug.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		F63C0656F5C899740EFF29F7 /* Pods-NotificationService.debugtestnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debugtestnet.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debugtestnet.xcconfig"; sourceTree = "<group>"; };
+		FF94020FB73F9E7338243FFD /* Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig"; path = "Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,7 +134,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				837C91D709CC5890266485F8 /* libPods-Satimoto-SatimotoTests.a in Frameworks */,
+				B4089A2AED1B01E56FDD162B /* libPods-Satimoto-SatimotoTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +143,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				73B15AD42864570E004884B9 /* Lndmobile.xcframework in Frameworks */,
-				6C0F4B50088C9AC6A0B71CA1 /* libPods-Satimoto.a in Frameworks */,
+				D233208EC076CB02A7555066 /* libPods-Satimoto.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7350C3272B5FCD4900F30E19 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53E71603B9B93E7BC53D5303 /* libPods-NotificationService.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,11 +196,34 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				737AC96E2B8CCCBA001E5BF4 /* libBreezSDK.a */,
+				737AC96F2B8CCCBA001E5BF4 /* libKeychainAccess.a */,
+				737AC9702B8CCCBA001E5BF4 /* libXCGLogger.a */,
+				737AC9542B8CC352001E5BF4 /* libBreezSDK.a */,
+				737AC9552B8CC352001E5BF4 /* libKeychainAccess.a */,
+				737AC9562B8CC352001E5BF4 /* libXCGLogger.a */,
+				737AC9502B8CC228001E5BF4 /* libKeychainAccess.a */,
+				737AC94E2B8CC220001E5BF4 /* libXCGLogger.a */,
+				737AC9482B8CC1EB001E5BF4 /* breez_sdkFFI.xcframework */,
+				737AC94A2B8CC1EC001E5BF4 /* libKeychainAccess.a */,
+				737AC94C2B8CC1EC001E5BF4 /* libXCGLogger.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				468FFE9F034866C00DEF06E8 /* libPods-Satimoto.a */,
-				C3DE9A99CD01149119407A27 /* libPods-Satimoto-SatimotoTests.a */,
+				9F6078D081F17CF16D388915 /* libPods-NotificationService.a */,
+				A1C2CD8B2B88C506B7F6DBF9 /* libPods-Satimoto.a */,
+				441E4A135691D12D99E5A8C0 /* libPods-Satimoto-SatimotoTests.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7350C32B2B5FCD4900F30E19 /* NotificationService */ = {
+			isa = PBXGroup;
+			children = (
+				7350C33D2B5FEE6C00F30E19 /* NotificationService.entitlements */,
+				7350C32E2B5FCD4900F30E19 /* Info.plist */,
+				7350C32C2B5FCD4900F30E19 /* NotificationService.swift */,
+				732369E32B9B0DD600E7E9B1 /* KeychainHelper.swift */,
+			);
+			path = NotificationService;
 			sourceTree = "<group>";
 		};
 		7362934A26E63B47006F70C2 /* LndMobile */ = {
@@ -165,16 +240,6 @@
 				736293A126EF898D006F70C2 /* walletunlocker.pb.swift */,
 			);
 			path = LndMobile;
-			sourceTree = "<group>";
-		};
-		7362939226EA334A006F70C2 /* RCTSwiftLog */ = {
-			isa = PBXGroup;
-			children = (
-				7362939826EA346F006F70C2 /* RCTLog.swift */,
-				7362939A26EA346F006F70C2 /* RCTSwiftLog.h */,
-				7362939926EA346F006F70C2 /* RCTSwiftLog.m */,
-			);
-			name = RCTSwiftLog;
 			sourceTree = "<group>";
 		};
 		73E24BF32950E3390077AECC /* Recovered References */ = {
@@ -194,11 +259,11 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				7362939226EA334A006F70C2 /* RCTSwiftLog */,
 				7362934A26E63B47006F70C2 /* LndMobile */,
 				13B07FAE1A68108700A75B9A /* Satimoto */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* SatimotoTests */,
+				7350C32B2B5FCD4900F30E19 /* NotificationService */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E233CBF5F47BEE60B243DCF8 /* Pods */,
@@ -214,6 +279,7 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* Satimoto Debug.app */,
 				00E356EE1AD99517003FC87E /* SatimotoTests.xctest */,
+				7350C32A2B5FCD4900F30E19 /* NotificationService.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -221,18 +287,24 @@
 		E233CBF5F47BEE60B243DCF8 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				0D3514C3F243B6DC24380596 /* Pods-Satimoto.debug.xcconfig */,
-				1DB38A8EF1D2531B6FB6B167 /* Pods-Satimoto.debugtestnet.xcconfig */,
-				F9B10973E8CD3190B849C384 /* Pods-Satimoto.debugregtest.xcconfig */,
-				FDC64EA6D11DD876423F96B4 /* Pods-Satimoto.release.xcconfig */,
-				83C917C85CF0CAFF547E8B22 /* Pods-Satimoto.releasetestnet.xcconfig */,
-				2BB5170F72D89F5045F38689 /* Pods-Satimoto.releaseregtest.xcconfig */,
-				C766A10B26172A37B10D8974 /* Pods-Satimoto-SatimotoTests.debug.xcconfig */,
-				752AC8EC3098CB6A402A31E9 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */,
-				33FE4B1D897DF402295AF46C /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */,
-				ED398C14831A85D1FCA09A69 /* Pods-Satimoto-SatimotoTests.release.xcconfig */,
-				D5F94DE0214DD780CF4E5688 /* Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig */,
-				BDD5706FE35671125DB839B7 /* Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig */,
+				0DDF697CC3120DEF7895A156 /* Pods-NotificationService.debug.xcconfig */,
+				F63C0656F5C899740EFF29F7 /* Pods-NotificationService.debugtestnet.xcconfig */,
+				9DF70CC53E8E2C131B2AEADA /* Pods-NotificationService.debugregtest.xcconfig */,
+				409BE7A9451BFAA3F9B51044 /* Pods-NotificationService.release.xcconfig */,
+				3A9C916B3144B6339AEAD4B1 /* Pods-NotificationService.releasetestnet.xcconfig */,
+				B9607F39904D74456A2839BA /* Pods-NotificationService.releaseregtest.xcconfig */,
+				6238AF4DEA3B26CA49E328A0 /* Pods-Satimoto.debug.xcconfig */,
+				65D0B9EF82575B128626AACE /* Pods-Satimoto.debugtestnet.xcconfig */,
+				618EE8DBC6AD71FE2C46B259 /* Pods-Satimoto.debugregtest.xcconfig */,
+				52265CFFE2773AC7E5BF0330 /* Pods-Satimoto.release.xcconfig */,
+				DD47BBAFE097E6671580789E /* Pods-Satimoto.releasetestnet.xcconfig */,
+				CED6DA5F76DFEEE9F80E0AE2 /* Pods-Satimoto.releaseregtest.xcconfig */,
+				EED9194D0D94C1435A3DC471 /* Pods-Satimoto-SatimotoTests.debug.xcconfig */,
+				8CCE05608336324ABC744387 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */,
+				6F5D3B500F20594F9ED7A5F1 /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */,
+				288555D6E7418E90A7218581 /* Pods-Satimoto-SatimotoTests.release.xcconfig */,
+				A1A036A1809D790351C58886 /* Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig */,
+				FF94020FB73F9E7338243FFD /* Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -244,12 +316,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "SatimotoTests" */;
 			buildPhases = (
-				466AE3BCF0AE0E37966B78A5 /* [CP] Check Pods Manifest.lock */,
+				D9DC4C74FB9E4EC4E619C851 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				9A245F80970936C6F401B41B /* [CP] Embed Pods Frameworks */,
-				FC5DD7215CF4BCB9A52B498B /* [CP] Copy Pods Resources */,
+				E5175A2D50E7EDBBE5BC034F /* [CP] Embed Pods Frameworks */,
+				72D6B5D94E7B32E6426AA27E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -265,24 +337,45 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Satimoto" */;
 			buildPhases = (
-				94C156AC634C58CC0889739B /* [CP] Check Pods Manifest.lock */,
+				F36E4D207F80FDCD6384E302 /* [CP] Check Pods Manifest.lock */,
+				7350C3392B5FCD4A00F30E19 /* Embed Foundation Extensions */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				26DAF61614C885775082958B /* [CP] Embed Pods Frameworks */,
-				736F55BE963944BAF68A012E /* [CP] Copy Pods Resources */,
-				6348A9F4AB80FB1876A3B07E /* [CP-User] [RNFB] Core Configuration */,
+				268C20C3DF0FB06D9805BA9C /* [CP] Embed Pods Frameworks */,
+				A345CC2BFA439B6FFBD00ACE /* [CP] Copy Pods Resources */,
+				92A58A0ED50774DD07CDB8CE /* [CP-User] [RNFB] Core Configuration */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				7350C3302B5FCD4900F30E19 /* PBXTargetDependency */,
 			);
 			name = Satimoto;
 			productName = Satimoto;
 			productReference = 13B07F961A680F5B00A75B9A /* Satimoto Debug.app */;
 			productType = "com.apple.product-type.application";
+		};
+		7350C3292B5FCD4900F30E19 /* NotificationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7350C3322B5FCD4A00F30E19 /* Build configuration list for PBXNativeTarget "NotificationService" */;
+			buildPhases = (
+				9AE7279DB106B7C7DD5B68EA /* [CP] Check Pods Manifest.lock */,
+				7350C3262B5FCD4900F30E19 /* Sources */,
+				7350C3272B5FCD4900F30E19 /* Frameworks */,
+				7350C3282B5FCD4900F30E19 /* Resources */,
+				D02C0E397A9737D28F77A329 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NotificationService;
+			productName = NotificationService;
+			productReference = 7350C32A2B5FCD4900F30E19 /* NotificationService.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -290,6 +383,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -298,6 +392,9 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
+					};
+					7350C3292B5FCD4900F30E19 = {
+						CreatedOnToolsVersion = 14.2;
 					};
 				};
 			};
@@ -316,6 +413,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* Satimoto */,
 				00E356ED1AD99517003FC87E /* SatimotoTests */,
+				7350C3292B5FCD4900F30E19 /* NotificationService */,
 			);
 		};
 /* End PBXProject section */
@@ -341,6 +439,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7350C3282B5FCD4900F30E19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				732369E52B9BABD100E7E9B1 /* Secrets.xcconfig in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -358,7 +464,7 @@
 			shellPath = /bin/sh;
 			shellScript = ". ~/.profile\nset -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		26DAF61614C885775082958B /* [CP] Embed Pods Frameworks */ = {
+		268C20C3DF0FB06D9805BA9C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -375,7 +481,93 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Satimoto/Pods-Satimoto-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		466AE3BCF0AE0E37966B78A5 /* [CP] Check Pods Manifest.lock */ = {
+		72D6B5D94E7B32E6426AA27E /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		92A58A0ED50774DD07CDB8CE /* [CP-User] [RNFB] Core Configuration */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "[CP-User] [RNFB] Core Configuration";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\n\n##########################################################################\n##########################################################################\n#\n#  NOTE THAT IF YOU CHANGE THIS FILE YOU MUST RUN pod install AFTERWARDS\n#\n#  This file is installed as an Xcode build script in the project file\n#  by cocoapods, and you will not see your changes until you pod install\n#\n##########################################################################\n##########################################################################\n\nset -e\n\n_MAX_LOOKUPS=2;\n_SEARCH_RESULT=''\n_RN_ROOT_EXISTS=''\n_CURRENT_LOOKUPS=1\n_JSON_ROOT=\"'react-native'\"\n_JSON_FILE_NAME='firebase.json'\n_JSON_OUTPUT_BASE64='e30=' # { }\n_CURRENT_SEARCH_DIR=${PROJECT_DIR}\n_PLIST_BUDDY=/usr/libexec/PlistBuddy\n_TARGET_PLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n_DSYM_PLIST=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist\"\n\n# plist arrays\n_PLIST_ENTRY_KEYS=()\n_PLIST_ENTRY_TYPES=()\n_PLIST_ENTRY_VALUES=()\n\nfunction setPlistValue {\n  echo \"info:      setting plist entry '$1' of type '$2' in file '$4'\"\n  ${_PLIST_BUDDY} -c \"Add :$1 $2 '$3'\" $4 || echo \"info:      '$1' already exists\"\n}\n\nfunction getFirebaseJsonKeyValue () {\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    ruby -Ku -e \"require 'rubygems';require 'json'; output=JSON.parse('$1'); puts output[$_JSON_ROOT]['$2']\"\n  else\n    echo \"\"\n  fi;\n}\n\nfunction jsonBoolToYesNo () {\n  if [[ $1 == \"false\" ]]; then\n    echo \"NO\"\n  elif [[ $1 == \"true\" ]]; then\n    echo \"YES\"\n  else echo \"NO\"\n  fi\n}\n\necho \"info: -> RNFB build script started\"\necho \"info: 1) Locating ${_JSON_FILE_NAME} file:\"\n\nif [[ -z ${_CURRENT_SEARCH_DIR} ]]; then\n  _CURRENT_SEARCH_DIR=$(pwd)\nfi;\n\nwhile true; do\n  _CURRENT_SEARCH_DIR=$(dirname \"$_CURRENT_SEARCH_DIR\")\n  if [[ \"$_CURRENT_SEARCH_DIR\" == \"/\" ]] || [[ ${_CURRENT_LOOKUPS} -gt ${_MAX_LOOKUPS} ]]; then break; fi;\n  echo \"info:      ($_CURRENT_LOOKUPS of $_MAX_LOOKUPS) Searching in '$_CURRENT_SEARCH_DIR' for a ${_JSON_FILE_NAME} file.\"\n  _SEARCH_RESULT=$(find \"$_CURRENT_SEARCH_DIR\" -maxdepth 2 -name ${_JSON_FILE_NAME} -print | /usr/bin/head -n 1)\n  if [[ ${_SEARCH_RESULT} ]]; then\n    echo \"info:      ${_JSON_FILE_NAME} found at $_SEARCH_RESULT\"\n    break;\n  fi;\n  _CURRENT_LOOKUPS=$((_CURRENT_LOOKUPS+1))\ndone\n\nif [[ ${_SEARCH_RESULT} ]]; then\n  _JSON_OUTPUT_RAW=$(cat \"${_SEARCH_RESULT}\")\n  _RN_ROOT_EXISTS=$(ruby -Ku -e \"require 'rubygems';require 'json'; output=JSON.parse('$_JSON_OUTPUT_RAW'); puts output[$_JSON_ROOT]\" || echo '')\n\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    if ! python3 --version >/dev/null 2>&1; then echo \"python3 not found, firebase.json file processing error.\" && exit 1; fi\n    _JSON_OUTPUT_BASE64=$(python3 -c 'import json,sys,base64;print(base64.b64encode(bytes(json.dumps(json.loads(open('\"'${_SEARCH_RESULT}'\"', '\"'rb'\"').read())['${_JSON_ROOT}']), '\"'utf-8'\"')).decode())' || echo \"e30=\")\n  fi\n\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n\n  # config.app_data_collection_default_enabled\n  _APP_DATA_COLLECTION_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_data_collection_default_enabled\")\n  if [[ $_APP_DATA_COLLECTION_ENABLED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseDataCollectionDefaultEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_DATA_COLLECTION_ENABLED\")\")\n  fi\n\n  # config.analytics_auto_collection_enabled\n  _ANALYTICS_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_auto_collection_enabled\")\n  if [[ $_ANALYTICS_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_COLLECTION\")\")\n  fi\n\n  # config.analytics_collection_deactivated\n  _ANALYTICS_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_collection_deactivated\")\n  if [[ $_ANALYTICS_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_DEACTIVATED\")\")\n  fi\n\n  # config.analytics_idfv_collection_enabled\n  _ANALYTICS_IDFV_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_idfv_collection_enabled\")\n  if [[ $_ANALYTICS_IDFV_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_IDFV_COLLECTION\")\")\n  fi\n\n  # config.analytics_default_allow_analytics_storage\n  _ANALYTICS_STORAGE=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_analytics_storage\")\n  if [[ $_ANALYTICS_STORAGE ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_STORAGE\")\")\n  fi\n\n  # config.analytics_default_allow_ad_storage\n  _ANALYTICS_AD_STORAGE=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_storage\")\n  if [[ $_ANALYTICS_AD_STORAGE ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AD_STORAGE\")\")\n  fi\n\n  # config.analytics_default_allow_ad_user_data\n  _ANALYTICS_AD_USER_DATA=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_user_data\")\n  if [[ $_ANALYTICS_AD_USER_DATA ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AD_USER_DATA\")\")\n  fi\n\n  # config.analytics_default_allow_ad_personalization_signals\n  _ANALYTICS_PERSONALIZATION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_personalization_signals\")\n  if [[ $_ANALYTICS_PERSONALIZATION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_PERSONALIZATION\")\")\n  fi\n\n  # config.analytics_registration_with_ad_network_enabled\n  _ANALYTICS_REGISTRATION_WITH_AD_NETWORK=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_registration_with_ad_network_enabled\")\n  if [[ $_ANALYTICS_REGISTRATION_WITH_AD_NETWORK ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_REGISTRATION_WITH_AD_NETWORK_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_REGISTRATION_WITH_AD_NETWORK\")\")\n  fi\n\n  # config.google_analytics_automatic_screen_reporting_enabled\n  _ANALYTICS_AUTO_SCREEN_REPORTING=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_automatic_screen_reporting_enabled\")\n  if [[ $_ANALYTICS_AUTO_SCREEN_REPORTING ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAutomaticScreenReportingEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_SCREEN_REPORTING\")\")\n  fi\n\n  # config.perf_auto_collection_enabled\n  _PERF_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_auto_collection_enabled\")\n  if [[ $_PERF_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_enabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_AUTO_COLLECTION\")\")\n  fi\n\n  # config.perf_collection_deactivated\n  _PERF_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_collection_deactivated\")\n  if [[ $_PERF_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_deactivated\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_DEACTIVATED\")\")\n  fi\n\n  # config.messaging_auto_init_enabled\n  _MESSAGING_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"messaging_auto_init_enabled\")\n  if [[ $_MESSAGING_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseMessagingAutoInitEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_MESSAGING_AUTO_INIT\")\")\n  fi\n\n  # config.in_app_messaging_auto_colllection_enabled\n  _FIAM_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"in_app_messaging_auto_collection_enabled\")\n  if [[ $_FIAM_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseInAppMessagingAutomaticDataCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_FIAM_AUTO_INIT\")\")\n  fi\n\n  # config.app_check_token_auto_refresh\n  _APP_CHECK_TOKEN_AUTO_REFRESH=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_check_token_auto_refresh\")\n  if [[ $_APP_CHECK_TOKEN_AUTO_REFRESH ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAppCheckTokenAutoRefreshEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_CHECK_TOKEN_AUTO_REFRESH\")\")\n  fi\n\n  # config.crashlytics_disable_auto_disabler - undocumented for now - mainly for debugging, document if becomes useful\n  _CRASHLYTICS_AUTO_DISABLE_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"crashlytics_disable_auto_disabler\")\n  if [[ $_CRASHLYTICS_AUTO_DISABLE_ENABLED == \"true\" ]]; then\n    echo \"Disabled Crashlytics auto disabler.\" # do nothing\n  else\n    _PLIST_ENTRY_KEYS+=(\"FirebaseCrashlyticsCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"NO\")\n  fi\nelse\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n  echo \"warning:   A firebase.json file was not found, whilst this file is optional it is recommended to include it to configure firebase services in React Native Firebase.\"\nfi;\n\necho \"info: 2) Injecting Info.plist entries: \"\n\n# Log out the keys we're adding\nfor i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n  echo \"    ->  $i) ${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\"\ndone\n\nfor plist in \"${_TARGET_PLIST}\" \"${_DSYM_PLIST}\" ; do\n  if [[ -f \"${plist}\" ]]; then\n\n    # paths with spaces break the call to setPlistValue. temporarily modify\n    # the shell internal field separator variable (IFS), which normally\n    # includes spaces, to consist only of line breaks\n    oldifs=$IFS\n    IFS=\"\n\"\n\n    for i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n      setPlistValue \"${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\" \"${plist}\"\n    done\n\n    # restore the original internal field separator value\n    IFS=$oldifs\n  else\n    echo \"warning:   A Info.plist build output file was not found (${plist})\"\n  fi\ndone\n\necho \"info: <- RNFB build script finished\"\n";
+		};
+		9AE7279DB106B7C7DD5B68EA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NotificationService-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A345CC2BFA439B6FFBD00ACE /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Satimoto/Pods-Satimoto-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Satimoto/Pods-Satimoto-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Satimoto/Pods-Satimoto-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D02C0E397A9737D28F77A329 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NotificationService/Pods-NotificationService-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NotificationService/Pods-NotificationService-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NotificationService/Pods-NotificationService-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D9DC4C74FB9E4EC4E619C851 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -397,37 +589,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		6348A9F4AB80FB1876A3B07E /* [CP-User] [RNFB] Core Configuration */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
-			);
-			name = "[CP-User] [RNFB] Core Configuration";
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\nset -e\n\n_MAX_LOOKUPS=2;\n_SEARCH_RESULT=''\n_RN_ROOT_EXISTS=''\n_CURRENT_LOOKUPS=1\n_JSON_ROOT=\"'react-native'\"\n_JSON_FILE_NAME='firebase.json'\n_JSON_OUTPUT_BASE64='e30=' # { }\n_CURRENT_SEARCH_DIR=${PROJECT_DIR}\n_PLIST_BUDDY=/usr/libexec/PlistBuddy\n_TARGET_PLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n_DSYM_PLIST=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist\"\n\n# plist arrays\n_PLIST_ENTRY_KEYS=()\n_PLIST_ENTRY_TYPES=()\n_PLIST_ENTRY_VALUES=()\n\nfunction setPlistValue {\n  echo \"info:      setting plist entry '$1' of type '$2' in file '$4'\"\n  ${_PLIST_BUDDY} -c \"Add :$1 $2 '$3'\" $4 || echo \"info:      '$1' already exists\"\n}\n\nfunction getFirebaseJsonKeyValue () {\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    ruby -e \"require 'rubygems';require 'json'; output=JSON.parse('$1'); puts output[$_JSON_ROOT]['$2']\"\n  else\n    echo \"\"\n  fi;\n}\n\nfunction jsonBoolToYesNo () {\n  if [[ $1 == \"false\" ]]; then\n    echo \"NO\"\n  elif [[ $1 == \"true\" ]]; then\n    echo \"YES\"\n  else echo \"NO\"\n  fi\n}\n\necho \"info: -> RNFB build script started\"\necho \"info: 1) Locating ${_JSON_FILE_NAME} file:\"\n\nif [[ -z ${_CURRENT_SEARCH_DIR} ]]; then\n  _CURRENT_SEARCH_DIR=$(pwd)\nfi;\n\nwhile true; do\n  _CURRENT_SEARCH_DIR=$(dirname \"$_CURRENT_SEARCH_DIR\")\n  if [[ \"$_CURRENT_SEARCH_DIR\" == \"/\" ]] || [[ ${_CURRENT_LOOKUPS} -gt ${_MAX_LOOKUPS} ]]; then break; fi;\n  echo \"info:      ($_CURRENT_LOOKUPS of $_MAX_LOOKUPS) Searching in '$_CURRENT_SEARCH_DIR' for a ${_JSON_FILE_NAME} file.\"\n  _SEARCH_RESULT=$(find \"$_CURRENT_SEARCH_DIR\" -maxdepth 2 -name ${_JSON_FILE_NAME} -print | /usr/bin/head -n 1)\n  if [[ ${_SEARCH_RESULT} ]]; then\n    echo \"info:      ${_JSON_FILE_NAME} found at $_SEARCH_RESULT\"\n    break;\n  fi;\n  _CURRENT_LOOKUPS=$((_CURRENT_LOOKUPS+1))\ndone\n\nif [[ ${_SEARCH_RESULT} ]]; then\n  _JSON_OUTPUT_RAW=$(cat \"${_SEARCH_RESULT}\")\n  _RN_ROOT_EXISTS=$(ruby -e \"require 'rubygems';require 'json'; output=JSON.parse('$_JSON_OUTPUT_RAW'); puts output[$_JSON_ROOT]\" || echo '')\n\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    if ! python3 --version >/dev/null 2>&1; then echo \"python3 not found, firebase.json file processing error.\" && exit 1; fi\n    _JSON_OUTPUT_BASE64=$(python3 -c 'import json,sys,base64;print(base64.b64encode(bytes(json.dumps(json.loads(open('\"'${_SEARCH_RESULT}'\"', '\"'rb'\"').read())['${_JSON_ROOT}']), '\"'utf-8'\"')).decode())' || echo \"e30=\")\n  fi\n\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n\n  # config.app_data_collection_default_enabled\n  _APP_DATA_COLLECTION_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_data_collection_default_enabled\")\n  if [[ $_APP_DATA_COLLECTION_ENABLED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseDataCollectionDefaultEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_DATA_COLLECTION_ENABLED\")\")\n  fi\n\n  # config.analytics_auto_collection_enabled\n  _ANALYTICS_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_auto_collection_enabled\")\n  if [[ $_ANALYTICS_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_COLLECTION\")\")\n  fi\n\n  # config.analytics_collection_deactivated\n  _ANALYTICS_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_collection_deactivated\")\n  if [[ $_ANALYTICS_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_DEACTIVATED\")\")\n  fi\n\n  # config.analytics_idfv_collection_enabled\n  _ANALYTICS_IDFV_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_idfv_collection_enabled\")\n  if [[ $_ANALYTICS_IDFV_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_IDFV_COLLECTION\")\")\n  fi\n\n  # config.analytics_default_allow_ad_personalization_signals\n  _ANALYTICS_PERSONALIZATION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_personalization_signals\")\n  if [[ $_ANALYTICS_PERSONALIZATION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_PERSONALIZATION\")\")\n  fi\n\n  # config.google_analytics_automatic_screen_reporting_enabled\n  _ANALYTICS_AUTO_SCREEN_REPORTING=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_automatic_screen_reporting_enabled\")\n  if [[ $_ANALYTICS_AUTO_SCREEN_REPORTING ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAutomaticScreenReportingEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_SCREEN_REPORTING\")\")\n  fi\n\n  # config.perf_auto_collection_enabled\n  _PERF_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_auto_collection_enabled\")\n  if [[ $_PERF_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_enabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_AUTO_COLLECTION\")\")\n  fi\n\n  # config.perf_collection_deactivated\n  _PERF_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_collection_deactivated\")\n  if [[ $_PERF_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_deactivated\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_DEACTIVATED\")\")\n  fi\n\n  # config.messaging_auto_init_enabled\n  _MESSAGING_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"messaging_auto_init_enabled\")\n  if [[ $_MESSAGING_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseMessagingAutoInitEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_MESSAGING_AUTO_INIT\")\")\n  fi\n\n  # config.in_app_messaging_auto_colllection_enabled\n  _FIAM_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"in_app_messaging_auto_collection_enabled\")\n  if [[ $_FIAM_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseInAppMessagingAutomaticDataCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_FIAM_AUTO_INIT\")\")\n  fi\n\n  # config.app_check_token_auto_refresh\n  _APP_CHECK_TOKEN_AUTO_REFRESH=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_check_token_auto_refresh\")\n  if [[ $_APP_CHECK_TOKEN_AUTO_REFRESH ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAppCheckTokenAutoRefreshEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_CHECK_TOKEN_AUTO_REFRESH\")\")\n  fi\n\n  # config.crashlytics_disable_auto_disabler - undocumented for now - mainly for debugging, document if becomes useful\n  _CRASHLYTICS_AUTO_DISABLE_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"crashlytics_disable_auto_disabler\")\n  if [[ $_CRASHLYTICS_AUTO_DISABLE_ENABLED == \"true\" ]]; then\n    echo \"Disabled Crashlytics auto disabler.\" # do nothing\n  else\n    _PLIST_ENTRY_KEYS+=(\"FirebaseCrashlyticsCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"NO\")\n  fi\nelse\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n  echo \"warning:   A firebase.json file was not found, whilst this file is optional it is recommended to include it to configure firebase services in React Native Firebase.\"\nfi;\n\necho \"info: 2) Injecting Info.plist entries: \"\n\n# Log out the keys we're adding\nfor i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n  echo \"    ->  $i) ${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\"\ndone\n\nfor plist in \"${_TARGET_PLIST}\" \"${_DSYM_PLIST}\" ; do\n  if [[ -f \"${plist}\" ]]; then\n\n    # paths with spaces break the call to setPlistValue. temporarily modify\n    # the shell internal field separator variable (IFS), which normally\n    # includes spaces, to consist only of line breaks\n    oldifs=$IFS\n    IFS=\"\n\"\n\n    for i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n      setPlistValue \"${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\" \"${plist}\"\n    done\n\n    # restore the original internal field separator value\n    IFS=$oldifs\n  else\n    echo \"warning:   A Info.plist build output file was not found (${plist})\"\n  fi\ndone\n\necho \"info: <- RNFB build script finished\"\n";
-		};
-		736F55BE963944BAF68A012E /* [CP] Copy Pods Resources */ = {
+		E5175A2D50E7EDBBE5BC034F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Satimoto/Pods-Satimoto-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Satimoto/Pods-Satimoto-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Satimoto/Pods-Satimoto-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		94C156AC634C58CC0889739B /* [CP] Check Pods Manifest.lock */ = {
+		F36E4D207F80FDCD6384E302 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -447,40 +626,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		9A245F80970936C6F401B41B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		FC5DD7215CF4BCB9A52B498B /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Satimoto-SatimotoTests/Pods-Satimoto-SatimotoTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -519,15 +664,22 @@
 			files = (
 				7362939E26EA8E5E006F70C2 /* LndUtils.swift in Sources */,
 				7362939126E8EE2F006F70C2 /* LndResponse.swift in Sources */,
-				7362939B26EA346F006F70C2 /* RCTLog.swift in Sources */,
 				7362938F26E8DEA5006F70C2 /* LndMobile.swift in Sources */,
 				736293A026EA914C006F70C2 /* LndUtils.m in Sources */,
 				736293A426EF898F006F70C2 /* rpc.pb.swift in Sources */,
 				7362935126E63CDD006F70C2 /* LndMobile.m in Sources */,
 				736293A326EF898F006F70C2 /* walletunlocker.pb.swift in Sources */,
-				7362939C26EA346F006F70C2 /* RCTSwiftLog.m in Sources */,
 				73D965ED296C2C2400EF9120 /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7350C3262B5FCD4900F30E19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7350C32D2B5FCD4900F30E19 /* NotificationService.swift in Sources */,
+				732369E42B9B0DD600E7E9B1 /* KeychainHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -539,12 +691,17 @@
 			target = 13B07F861A680F5B00A75B9A /* Satimoto */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
+		7350C3302B5FCD4900F30E19 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7350C3292B5FCD4900F30E19 /* NotificationService */;
+			targetProxy = 7350C32F2B5FCD4900F30E19 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C766A10B26172A37B10D8974 /* Pods-Satimoto-SatimotoTests.debug.xcconfig */;
+			baseConfigurationReference = EED9194D0D94C1435A3DC471 /* Pods-Satimoto-SatimotoTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -554,7 +711,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SatimotoTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -574,14 +731,14 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ED398C14831A85D1FCA09A69 /* Pods-Satimoto-SatimotoTests.release.xcconfig */;
+			baseConfigurationReference = 288555D6E7418E90A7218581 /* Pods-Satimoto-SatimotoTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SatimotoTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -601,16 +758,18 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0D3514C3F243B6DC24380596 /* Pods-Satimoto.debug.xcconfig */;
+			baseConfigurationReference = 6238AF4DEA3B26CA49E328A0 /* Pods-Satimoto.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				API_URI = "https://api.satimoto.com";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 31;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 32;
 				DEBUG = true;
 				DEVELOPMENT_TEAM = F922YVP6UQ;
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = F922YVP6UQ;
 				DISPLAY_NAME = "Satimoto Debug";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -620,13 +779,13 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Satimoto/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.11;
+				MARKETING_VERSION = 0.5.0;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -635,8 +794,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug;
 				PRODUCT_NAME = "Satimoto Debug";
-				PROVISIONING_PROFILE_SPECIFIER = "Satimoto Debug";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SatimotoDebug2024;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -652,17 +810,19 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FDC64EA6D11DD876423F96B4 /* Pods-Satimoto.release.xcconfig */;
+			baseConfigurationReference = 52265CFFE2773AC7E5BF0330 /* Pods-Satimoto.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				API_URI = "https://api.satimoto.com";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEBUG = false;
-				DEVELOPMENT_TEAM = F922YVP6UQ;
+				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = F922YVP6UQ;
 				DISPLAY_NAME = Satimoto;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -672,13 +832,13 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Satimoto/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.11;
+				MARKETING_VERSION = 0.5.0;
 				NETWORK = mainnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -687,8 +847,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto;
 				PRODUCT_NAME = Satimoto;
-				PROVISIONING_PROFILE_SPECIFIER = Satimoto;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Satimoto2023;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Satimoto2024;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -700,6 +860,309 @@
 				VERSION_NAME = "$(MARKETING_VERSION)";
 			};
 			name = Release;
+		};
+		7350C3332B5FCD4A00F30E19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0DDF697CC3120DEF7895A156 /* Pods-NotificationService.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = F922YVP6UQ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-l\"BreezSDK\"",
+					"-l\"SwiftProtobuf\"",
+					"-framework",
+					"\"breez_sdkFFI\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7350C3342B5FCD4A00F30E19 /* DebugTestnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F63C0656F5C899740EFF29F7 /* Pods-NotificationService.debugtestnet.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-l\"BreezSDK\"",
+					"-l\"SwiftProtobuf\"",
+					"-framework",
+					"\"breez_sdkFFI\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug.testnet.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = DebugTestnet;
+		};
+		7350C3352B5FCD4A00F30E19 /* DebugRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9DF70CC53E8E2C131B2AEADA /* Pods-NotificationService.debugregtest.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-l\"BreezSDK\"",
+					"-l\"SwiftProtobuf\"",
+					"-framework",
+					"\"breez_sdkFFI\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.debug.regtest.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = DebugRegtest;
+		};
+		7350C3362B5FCD4A00F30E19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 409BE7A9451BFAA3F9B51044 /* Pods-NotificationService.release.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = F922YVP6UQ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-l\"BreezSDK\"",
+					"-l\"SwiftProtobuf\"",
+					"-framework",
+					"\"breez_sdkFFI\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Satimoto2024NotificationService;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7350C3372B5FCD4A00F30E19 /* ReleaseTestnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3A9C916B3144B6339AEAD4B1 /* Pods-NotificationService.releasetestnet.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-l\"BreezSDK\"",
+					"-l\"SwiftProtobuf\"",
+					"-framework",
+					"\"breez_sdkFFI\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.testnet.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = ReleaseTestnet;
+		};
+		7350C3382B5FCD4A00F30E19 /* ReleaseRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B9607F39904D74456A2839BA /* Pods-NotificationService.releaseregtest.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-l\"BreezSDK\"",
+					"-l\"SwiftProtobuf\"",
+					"-framework",
+					"\"breez_sdkFFI\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.satimoto.regtest.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = ReleaseRegtest;
 		};
 		7362935226E7A2D7006F70C2 /* DebugTestnet */ = {
 			isa = XCBuildConfiguration;
@@ -764,11 +1227,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 			};
@@ -776,13 +1235,14 @@
 		};
 		7362935326E7A2D7006F70C2 /* DebugTestnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DB38A8EF1D2531B6FB6B167 /* Pods-Satimoto.debugtestnet.xcconfig */;
+			baseConfigurationReference = 65D0B9EF82575B128626AACE /* Pods-Satimoto.debugtestnet.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				API_URI = "https://api.testnet.satimoto.com";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEBUG = true;
 				DISPLAY_NAME = "Satimoto Debug Testnet";
 				ENABLE_BITCODE = NO;
@@ -793,13 +1253,13 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Satimoto/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.11;
+				MARKETING_VERSION = 0.5.0;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -823,7 +1283,7 @@
 		};
 		7362935426E7A2D7006F70C2 /* DebugTestnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 752AC8EC3098CB6A402A31E9 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */;
+			baseConfigurationReference = 8CCE05608336324ABC744387 /* Pods-Satimoto-SatimotoTests.debugtestnet.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -833,7 +1293,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SatimotoTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -914,11 +1374,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 			};
@@ -926,13 +1382,14 @@
 		};
 		7362938526E7A972006F70C2 /* DebugRegtest */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F9B10973E8CD3190B849C384 /* Pods-Satimoto.debugregtest.xcconfig */;
+			baseConfigurationReference = 618EE8DBC6AD71FE2C46B259 /* Pods-Satimoto.debugregtest.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				API_URI = "http://127.0.0.1:9000";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEBUG = true;
 				DISPLAY_NAME = "Satimoto Debug Regtest";
 				ENABLE_BITCODE = NO;
@@ -943,13 +1400,13 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Satimoto/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.11;
+				MARKETING_VERSION = 0.5.0;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -973,7 +1430,7 @@
 		};
 		7362938626E7A972006F70C2 /* DebugRegtest */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 33FE4B1D897DF402295AF46C /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */;
+			baseConfigurationReference = 6F5D3B500F20594F9ED7A5F1 /* Pods-Satimoto-SatimotoTests.debugregtest.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -983,7 +1440,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SatimotoTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1060,11 +1517,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -1073,13 +1526,14 @@
 		};
 		7362938826E7A980006F70C2 /* ReleaseTestnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 83C917C85CF0CAFF547E8B22 /* Pods-Satimoto.releasetestnet.xcconfig */;
+			baseConfigurationReference = DD47BBAFE097E6671580789E /* Pods-Satimoto.releasetestnet.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				API_URI = "https://api.testnet.satimoto.com";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEBUG = false;
 				DISPLAY_NAME = "Satimoto Testnet";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1089,13 +1543,13 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Satimoto/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.11;
+				MARKETING_VERSION = 0.5.0;
 				NETWORK = testnet;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1118,14 +1572,14 @@
 		};
 		7362938926E7A980006F70C2 /* ReleaseTestnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D5F94DE0214DD780CF4E5688 /* Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig */;
+			baseConfigurationReference = A1A036A1809D790351C58886 /* Pods-Satimoto-SatimotoTests.releasetestnet.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SatimotoTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1202,11 +1656,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -1215,13 +1665,14 @@
 		};
 		7362938B26E7A987006F70C2 /* ReleaseRegtest */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2BB5170F72D89F5045F38689 /* Pods-Satimoto.releaseregtest.xcconfig */;
+			baseConfigurationReference = CED6DA5F76DFEEE9F80E0AE2 /* Pods-Satimoto.releaseregtest.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				API_URI = "http://127.0.0.1:9000";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Satimoto/Satimoto.entitlements;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEBUG = false;
 				DISPLAY_NAME = "Satimoto Regtest";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1231,13 +1682,13 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Satimoto/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MAPBOX_API_KEY = "$(MAPBOX_API_KEY)";
-				MARKETING_VERSION = 0.4.11;
+				MARKETING_VERSION = 0.5.0;
 				NETWORK = regtest;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1260,14 +1711,14 @@
 		};
 		7362938C26E7A987006F70C2 /* ReleaseRegtest */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BDD5706FE35671125DB839B7 /* Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig */;
+			baseConfigurationReference = FF94020FB73F9E7338243FFD /* Pods-Satimoto-SatimotoTests.releaseregtest.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SatimotoTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1348,11 +1799,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 			};
@@ -1417,11 +1864,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -1453,6 +1896,19 @@
 				13B07F951A680F5B00A75B9A /* Release */,
 				7362938826E7A980006F70C2 /* ReleaseTestnet */,
 				7362938B26E7A987006F70C2 /* ReleaseRegtest */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7350C3322B5FCD4A00F30E19 /* Build configuration list for PBXNativeTarget "NotificationService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7350C3332B5FCD4A00F30E19 /* Debug */,
+				7350C3342B5FCD4A00F30E19 /* DebugTestnet */,
+				7350C3352B5FCD4A00F30E19 /* DebugRegtest */,
+				7350C3362B5FCD4A00F30E19 /* Release */,
+				7350C3372B5FCD4A00F30E19 /* ReleaseTestnet */,
+				7350C3382B5FCD4A00F30E19 /* ReleaseRegtest */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

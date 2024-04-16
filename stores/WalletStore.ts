@@ -15,13 +15,17 @@ import {
     RECOVERY_WINDOW_DEFAULT,
     SECURE_KEY_WALLET_PASSWORD,
     SECURE_KEY_CIPHER_SEED_MNEMONIC,
-    SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC
+    SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC,
+    KEYCHAIN_ACCESS_GROUP,
+    APPLICATION_GROUP_IDENTIFIER,
+    KEYCHAIN_ACCESSIBLE
 } from "utils/constants"
 import { bytesToBase64, bytesToHex, reverseByteOrder, toNumber, toSatoshi } from "utils/conversion"
 import { Log } from "utils/logging"
 import { getSecureItem, setSecureItem } from "utils/storage"
 import { PaymentStatus, fromBreezPayment } from "types/payment"
-import { NativeModules } from "react-native"
+import { NativeModules, Platform } from "react-native"
+import * as RNFS from "react-native-fs"
 
 const log = new Log("WalletStore")
 const BreezSDK = NativeModules.RNBreezSDK
@@ -120,27 +124,42 @@ export class WalletStore implements WalletStoreInterface {
 
     async createWallet() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            let mnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
-            const nodeConfig: breezSdk.NodeConfig = {
-                type: breezSdk.NodeConfigVariant.GREENLIGHT,
-                config: {
-                    partnerCredentials: { deviceCert: GREENLIGHT_PARTNER_CERT, deviceKey: GREENLIGHT_PARTNER_KEY }
+            if (!this.stores.lightningStore.identityPubkey) {
+                let mnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, {
+                    accessGroup: KEYCHAIN_ACCESS_GROUP,
+                    accessible: KEYCHAIN_ACCESSIBLE
+                })
+                const nodeConfig: breezSdk.NodeConfig = {
+                    type: breezSdk.NodeConfigVariant.GREENLIGHT,
+                    config: {
+                        partnerCredentials: { deviceCert: GREENLIGHT_PARTNER_CERT, deviceKey: GREENLIGHT_PARTNER_KEY }
+                    }
                 }
+
+                if (!mnemonic) {
+                    mnemonic = await bip39.generateMnemonic(128, null, bip39.wordlists.EN)
+                    setSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, mnemonic!, {
+                        accessGroup: KEYCHAIN_ACCESS_GROUP,
+                        accessible: KEYCHAIN_ACCESSIBLE
+                    })
+                }
+
+                log.debug(`mnemonic: ${mnemonic}`)
+
+                const seed = await lightning.mnemonicToSeed(mnemonic!)
+                let config = await breezSdk.defaultConfig(breezSdk.EnvironmentType.PRODUCTION, BREEZ_SDK_API_KEY, nodeConfig)
+
+                if (Platform.OS === "ios") {
+                    const groupPath = await RNFS.pathForGroup(APPLICATION_GROUP_IDENTIFIER)
+                    config.workingDir = `${groupPath}/breezSdk`
+                }
+
+                log.debug(`workingDir: ${config.workingDir}`)
+
+                await BreezSDK.connect({ config, seed })
+
+                this.actionSetState(WalletState.STARTED)
             }
-
-            if (!mnemonic) {
-                mnemonic = await bip39.generateMnemonic(128, null, bip39.wordlists.EN)
-                setSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, mnemonic)
-            }
-
-            log.debug(`mnemonic: ${mnemonic}`)
-
-            const seed = await lightning.mnemonicToSeed(mnemonic)
-            const config = await breezSdk.defaultConfig(breezSdk.EnvironmentType.PRODUCTION, BREEZ_SDK_API_KEY, nodeConfig)
-
-            await BreezSDK.connect(config, seed)
-
-            this.actionSetState(WalletState.STARTED)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             let seedMnemonic: string[] = await getSecureItem(SECURE_KEY_CIPHER_SEED_MNEMONIC)
             let password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
@@ -150,7 +169,7 @@ export class WalletStore implements WalletStoreInterface {
             if (!seedMnemonic) {
                 const genSeedResponse: lnrpc.GenSeedResponse = await lnd.genSeed()
                 seedMnemonic = genSeedResponse.cipherSeedMnemonic
-                await setSecureItem(SECURE_KEY_CIPHER_SEED_MNEMONIC, seedMnemonic)
+                await setSecureItem(SECURE_KEY_CIPHER_SEED_MNEMONIC, seedMnemonic!)
             }
 
             // Create wallet password
@@ -170,7 +189,10 @@ export class WalletStore implements WalletStoreInterface {
 
     async getMnemonic(backend: LightningBackend): Promise<string[]> {
         if (backend === LightningBackend.BREEZ_SDK) {
-            const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
+            const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, {
+                accessGroup: KEYCHAIN_ACCESS_GROUP,
+                accessible: KEYCHAIN_ACCESSIBLE
+            })
 
             if (seedMnemonic) {
                 return seedMnemonic.split(" ")
@@ -255,7 +277,10 @@ export class WalletStore implements WalletStoreInterface {
                 const seedMnemonic: string = mnemonic.join(" ")
 
                 await lightning.mnemonicToSeed(seedMnemonic)
-                await setSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, seedMnemonic)
+                await setSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, seedMnemonic, {
+                    accessGroup: KEYCHAIN_ACCESS_GROUP,
+                    accessible: KEYCHAIN_ACCESSIBLE
+                })
                 log.debug(`SAT113: mnemonic set`)
             }
         }
@@ -272,7 +297,7 @@ export class WalletStore implements WalletStoreInterface {
     async sweep(address: string) {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const recommendedFees = await breezSdk.recommendedFees()
-            const response = await breezSdk.redeemOnchainFunds({toAddress: address, satPerVbyte: recommendedFees.hourFee})
+            const response = await breezSdk.redeemOnchainFunds({ toAddress: address, satPerVbyte: recommendedFees.hourFee })
 
             this.actionSetLastTxid(bytesToHex(reverseByteOrder(response.txid)))
             this.refreshWalletBalance()
@@ -286,7 +311,10 @@ export class WalletStore implements WalletStoreInterface {
 
     async unlockWallet() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
+            const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, {
+                accessGroup: KEYCHAIN_ACCESS_GROUP,
+                accessible: KEYCHAIN_ACCESSIBLE
+            })
             const seed: number[] = await lightning.mnemonicToSeed(seedMnemonic)
             const nodeConfig: breezSdk.NodeConfig = {
                 type: breezSdk.NodeConfigVariant.GREENLIGHT,
@@ -298,8 +326,14 @@ export class WalletStore implements WalletStoreInterface {
             log.debug(`SAT107: unlockWallet: defaultConfig`)
             const config = await breezSdk.defaultConfig(breezSdk.EnvironmentType.PRODUCTION, BREEZ_SDK_API_KEY, nodeConfig)
 
+            if (Platform.OS === "ios") {
+                const groupPath = await RNFS.pathForGroup(APPLICATION_GROUP_IDENTIFIER)
+                config.workingDir = `${groupPath}/breezSdk`
+            }
+
+            log.debug(`workingDir: ${config.workingDir}`)
             log.debug(`SAT108: unlockWallet: connect`)
-            await BreezSDK.connect(config, seed)
+            await BreezSDK.connect({ config, seed })
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const password: string = await getSecureItem(SECURE_KEY_WALLET_PASSWORD)
             await lnd.unlockWallet(password)
@@ -368,7 +402,10 @@ export class WalletStore implements WalletStoreInterface {
         if (!this.stores.uiStore.hasOnboardingUpdates) {
             if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
                 // Check the securely stored data and set state
-                const seedMnemonic: string = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC)
+                const seedMnemonic = await getSecureItem(SECURE_KEY_BREEZ_SDK_SEED_MNEMONIC, {
+                    accessGroup: KEYCHAIN_ACCESS_GROUP,
+                    accessible: KEYCHAIN_ACCESSIBLE
+                })
 
                 this.actionSetState(!seedMnemonic ? WalletState.NON_EXISTING : WalletState.LOCKED)
             } else if (this.stores.lightningStore.backend === LightningBackend.LND) {

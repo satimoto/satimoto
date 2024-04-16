@@ -14,6 +14,7 @@ import { DEBUG } from "utils/build"
 import { Log } from "utils/logging"
 import { doWhileBackoff } from "utils/backoff"
 import { LightningBackend } from "types/lightningBackend"
+import { PermissionsAndroid, Platform } from "react-native"
 
 const log = new Log("SettingStore")
 
@@ -234,9 +235,13 @@ export class SettingStore implements SettingStoreInterface {
         let enabled = this.pushNotificationEnabled
 
         if (!this.pushNotificationEnabled) {
-            const authStatus = await messaging().requestPermission()
-
-            enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL
+            if (Platform.OS !== 'android' || Platform.constants.Version < 33) {
+                const authStatus = await messaging().requestPermission()
+                enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL    
+            } else {
+                const status = await PermissionsAndroid.request('android.permission.POST_NOTIFICATIONS')
+                enabled = status === 'granted'
+            }
 
             if (enabled) {
                 const token = await messaging().getToken()

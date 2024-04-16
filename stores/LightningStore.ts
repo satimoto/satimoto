@@ -1,7 +1,7 @@
 import Long from "long"
 import { action, makeObservable, observable, reaction, when } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import { NativeEventEmitter, NativeModules } from "react-native"
+import { NativeEventEmitter, NativeModules, Platform } from "react-native"
 import * as breezSdk from "@breeztech/react-native-breez-sdk"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { chainrpc, lnrpc } from "proto/proto"
@@ -12,6 +12,7 @@ import * as lnUrl from "services/lnUrl"
 import { LightningBackend } from "types/lightningBackend"
 import { WalletState } from "types/wallet"
 import { DEBUG } from "utils/build"
+import { LNURL_SERVICE_DOMAIN, LNURL_SERVICE_URL } from "utils/constants"
 import { Log } from "utils/logging"
 import { timeout } from "utils/backoff"
 import { deepCopy } from "utils/conversion"
@@ -36,6 +37,8 @@ export interface LightningStoreInterface extends StoreInterface {
     syncHeaderTimestamp: string
     syncedToChain: boolean
     percentSynced: number
+    lnurlPayAddress?: string
+    lnurlPayUrl?: string
 
     authLnurl(authParams: breezSdk.LnUrlAuthRequestData): Promise<boolean>
     switchBackend(backend: LightningBackend): Promise<void>
@@ -56,6 +59,8 @@ export class LightningStore implements LightningStoreInterface {
     syncHeaderTimestamp = "0"
     syncedToChain = false
     percentSynced = 0
+    lnurlPayAddress?: string = undefined
+    lnurlPayUrl?: string = undefined
 
     constructor(stores: Store) {
         this.stores = stores
@@ -73,11 +78,14 @@ export class LightningStore implements LightningStoreInterface {
             bestHeaderTimestamp: observable,
             syncedToChain: observable,
             percentSynced: observable,
+            lnurlPayAddress: observable,
+            lnurlPayUrl: observable,
 
             actionCalculatePercentSynced: action,
             actionResetLightning: action,
             actionSetBackend: action,
             actionSetBlockHeight: action,
+            actionSetLnurlPay: action,
             actionSetReady: action,
             actionSetSynced: action,
             actionSetSyncHeaderTimestamp: action,
@@ -109,6 +117,11 @@ export class LightningStore implements LightningStoreInterface {
                 () => [this.stores.walletStore.state],
                 () => this.reactionState(),
                 { fireImmediately: true }
+            )
+
+            reaction(
+                () => [this.identityPubkey, this.syncedToChain, this.stores.settingStore.pushNotificationToken],
+                () => this.reactionRegisterWebhook()
             )
 
             if (this.backend === LightningBackend.NONE) {
@@ -294,6 +307,12 @@ export class LightningStore implements LightningStoreInterface {
         }
     }
 
+    actionSetLnurlPay(address?: string, url?: string) {
+        log.debug(`SAT117: LNURL pay address: ${address} url: ${url}`, true)
+        this.lnurlPayAddress = address
+        this.lnurlPayUrl = url
+    }
+
     actionSetReady() {
         this.ready = true
     }
@@ -334,6 +353,36 @@ export class LightningStore implements LightningStoreInterface {
                 () => this.syncedToChain,
                 () => this.whenSyncedToChain()
             )
+        }
+    }
+
+    async reactionRegisterWebhook() {
+        if (this.backend == LightningBackend.BREEZ_SDK && this.identityPubkey && this.stores.settingStore.pushNotificationToken) {
+            try {
+                const webhookUrl = `https://api.satimoto.com/v1/notify?token=${this.stores.settingStore.pushNotificationToken}&platform=${Platform.OS}`
+                log.debug(`SAT114: Registering webhook: ${webhookUrl}`, true)
+                await breezSdk.registerWebhook(webhookUrl)
+
+                // Register LNURL
+                const timestamp = Math.floor(new Date().getTime() / 1000)
+                const { signature } = await breezSdk.signMessage({ message: `${timestamp}-${webhookUrl}` })
+                const lnurlRegisterUrl = `${LNURL_SERVICE_URL}/lnurlpay/${this.identityPubkey}`
+                const body = JSON.stringify({ time: timestamp, webhook_url: webhookUrl, signature })
+                log.debug(`SAT115: Registering LNURL: ${lnurlRegisterUrl}`, true)
+                const result = await fetch(lnurlRegisterUrl, {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    body
+                })
+                const { lnurl } = await result.json()
+                const address = `${this.identityPubkey}@${LNURL_SERVICE_DOMAIN}`
+                this.actionSetLnurlPay(address, lnurl)
+            } catch (error) {
+                log.error(`SAT116: Error registering webhook: ${error}`, true)
+            }
         }
     }
 

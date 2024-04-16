@@ -52,10 +52,8 @@ class LndUtils: RCTEventEmitter {
   func writeConf(_ content: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     do {
       try self.writeConf(content)
-      RCTLogInfo("conf file written")
       resolve("conf file written")
     } catch let err {
-      RCTLogError("error writing conf: \(err.localizedDescription)")
       reject("error", err.localizedDescription, err)
     }
   }
@@ -194,10 +192,8 @@ autopilot.heuristic=preferential:0.05
   func writeDefaultConf(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     do {
       try self.writeDefaultConf()
-      RCTLogInfo("conf file written")
       resolve("conf file written")
     } catch let err {
-      RCTLogError("error writing conf: \(err.localizedDescription)")
       reject("error", err.localizedDescription, err)
     }
   }
@@ -208,9 +204,7 @@ autopilot.heuristic=preferential:0.05
       if fileManager.fileExists(atPath: LndUtils.logFile.path) {
         try fileManager.removeItem(atPath: LndUtils.logFile.path)
       }
-    } catch let err {
-      RCTLogError("Error deleting log: \(err.localizedDescription)")
-    }
+    } catch {}
   }
   
   @objc(startLogEvents:rejecter:)
@@ -237,7 +231,6 @@ autopilot.heuristic=preferential:0.05
           fileHandle?.seekToEndOfFile()
           fileHandle?.readInBackgroundAndNotify()
           self.logEventsStarted = true
-          RCTLogInfo("log events started")
         }
       )
     }
