@@ -24,6 +24,7 @@ import LnUrlWithdraw from "screens/LnUrlWithdraw"
 import PaymentRequest from "screens/PaymentRequest"
 import PdfViewer from "screens/PdfViewer"
 import Scanner from "screens/Scanner"
+import ReceiveLnUrl from "screens/ReceiveLnUrl"
 import Settings from "screens/Settings"
 import SettingsAdvanced from "screens/SettingsAdvanced"
 import SettingsBackend from "screens/SettingsBackend"
@@ -63,6 +64,7 @@ export type AppStackParamList = {
     PaymentRequest: { payReq: string; lnInvoice: breezSdk.LnInvoice }
     PdfViewer: { downloadPath?: string; source: Source; title?: string }
     Scanner: undefined
+    ReceiveLnUrl: undefined
     Settings: undefined
     SettingsAdvanced: undefined
     SettingsBackend: { backend: LightningBackend }
@@ -96,6 +98,7 @@ export type AppStackScreenParams = {
     PaymentRequest: undefined
     PdfViewer: undefined
     Scanner: undefined
+    ReceiveLnUrl: undefined
     Settings: undefined
     SettingsAdvanced: undefined
     SettingsBackend: undefined
@@ -211,6 +214,7 @@ const AppStack = () => {
             <AppStackNav.Screen name="PdfViewer" component={PdfViewer} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="Scanner" component={Scanner} options={navigationWithoutHeaderOptions} />
             <AppStackNav.Screen name="Settings" component={Settings} options={navigationWithHeaderOptions} />
+            <AppStackNav.Screen name="ReceiveLnUrl" component={ReceiveLnUrl} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsAdvanced" component={SettingsAdvanced} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsBackend" component={SettingsBackend} options={navigationWithHeaderOptions} />
             <AppStackNav.Screen name="SettingsBackends" component={SettingsBackends} options={navigationWithHeaderOptions} />
