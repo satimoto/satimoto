@@ -1212,10 +1212,10 @@
 "@bitcoin-design/bitcoin-icons-react-native@../Bitcoin-Icons/react-native":
   version "0.1.8"
 
-"@breeztech/react-native-breez-sdk@0.4.0-rc2":
-  version "0.4.0-rc2"
-  resolved "https://registry.yarnpkg.com/@breeztech/react-native-breez-sdk/-/react-native-breez-sdk-0.4.0-rc2.tgz#a256dc4c45e302c25e8f584b3884e87f12fc8989"
-  integrity sha512-YMKDZWjuPolukEaKImS54K7QHrSLPoNeVcrKvvjHmtAF8s5xUIpT2BuSsyCPTphHNX5LhjsVfvZbp8U8uZ7aMA==
+"@breeztech/react-native-breez-sdk@0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@breeztech/react-native-breez-sdk/-/react-native-breez-sdk-0.4.1.tgz#7d97894df816934ea634545e878cfbe382c6788c"
+  integrity sha512-vU2/z640enfP1w2BiixH4++4zVHM6H04t4NgBBnWbzUmJCtCAR54jkC9gvt6pWfPDs4kEoJfxIVH/gefMG24Lw==
 
 "@egjs/hammerjs@^2.0.17":
   version "2.0.17"
