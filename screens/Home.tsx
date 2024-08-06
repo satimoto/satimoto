@@ -9,6 +9,7 @@ import LnUrlAuthModal from "components/LnUrlAuthModal"
 import ReceiveActionsheet from "components/ReceiveActionsheet"
 import ReceiveLightningModal from "components/ReceiveLightningModal"
 import RecenterButton from "components/RecenterButton"
+import RedeemButton from "components/RedeemButton"
 import ScanNfcModal from "components/ScanNfcModal"
 import SendActionsheet from "components/SendActionsheet"
 import SendToAddressModal from "components/SendToAddressModal"
@@ -28,7 +29,7 @@ import store from "stores/Store"
 import { Position } from "@turf/helpers"
 import { ChargeSessionStatus } from "types/chargeSession"
 import { MAPBOX_API_KEY } from "utils/build"
-import { ASSET_IMAGES, EMAIL_REGEX, IS_ANDROID } from "utils/constants"
+import { ASSET_IMAGES, EMAIL_REGEX, IS_ANDROID, MIN_EMERGENCY_SAT } from "utils/constants"
 import I18n from "utils/i18n"
 import { Log } from "utils/logging"
 import styles from "utils/styles"
@@ -96,12 +97,16 @@ const Home = ({ navigation }: HomeProps) => {
     const [isSendNfcModalVisible, setIsSendNfcModalVisible] = useState(false)
     const [isSyncingTooltipVisible, setIsSyncingTooltipVisible] = useState(false)
     const [requestingLocationPermission, setRequestingLocationPermission] = useState(IS_ANDROID)
-    const { uiStore, lightningStore, locationStore, sessionStore, settingStore } = useStore()
+    const { uiStore, lightningStore, locationStore, sessionStore, settingStore, walletStore } = useStore()
 
     let userCoordinate: Position | null = null
 
     const onChargeButtonPress = () => {
         navigation.navigate("ChargeDetail")
+    }
+
+    const onRedeemButtonPress = () => {
+        navigation.navigate("SettingsOnChain")
     }
 
     const onHomeButtonPress = (event: HomeFooterContainerEvent) => {
@@ -323,6 +328,7 @@ const Home = ({ navigation }: HomeProps) => {
             <BalanceCard onLayout={onBalanceCardLayout} />
             <HomeSideContainer isVisible={balanceCardRectangle.height > 0} top={balanceCardRectangle.y + balanceCardRectangle.height}>
                 {sessionStore.status !== ChargeSessionStatus.IDLE && <ChargeButton onPress={onChargeButtonPress} />}
+                {walletStore.confirmedBalance + walletStore.unconfirmedBalance > MIN_EMERGENCY_SAT && <RedeemButton onPress={onRedeemButtonPress} />}
                 <FilterButton onPress={() => setIsFilterModalVisible(true)} />
                 {!followUserLocation && <RecenterButton onPress={onRecenterButtonPress} />}
             </HomeSideContainer>

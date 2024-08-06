@@ -25,6 +25,7 @@ export const MINIMUM_RFID_CHARGE_BALANCE = 60000
 export const ONBOARDING_VERSION = "0.3.0"
 
 export const INVOICE_EXPIRY = 3600
+export const MIN_EMERGENCY_SAT = 546
 export const PAYMENT_TIMEOUT_SECONDS = 120
 export const PAYMENT_FEE_LIMIT_SAT = 50000
 export const PAYMENT_CLTV_LIMIT = 0
