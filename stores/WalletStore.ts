@@ -20,7 +20,7 @@ import {
     APPLICATION_GROUP_IDENTIFIER,
     KEYCHAIN_ACCESSIBLE
 } from "utils/constants"
-import { bytesToBase64, bytesToHex, reverseByteOrder, toNumber, toSatoshi } from "utils/conversion"
+import { bytesToBase64, bytesToHex, reverseByteOrder, toNumber, toSatPerVbyte, toSatoshi } from "utils/conversion"
 import { Log } from "utils/logging"
 import { getSecureItem, setSecureItem } from "utils/storage"
 import { PaymentStatus, fromBreezPayment } from "types/payment"
@@ -132,7 +132,7 @@ export class WalletStore implements WalletStoreInterface {
                 const nodeConfig: breezSdk.NodeConfig = {
                     type: breezSdk.NodeConfigVariant.GREENLIGHT,
                     config: {
-                        partnerCredentials: { deviceCert: GREENLIGHT_PARTNER_CERT, deviceKey: GREENLIGHT_PARTNER_KEY }
+                        partnerCredentials: { developerCert: GREENLIGHT_PARTNER_CERT, developerKey: GREENLIGHT_PARTNER_KEY }
                     }
                 }
 
@@ -249,11 +249,12 @@ export class WalletStore implements WalletStoreInterface {
 
     async refreshWalletBalance() {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
-            const { onchainBalanceMsat, maxChanReserveMsats } = await breezSdk.nodeInfo()
-            const onchainBalance = toNumber(toSatoshi(onchainBalanceMsat))
+            const { maxChanReserveMsats, onchainBalanceMsat, pendingOnchainBalanceMsat } = await breezSdk.nodeInfo()
             const maxChanReserve = toNumber(toSatoshi(maxChanReserveMsats))
+            const onchainBalance = toNumber(toSatoshi(onchainBalanceMsat))
+            const pendingOnchainBalance = toNumber(toSatoshi(pendingOnchainBalanceMsat))
 
-            this.actionUpdateWalletBalance(onchainBalance, onchainBalance, this.unconfirmedBalance, maxChanReserve, maxChanReserve)
+            this.actionUpdateWalletBalance(onchainBalance + pendingOnchainBalance, onchainBalance, pendingOnchainBalance, maxChanReserve, maxChanReserve)
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const { totalBalance, confirmedBalance, unconfirmedBalance, lockedBalance, reservedBalanceAnchorChan } = await lnd.walletBalance()
 
@@ -297,10 +298,25 @@ export class WalletStore implements WalletStoreInterface {
     async sweep(address: string) {
         if (this.stores.lightningStore.backend === LightningBackend.BREEZ_SDK) {
             const recommendedFees = await breezSdk.recommendedFees()
-            const response = await breezSdk.redeemOnchainFunds({ toAddress: address, satPerVbyte: recommendedFees.hourFee })
+            const speeds = ["fastest", "halfHour", "hour", "economy", "minimum"]
 
-            this.actionSetLastTxid(bytesToHex(reverseByteOrder(response.txid)))
-            this.refreshWalletBalance()
+            for (const speed of speeds) {
+                const feeRate = toSatPerVbyte(recommendedFees, speed)
+
+                try {
+                    const response = await breezSdk.redeemOnchainFunds({
+                        toAddress: address,
+                        satPerVbyte: feeRate
+                    })
+
+                    this.actionSetLastTxid(bytesToHex(response.txid))
+                    this.refreshWalletBalance()
+                    break
+                } catch (e) {
+                    log.debug(`SAT123: failed to redeem with fee rate ${speed} / ${feeRate}`)
+                    log.error(JSON.stringify(e, undefined, 2))
+                }
+            }
         } else if (this.stores.lightningStore.backend === LightningBackend.LND) {
             const response = await lnd.sendCoins({ addr: address })
 
@@ -319,7 +335,7 @@ export class WalletStore implements WalletStoreInterface {
             const nodeConfig: breezSdk.NodeConfig = {
                 type: breezSdk.NodeConfigVariant.GREENLIGHT,
                 config: {
-                    partnerCredentials: { deviceCert: GREENLIGHT_PARTNER_CERT, deviceKey: GREENLIGHT_PARTNER_KEY }
+                    partnerCredentials: { developerCert: GREENLIGHT_PARTNER_CERT, developerKey: GREENLIGHT_PARTNER_KEY }
                 }
             }
 

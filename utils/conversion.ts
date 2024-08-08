@@ -1,3 +1,4 @@
+import { RecommendedFees } from "@breeztech/react-native-breez-sdk"
 import { Buffer } from "buffer"
 import { base64ToBytes as b64ToBytes, bytesToBase64 as bytesToB64 } from "byte-base64"
 import sha256 from "fast-sha256"
@@ -101,4 +102,19 @@ export const toString = (data: BytesLikeType): string => {
 
 export const toStringOrNull = (data?: BytesLikeType | null): string | null => {
     return data ? toString(data) : null
+}
+
+export const toSatPerVbyte = (fees: RecommendedFees, speed: string): number => {
+    switch (speed) {
+        case "fastest":
+            return fees.fastestFee
+        case "halfHour":
+            return fees.halfHourFee
+        case "hour":
+            return fees.hourFee
+        case "economy":
+            return fees.economyFee
+    }
+
+    return fees.minimumFee
 }

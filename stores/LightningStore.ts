@@ -170,6 +170,7 @@ export class LightningStore implements LightningStoreInterface {
             case breezSdk.BreezEventVariant.SYNCED:
                 this.actionSetSynced()
                 this.stores.channelStore.getChannelBalance()
+                this.stores.walletStore.refreshWalletBalance()
                 this.stores.walletStore.setState(WalletState.STARTED)
                 break
         }

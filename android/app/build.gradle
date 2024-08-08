@@ -111,8 +111,8 @@ android {
         applicationId "com.satimoto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 80
-        versionName "0.5.0"
+        versionCode 81
+        versionName "0.5.1"
         buildConfigField "String", "BREEZ_SDK_API_KEY", project.property('BREEZ_SDK_API_KEY')
         buildConfigField "String", "GREENLIGHT_PARTNER_CERT", project.property('GREENLIGHT_PARTNER_CERT')
         buildConfigField "String", "GREENLIGHT_PARTNER_KEY", project.property('GREENLIGHT_PARTNER_KEY')
@@ -226,7 +226,7 @@ dependencies {
 
     implementation project(':breeztech_react-native-breez-sdk')
 
-    implementation("com.github.breez:breez-sdk:0.4.1") {
+    implementation("com.github.breez:breez-sdk:0.5.1-rc6") {
         exclude group:"net.java.dev.jna"
     }
 
